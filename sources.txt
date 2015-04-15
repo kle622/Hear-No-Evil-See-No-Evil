@@ -1,0 +1,33 @@
+# List all .h files here
+set(HEADERS
+   GLIncludes.h
+
+   Library/GLSL.h
+   Library/tiny_obj_loader.h
+   Library/TimeManager.h
+   Library/InitObjects.h
+
+   GameObject/GameObject.h
+   GameObject/Bunny.h
+   GameObject/Player.h
+   GameObject/Shape.h
+   
+   Camera/Camera.h
+)
+
+# List all .c / .cpp files here
+set(SOURCES
+   main.cpp
+
+   Library/GLSL.cpp
+   Library/tiny_obj_loader.cc
+   Library/TimeManager.cpp
+   Library/InitObjects.cpp
+
+   GameObject/GameObject.cpp
+   GameObject/Bunny.cpp
+   GameObject/Player.cpp
+   GameObject/Shape.cpp
+   
+   Camera/Camera.cpp
+)

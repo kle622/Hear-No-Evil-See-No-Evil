@@ -1,0 +1,2 @@
+/Users/cscadmin/courses/471_graphics/programs/CmakeCompile/Lab5_Revise/Project/CMakeFiles/Project.dir
+/Users/cscadmin/courses/471_graphics/programs/CmakeCompile/Lab5_Revise/Project/dependencies/glfw/src/CMakeFiles/glfw.dir

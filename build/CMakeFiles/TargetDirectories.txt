@@ -1,0 +1,2 @@
+/Users/kevin/Documents/Programming/CPE476/Project/build/CMakeFiles/Project.dir
+/Users/kevin/Documents/Programming/CPE476/Project/build/dependencies/glfw/src/CMakeFiles/glfw.dir
