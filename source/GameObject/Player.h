@@ -9,6 +9,9 @@ class Player: public GameObject {
     protected:
 
     public:
+        //members
+        int score = 0;
+
         //Constructor
         Player(GLint modelHandle, 
             vec3 position, float rotation, float scale, 

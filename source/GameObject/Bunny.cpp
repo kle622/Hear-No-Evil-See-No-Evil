@@ -46,6 +46,8 @@ bool Bunny::collide(GameObject* object) {
             dot(object->position - position, direction) > 0) {
             if (dynamic_cast<Player*>(object)) {
                 alive = false;
+                material = 0;
+                dynamic_cast<Player*>(object)->score++;
             } 
             direction = -direction;
             return true;

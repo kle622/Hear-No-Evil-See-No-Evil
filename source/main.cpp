@@ -22,14 +22,14 @@
 
 #include "Camera/Camera.h"
 
-#define CAMERA_FOV 67
+#define CAMERA_FOV 90
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 
 #define BUNNY_COUNT 100
 #define BUNNY_SPEED 10.0f
 
-#define CAMERA_SPEED 30.0f
+#define CAMERA_SPEED 10.0f
 
 GLFWwindow* window;
 using namespace std;
@@ -216,22 +216,17 @@ bool installShaders(const string &vShaderName, const string &fShaderName)
     return true;
 }
 
-void drawGameObjects(vector<shared_ptr <GameObject> > gameObjects, float time) {
-    for (int i = 0; i < gameObjects.size(); i++) {
-        if (gameObjects[i].get()->alive) {
-            SetMaterial(gameObjects[i].get()->material);
-            gameObjects[i].get()->move(time);
-            gameObjects[i].get()->draw();
-        }
-        if (i > 0) { // skip collision for ground
-            for (int j = 1; j < gameObjects.size(); j++) {
-                if (i != j) {
-                    gameObjects[i].get()->collide(gameObjects[j].get());
-                    if (!gameObjects[i].get()->alive) {
-                        gameObjects.erase(gameObjects.begin() + i);
-                    }
-                    if (!gameObjects[j].get()->alive) {
-                        gameObjects.erase(gameObjects.begin() + j);
+void drawGameObjects(vector<shared_ptr <GameObject> >* gameObjects, float time) {
+    for (int i = 0; i < (*gameObjects).size(); i++) {
+        SetMaterial((*gameObjects)[i].get()->material);
+        (*gameObjects)[i].get()->draw();
+
+        if ((*gameObjects)[i].get()->alive) {
+            (*gameObjects)[i].get()->move(time);
+            if (!dynamic_cast<Shape*>((*gameObjects)[i].get())) { // skip collision for ground
+                for (int j = 1; j < (*gameObjects).size() && (*gameObjects)[j]->alive; j++) {
+                    if (i != j && (*gameObjects)[j]->alive) {
+                        (*gameObjects)[i].get()->collide((*gameObjects)[j].get());
                     }
                 }
             }
@@ -376,14 +371,14 @@ int main(int argc, char **argv)
         1 //material
     )));
 
-    gameObjects.push_back(shared_ptr<GameObject>(new Player(
+    Player* playerObject = new Player(
         h_uModelMatrix,
         vec3(0, 0, 0),
         0,
         1,
         vec3(1, 0, 0),
-        0,
-        vec3(1.5, 1.5, 1.5),
+        CAMERA_SPEED,
+        vec3(2, 2, 2),
         (int)player[0].mesh.indices.size(),
         posBufObjP,
         norBufObjP,
@@ -391,29 +386,32 @@ int main(int argc, char **argv)
         h_aPosition,
         h_aNormal,
         0
-    )));
+    );
+
+    gameObjects.push_back(shared_ptr<GameObject>(playerObject));
 
     //initialize the camera
     camera = new Camera(window, h_uViewMatrix, h_uProjMatrix,
-        vec3(0, 20, 0), CAMERA_FOV,
+        vec3(0, 1, 0), CAMERA_FOV,
         (float)g_width / g_height, CAMERA_NEAR, CAMERA_FAR);
 
-    TimeManager::Instance().CalculateFrameRate(true);
-    double startTime = TimeManager::Instance().CurrentTime;
-
+    double timeCounter = 0;
     do{
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
+        printf("score: %d\nbunnies: %d\n", playerObject->score, currBunnies - playerObject->score);
         double deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
-        double totalTime = currentTime - startTime;
+        timeCounter += deltaTime;
 
         //get mouse/keyboard input
         getWindowinput(window, deltaTime);
 
         //add bunny every 3 seconds
-        if (floatCompare(fmod(0, 3.0), 0) && currBunnies < BUNNY_COUNT) {
+        if (timeCounter > 3.0f && currBunnies < BUNNY_COUNT) {
+            timeCounter -= 3.0f;
             currBunnies++;
+
             gameObjects.push_back(shared_ptr<GameObject>(new Bunny(
                     h_uModelMatrix, //model handle
                     vec3(getRand(-29, 29), 0, getRand(-29, 29)), //position
@@ -435,10 +433,11 @@ int main(int argc, char **argv)
         beginDrawGL();
         camera->setProjection(g_width, g_height);
         camera->setView(g_width, g_height);
-        gameObjects[1].get()->position.x = camera->position.x;
-        gameObjects[1].get()->position.z = camera->position.z;
-        gameObjects[1].get()->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
-        drawGameObjects(gameObjects, deltaTime);
+        playerObject->position.x = camera->position.x;
+        playerObject->position.y = camera->position.y - 1;
+        playerObject->position.z = camera->position.z;
+        playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
+        drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 
         glfwSwapBuffers(window);

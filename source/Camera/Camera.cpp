@@ -25,8 +25,8 @@ void Camera::setView(int g_width, int g_height) {
     if (vertical > 1.4) {
         vertical = 1.4;
     }
-    else if (vertical < -1.4) {
-        vertical = -1.4;
+    else if (vertical < -.5) {
+        vertical = -.5;
     }
 
     float x = cos(vertical) * sin(horizontal);

@@ -245,6 +245,7 @@ CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../dependencies/glad/incl
 CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../dependencies/glad/include/glad/glad.h
 CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../dependencies/glfw/include/GLFW/glfw3.h
 CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../source/GLIncludes.h
+CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../source/GameObject/Bunny.h
 CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../source/GameObject/GameObject.h
 CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../source/GameObject/Player.cpp
 CMakeFiles/Project.dir/source/GameObject/Player.cpp.o: ../source/GameObject/Player.h
