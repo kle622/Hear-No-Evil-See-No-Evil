@@ -22,10 +22,6 @@ GameObject::GameObject(GLint modelHandle,
     this->alive = true;
 }
 
-GameObject::~GameObject() {
-    
-}
-
 void GameObject::draw() {
     glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
     glVertexAttribPointer(posHandle, 3, GL_FLOAT, GL_FALSE, 0, 0);

@@ -52,8 +52,6 @@ class GameObject {
             GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
             GLint posHandle, GLint norHandle, int material);
 
-        ~GameObject();
-
         //Object Methods
         virtual void draw();
         virtual void move(float time);

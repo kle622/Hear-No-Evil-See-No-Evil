@@ -29,7 +29,7 @@
 #define BUNNY_COUNT 100
 #define BUNNY_SPEED 10.0f
 
-#define CAMERA_SPEED 10.0f
+#define CAMERA_SPEED 30.0f
 
 GLFWwindow* window;
 using namespace std;
@@ -216,25 +216,25 @@ bool installShaders(const string &vShaderName, const string &fShaderName)
     return true;
 }
 
-void drawGameObjects(vector<GameObject*> gameObjects, float time) {
+void drawGameObjects(vector<shared_ptr <GameObject> > gameObjects, float time) {
     for (int i = 0; i < gameObjects.size(); i++) {
+        if (gameObjects[i].get()->alive) {
+            SetMaterial(gameObjects[i].get()->material);
+            gameObjects[i].get()->move(time);
+            gameObjects[i].get()->draw();
+        }
         if (i > 0) { // skip collision for ground
             for (int j = 1; j < gameObjects.size(); j++) {
                 if (i != j) {
-                    gameObjects[i]->collide(gameObjects[j]);
-                    if (!gameObjects[i]->alive) {
+                    gameObjects[i].get()->collide(gameObjects[j].get());
+                    if (!gameObjects[i].get()->alive) {
                         gameObjects.erase(gameObjects.begin() + i);
                     }
-                    if (!gameObjects[j]->alive) {
+                    if (!gameObjects[j].get()->alive) {
                         gameObjects.erase(gameObjects.begin() + j);
                     }
                 }
             }
-        }
-        if (gameObjects[i]->alive) {
-            SetMaterial(gameObjects[i]->material);
-            gameObjects[i]->move(time);
-            gameObjects[i]->draw();
         }
     }
 }
@@ -358,10 +358,25 @@ int main(int argc, char **argv)
     srand(time(NULL));
 
     //initialize game objects
-    vector<GameObject*> gameObjects;
+    vector<shared_ptr <GameObject> > gameObjects;
     int currBunnies = 0;
 
-    GameObject* playerObject = new Player(
+    gameObjects.push_back(shared_ptr<GameObject>(new Shape(
+        h_uModelMatrix, //model handle
+        vec3(0), //position
+        0, //rotation
+        1, //scale
+        vec3(1, 0, 0), //direction
+        0, //velocity
+        6, //indices
+        posBufObjG, //position buffer
+        norBufObjG, //normal buffer
+        h_aPosition, //position handle
+        h_aNormal, //normal handle
+        1 //material
+    )));
+
+    gameObjects.push_back(shared_ptr<GameObject>(new Player(
         h_uModelMatrix,
         vec3(0, 0, 0),
         0,
@@ -376,25 +391,7 @@ int main(int argc, char **argv)
         h_aPosition,
         h_aNormal,
         0
-    );
-
-    gameObjects.push_back(new Shape(
-        h_uModelMatrix, //model handle
-        vec3(0), //position
-        0, //rotation
-        1, //scale
-        vec3(1, 0, 0), //direction
-        0, //velocity
-        6, //indices
-        posBufObjG, //position buffer
-        norBufObjG, //normal buffer
-        h_aPosition, //position handle
-        h_aNormal, //normal handle
-        1 //material
-        )
-    );
-
-    gameObjects.push_back(playerObject);
+    )));
 
     //initialize the camera
     camera = new Camera(window, h_uViewMatrix, h_uProjMatrix,
@@ -417,8 +414,7 @@ int main(int argc, char **argv)
         //add bunny every 3 seconds
         if (floatCompare(fmod(0, 3.0), 0) && currBunnies < BUNNY_COUNT) {
             currBunnies++;
-            gameObjects.push_back(
-                new Bunny(
+            gameObjects.push_back(shared_ptr<GameObject>(new Bunny(
                     h_uModelMatrix, //model handle
                     vec3(getRand(-29, 29), 0, getRand(-29, 29)), //position
                     0, //rotation
@@ -433,16 +429,15 @@ int main(int argc, char **argv)
                     h_aPosition, //position handle
                     h_aNormal, //normal handle
                     2 //material
-                )
-            );
+            )));
         }
 
         beginDrawGL();
         camera->setProjection(g_width, g_height);
         camera->setView(g_width, g_height);
-        playerObject->position.x = camera->position.x;
-        playerObject->position.z = camera->position.z;
-        playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
+        gameObjects[1].get()->position.x = camera->position.x;
+        gameObjects[1].get()->position.z = camera->position.z;
+        gameObjects[1].get()->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
         drawGameObjects(gameObjects, deltaTime);
         endDrawGL();
 
