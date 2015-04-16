@@ -35,7 +35,7 @@ void GameObject::draw() {
 
 void GameObject::move(float time) {
     vec3 oldPosition = position;
-    position += direction * velocity * time;
+    position += normalize(direction) * velocity * time;
 }
 
 bool compareDistance(vec3 first, vec3 second, float max) {

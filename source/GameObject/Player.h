@@ -20,7 +20,6 @@ class Player: public GameObject {
             GLint posHandle, GLint norHandle, int material);
 
         //Object methods
-        void move(float time);
         bool collide(GameObject* object);
 };
 

@@ -26,7 +26,7 @@
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 
-#define BUNNY_COUNT 100
+#define BUNNY_COUNT 25
 #define BUNNY_SPEED 10.0f
 
 #define CAMERA_SPEED 10.0f
@@ -280,28 +280,24 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        camera->position -= glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity,
-            camera->rightV.z * CAMERA_SPEED * deltaTime
-        );
+        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+        camera->position -= velocity;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        camera->position += glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity,
-            camera->rightV.z * CAMERA_SPEED * deltaTime
-        );
+        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+        camera->position += velocity;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera->position += glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity,
-            camera->direction.z * CAMERA_SPEED * deltaTime
-        );
+        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+        camera->position += velocity;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        camera->position -= glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity,
-            camera->direction.z * CAMERA_SPEED * deltaTime
-        );
+        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+        camera->position -= velocity;
     }
 }
 
@@ -368,7 +364,7 @@ int main(int argc, char **argv)
         norBufObjG, //normal buffer
         h_aPosition, //position handle
         h_aNormal, //normal handle
-        1 //material
+        3 //material
     )));
 
     Player* playerObject = new Player(
@@ -378,7 +374,7 @@ int main(int argc, char **argv)
         1,
         vec3(1, 0, 0),
         CAMERA_SPEED,
-        vec3(2, 2, 2),
+        vec3(2.5, 2.5, 2.5),
         (int)player[0].mesh.indices.size(),
         posBufObjP,
         norBufObjP,

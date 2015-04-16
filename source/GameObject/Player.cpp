@@ -12,10 +12,6 @@ Player::Player(GLint modelHandle,
 
 }
 
-void Player::move(float time) {
-
-}
-
 bool Player::collide(GameObject* object) {
     float thisRadius = dimensions.x + dimensions.y + dimensions.z;
     float objectRadius = object->dimensions.x + object->dimensions.y + 

@@ -30,7 +30,7 @@ void Bunny::move(float time) {
         direction.z = -direction.z;
     }
 
-    position += direction * velocity * time;
+    position += normalize(direction) * velocity * time;
     rotation = 90 + (atan2f(direction.x, direction.z) * 180 / M_PI);
 }
 
