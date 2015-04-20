@@ -3,11 +3,11 @@
 
 # compile C with /usr/bin/cc
 # compile CXX with /usr/bin/c++
-C_FLAGS = -I/Users/cscadmin/courses/471_graphics/programs/CmakeCompile/Lab5_Revise/Project/dependencies/glfw/include -I/Users/cscadmin/courses/471_graphics/programs/CmakeCompile/Lab5_Revise/Project/dependencies/glad/include   
+C_FLAGS = -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glfw/include -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glad/include   
 
 C_DEFINES = 
 
-CXX_FLAGS = -I/Users/cscadmin/courses/471_graphics/programs/CmakeCompile/Lab5_Revise/Project/dependencies/glfw/include -I/Users/cscadmin/courses/471_graphics/programs/CmakeCompile/Lab5_Revise/Project/dependencies/glad/include   
+CXX_FLAGS = -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glfw/include -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glad/include   
 
 CXX_DEFINES = 
 

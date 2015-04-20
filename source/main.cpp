@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <time.h>
+#include <memory>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp" //perspective, txrans etc
 #include "glm/gtc/type_ptr.hpp" //value_ptr
