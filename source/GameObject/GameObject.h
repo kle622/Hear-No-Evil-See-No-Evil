@@ -20,44 +20,43 @@ using namespace glm;
 using namespace std;
 
 class GameObject {
-    protected:
-        //Properties
-        GLint modelHandle;
-        int indices;
-
-    public:
-        //Properties
-        vec3 position;
-        float rotation;
-        vec3 scale;
-
-        vec3 direction;
-        float velocity;
-
-        vec3 dimensions;
-
-        GLuint posBuffer;
-        GLuint norBuffer;
-        GLuint indBuffer;
-        GLint posHandle;
-        GLint norHandle;
-        int material;
-
-        bool alive;
-        float scanRadius;
-
-        //Constructor
-        GameObject(GLint modelHandle, 
-            vec3 position, float rotation, float scale, 
-            vec3 direction, float velocity, vec3 dimensions, 
-            float scanRadius, int indices,
-            GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
-            GLint posHandle, GLint norHandle, int material);
-
-        //Object Methods
-        virtual void draw();
-        virtual void move(float time);
-        virtual bool collide(GameObject* object);
+ protected:
+  //Properties
+  //GLint modelHandle;
+  //int indices;
+  Mesh *mesh;
+  Handles *handles;
+  
+ public:
+  //Properties
+  vec3 position;
+  float rotation;
+  float scale;
+  
+  vec3 direction;
+  float velocity;
+  
+  vec3 dimensions;
+  
+  /* GLuint posBuffer;
+  GLuint norBuffer;
+  GLuint indBuffer;
+  GLint posHandle;
+  GLint norHandle;
+  int material;*/
+  
+  bool alive;
+  
+  //Constructor
+  GameObject(Mesh *mesh, Handles *handles, 
+	     vec3 position, float rotation, float scale, 
+	     vec3 direction, float velocity, vec3 dimensions, int indices,
+	     GLuint posBuff);
+  
+  //Object Methods
+  virtual void draw();
+  virtual void move(float time);
+  virtual bool collide(GameObject* object);
 };
 
 void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
