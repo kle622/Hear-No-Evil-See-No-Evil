@@ -11,6 +11,8 @@
 #include <cassert>
 #include <cmath>
 #include <time.h>
+#include "Mesh.h"
+#include "Handles.h"
 #include "../Library/GLSL.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc

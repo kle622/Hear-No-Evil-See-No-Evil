@@ -2,6 +2,8 @@
 #define PLAYER_H_
 
 #include "GameObject.h"
+#include "Mesh.h"
+#include "Handles.h"
 
 using namespace glm;
 
