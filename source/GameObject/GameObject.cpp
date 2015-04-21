@@ -1,37 +1,28 @@
 #include "GameObject.h"
 
-GameObject::GameObject(GLint modelHandle, 
-    vec3 position, float rotation, float scale, 
-    vec3 direction, float velocity, vec3 dimensions, 
-    float scanRadius, int indices, 
-    GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
-    GLint posHandle, GLint norHandle, int material = 0) {
-    this->modelHandle = modelHandle;
-    this->position = position;
-    this->rotation = rotation;
-    this->scale = scale;
-    this->direction = normalize(direction);
-    this->velocity = velocity;
-    this->dimensions = dimensions;
-    this->scanRadius = scanRadius;
-    this->indices = indices;
-    this->posBuffer = posBuffer;
-    this->norBuffer = norBuffer;
-    this->indBuffer = indBuffer;
-    this->posHandle = posHandle;
-    this->norHandle = norHandle;
-    this->material = material;
-    this->alive = true;
+GameObject::GameObject(Mesh *mesh, Handles *handles,
+		       vec3 position, float rotation, float scale, 
+		       vec3 direction, float velocity, vec3 dimensions) {
+  this->mesh = mesh;
+  this->handles = handles;
+  this->position = position;
+  this->rotation = rotation;
+  this->scale = scale;
+  this->direction = normalize(direction);
+  this->velocity = velocity;
+  this->dimensions = dimensions;
+  this->alive = true;
 }
 
 void GameObject::draw() {
-    glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
-    glVertexAttribPointer(posHandle, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, norBuffer);
-    glVertexAttribPointer(norHandle, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->posBufObj);
+    glVertexAttribPointer(handles->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->norBufObj);
+    glVertexAttribPointer(handles->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indBufObj);
 
-    SetModel(modelHandle, position, rotation, scale);
+    int indices = (int)mesh->shapes[0].mesh.indices.size();
+    SetModel(handles->uModelMatrix, position, rotation, scale);
     glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);
 }
 

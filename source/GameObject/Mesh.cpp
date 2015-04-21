@@ -1,7 +1,6 @@
 #include "Mesh.h"
 
-void Mesh::loadShapes(const std::string &objFile, int material)
-{
+void Mesh::loadShapes(const std::string &objFile, int material) {
   std::string err = tinyobj::LoadObj(this->shapes, this->materials, objFile.c_str());
   if(!err.empty()) {
     std::cerr << err << std::endl;
@@ -9,11 +8,11 @@ void Mesh::loadShapes(const std::string &objFile, int material)
   this->resize_obj();
   this->sendNormals();
   this->computeBound();
+  
   this->material = material;
 }
 
-void Mesh::computeBound()
-{
+void Mesh::computeBound() {
   glm::vec3 result = glm::vec3(0, 0, 0);
   float minX, minY, minZ;
   float maxX, maxY, maxZ;
@@ -44,8 +43,7 @@ void Mesh::computeBound()
 #endif
 }
 
-void Mesh::resize_obj()
-{
+void Mesh::resize_obj() {
   float minX, minY, minZ;
   float maxX, maxY, maxZ;
   float scaleX, scaleY, scaleZ;
@@ -105,8 +103,7 @@ void Mesh::resize_obj()
   }
 }
 
-void Mesh::sendNormals()
-{
+void Mesh::sendNormals() {
   for (int s = 0; s < this->shapes.size(); ++s) {
     // Send the position array to the GPU
     const std::vector<float> &posBuf = this->shapes[s].mesh.positions;
