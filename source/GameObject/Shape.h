@@ -40,6 +40,7 @@ class Shape {
   
   //Object methods
   void draw();
+  void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
 };
 
 #endif

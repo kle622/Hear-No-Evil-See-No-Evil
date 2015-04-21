@@ -25,7 +25,6 @@ set(SOURCES
 
    GameObject/GameObject.cpp
    GameObject/Player.cpp
-   GameObject/Player.cpp
    GameObject/Wall.cpp	
    
    Camera/Camera.cpp
