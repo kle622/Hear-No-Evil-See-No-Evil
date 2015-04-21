@@ -30,13 +30,13 @@ class Camera {
         vec3 rightV;
         float fov;
         float aspect;
-        float near;
-        float far;
+        float _near;
+        float _far;
 
         //Constructor
         Camera(GLFWwindow* window, GLint viewHandle, GLint projectionHandle, 
             vec3 position, float fov, float aspect,
-            float near, float far);
+            float _near, float _far);
 
         //Object Methods
         void setView(int g_width, int g_height);

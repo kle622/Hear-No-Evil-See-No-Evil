@@ -3,13 +3,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
 #include <cassert>
+#define _USE_MATH_DEFINES
 #include <cmath>
+#include <math.h>
 #include <time.h>
-#include <memory>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp" //perspective, txrans etc
 #include "glm/gtc/type_ptr.hpp" //value_ptr
+#include <memory>
 
 #include "Library/TimeManager.h"
 #include "Library/InitObjects.h"
@@ -20,6 +23,7 @@
 #include "GameObject/Player.h"
 #include "GameObject/Bunny.h"
 #include "GameObject/Shape.h"
+#include "GameObject/Wall.h"
 
 #include "Camera/Camera.h"
 
@@ -39,6 +43,7 @@ using namespace glm;
 vector<tinyobj::shape_t> bunny;
 vector<tinyobj::shape_t> player;
 vector<tinyobj::material_t> materials;
+vector<tinyobj::shape_t> wall;
 
 int g_width;
 int g_height;
@@ -61,6 +66,11 @@ GLuint norBufObjG = 0;
 GLuint posBufObjP = 0;
 GLuint norBufObjP = 0;
 GLuint indBufObjP = 0;
+
+/* Stuff for wall objects, TODO use Mesh and Handles class */
+GLuint posBufObjW = 0;
+GLuint norBufObjW = 0;
+GLuint indBufObjW = 0;
 
 //Handles to the shader data
 GLint h_aPosition;
@@ -144,6 +154,7 @@ void initGL()
 
     initModelObject(bunny, &posBufObjB, &norBufObjB, &indBufObjB);
     initModelObject(player, &posBufObjP, &norBufObjP, &indBufObjP);
+    initModelObject(wall, &posBufObjW, &norBufObjW, &indBufObjW);
     initVertexObject(&posBufObjG, &norBufObjG);
 }
 
@@ -343,6 +354,7 @@ int main(int argc, char **argv)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     loadShapes("bunny.obj", bunny, materials);
     loadShapes("godzilla.obj", player, materials);
+    loadShapes("cube.obj", wall, materials);
     initGL();
     installShaders("vert.glsl", "frag.glsl");
 
@@ -357,7 +369,7 @@ int main(int argc, char **argv)
         h_uModelMatrix, //model handle
         vec3(0), //position
         0, //rotation
-        1, //scale
+        vec3(1.0,1.0,1.0), //scale
         vec3(1, 0, 0), //direction
         0, //velocity
         6, //indices
@@ -372,7 +384,7 @@ int main(int argc, char **argv)
         h_uModelMatrix,
         vec3(0, 0, 0),
         0,
-        1,
+        vec3(1.0, 1.0, 1.0), //scale
         vec3(1, 0, 0),
         CAMERA_SPEED,
         vec3(2.5, 2.5, 2.5),
@@ -385,8 +397,53 @@ int main(int argc, char **argv)
         0
     );
 
-    gameObjects.push_back(shared_ptr<GameObject>(playerObject));
+   // gameObjects.push_back(shared_ptr<GameObject>(playerObject));
 
+    // Read in from text file
+    int levelDesign[50][50]; 
+    char ch;
+    fstream fin("LevelDesign.txt", fstream::in);
+    int i = 0, j = 0;
+    while (fin >> noskipws >> ch) {
+      if (ch == '\n') {
+        j = 0;
+        i++;
+      }
+      else {
+        levelDesign[i][j] = ch - '0';
+        j++;
+      }
+    }
+    for (i = 0; i < 50; i++) {
+      cout << '\n';
+      for (j = 0; j < 50; j++) {
+        cout << levelDesign[i][j];
+      }
+    }
+    cout << '\n';
+    // Create the wall objects
+    for (i = 0; i < 50; i++) {
+      for (j = 0; j < 50; j++) {
+        if (levelDesign[i][j]) {
+          gameObjects.push_back(shared_ptr<GameObject>(new Wall(
+            h_uModelMatrix, //model handle
+            vec3((i-25), 0, (j-25)), //position
+            0, //rotation
+            vec3(1.0, 1.0, 1.0), //scale
+            vec3(1, 0, 0), //direction
+            0, //speed
+            vec3(1, 1, 1), //bounding box
+            (int)wall[0].mesh.indices.size(), //num indices on mesh
+            posBufObjW, //position buffer
+            norBufObjW, //normal buffer
+            indBufObjW, //index buffer
+            h_aPosition, //position handle
+            h_aNormal, //normal handle
+            2 //material
+            )));
+        }
+      }
+    }
     //initialize the camera
     camera = new Camera(window, h_uViewMatrix, h_uProjMatrix,
         vec3(0, 1, 0), CAMERA_FOV,
@@ -396,7 +453,7 @@ int main(int argc, char **argv)
     do{
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
-        printf("score: %d\nbunnies: %d\n", playerObject->score, currBunnies - playerObject->score);
+        //printf("score: %d\nbunnies: %d\n", playerObject->score, currBunnies - playerObject->score);
         double deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
@@ -413,7 +470,7 @@ int main(int argc, char **argv)
                     h_uModelMatrix, //model handle
                     vec3(getRand(-29, 29), 0, getRand(-29, 29)), //position
                     0, //rotation
-                    1, //scale
+                    vec3(1.0, 1.0, 1.0), //scale
                     vec3(getRand(-1, 1), 0, getRand(-1, 1)), //direction
                     BUNNY_SPEED, //speed
                     vec3(1.5, 1.5, 1.5), //bounding box

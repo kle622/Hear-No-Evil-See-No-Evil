@@ -11,6 +11,7 @@ set(HEADERS
    GameObject/Bunny.h
    GameObject/Player.h
    GameObject/Shape.h
+   GameObject/Wall.h	
    
    Camera/Camera.h
 )
@@ -28,6 +29,8 @@ set(SOURCES
    GameObject/Bunny.cpp
    GameObject/Player.cpp
    GameObject/Shape.cpp
+   GameObject/Player.cpp
+   GameObject/Wall.cpp	
    
    Camera/Camera.cpp
 )

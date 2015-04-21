@@ -1,7 +1,7 @@
 #include "GameObject.h"
 
 GameObject::GameObject(GLint modelHandle, 
-    vec3 position, float rotation, float scale, 
+    vec3 position, float rotation, vec3 scale, 
     vec3 direction, float velocity, vec3 dimensions, int indices, 
     GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
     GLint posHandle, GLint norHandle, int material = 0) {
@@ -57,10 +57,10 @@ bool GameObject::collide(GameObject* object) {
     return true;
 }
 
-void SetModel(GLint handle, vec3 trans, float rot, float sc) {
+void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
-    glm::mat4 Sc = glm::scale(glm::mat4(1.0f), vec3(sc));
+    glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
     glm::mat4 com = Trans*RotateY*Sc;
     if (handle >= 0)
         glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));

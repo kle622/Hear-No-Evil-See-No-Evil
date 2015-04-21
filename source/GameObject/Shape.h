@@ -11,7 +11,7 @@ class Shape: public GameObject {
     public:
         //Constructor
         Shape(GLint modelHandle, vec3 position, float rotation, 
-		    float scale, vec3 direction, float velocity, int indices, 
+		    vec3 scale, vec3 direction, float velocity, int indices, 
 		    GLuint posBuffer, GLuint norBuffer,
 		    GLint posHandle, GLint norHandle, int material);
 

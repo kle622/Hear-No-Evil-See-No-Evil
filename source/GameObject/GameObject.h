@@ -29,7 +29,7 @@ class GameObject {
         //Properties
         vec3 position;
         float rotation;
-        float scale;
+        vec3 scale;
 
         vec3 direction;
         float velocity;
@@ -47,7 +47,7 @@ class GameObject {
 
         //Constructor
         GameObject(GLint modelHandle, 
-            vec3 position, float rotation, float scale, 
+            vec3 position, float rotation, vec3 scale, 
             vec3 direction, float velocity, vec3 dimensions, int indices,
             GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
             GLint posHandle, GLint norHandle, int material);
@@ -58,7 +58,7 @@ class GameObject {
         virtual bool collide(GameObject* object);
 };
 
-void SetModel(GLint handle, vec3 trans, float rot, float sc);
+void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
 bool intersect(float point1, float point2, float dim1, float dim2);
 bool compareDistance(vec3 first, vec3 second, float max);
 #endif

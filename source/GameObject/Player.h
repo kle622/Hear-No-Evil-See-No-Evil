@@ -14,7 +14,7 @@ class Player: public GameObject {
 
         //Constructor
         Player(GLint modelHandle, 
-            vec3 position, float rotation, float scale, 
+            vec3 position, float rotation, vec3 scale, 
             vec3 direction, float velocity, vec3 dimensions, int indices,
             GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
             GLint posHandle, GLint norHandle, int material);

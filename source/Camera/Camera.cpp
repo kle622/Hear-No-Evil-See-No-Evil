@@ -2,7 +2,7 @@
 
 Camera::Camera(GLFWwindow* window, GLint viewHandle, GLint projectionHandle, 
     vec3 position, float fov, float aspect,
-    float near, float far) {
+    float _near, float _far) {
     this->window = window;
     this->viewHandle = viewHandle;
     this->projectionHandle = projectionHandle;
@@ -11,8 +11,8 @@ Camera::Camera(GLFWwindow* window, GLint viewHandle, GLint projectionHandle,
     this->rightV = vec3(0);
     this->fov = fov;
     this->aspect = aspect;
-    this->near = near;
-    this->far = far;
+    this->_near = _near;
+    this->_far = _far;
 }
 
 void Camera::setView(int g_width, int g_height) {
@@ -46,7 +46,7 @@ void Camera::setView(int g_width, int g_height) {
 
 void Camera::setProjection(int g_width, int g_height) {
     glm::mat4 Projection = glm::perspective(fov, (float)g_width / 
-        g_height, near, far);
+        g_height, _near, _far);
     if (projectionHandle >= 0)
         glUniformMatrix4fv(projectionHandle, 1, GL_FALSE, 
             glm::value_ptr(Projection));
