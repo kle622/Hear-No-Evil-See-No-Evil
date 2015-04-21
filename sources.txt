@@ -9,7 +9,9 @@ set(HEADERS
 
    GameObject/GameObject.h
    GameObject/Player.h
-   GameObject/Wall.h	
+   GameObject/Wall.h
+   GameObject/Mesh.h
+   GameObject/Handles.h	
    
    Camera/Camera.h
 )
@@ -26,6 +28,8 @@ set(SOURCES
    GameObject/GameObject.cpp
    GameObject/Player.cpp
    GameObject/Wall.cpp	
+   GameObject/Mesh.cpp
+   GameObject/Handles.cpp	
    
    Camera/Camera.cpp
 )
