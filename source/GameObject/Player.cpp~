@@ -1,14 +1,30 @@
 #include "Player.h"
 #include "Bunny.h"
 
+<<<<<<< HEAD
 Player::Player(GLint modelHandle, 
     vec3 position, float rotation, float scale, 
+=======
+<<<<<<< HEAD
+Player::Player(Mesh *mesh, Handles *handles,
+    vec3 position, float rotation, float scale, 
+    vec3 direction, float velocity, vec3 dimensions) : 
+  GameObject(mesh, handles, position, rotation, scale, 
+    direction, velocity) {
+=======
+Player::Player(GLint modelHandle, 
+    vec3 position, float rotation, float scale, 
+>>>>>>> added Handles and Mesh and changed Player or GameObject
     vec3 direction, float velocity, vec3 dimensions, int indices,
     GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
     GLint posHandle, GLint norHandle, int material = 0) : 
     GameObject(modelHandle, position, rotation, scale, 
     direction, velocity, dimensions, indices, posBuffer, norBuffer,
     indBuffer, posHandle, norHandle, material) {
+<<<<<<< HEAD
+=======
+>>>>>>> added Handles and Mesh and changed Player or GameObject
+>>>>>>> added Handles and Mesh and changed Player or GameObject
 
 }
 
