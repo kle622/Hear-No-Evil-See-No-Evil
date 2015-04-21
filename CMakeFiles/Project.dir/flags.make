@@ -7,7 +7,7 @@ C_FLAGS = -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glfw/inc
 
 C_DEFINES = 
 
-CXX_FLAGS = -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glfw/include -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glad/include   
+CXX_FLAGS = -std=c++0x -std=gnu++0x -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glfw/include -I/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glad/include   
 
 CXX_DEFINES = 
 
