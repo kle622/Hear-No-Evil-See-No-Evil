@@ -1,0 +1,21 @@
+//
+//  Handles.h
+//
+
+#ifndef __MarchingCubes__Handles__
+#define __MarchingCubes__Handles__
+
+#include <stdio.h>
+#include <vector>
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "GLSL.h"
+
+class Handles {
+public:
+   GLuint prog;
+   GLuint aPosition, aNormal, uLightVec, UaColor, UdColor, UsColor, uShine, uProjMatrix, uViewMatrix, uModelMatrix;
+};
+
+#endif /* defined(__MarchingCubes__Handles__) */
