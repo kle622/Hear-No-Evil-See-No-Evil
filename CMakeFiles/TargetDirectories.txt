@@ -1,2 +1,0 @@
-/home/christopher/git/Hear-No-Evil-See-No-Evil/CMakeFiles/Project.dir
-/home/christopher/git/Hear-No-Evil-See-No-Evil/dependencies/glfw/src/CMakeFiles/glfw.dir
