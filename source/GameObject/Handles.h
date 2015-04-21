@@ -17,7 +17,7 @@
 class Handles {
 public:
    GLuint prog;
-   GLuint aPosition, aNormal, uLightVec, uMatAmb, uMatDif, uMatSpec, uMatShine, uProjMatrix, uViewMatrix, uModelMatrix;
+   GLuint aPosition, aNormal, uLightVec, uMatAmb, uMatDif, uMatSpec, uMatShine, uProjMatrix, uViewMatrix, uModelMatrix, cam_pos;
    bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
 };
 

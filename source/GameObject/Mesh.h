@@ -15,7 +15,7 @@ class Mesh {
     // should be called once to initialize object
     // pass a string that names the .obj file to be loaded,
     // e.g. "cube.obj"
-  void loadShapes(const std::string &objFile, int material);
+  void loadShapes(const std::string &objFile);
     void drawObject(Handles *handles);
     float radius;
   private:

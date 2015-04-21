@@ -2,6 +2,8 @@
 #define WALL_H_
 
 #include "GameObject.h"
+#include "Mesh.h"
+#include "Handles.h"
 
 using namespace glm;
 
@@ -12,11 +14,9 @@ public:
   //Properties
 
   //Constructor
-  Wall(GLint modelHandle,
+  Wall(Mesh *mesh, Handles *handles,
     vec3 position, float rotation, vec3 scale,
-    vec3 direction, float velocity, vec3 dimensions, int indices,
-    GLuint posBuffer, GLuint norBuffer, GLuint indBuffer,
-    GLint posHandle, GLint norHandle, int material);
+    vec3 direction, float velocity, vec3 dimensions, int material);
 
   //Object methods
   void move(float time);

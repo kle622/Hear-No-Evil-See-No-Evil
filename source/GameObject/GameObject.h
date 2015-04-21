@@ -33,7 +33,7 @@ class GameObject {
   //Properties
   vec3 position;
   float rotation;
-  float scale;
+  vec3 scale;
   
   vec3 direction;
   float velocity;
@@ -44,16 +44,15 @@ class GameObject {
   GLuint norBuffer;
   GLuint indBuffer;
   GLint posHandle;
-  GLint norHandle;
-  int material;*/
+  GLint norHandle;*/
+  int material;
   
   bool alive;
   
   //Constructor
   GameObject(Mesh *mesh, Handles *handles, 
-	     vec3 position, float rotation, float scale, 
-	     vec3 direction, float velocity, vec3 dimensions, int indices,
-	     GLuint posBuff);
+	     vec3 position, float rotation, vec3 scale, 
+	     vec3 direction, float velocity, vec3 dimensions, int material);
   
   //Object Methods
   virtual void draw();

@@ -2,10 +2,10 @@
 #include "Bunny.h"
 
 Player::Player(Mesh *mesh, Handles *handles,
-    vec3 position, float rotation, float scale, 
-    vec3 direction, float velocity, vec3 dimensions) : 
-  GameObject(Mesh *mesh, Handles *handles, position, rotation, scale, 
-    direction, velocity, dimensions) {
+    vec3 position, float rotation, vec3 scale, 
+	       vec3 direction, float velocity, vec3 dimensions, int material = 0) : 
+  GameObject(mesh, handles, position, rotation, scale, 
+	     direction, velocity, dimensions, material) {
 
 }
 
@@ -18,11 +18,11 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (dynamic_cast<Bunny*>(object)) {
+	  /*if (dynamic_cast<Bunny*>(object)) {
                 object->alive = false;
-                object->mesh->material = 0;
+                object->material = 0;
                 score++;
-            } 
+            }*/ 
             return true;
         }
     }

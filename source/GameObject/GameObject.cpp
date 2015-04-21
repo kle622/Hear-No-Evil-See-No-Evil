@@ -1,8 +1,8 @@
 #include "GameObject.h"
 
 GameObject::GameObject(Mesh *mesh, Handles *handles,
-		       vec3 position, float rotation, float scale, 
-		       vec3 direction, float velocity, vec3 dimensions) {
+		       vec3 position, float rotation, vec3 scale, 
+		       vec3 direction, float velocity, vec3 dimensions, int material) {
   this->mesh = mesh;
   this->handles = handles;
   this->position = position;
@@ -11,11 +11,13 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
   this->direction = normalize(direction);
   this->velocity = velocity;
   this->dimensions = dimensions;
+  this->material = material;
   this->alive = true;
 }
 
 void GameObject::draw() {
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->posBufObj);
+  this->mesh->drawObject(this->handles);
+  /*glBindBuffer(GL_ARRAY_BUFFER, this->mesh->posBufObj);
     glVertexAttribPointer(handles->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->norBufObj);
     glVertexAttribPointer(handles->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -23,7 +25,7 @@ void GameObject::draw() {
 
     int indices = (int)mesh->shapes[0].mesh.indices.size();
     SetModel(handles->uModelMatrix, position, rotation, scale);
-    glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);*/
 }
 
 void GameObject::move(float time) {

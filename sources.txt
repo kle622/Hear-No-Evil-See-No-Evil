@@ -8,14 +8,10 @@ set(HEADERS
    Library/InitObjects.h
 
    GameObject/GameObject.h
-   GameObject/Bunny.h
    GameObject/Player.h
-   GameObject/Shape.h
    GameObject/Wall.h	
    
    Camera/Camera.h
-
-   WorldGrid/WorldGrid.h
 )
 
 # List all .c / .cpp files here
@@ -28,13 +24,9 @@ set(SOURCES
    Library/InitObjects.cpp
 
    GameObject/GameObject.cpp
-   GameObject/Bunny.cpp
    GameObject/Player.cpp
-   GameObject/Shape.cpp
    GameObject/Player.cpp
    GameObject/Wall.cpp	
    
    Camera/Camera.cpp
-
-   WorldGrid/WorldGrid.cpp
 )

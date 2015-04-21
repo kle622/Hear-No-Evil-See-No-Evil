@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-void Mesh::loadShapes(const std::string &objFile, int material) {
+void Mesh::loadShapes(const std::string &objFile) {
   std::string err = tinyobj::LoadObj(this->shapes, this->materials, objFile.c_str());
   if(!err.empty()) {
     std::cerr << err << std::endl;
@@ -8,8 +8,6 @@ void Mesh::loadShapes(const std::string &objFile, int material) {
   this->resize_obj();
   this->sendNormals();
   this->computeBound();
-  
-  this->material = material;
 }
 
 void Mesh::computeBound() {
