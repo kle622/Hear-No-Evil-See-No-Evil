@@ -27,6 +27,8 @@
 
 #include "Camera/Camera.h"
 
+#include "WorldGrid/WorldGrid.h"
+
 #define CAMERA_FOV 90
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
@@ -327,8 +329,8 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
     // Open a window and create its OpenGL context
-    g_width = 1600;
-    g_height = 900;
+    g_width = 1080;
+    g_height = 720;
     window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
@@ -388,6 +390,7 @@ int main(int argc, char **argv)
         vec3(1, 0, 0),
         CAMERA_SPEED,
         vec3(2.5, 2.5, 2.5),
+        2, 
         (int)player[0].mesh.indices.size(),
         posBufObjP,
         norBufObjP,
@@ -474,6 +477,7 @@ int main(int argc, char **argv)
                     vec3(getRand(-1, 1), 0, getRand(-1, 1)), //direction
                     BUNNY_SPEED, //speed
                     vec3(1.5, 1.5, 1.5), //bounding box
+                    2, //scanRadius
                     (int)bunny[0].mesh.indices.size(), //num indices on mesh
                     posBufObjB, //position buffer
                     norBufObjB, //normal buffer

@@ -14,6 +14,8 @@ set(HEADERS
    GameObject/Wall.h	
    
    Camera/Camera.h
+
+   WorldGrid/WorldGrid.h
 )
 
 # List all .c / .cpp files here
@@ -33,4 +35,6 @@ set(SOURCES
    GameObject/Wall.cpp	
    
    Camera/Camera.cpp
+
+   WorldGrid/WorldGrid.cpp
 )
