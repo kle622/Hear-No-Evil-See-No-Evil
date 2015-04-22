@@ -321,7 +321,7 @@ int main(int argc, char **argv)
       CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
       1,
-      1
+      0
    );
 
    gameObjects.add(shared_ptr<GameObject>(playerObject));
