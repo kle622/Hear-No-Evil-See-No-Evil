@@ -61,7 +61,7 @@ bool Guard::collide(GameObject* object) {
 		printf("player is in radius\n");
 		if (dot(normalize(object->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
 			material = 3;
-			velocity = 0;
+			//velocity = 0;
 			return true;
 		}
 		else {

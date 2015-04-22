@@ -59,6 +59,7 @@ int g_height;
 int g_SM = 2;
 
 Camera* camera;
+Player* playerObject;
 Handles handles;
 Mesh guardMesh;
 Mesh playerMesh;
@@ -231,22 +232,22 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !restrictDirection[0]) {
         vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
-        camera->position -= velocity;
+        playerObject->position -= velocity;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !restrictDirection[1]) {
         vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
-        camera->position += velocity;
+        playerObject->position += velocity;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !restrictDirection[2]) {
         vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
-        camera->position += velocity;
+        playerObject->position += velocity;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS  && !restrictDirection[3]) {
         vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
-        camera->position -= velocity;
+        playerObject->position -= velocity;
     }
     // Reset all direction restrictions to 0(false)
     for (size_t i = 0; i < 4; i++)
@@ -266,7 +267,7 @@ void initGuards(WorldGrid* gameObjects) {
 		&handles,
 		vec3(1, 1, 1),
 		GUARD_SPEED,
-		vec3(2.5, 2.5, 2.5),
+		vec3(1.5, 1.5, 1.5),
 		1,
 		5,
 		guardPath
@@ -352,7 +353,7 @@ int main(int argc, char **argv)
         5 //material
 	);
 
-    Player* playerObject = new Player(
+    playerObject = new Player(
       &playerMesh,
       &handles,
       vec3(0, 0, 0),
@@ -423,15 +424,13 @@ int main(int argc, char **argv)
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
 
-        //get mouse/keyboard input
-        getWindowinput(window, deltaTime);
-
         beginDrawGL();
+        getWindowinput(window, deltaTime);
+        camera->position.x = playerObject->position.x;
+        camera->position.y = playerObject->position.y + 1;
+        camera->position.z = playerObject->position.z;
         camera->setProjection(g_width, g_height);
         camera->setView(g_width, g_height);
-        playerObject->position.x = camera->position.x;
-        playerObject->position.y = camera->position.y - 1;
-        playerObject->position.z = camera->position.z;
         playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
