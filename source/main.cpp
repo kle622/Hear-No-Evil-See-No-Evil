@@ -18,6 +18,7 @@
 #include "Library/InitObjects.h"
 #include "Library/tiny_obj_loader.h"
 #include "Library/GLSL.h"
+#include "Library/GLError.h"
 
 #include "GameObject/GameObject.h"
 #include "GameObject/Player.h"
@@ -200,7 +201,8 @@ void endDrawGL() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glUseProgram(0);
-    assert(glGetError() == GL_NO_ERROR);
+    checkGLError();
+    //assert(glGetError() == GL_NO_ERROR);
 }
 
 void window_size_callback(GLFWwindow* window, int w, int h){

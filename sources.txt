@@ -6,6 +6,7 @@ set(HEADERS
    Library/tiny_obj_loader.h
    Library/TimeManager.h
    Library/InitObjects.h
+   Library/GLError.h
 
    GameObject/GameObject.h
    GameObject/Player.h
@@ -26,6 +27,7 @@ set(SOURCES
    Library/tiny_obj_loader.cc
    Library/TimeManager.cpp
    Library/InitObjects.cpp
+   Library/GLError.cpp
 
    GameObject/GameObject.cpp
    GameObject/Player.cpp
