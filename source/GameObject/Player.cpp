@@ -1,5 +1,8 @@
 #include "Player.h"
 #include "Bunny.h"
+#include "../Camera/Camera.h"
+
+#define CAMERA_SPEED 10.0f
 
 Player::Player(Mesh *mesh, Handles *handles,
     vec3 position, float rotation, vec3 scale, 
@@ -24,6 +27,50 @@ bool Player::collide(GameObject* object) {
     }
 
     return false;
+}
+
+int* Player::findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object) {
+  float forwardYVelocity = 0;
+  float sideYVelocity = 0;
+  int restrictDir[4] = { 0 };
+
+  // Check if there is a collision in each direction 
+  // A KEY : Left
+  vec3 tempPostition = position;
+  vec3 tempVelocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime,
+      sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+  position = camera->position - tempVelocity;
+  if (collide(object)) {
+    restrictDir[0] = 1;
+  }
+
+  // D KEY : Right
+  tempVelocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime,
+      sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+  position = camera->position + tempVelocity;
+  if (collide(object)) {
+    restrictDir[1] = 1;
+  }
+
+  // W KEY : Forward
+  tempVelocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
+      forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+  position = camera->position + tempVelocity;
+  if (collide(object)) {
+    restrictDir[2] = 1;
+  }
+
+  // S KEY : Backward
+  tempVelocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
+      forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+  position = camera->position - tempVelocity;
+  if (collide(object)) {
+    restrictDir[3] = 1;
+  }
+
+  // Set player's positon back to the orignal 
+  position = tempPostition;
+  return restrictDir;
 }
 
 void Player::move(float time) {

@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Handles.h"
+#include "../Camera/Camera.h"
 
 using namespace glm;
 
@@ -24,6 +25,7 @@ class Player: public GameObject {
   //Object methods
   bool collide(GameObject* object);
   void move(float time);
+  int* Player::findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
 #endif

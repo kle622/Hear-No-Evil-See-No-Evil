@@ -4,6 +4,7 @@
 #include "../GameObject/GameObject.h"
 #include <cmath>
 #include <vector>
+#include <memory>
 
 using namespace std;
 

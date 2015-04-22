@@ -69,6 +69,10 @@ glm::vec3 g_light(0, 100, 0);
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 
+// [A, D, W, S] : if spot == 1, restrict movement that direction
+int restrictDirection[4];
+double deltaTime;
+
 float getRand(double M, double N)
 {
     float random = (float)(M + (rand() / (RAND_MAX / (N - M))));
@@ -158,6 +162,15 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                     for (int r = 0; r < proximity.size(); r++) {
                         if (gameObjects->grid[i][j][k].get() != proximity[r].get()) {
                             gameObjects->grid[i][j][k]->collide(proximity[r].get());
+
+                            // If current gameObject is Player, check if we need to restrict any directions
+                            if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {
+                              cout << "Check if we must restrict a direction\n";
+                              memcpy(restrictDirection, 
+                                     gameObjects->grid[i][j][k].get()->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
+                                     sizeof(restrictDirection)
+                                    );
+                            }
                         }
                     }
                 }
@@ -212,26 +225,28 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         sideYVelocity = camera->rightV.y * CAMERA_SPEED * deltaTime;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !restrictDirection[0]) {
         vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
         camera->position -= velocity;
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !restrictDirection[1]) {
         vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
         camera->position += velocity;
     }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !restrictDirection[2]) {
         vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
         camera->position += velocity;
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS  && !restrictDirection[3]) {
         vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
         camera->position -= velocity;
     }
+    // Reset all direction restrictions to 0(false)
+    restrictDirection[4] = { 0 };
 }
 
 int main(int argc, char **argv)
@@ -378,7 +393,7 @@ int main(int argc, char **argv)
     do{
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
-        double deltaTime = TimeManager::Instance().DeltaTime;
+        deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
 

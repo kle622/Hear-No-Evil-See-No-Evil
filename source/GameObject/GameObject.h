@@ -13,6 +13,7 @@
 #include <time.h>
 #include "Mesh.h"
 #include "Handles.h"
+#include "../Camera/Camera.h"
 #include "../Library/GLSL.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
@@ -55,6 +56,7 @@ class GameObject {
   virtual void draw();
   virtual void move(float time);
   virtual bool collide(GameObject* object);
+  virtual int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
 void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
