@@ -70,7 +70,7 @@ bool* Player::findRestrictedMovement(Camera* camera, double deltaTime, GameObjec
 
   // Set player's positon back to the orignal 
   position = tempPostition;
-  cout << "IN PLAYER " << restrictDir[0] << restrictDir[1] << restrictDir[2] << restrictDir[3] << "\n";
+  //cout << "IN PLAYER " << restrictDir[0] << restrictDir[1] << restrictDir[2] << restrictDir[3] << "\n";
   return restrictDir;
 }
 

@@ -166,12 +166,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
                             // If current gameObject is Player, check if we need to restrict any directions
                             if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {
-                              cout << "Check if we must restrict a direction\n";
+                              //cout << "Check if we must restrict a direction\n";
                               memcpy(restrictDirection,
                                      (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get()))->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
                                      sizeof(restrictDirection)
                               );
-                              cout << "Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
+                              //cout << "Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
                             }
                         }
                     }
@@ -221,7 +221,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void getWindowinput(GLFWwindow* window, double deltaTime) {
     float forwardYVelocity = 0;
     float sideYVelocity = 0;
-    cout << "INSIDE GETWINDOW Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
+    //cout << "INSIDE GETWINDOW Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
 
     if (cameraFly) {
         forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
@@ -271,7 +271,7 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(2.5, 2.5, 2.5),
 		1,
-		1,
+		10,
 		guardPath
 		);
 
@@ -301,7 +301,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    printf("correct window address %p\n", window);
+    //printf("correct window address %p\n", window);
     
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
@@ -405,7 +405,7 @@ int main(int argc, char **argv)
             vec3(1.0, 5.0, 1.0), //scale
             vec3(1, 0, 0), //direction
             0, //speed
-            vec3(1, 1, 1), //bounding box
+            vec3(2.5, 10, 2.5), //bounding box
             0, //scanRadius
             1  //material
             )));

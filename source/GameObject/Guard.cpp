@@ -59,6 +59,7 @@ bool Guard::collide(GameObject* object) {
 	// if object is within guard's cone of vision, return true
 	if (dot(normalize(object->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
 		material = 3;
+		velocity = 0;
 		return true;
 	}
 	else {
