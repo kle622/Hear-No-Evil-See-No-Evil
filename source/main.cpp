@@ -300,8 +300,8 @@ int main(int argc, char **argv)
       vec3(1, 0, 0),
       CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
-      0,
-      1
+      1,
+      0
    );
 
    gameObjects.push_back(shared_ptr<GameObject>(playerObject));
@@ -341,12 +341,13 @@ int main(int argc, char **argv)
             vec3(1, 0, 0), //direction
             0, //speed
             vec3(1, 1, 1), //bounding box
-            2, //material
-            1
+            1, //material
+            2
             )));
         }
       }
     }
+    
     //initialize the camera
     camera = new Camera(window, handles.uViewMatrix, handles.uProjMatrix,
         vec3(0, 1, 0), CAMERA_FOV,

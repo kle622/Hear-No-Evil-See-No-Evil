@@ -1,18 +1,19 @@
 #include "WorldGrid.h"
 
-WorldGrid::WorldGrid(int width, int height,
-	shared_ptr<vector<shared_ptr<GameObject>>> gameObjects) {
+WorldGrid::WorldGrid(int width, int height) {
 	this->width = width;
 	this->height = height;
-	this->gameObjects = gameObjects;
+}
 
-	for (int i = 0; i < gameObjects.get()->size(); i++) {
-		int x = floor((*gameObjects.get())[i].get()->position.x + (width / 2));
-		int z = floor((*gameObjects.get())[i].get()->position.z + (height / 2));
+void WorldGrid::add(shared_ptr<GameObject> gameObject) {
+	int x = floor(gameObject.get()->position.x) + (width / 2);
+	int z = floor(gameObject.get()->position.z) + (height /2);
 
-		//add game object to grid
-		this->grid[x][z].push_back((*gameObjects.get())[i]);
-	}
+	grid[x][z].push_back(gameObject);
+}
+
+void WorldGrid::remove(int i, int j, int k) {
+	grid[i][j].erase(grid[i][j].begin() + k);
 }
 
 void WorldGrid::update() {
@@ -20,12 +21,12 @@ void WorldGrid::update() {
 		for (int j = 0; j < grid[i].size(); j++) {
 			for (int k = 0; k < grid[i][j].size(); k++) {
 				shared_ptr<GameObject> temp = grid[i][j][k];
-				int x = floor(temp.get()->position.x + (width / 2));
-				int z = floor(temp.get()->position.z + (height /2));
+				int x = floor(temp.get()->position.x) + (width / 2);
+				int z = floor(temp.get()->position.z) + (height /2);
 
 				if (x != i || z != j) {
-					grid[i][j].erase(grid[i][j].begin() + k);
 					grid[x][z].push_back(temp);
+					grid[i][j].erase(grid[i][j].begin() + k);
 				}
 			}
 		}
@@ -35,8 +36,8 @@ void WorldGrid::update() {
 vector<shared_ptr<GameObject>> WorldGrid::getCloseObjects(
 	shared_ptr<GameObject> gameObject) {
 	vector<shared_ptr<GameObject>> inProximity;
-	int x = floor(gameObject.get()->position.x + (width / 2));
-	int z = floor(gameObject.get()->position.z + (height / 2));
+	int x = floor(gameObject.get()->position.x) + (width / 2);
+	int z = floor(gameObject.get()->position.z) + (height / 2);
 	int distance = gameObject.get()->scanRadius;
 
 	for (int i = -distance; i <= distance; i++) {
