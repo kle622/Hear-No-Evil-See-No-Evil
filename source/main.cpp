@@ -34,7 +34,7 @@
 #define WORLD_WIDTH 60
 #define WORLD_HEIGHT 60
 
-#define CAMERA_FOV 90
+#define CAMERA_FOV 45
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 
@@ -357,7 +357,7 @@ int main(int argc, char **argv)
 	    &handles, //model handle
             vec3((i-25), 0, (j-25)), //position
             0, //rotation
-            vec3(1.0, 1.0, 1.0), //scale
+            vec3(5.0, 5.0, 5.0), //scale
             vec3(1, 0, 0), //direction
             0, //speed
             vec3(1, 1, 1), //bounding box
