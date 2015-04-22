@@ -150,10 +150,16 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                     gameObjects->grid[i][j][k]->move(time);
                     SetMaterial(gameObjects->grid[i][j][k]->material);
                     gameObjects->grid[i][j][k]->draw();
-                    //TODO: handle collision detection after this line
-                    //HERE! i.e 
-                    //gameObjects->getCloseObjects(gameObjects->grid[i][j][k]) 
-                    //is the collision list for the current object
+
+                    vector<shared_ptr<GameObject>> proximity = 
+                        gameObjects->getCloseObjects(gameObjects->grid[i][j][k]);
+
+                    for (int r = 0; r < proximity.size(); r++) {
+                        //TODO: need to exclude self from the collide list
+                        if (gameObjects->grid[i][j][k].get() != proximity[r].get()) {
+                            gameObjects->grid[i][j][k]->collide(proximity[r].get());
+                        }
+                    }
                 }
             }
         }
@@ -316,7 +322,7 @@ int main(int argc, char **argv)
       CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
       1,
-      0
+      1
    );
 
    gameObjects.add(shared_ptr<GameObject>(playerObject));
@@ -356,8 +362,8 @@ int main(int argc, char **argv)
             vec3(1, 0, 0), //direction
             0, //speed
             vec3(1, 1, 1), //bounding box
-            1, //material
-            2
+            1, //scanRadius
+            1  //material
             )));
         }
       }
