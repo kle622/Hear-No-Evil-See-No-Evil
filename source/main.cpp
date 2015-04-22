@@ -155,7 +155,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                         gameObjects->getCloseObjects(gameObjects->grid[i][j][k]);
 
                     for (int r = 0; r < proximity.size(); r++) {
-                        //TODO: need to exclude self from the collide list
                         if (gameObjects->grid[i][j][k].get() != proximity[r].get()) {
                             gameObjects->grid[i][j][k]->collide(proximity[r].get());
                         }
