@@ -136,7 +136,7 @@ void SetMaterial(int i) {
 
 void initGL() {
     // Set the background color
-    glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Enable Z-buffer test
     glEnable(GL_DEPTH_TEST);
     glPointSize(18);
@@ -304,8 +304,7 @@ int main(int argc, char **argv)
     playerMesh.loadShapes(getResourcePath("models/godzilla.obj"));
     cubeMesh.loadShapes(getResourcePath("models/cube.obj"));
 #endif
-    
-    glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
+
     srand(time(NULL));
 
     //initialize game objects
@@ -324,7 +323,7 @@ int main(int argc, char **argv)
 	6, //indices
 	posBufObjG, 
 	norBufObjG,
-        3 //material
+        5 //material
 	);
 
     Player* playerObject = new Player(
@@ -336,8 +335,8 @@ int main(int argc, char **argv)
       vec3(1, 0, 0),
       CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
-      1,
-      0
+      3,
+      3
    );
 
    gameObjects.add(shared_ptr<GameObject>(playerObject));
@@ -377,7 +376,7 @@ int main(int argc, char **argv)
             vec3(1, 0, 0), //direction
             0, //speed
             vec3(1, 1, 1), //bounding box
-            1, //scanRadius
+            0, //scanRadius
             1  //material
             )));
         }

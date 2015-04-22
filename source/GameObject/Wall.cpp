@@ -40,17 +40,9 @@ bool Wall::collide(GameObject* object) {
   if (compareDistance(position, object->position, thisRadius + objectRadius)) {
     if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
       intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
-      intersect(position.z, object->position.z, dimensions.z, object->dimensions.z) &&
-      dot(object->position - position, direction) > 0) {
-      if (dynamic_cast<Player*>(object)) {
-        alive = false;
-        material = 0;
-        dynamic_cast<Player*>(object)->score++;
-      }
-      direction = -direction;
+      intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
       return true;
     }
   }
-
   return false;
 }
