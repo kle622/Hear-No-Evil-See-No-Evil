@@ -26,7 +26,7 @@
 #include "GameObject/Handles.h"
 #include "GameObject/Mesh.h"
 #include "Camera/Camera.h"
-#include "Path.h"
+#include "Path/Path.h"
 
 #include "WorldGrid/WorldGrid.h"
 

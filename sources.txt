@@ -15,7 +15,7 @@ set(HEADERS
    GameObject/Shape.h
    
    Camera/Camera.h
-   Path.h
+   Path/Path.h
 )
 
 # List all .c / .cpp files here
@@ -35,5 +35,5 @@ set(SOURCES
    GameObject/Shape.cpp
    
    Camera/Camera.cpp
-   Path.cpp
+   Path/Path.cpp
 )
