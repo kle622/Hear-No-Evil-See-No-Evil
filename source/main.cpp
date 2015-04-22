@@ -258,10 +258,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 
 void initGuards(WorldGrid* gameObjects) {
 	vector<vec3> guardPath;
-	//guardPath.push_back(vec3(5, 0, 5));
-	//guardPath.push_back(vec3(3, 0, 4));
 	guardPath.push_back(vec3(0, 0, 0));
-	//guardPath.push_back(vec3(3, 0, -4));
 	guardPath.push_back(vec3(5, 0, -5));
 
 	Guard* guardObject = new Guard(
@@ -271,7 +268,7 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(2.5, 2.5, 2.5),
 		1,
-		100,
+		5,
 		guardPath
 		);
 

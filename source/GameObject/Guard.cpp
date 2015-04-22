@@ -10,7 +10,7 @@ Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dime
 	GameObject(mesh, handles,
 	motionPath[0], 0, scale,
 	normalize(motionPath[1] - motionPath[0]), velocity, dimensions,
-	material, scanRadius) {
+	scanRadius, material) {
 	this->motionPath = motionPath;
 	currentNode = 0;
 	endpointDirection = pathDirection = sweepDirection = 1;
@@ -57,14 +57,18 @@ void Guard::move(float time) {
 
 bool Guard::collide(GameObject* object) {
 	// if object is within guard's cone of vision, return true
-	if (dot(normalize(object->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
-		material = 3;
-		velocity = 0;
-		return true;
-	}
-	else {
-		material = 1;
-		return false;
+	if (dynamic_cast<Player*>(object)) {
+		printf("player is in radius\n");
+		if (dot(normalize(object->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
+			material = 3;
+			velocity = 0;
+			return true;
+		}
+		else {
+			material = 1;
+			return false;
+		}
 	}
 	return false;
+
 }
