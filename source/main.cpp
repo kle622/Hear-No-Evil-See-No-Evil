@@ -21,11 +21,12 @@
 
 #include "GameObject/GameObject.h"
 #include "GameObject/Player.h"
-//#include "GameObject/Shape.h"
+#include "GameObject/Shape.h"
 #include "GameObject/Wall.h"
 #include "GameObject/Handles.h"
 #include "GameObject/Mesh.h"
 #include "Camera/Camera.h"
+#include "Path.h"
 
 #include "WorldGrid/WorldGrid.h"
 
@@ -56,7 +57,7 @@ Handles handles;
 Mesh bunnyMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
-//Shape *ground;
+Shape *ground;
 bool cameraFly = false;
 
 glm::vec3 g_light(0, 100, 0);
@@ -162,7 +163,7 @@ void initGL() {
 
 
 void drawGameObjects(vector<shared_ptr <GameObject> >* gameObjects, float time) {
-  //  ground->draw();
+    ground->draw();
     for (int i = 0; i < (*gameObjects).size(); i++) {
         SetMaterial((*gameObjects)[i].get()->material);
         (*gameObjects)[i].get()->draw();
@@ -186,7 +187,7 @@ void beginDrawGL() {
 
     // Use our GLSL program
     glUseProgram(handles.prog);
-    glUniform3f(handles.uLightVec, g_light.x, g_light.y, g_light.z);
+    glUniform3f(handles.uLightPos, g_light.x, g_light.y, g_light.z);
     glUniform3f(handles.cam_pos, camera->position.x,
         camera->position.y, camera->position.z);
     GLSL::enableVertexAttribArray(handles.aPosition);
@@ -286,11 +287,21 @@ int main(int argc, char **argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initGL();
-    handles.installShaders("vert.glsl", "frag.glsl");
+#ifdef _WIN32
+    handles.installShaders(getResourcePath("shaders\\vert.glsl"), getResourcePath("shaders\\frag.glsl"));
+#else
+    handles.installShaders(getResourcePath("shaders/vert.glsl"), getResourcePath("shaders/frag.glsl"));
+#endif
 
-    bunnyMesh.loadShapes("bunny.obj");
-    playerMesh.loadShapes("godzilla.obj");
-    cubeMesh.loadShapes("cube.obj");
+#ifdef _WIN32
+    bunnyMesh.loadShapes(getResourcePath("models\\bunny.obj"));
+    playerMesh.loadShapes(getResourcePath("models\\godzilla.obj"));
+    cubeMesh.loadShapes(getResourcePath("models\\cube.obj"));
+#else
+    bunnyMesh.loadShapes(getResourcePath("models/bunny.obj"));
+    playerMesh.loadShapes(getResourcePath("models/godzilla.obj"));
+    cubeMesh.loadShapes(getResourcePath("models/cube.obj"));
+#endif
     
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     srand(time(NULL));
@@ -299,7 +310,7 @@ int main(int argc, char **argv)
     vector<shared_ptr <GameObject> > gameObjects;
     int currBunnies = 0;
 
-    /*ground = new Shape(
+    ground = new Shape(
         &handles, //model handle
         vec3(0), //position
         0, //rotation
@@ -310,7 +321,7 @@ int main(int argc, char **argv)
 	posBufObjG, 
 	norBufObjG,
         3 //material
-	);*/
+	);
 
     Player* playerObject = new Player(
       &playerMesh,
@@ -329,7 +340,7 @@ int main(int argc, char **argv)
     // Read in from text file
     int levelDesign[50][50]; 
     char ch;
-    fstream fin("LevelDesign.txt", fstream::in);
+    fstream fin(getResourcePath("LevelDesign.txt"), fstream::in);
     int i = 0, j = 0;
     while (fin >> noskipws >> ch) {
       if (ch == '\n') {
