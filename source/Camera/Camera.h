@@ -1,6 +1,10 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
+/*
+ * Basic camera class. Controlled by directly modifying eye, lookat, etc.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <glad/glad.h>
@@ -14,33 +18,24 @@
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
 
-using namespace glm;
-
 class Camera {
-    protected:
-        //Properties
-        GLFWwindow* window;
-        GLint viewHandle;
-        GLint projectionHandle;
-        
     public:
         //Properties
-        vec3 position;
-        vec3 direction;
-        vec3 rightV;
+        Handles *handles;
+        glm::vec3 lookat;
+        glm::vec3 eye;
+        glm::vec3 up;
         float fov;
         float aspect;
         float _near;
         float _far;
 
         //Constructor
-        Camera(GLFWwindow* window, GLint viewHandle, GLint projectionHandle, 
-            vec3 position, float fov, float aspect,
-            float _near, float _far);
+        Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
 
         //Object Methods
-        void setView(int g_width, int g_height);
-        void setProjection(int g_width, int g_height);
+        void setView();
+        void setProjection();
 };
 
 double clamp(double x, double min, double max);

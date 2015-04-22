@@ -19,6 +19,7 @@ set(HEADERS
    WorldGrid/WorldGrid.h
    
    Camera/Camera.h
+   Camera/Camera3DPerson.h
    Path/Path.h
 )
 
@@ -43,5 +44,6 @@ set(SOURCES
    WorldGrid/WorldGrid.cpp
    
    Camera/Camera.cpp
+   Camera/Camera3DPerson.cpp
    Path/Path.cpp
 )
