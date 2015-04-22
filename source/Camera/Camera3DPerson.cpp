@@ -1,41 +1,41 @@
 #include "Camera3DPerson.h"
 
-Camera3DPerson:Camera3DPerson(Handles *handles, glm::vec3 *focus, float zoom, float fov, float aspect, float _near, float _far)
+Camera3DPerson:Camera3DPerson(Handles *handles, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far)
 {
   // when both angles are 0, the camera is directly behind the player, horizontal
-  this->phi = 0;  // increase phi to look down
-  this->theta = 0;  // increase theta to look left
+  this->pitch = 0;  // increase pitch to look down
   this->focus = focus;
   Camera(handles,
-         *focus,
+         focus->position,
          getEye(),
          glm::vec3(0.0f, 1.0f, 0.0f),
          fov, aspect, _near, _far);
 }
 
-Camera3DPerson:getEye()
+glm::vec3 Camera3DPerson:getEye()
 {
-  glm::vec3 res = glm::vec3(sin(this->theta),
-                            sin(this->phi),
-                            -1.0f * cos(this->phi) * cos(this->theta));
+  glm::vec3 res = this->focus->direction;
+  res.y = 0;
+  res = glm::normalize(res);
+  float theta = acos(glm::dot(res, glm::vec3(1.0f, 0.0f, 0.0f)));   // theta = 0 points along positive x
+  if (res.z < 0) {  // theta increases towards positive z
+    theta *= -1.0f;
+  }
+  res = glm::vec3(cos(theta) * cos(pitch),
+                  sin(pitch),
+                  sin(theta) * cos(pitch));
   res *= this->zoom;
-  res += *(this->focus);
+  res += this->focus->position;
   return res;
 }
 
-void moveHoriz(float step)
+void Camera3DPerson::moveVert(float step)
 {
-  this->theta -= step;
+  this->pitch -= step;
   this->eye = getEye();
 }
 
-void moveVert(float step)
-{
-  this->phi -= step;
-  this->eye = getEye();
-}
-
-void checkCollide(vector<shared_ptr<GameObject>> objects)
+void Camera3DPerson::checkCollide(vector<shared_ptr<GameObject>> objects)
 {
   // TODO implement
 }

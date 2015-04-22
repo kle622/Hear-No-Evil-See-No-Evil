@@ -9,9 +9,8 @@ class Camera3DPerson: public Camera
     glm::vec3 getEye();
   public:
     float zoom;
-    glm::vec3 *focus;
-    Camera3DPerson(Handles *handles, glm::vec3 *focus, float zoom, float fov, float aspect, float _near, float _far);
-    void moveHoriz(float step);
+    GameObject *focus;
+    Camera3DPerson(Handles *handles, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
     void moveVert(float step);
     void checkCollide(vector<shared_ptr<GameObject>> objects);
 }
