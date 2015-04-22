@@ -16,7 +16,8 @@ public:
   //Constructor
   Wall(Mesh *mesh, Handles *handles,
     vec3 position, float rotation, vec3 scale,
-    vec3 direction, float velocity, vec3 dimensions, int material);
+    vec3 direction, float velocity, vec3 dimensions, 
+    int scanRadius, int material);
 
   //Object methods
   void move(float time);

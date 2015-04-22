@@ -2,7 +2,8 @@
 
 GameObject::GameObject(Mesh *mesh, Handles *handles,
 		       vec3 position, float rotation, vec3 scale, 
-		       vec3 direction, float velocity, vec3 dimensions, int material) {
+		       vec3 direction, float velocity, vec3 dimensions,
+           int scanRadius, int material = 0) {
   this->mesh = mesh;
   this->handles = handles;
   this->position = position;
@@ -11,6 +12,7 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
   this->direction = normalize(direction);
   this->velocity = velocity;
   this->dimensions = dimensions;
+  this->scanRadius = scanRadius;
   this->material = material;
   this->alive = true;
 }
