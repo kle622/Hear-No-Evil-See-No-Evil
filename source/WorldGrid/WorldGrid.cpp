@@ -27,7 +27,9 @@ void WorldGrid::update() {
 				int x = floor(temp.get()->position.x) + (width / 2);
 				int z = floor(temp.get()->position.z) + (height /2);
 
-				if (x != i || z != j) {
+				if (x != i || z != j &&
+					x >= 0 && x <= width-1 &&
+					z >= 0 && z <= height-1) {
 					grid[x][z].push_back(temp);
 					grid[i][j].erase(grid[i][j].begin() + k);
 				}
@@ -49,7 +51,8 @@ vector<shared_ptr<GameObject>> WorldGrid::getCloseObjects(
 	for (int i = -distance; i <= distance; i++) {
 		for (int j = -distance; j <= distance; j++) {
 			//get objects
-			if ((x + i >= 0) && (z + j >= 0)) {
+			if ((x + i >= 0) && (z + j >= 0) && 
+				(x + i <= width-1) && (z + j <= height-1)) {
 				inProximity.insert(inProximity.end(), this->grid[x+i][z+j].begin(),
 					this->grid[x+i][z+j].end());
 			}
