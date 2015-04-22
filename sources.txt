@@ -12,6 +12,7 @@ set(HEADERS
    GameObject/Wall.h
    GameObject/Mesh.h
    GameObject/Handles.h	
+   GameObject/Shape.h
    
    Camera/Camera.h
    Path.h
@@ -31,6 +32,7 @@ set(SOURCES
    GameObject/Wall.cpp	
    GameObject/Mesh.cpp
    GameObject/Handles.cpp	
+   GameObject/Shape.cpp
    
    Camera/Camera.cpp
    Path.cpp

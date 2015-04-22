@@ -20,7 +20,13 @@ void WorldGrid::update() {
 		for (int j = 0; j < grid[i].size(); j++) {
 			for (int k = 0; k < grid[i][j].size(); k++) {
 				shared_ptr<GameObject> temp = grid[i][j][k];
-				grid[i][j].erase(grid[i][j].begin() + k);
+				int x = floor(temp.get()->position.x + (width / 2));
+				int z = floor(temp.get()->position.z + (height /2));
+
+				if (x != i || z != j) {
+					grid[i][j].erase(grid[i][j].begin() + k);
+					grid[x][z].push_back(temp);
+				}
 			}
 		}
 	}

@@ -21,7 +21,7 @@
 
 #include "GameObject/GameObject.h"
 #include "GameObject/Player.h"
-//#include "GameObject/Shape.h"
+#include "GameObject/Shape.h"
 #include "GameObject/Wall.h"
 #include "GameObject/Handles.h"
 #include "GameObject/Mesh.h"
@@ -57,7 +57,7 @@ Handles handles;
 Mesh bunnyMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
-//Shape *ground;
+Shape *ground;
 bool cameraFly = false;
 
 glm::vec3 g_light(0, 100, 0);
@@ -163,7 +163,7 @@ void initGL() {
 
 
 void drawGameObjects(vector<shared_ptr <GameObject> >* gameObjects, float time) {
-  //  ground->draw();
+    ground->draw();
     for (int i = 0; i < (*gameObjects).size(); i++) {
         SetMaterial((*gameObjects)[i].get()->material);
         (*gameObjects)[i].get()->draw();
@@ -310,7 +310,7 @@ int main(int argc, char **argv)
     vector<shared_ptr <GameObject> > gameObjects;
     int currBunnies = 0;
 
-    /*ground = new Shape(
+    ground = new Shape(
         &handles, //model handle
         vec3(0), //position
         0, //rotation
@@ -321,7 +321,7 @@ int main(int argc, char **argv)
 	posBufObjG, 
 	norBufObjG,
         3 //material
-	);*/
+	);
 
     Player* playerObject = new Player(
       &playerMesh,
