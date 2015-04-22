@@ -3,9 +3,10 @@
 
 Player::Player(Mesh *mesh, Handles *handles,
     vec3 position, float rotation, vec3 scale, 
-	       vec3 direction, float velocity, vec3 dimensions, int material = 0) : 
+	       vec3 direction, float velocity, vec3 dimensions, 
+           int scanRadius, int material = 0) : 
   GameObject(mesh, handles, position, rotation, scale, 
-	     direction, velocity, dimensions, material) {
+	     direction, velocity, dimensions, material, scanRadius) {
 
 }
 

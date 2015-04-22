@@ -2,6 +2,7 @@
 #define WORLDGRID_H_
 
 #include "../GameObject/GameObject.h"
+#include <cmath>
 #include <vector>
 
 using namespace std;

@@ -63,34 +63,8 @@ bool cameraFly = false;
 
 glm::vec3 g_light(0, 100, 0);
 
-/*GLuint ShadeProg;
-
-GLuint posBufObjB = 0;
-GLuint norBufObjB = 0;
-GLuint indBufObjB = 0;*/
-
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
-
-/*GLuint posBufObjP = 0;
-GLuint norBufObjP = 0;
-GLuint indBufObjP = 0;*/
-
-/* Stuff for wall objects, TODO use Mesh and Handles class */
-/*GLuint posBufObjW = 0;
-GLuint norBufObjW = 0;
-GLuint indBufObjW = 0;*/
-
-//Handles to the shader data
-/*GLint h_aPosition;
-GLint h_aNormal;
-GLint h_uModelMatrix;
-GLint h_uViewMatrix;
-GLint h_uProjMatrix;
-GLint h_uLightPos;
-GLint h_cam_pos;
-GLint h_uMatAmb, h_uMatDif, h_uMatSpec, h_uMatShine;
-GLint h_uShadeM;*/
 
 float getRand(double M, double N)
 {
@@ -163,21 +137,14 @@ void initGL() {
 }
 
 
-void drawGameObjects(vector<shared_ptr <GameObject> >* gameObjects, float time) {
+void drawGameObjects(vector<shared_ptr <GameObject> > gameObjects, float time) {
     ground->draw();
-    for (int i = 0; i < (*gameObjects).size(); i++) {
-        SetMaterial((*gameObjects)[i].get()->material);
-        (*gameObjects)[i].get()->draw();
-
-        if ((*gameObjects)[i].get()->alive) {
-            (*gameObjects)[i].get()->move(time);
-            /*if (!(Shape*)((*gameObjects)[i].get())) { // skip collision for ground
-                for (int j = 1; j < (*gameObjects).size() && (*gameObjects)[j]->alive; j++) {
-                    if (i != j && (*gameObjects)[j]->alive) {
-                        (*gameObjects)[i].get()->collide((*gameObjects)[j].get());
-                    }
-                }
-            }*/
+    for (int i = 0; i < gameObjects.size(); i++) {
+        if (gameObjects[i].get()->alive) {
+            gameObjects[i].get()->move(time);
+            SetMaterial(gameObjects[i].get()->material);
+            gameObjects[i].get()->draw();
+            //do collision hear for each object
         }
     }
 }
@@ -333,7 +300,8 @@ int main(int argc, char **argv)
       vec3(1, 0, 0),
       CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
-      0
+      0,
+      1
    );
 
    gameObjects.push_back(shared_ptr<GameObject>(playerObject));
@@ -373,7 +341,8 @@ int main(int argc, char **argv)
             vec3(1, 0, 0), //direction
             0, //speed
             vec3(1, 1, 1), //bounding box
-            2 //material
+            2, //material
+            1
             )));
         }
       }
@@ -395,25 +364,6 @@ int main(int argc, char **argv)
         //get mouse/keyboard input
         getWindowinput(window, deltaTime);
 
-        //add bunny every 3 seconds
-        /*if (timeCounter > 3.0f && currBunnies < BUNNY_COUNT) {
-            timeCounter -= 3.0f;
-            currBunnies++;
-
-            gameObjects.push_back(shared_ptr<GameObject>(new Bunny(
-		    &bunnyMesh,
-		    handles, //model handle
-                    vec3(getRand(-29, 29), 0, getRand(-29, 29)), //position
-                    0, //rotation
-                    vec3(1.0, 1.0, 1.0), //scale
-                    vec3(getRand(-1, 1), 0, getRand(-1, 1)), //direction
-                    BUNNY_SPEED, //speed
-                    vec3(1.5, 1.5, 1.5), //bounding box
-                    2, //scanRadius
-                    2 //material
-            )));
-        }*/
-
         beginDrawGL();
         camera->setProjection(g_width, g_height);
         camera->setView(g_width, g_height);
@@ -421,7 +371,7 @@ int main(int argc, char **argv)
         playerObject->position.y = camera->position.y - 1;
         playerObject->position.z = camera->position.z;
         playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
-        drawGameObjects(&gameObjects, deltaTime);
+        drawGameObjects(gameObjects, deltaTime);
         endDrawGL();
 
         glfwSwapBuffers(window);

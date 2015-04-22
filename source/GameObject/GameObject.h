@@ -39,6 +39,7 @@ class GameObject {
   float velocity;
   
   vec3 dimensions;
+  int scanRadius;
   
   /* GLuint posBuffer;
   GLuint norBuffer;
@@ -52,7 +53,8 @@ class GameObject {
   //Constructor
   GameObject(Mesh *mesh, Handles *handles, 
 	     vec3 position, float rotation, vec3 scale, 
-	     vec3 direction, float velocity, vec3 dimensions, int material);
+	     vec3 direction, float velocity, vec3 dimensions, 
+       int material, int scanRadius);
   
   //Object Methods
   virtual void draw();

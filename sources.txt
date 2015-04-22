@@ -14,6 +14,8 @@ set(HEADERS
    GameObject/Mesh.h
    GameObject/Handles.h	
    GameObject/Shape.h
+
+   WorldGrid/WorldGrid.h
    
    Camera/Camera.h
    Path/Path.h
@@ -35,6 +37,8 @@ set(SOURCES
    GameObject/Mesh.cpp
    GameObject/Handles.cpp	
    GameObject/Shape.cpp
+
+   WorldGrid/WorldGrid.cpp
    
    Camera/Camera.cpp
    Path/Path.cpp

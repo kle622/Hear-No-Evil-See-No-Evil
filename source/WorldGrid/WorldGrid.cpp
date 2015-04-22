@@ -37,7 +37,7 @@ vector<shared_ptr<GameObject>> WorldGrid::getCloseObjects(
 	vector<shared_ptr<GameObject>> inProximity;
 	int x = floor(gameObject.get()->position.x + (width / 2));
 	int z = floor(gameObject.get()->position.z + (height / 2));
-	int distance = ceil(gameObject.get()->scanRadius);
+	int distance = gameObject.get()->scanRadius;
 
 	for (int i = -distance; i <= distance; i++) {
 		for (int j = -distance; j <= distance; j++) {
