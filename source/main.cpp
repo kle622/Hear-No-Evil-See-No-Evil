@@ -141,6 +141,7 @@ void initGL() {
 
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
+    SetMaterial(ground->material);
     ground->draw();
 
     for (int i = 0; i < gameObjects->grid.size(); i ++) {

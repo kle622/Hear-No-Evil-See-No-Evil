@@ -19,7 +19,7 @@
 using namespace glm;
 
 class Shape {
- protected:
+ public:
   Handles *handles;
   vec3 position;
   float rotation;
@@ -32,7 +32,7 @@ class Shape {
   GLint posHandle;
   GLint norHandle;
   int material;
- public:
+
   //Constructor
   Shape(Handles *handles, vec3 position, float rotation, 
 	vec3 scale, vec3 direction, float velocity, int indices, 

@@ -27,9 +27,9 @@ void WorldGrid::update() {
 				int x = floor(temp.get()->position.x) + (width / 2);
 				int z = floor(temp.get()->position.z) + (height /2);
 
-				if (x != i || z != j &&
-					x >= 0 && x <= width-1 &&
-					z >= 0 && z <= height-1) {
+				if ((x != i || z != j) &&
+					((x >= 0) && (x <= width-1) &&
+					(z >= 0) && (z <= height-1))) {
 					grid[x][z].push_back(temp);
 					grid[i][j].erase(grid[i][j].begin() + k);
 				}
