@@ -25,3 +25,7 @@ bool Player::collide(GameObject* object) {
 
     return false;
 }
+
+void Player::move(float time) {
+    //empty for now
+}

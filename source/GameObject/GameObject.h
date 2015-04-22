@@ -41,11 +41,6 @@ class GameObject {
   vec3 dimensions;
   int scanRadius;
   
-  /* GLuint posBuffer;
-  GLuint norBuffer;
-  GLuint indBuffer;
-  GLint posHandle;
-  GLint norHandle;*/
   int material;
   
   bool alive;
