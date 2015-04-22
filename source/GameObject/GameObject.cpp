@@ -18,7 +18,7 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
 }
 
 void GameObject::draw() {
-  SetModel(handles->uModelMatrix, glm::vec3(0, 0, 0), this->rotation, this->scale);
+  SetModel(handles->uModelMatrix, position, this->rotation, this->scale);
   this->mesh->drawObject(this->handles);
   /*glBindBuffer(GL_ARRAY_BUFFER, this->mesh->posBufObj);
     glVertexAttribPointer(handles->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
