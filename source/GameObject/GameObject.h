@@ -56,7 +56,7 @@ class GameObject {
   virtual void draw();
   virtual void move(float time);
   virtual bool collide(GameObject* object);
-  virtual int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
+  //virtual int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
 void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);

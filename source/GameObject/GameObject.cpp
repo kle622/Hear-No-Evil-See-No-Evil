@@ -46,11 +46,11 @@ bool GameObject::collide(GameObject* object) {
     return true;
 }
 
-int *findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object) {
-  int blah[1];
-  // HANDLED IN PLAYER CLASS
-  return blah;
-}
+//int *findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object) {
+//  int blah[1];
+//  // HANDLED IN PLAYER CLASS
+//  return blah;
+//}
 
 void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
