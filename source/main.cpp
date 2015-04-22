@@ -405,7 +405,7 @@ int main(int argc, char **argv)
             vec3(1.0, 5.0, 1.0), //scale
             vec3(1, 0, 0), //direction
             0, //speed
-            vec3(2.5, 10, 2.5), //bounding box
+            vec3(2.5, 2.5, 2.5), //bounding box
             0, //scanRadius
             1  //material
             )));
