@@ -21,6 +21,7 @@
 #include "Library/GLError.h"
 
 #include "GameObject/GameObject.h"
+#include "GameObject/Guard.h"
 #include "GameObject/Player.h"
 #include "GameObject/Shape.h"
 #include "GameObject/Wall.h"
@@ -40,6 +41,7 @@
 
 #define BUNNY_COUNT 25
 #define BUNNY_SPEED 10.0f
+#define GUARD_SPEED 5.0f
 
 #define CAMERA_SPEED 10.0f
 
@@ -47,8 +49,8 @@ GLFWwindow* window;
 using namespace std;
 using namespace glm;
 
-vector<tinyobj::shape_t> bunny;
 vector<tinyobj::shape_t> player;
+vector<tinyobj::shape_t> guard;
 vector<tinyobj::material_t> materials;
 vector<tinyobj::shape_t> wall;
 
@@ -58,7 +60,7 @@ int g_SM = 2;
 
 Camera* camera;
 Handles handles;
-Mesh bunnyMesh;
+Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
 Shape *ground;
@@ -142,7 +144,6 @@ void initGL() {
     glPointSize(18);
     initVertexObject(&posBufObjG, &norBufObjG);
 }
-
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
@@ -249,6 +250,28 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     restrictDirection[4] = { 0 };
 }
 
+void initGuards(WorldGrid* gameObjects) {
+	vector<vec3> guardPath;
+	//guardPath.push_back(vec3(5, 0, 5));
+	//guardPath.push_back(vec3(3, 0, 4));
+	guardPath.push_back(vec3(0, 0, 0));
+	//guardPath.push_back(vec3(3, 0, -4));
+	guardPath.push_back(vec3(5, 0, -5));
+
+	Guard* guardObject = new Guard(
+		&guardMesh,
+		&handles,
+		vec3(1, 1, 1),
+		GUARD_SPEED,
+		vec3(2.5, 2.5, 2.5),
+		1,
+		1,
+		guardPath
+		);
+
+	(*gameObjects).add(shared_ptr<GameObject>(guardObject));
+}
+
 int main(int argc, char **argv)
 {
     // Initialise GLFW
@@ -296,11 +319,11 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef _WIN32
-    bunnyMesh.loadShapes(getResourcePath("models\\bunny.obj"));
+    guardMesh.loadShapes(getResourcePath("models\\shark.obj"));
     playerMesh.loadShapes(getResourcePath("models\\godzilla.obj"));
     cubeMesh.loadShapes(getResourcePath("models\\cube.obj"));
 #else
-    bunnyMesh.loadShapes(getResourcePath("models/bunny.obj"));
+    guardMesh.loadShapes(getResourcePath("models/shark.obj"));
     playerMesh.loadShapes(getResourcePath("models/godzilla.obj"));
     cubeMesh.loadShapes(getResourcePath("models/cube.obj"));
 #endif
@@ -340,6 +363,7 @@ int main(int argc, char **argv)
    );
 
    gameObjects.add(shared_ptr<GameObject>(playerObject));
+   initGuards(&gameObjects);
 
     // Read in from text file
     int levelDesign[50][50]; 
