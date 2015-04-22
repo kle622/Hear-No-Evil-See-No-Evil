@@ -20,15 +20,6 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
 void GameObject::draw() {
   SetModel(handles->uModelMatrix, this->position, this->rotation, this->scale);
   this->mesh->drawObject(this->handles);
-  /*glBindBuffer(GL_ARRAY_BUFFER, this->mesh->posBufObj);
-    glVertexAttribPointer(handles->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->norBufObj);
-    glVertexAttribPointer(handles->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indBufObj);
-
-    int indices = (int)mesh->shapes[0].mesh.indices.size();
-    SetModel(handles->uModelMatrix, position, rotation, scale);
-    glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);*/
 }
 
 void GameObject::move(float time) {
