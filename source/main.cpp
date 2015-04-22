@@ -357,7 +357,7 @@ int main(int argc, char **argv)
 	    &handles, //model handle
             vec3((i-25), 0, (j-25)), //position
             0, //rotation
-            vec3(5.0, 5.0, 5.0), //scale
+            vec3(1.0, 5.0, 1.0), //scale
             vec3(1, 0, 0), //direction
             0, //speed
             vec3(1, 1, 1), //bounding box
