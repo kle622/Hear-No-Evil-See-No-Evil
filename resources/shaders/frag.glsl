@@ -4,7 +4,7 @@ uniform vec3 UsColor;	// specular
 uniform float Ushine;
 uniform int uShadeModel;
 uniform vec3 uLightPos;
-uniform vec3 cam_pos;
+uniform vec3 uCamPos;
 
 varying vec3 vNormal;
 varying vec3 vPos;
@@ -22,7 +22,7 @@ void main()
 		diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
 		diffuse.y = diffuse.y < 0.0 ? 0.0: diffuse.y;
 		diffuse.z = diffuse.z < 0.0 ? 0.0: diffuse.z;
-		float temp = dot(normal_fin, normalize(normalize(cam_pos - vec3(vPos)) + vLight));
+		float temp = dot(normal_fin, normalize(normalize(uCamPos - vec3(vPos)) + vLight));
 		temp = temp < 0.0 ? 0.0: temp;
 		vec3 specular = UsColor * pow(temp, Ushine); // n=1
 		vec3 ambient = UaColor;

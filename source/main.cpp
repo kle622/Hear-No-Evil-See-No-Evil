@@ -189,7 +189,7 @@ void beginDrawGL() {
     // Use our GLSL program
     glUseProgram(handles.prog);
     glUniform3f(handles.uLightPos, g_light.x, g_light.y, g_light.z);
-    glUniform3f(handles.cam_pos, camera->position.x,
+    glUniform3f(handles.uCamPos, camera->position.x,
         camera->position.y, camera->position.z);
     GLSL::enableVertexAttribArray(handles.aPosition);
     GLSL::enableVertexAttribArray(handles.aNormal);
@@ -202,7 +202,6 @@ void endDrawGL() {
 
     glUseProgram(0);
     checkGLError();
-    //assert(glGetError() == GL_NO_ERROR);
 }
 
 void window_size_callback(GLFWwindow* window, int w, int h){
