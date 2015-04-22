@@ -25,7 +25,7 @@ class Player: public GameObject {
   //Object methods
   bool collide(GameObject* object);
   void move(float time);
-  int* Player::findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
+  int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
 #endif

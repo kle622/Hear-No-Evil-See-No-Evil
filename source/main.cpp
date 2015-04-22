@@ -166,10 +166,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                             // If current gameObject is Player, check if we need to restrict any directions
                             if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {
                               cout << "Check if we must restrict a direction\n";
-                              memcpy(restrictDirection, 
-                                (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get()))->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
+                              memcpy((dynamic_cast<Player*>(gameObjects->grid[i][j][k].get()))->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
+                                     restrictDirection,
                                      sizeof(restrictDirection)
-                                    );
+                              );
                             }
                         }
                     }
