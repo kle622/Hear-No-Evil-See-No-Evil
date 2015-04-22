@@ -72,7 +72,7 @@ GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 
 // [A, D, W, S] : if spot == 1, restrict movement that direction
-int restrictDirection[4];
+bool restrictDirection[4];
 double deltaTime;
 
 float getRand(double M, double N)
@@ -167,10 +167,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                             // If current gameObject is Player, check if we need to restrict any directions
                             if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {
                               cout << "Check if we must restrict a direction\n";
-                              memcpy((dynamic_cast<Player*>(gameObjects->grid[i][j][k].get()))->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
-                                     restrictDirection,
+                              memcpy(restrictDirection,
+                                     (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get()))->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
                                      sizeof(restrictDirection)
                               );
+                              cout << "Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
                             }
                         }
                     }
@@ -220,6 +221,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void getWindowinput(GLFWwindow* window, double deltaTime) {
     float forwardYVelocity = 0;
     float sideYVelocity = 0;
+    cout << "INSIDE GETWINDOW Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
 
     if (cameraFly) {
         forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
@@ -247,7 +249,11 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         camera->position -= velocity;
     }
     // Reset all direction restrictions to 0(false)
-    restrictDirection[4] = { 0 };
+    for (size_t i = 0; i < 4; i++)
+    {
+      restrictDirection[i] = false;
+    }
+    //restrictDirection[4] = { false };
 }
 
 void initGuards(WorldGrid* gameObjects) {

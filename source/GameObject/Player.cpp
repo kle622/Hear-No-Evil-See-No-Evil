@@ -29,47 +29,48 @@ bool Player::collide(GameObject* object) {
     return false;
 }
 
-int* Player::findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object) {
+bool* Player::findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object) {
   float forwardYVelocity = 0;
   float sideYVelocity = 0;
-  int restrictDir[4] = { 0 };
+  bool restrictDir[4] = { false };
 
   // Check if there is a collision in each direction 
   // A KEY : Left
   vec3 tempPostition = position;
   vec3 tempVelocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime,
       sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
-  position = camera->position - tempVelocity;
+  position = position - tempVelocity;
   if (collide(object)) {
-    restrictDir[0] = 1;
+    restrictDir[0] = true;
   }
 
   // D KEY : Right
   tempVelocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime,
       sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
-  position = camera->position + tempVelocity;
+  position = position + tempVelocity;
   if (collide(object)) {
-    restrictDir[1] = 1;
+    restrictDir[1] = true;
   }
 
   // W KEY : Forward
   tempVelocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
       forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
-  position = camera->position + tempVelocity;
+  position = position + tempVelocity;
   if (collide(object)) {
-    restrictDir[2] = 1;
+    restrictDir[2] = true;
   }
 
   // S KEY : Backward
   tempVelocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
       forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
-  position = camera->position - tempVelocity;
+  position = position - tempVelocity;
   if (collide(object)) {
-    restrictDir[3] = 1;
+    restrictDir[3] = true;
   }
 
   // Set player's positon back to the orignal 
   position = tempPostition;
+  cout << "IN PLAYER " << restrictDir[0] << restrictDir[1] << restrictDir[2] << restrictDir[3] << "\n";
   return restrictDir;
 }
 
