@@ -1,6 +1,6 @@
 #include "Handles.h"
 
-bool Handles::installShaders(const std::string &vShaderName, const std::string &fShaderName)
+bool Handles::installShaders(const std::string &vShaderName, const std::string &fShaderName) 
 {
   GLint rc;
 
