@@ -271,7 +271,7 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(2.5, 2.5, 2.5),
 		1,
-		10,
+		100,
 		guardPath
 		);
 
