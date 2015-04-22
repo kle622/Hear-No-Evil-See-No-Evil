@@ -19,11 +19,6 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-	  /*if (dynamic_cast<Bunny*>(object)) {
-                object->alive = false;
-                object->material = 0;
-                score++;
-            }*/ 
             return true;
         }
     }

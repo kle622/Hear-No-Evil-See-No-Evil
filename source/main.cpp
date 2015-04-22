@@ -31,6 +31,9 @@
 
 #include "WorldGrid/WorldGrid.h"
 
+#define WORLD_WIDTH 60
+#define WORLD_HEIGHT 60
+
 #define CAMERA_FOV 90
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
@@ -137,16 +140,26 @@ void initGL() {
 }
 
 
-void drawGameObjects(vector<shared_ptr <GameObject> > gameObjects, float time) {
+void drawGameObjects(WorldGrid* gameObjects, float time) {
     ground->draw();
-    for (int i = 0; i < gameObjects.size(); i++) {
-        if (gameObjects[i].get()->alive) {
-            gameObjects[i].get()->move(time);
-            SetMaterial(gameObjects[i].get()->material);
-            gameObjects[i].get()->draw();
-            //do collision hear for each object
+
+    for (int i = 0; i < gameObjects->grid.size(); i ++) {
+        for (int j = 0; j < gameObjects->grid[i].size(); j++) {
+            for (int k = 0; k < gameObjects->grid[i][j].size(); k++) {
+                if (gameObjects->grid[i][j][k]->alive) {
+                    gameObjects->grid[i][j][k]->move(time);
+                    SetMaterial(gameObjects->grid[i][j][k]->material);
+                    gameObjects->grid[i][j][k]->draw();
+                    //TODO: handle collision detection after this line
+                    //HERE! i.e 
+                    //gameObjects->getCloseObjects(gameObjects->grid[i][j][k]) 
+                    //is the collision list for the current object
+                }
+            }
         }
     }
+
+    gameObjects->update();
 }
 
 void beginDrawGL() {
@@ -275,7 +288,9 @@ int main(int argc, char **argv)
     srand(time(NULL));
 
     //initialize game objects
-    vector<shared_ptr <GameObject> > gameObjects;
+    //vector<shared_ptr <GameObject> > gameObjects;
+    WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
+
     int currBunnies = 0;
 
     ground = new Shape(
@@ -304,7 +319,7 @@ int main(int argc, char **argv)
       0
    );
 
-   gameObjects.push_back(shared_ptr<GameObject>(playerObject));
+   gameObjects.add(shared_ptr<GameObject>(playerObject));
 
     // Read in from text file
     int levelDesign[50][50]; 
@@ -332,7 +347,7 @@ int main(int argc, char **argv)
     for (i = 0; i < 50; i++) {
       for (j = 0; j < 50; j++) {
         if (levelDesign[i][j]) {
-          gameObjects.push_back(shared_ptr<GameObject>(new Wall(
+          gameObjects.add(shared_ptr<GameObject>(new Wall(
 	    &cubeMesh,
 	    &handles, //model handle
             vec3((i-25), 0, (j-25)), //position
@@ -357,7 +372,6 @@ int main(int argc, char **argv)
     do{
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
-        //printf("score: %d\nbunnies: %d\n", playerObject->score, currBunnies - playerObject->score);
         double deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
@@ -372,7 +386,7 @@ int main(int argc, char **argv)
         playerObject->position.y = camera->position.y - 1;
         playerObject->position.z = camera->position.z;
         playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
-        drawGameObjects(gameObjects, deltaTime);
+        drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 
         glfwSwapBuffers(window);

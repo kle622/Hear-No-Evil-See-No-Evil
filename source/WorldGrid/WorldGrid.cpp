@@ -3,6 +3,9 @@
 WorldGrid::WorldGrid(int width, int height) {
 	this->width = width;
 	this->height = height;
+	this->grid.resize(width);
+	for (int i = 0; i < grid.size(); i++)
+		grid[i].resize(height);
 }
 
 void WorldGrid::add(shared_ptr<GameObject> gameObject) {
