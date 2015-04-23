@@ -35,7 +35,7 @@
 #define WORLD_WIDTH 60
 #define WORLD_HEIGHT 60
 
-#define CAMERA_FOV 45
+#define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 
@@ -247,8 +247,8 @@ void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &handles,
-      vec3(0, 0, 0),
-      0,
+      vec3(20, 0, 0),
+      20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
       CAMERA_SPEED,
@@ -262,8 +262,8 @@ void initPlayer(WorldGrid* gameObjects) {
 
 void initGuards(WorldGrid* gameObjects) {
 	vector<vec3> guardPath;
-	guardPath.push_back(vec3(0, 0, 0));
-	guardPath.push_back(vec3(5, 0, -5));
+	guardPath.push_back(vec3(-5, 0, 8));
+	guardPath.push_back(vec3(-5, 0, -8));
 
 	Guard* guardObject = new Guard(
 		&guardMesh,
@@ -272,7 +272,7 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(1.5, 1.5, 1.5),
 		1,
-		5,
+		20,
 		guardPath
 	);
 
