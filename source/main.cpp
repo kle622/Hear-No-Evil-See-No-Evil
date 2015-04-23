@@ -60,6 +60,7 @@ int g_SM = 2;
 
 Camera* camera;
 Player* playerObject;
+vec3 oldPosition;
 Handles handles;
 Mesh guardMesh;
 Mesh playerMesh;
@@ -146,6 +147,45 @@ void initGL() {
     initVertexObject(&posBufObjG, &norBufObjG);
 }
 
+void getWindowinput(GLFWwindow* window, double deltaTime) {
+    float forwardYVelocity = 0;
+    float sideYVelocity = 0;
+    oldPosition = playerObject->position;
+    //cout << "INSIDE GETWINDOW Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
+
+    if (cameraFly) {
+        forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
+        sideYVelocity = camera->rightV.y * CAMERA_SPEED * deltaTime;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !restrictDirection[0]) {
+        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+        playerObject->position -= velocity;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !restrictDirection[1]) {
+        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+        playerObject->position += velocity;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !restrictDirection[2]) {
+        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+        playerObject->position += velocity;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS  && !restrictDirection[3]) {
+        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+        playerObject->position -= velocity;
+    }
+    // Reset all direction restrictions to 0(false)
+    for (size_t i = 0; i < 4; i++)
+    {
+      restrictDirection[i] = false;
+    }
+    //restrictDirection[4] = { false };
+}
+
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
     ground->draw();
@@ -154,17 +194,20 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         for (int j = 0; j < gameObjects->grid[i].size(); j++) {
             for (int k = 0; k < gameObjects->grid[i][j].size(); k++) {
                 if (gameObjects->grid[i][j][k]->alive) {
-                    gameObjects->grid[i][j][k]->move(time);
                     SetMaterial(gameObjects->grid[i][j][k]->material);
                     gameObjects->grid[i][j][k]->draw();
-
+                    gameObjects->grid[i][j][k]->move(time);
                     vector<shared_ptr<GameObject>> proximity = 
                         gameObjects->getCloseObjects(gameObjects->grid[i][j][k]);
 
                     for (int r = 0; r < proximity.size(); r++) {
                         if (gameObjects->grid[i][j][k].get() != proximity[r].get()) {
-                            gameObjects->grid[i][j][k]->collide(proximity[r].get());
-
+                            if (gameObjects->grid[i][j][k]->collide(proximity[r].get())) {
+                                if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {                                
+                                    gameObjects->grid[i][j][k]->position = oldPosition;
+                                }
+                            }
+                            /**
                             // If current gameObject is Player, check if we need to restrict any directions
                             if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {
                               //cout << "Check if we must restrict a direction\n";
@@ -174,6 +217,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                               );
                               //cout << "Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
                             }
+                            **/
                         }
                     }
                 }
@@ -217,44 +261,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         cameraFly = !cameraFly;
     }
-}
-
-void getWindowinput(GLFWwindow* window, double deltaTime) {
-    float forwardYVelocity = 0;
-    float sideYVelocity = 0;
-    //cout << "INSIDE GETWINDOW Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
-
-    if (cameraFly) {
-        forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
-        sideYVelocity = camera->rightV.y * CAMERA_SPEED * deltaTime;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !restrictDirection[0]) {
-        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
-        playerObject->position -= velocity;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !restrictDirection[1]) {
-        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
-        playerObject->position += velocity;
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !restrictDirection[2]) {
-        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
-        playerObject->position += velocity;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS  && !restrictDirection[3]) {
-        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
-        playerObject->position -= velocity;
-    }
-    // Reset all direction restrictions to 0(false)
-    for (size_t i = 0; i < 4; i++)
-    {
-      restrictDirection[i] = false;
-    }
-    //restrictDirection[4] = { false };
 }
 
 void initGuards(WorldGrid* gameObjects) {
@@ -403,7 +409,7 @@ int main(int argc, char **argv)
             vec3(1.0, 5.0, 1.0), //scale
             vec3(1, 0, 0), //direction
             0, //speed
-            vec3(2.5, 2.5, 2.5), //bounding box
+            vec3(1, 10, 1), //bounding box
             0, //scanRadius
             1  //material
             )));
