@@ -28,6 +28,7 @@
 #include "GameObject/Handles.h"
 #include "GameObject/Mesh.h"
 #include "Camera/Camera.h"
+#include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 
 #include "WorldGrid/WorldGrid.h"
@@ -38,6 +39,7 @@
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
+#define CAMERA_ZOOM 3.0f
 
 #define BUNNY_COUNT 25
 #define BUNNY_SPEED 10.0f
@@ -59,6 +61,7 @@ int g_height;
 int g_SM = 2;
 
 Camera* camera;
+Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
 Handles handles;
@@ -148,32 +151,43 @@ void initGL() {
 void getWindowinput(GLFWwindow* window, double deltaTime) {
     float forwardYVelocity = 0;
     float sideYVelocity = 0;
+    glm::vec3 forward = camera3DPerson->getForward();
+    glm::vec3 strafe = camera3DPerson->getStrafe();
+    glm::vec3 up = camera3DPerson->getUp();
     oldPosition = playerObject->position;
 
-    if (cameraFly) {
+    /*if (cameraFly) {
         forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
         sideYVelocity = camera->rightV.y * CAMERA_SPEED * deltaTime;
-    }
+    }*/
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
         playerObject->position -= velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
+        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
         playerObject->position += velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
         playerObject->position += velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
+        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
         playerObject->position -= velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
     }
 }
 
@@ -220,8 +234,10 @@ void beginDrawGL() {
     // Use our GLSL program
     glUseProgram(handles.prog);
     glUniform3f(handles.uLightPos, g_light.x, g_light.y, g_light.z);
-    glUniform3f(handles.uCamPos, camera->position.x,
-        camera->position.y, camera->position.z);
+    /*glUniform3f(handles.uCamPos, camera->position.x,
+        camera->position.y, camera->position.z);*/
+    glUniform3f(handles.uCamPos, camera3DPerson->eye.x,
+        camera3DPerson->eye.y, camera3DPerson->eye.z);
     GLSL::enableVertexAttribArray(handles.aPosition);
     GLSL::enableVertexAttribArray(handles.aNormal);
 }
@@ -246,6 +262,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         cameraFly = !cameraFly;
     }
+}
+
+void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
+{
+  double x_center = g_width / 2.0;
+  double y_center = g_height / 2.0;
+
+  double dx = xpos - x_center;
+  double dy = ypos - y_center;
+
+  camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
+  camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
+
+  glfwSetCursorPos(window, x_center, y_center);
 }
 
 void initPlayer(WorldGrid* gameObjects) {
@@ -369,6 +399,7 @@ int main(int argc, char **argv)
     
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
     // Initialize GLAD
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -412,10 +443,13 @@ int main(int argc, char **argv)
     initGround();
     
     //initialize the camera
-    camera = new Camera(window, handles.uViewMatrix, handles.uProjMatrix,
+    /*camera = new Camera(window, handles.uViewMatrix, handles.uProjMatrix,
         vec3(0, 1, 0), CAMERA_FOV,
-        (float)g_width / g_height, CAMERA_NEAR, CAMERA_FAR);
+        (float)g_width / g_height, CAMERA_NEAR, CAMERA_FAR);*/
 
+    camera3DPerson = new Camera3DPerson(&handles, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+                                        (float)g_width / (float)g_height,
+                                        CAMERA_NEAR, CAMERA_FAR);
     double timeCounter = 0;
     do{
         //timer stuff
@@ -426,14 +460,15 @@ int main(int argc, char **argv)
 
         beginDrawGL();
         getWindowinput(window, deltaTime);
-        camera->position.x = playerObject->position.x;
+        /*camera->position.x = playerObject->position.x;
         camera->position.y = playerObject->position.y + 1;
         camera->position.z = playerObject->position.z;
         camera->setProjection(g_width, g_height);
-        camera->setView(g_width, g_height);
-        playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
-		//checkGuardVision(player, guard);
-		drawGameObjects(&gameObjects, deltaTime);
+        camera->setView(g_width, g_height);*/
+        camera3DPerson->setProjection();
+        camera3DPerson->setView();
+        //checkGuardVision(player, guard);
+        drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 
         glfwSwapBuffers(window);

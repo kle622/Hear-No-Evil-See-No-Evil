@@ -1,20 +1,20 @@
 #include "Camera3DPerson.h"
 
-Camera3DPerson:Camera3DPerson(Handles *handles, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far)
+Camera3DPerson::Camera3DPerson(Handles *handles, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far) : Camera(handles, focus->position, getEye(), glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far)
 {
   // when both angles are 0, the camera is directly behind the player, horizontal
   this->phi = 0;  // increase phi to look down
   this->theta = 0;  // increase theta to look left
   this->focus = focus;
   this->zoom = zoom;
-  Camera(handles,
+  /*Camera(handles,
          focus->position,
          getEye(),
          glm::vec3(0.0f, 1.0f, 0.0f),
-         fov, aspect, _near, _far);
+         fov, aspect, _near, _far);*/
 }
 
-glm::vec3 Camera3DPerson:getEye()
+glm::vec3 Camera3DPerson::getEye()
 {
   /*glm::vec3 res = this->focus->direction;
   res.y = 0;
@@ -33,6 +33,7 @@ glm::vec3 Camera3DPerson:getEye()
                             sin(phi),
                             sin(theta) * cos(phi));
   res *= this->zoom;
+  res += this->lookat;
   return res;
 }
 
@@ -40,14 +41,24 @@ glm::vec3 Camera3DPerson:getEye()
 void Camera3DPerson::moveVert(float step)
 {
   this->phi -= step;
-  this->eye = getEye();
 }
 
 // positive step looks right
 void Camera3DPerson::moveHoriz(float step)
 {
   this->theta -= step;
+}
+
+//Object Methods
+void Camera3DPerson::setView()
+{
   this->eye = getEye();
+  this->lookat = this->focus->position;
+  Camera::setView();
+}
+void Camera3DPerson::setProjection()
+{
+  Camera::setProjection();
 }
 
 void Camera3DPerson::checkCollide(vector<shared_ptr<GameObject>> objects)

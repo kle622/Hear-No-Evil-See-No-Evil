@@ -20,6 +20,7 @@ set(HEADERS
    
    Camera/Camera.h
    Camera/Camera3DPerson.h
+
    Path/Path.h
 )
 
@@ -45,5 +46,6 @@ set(SOURCES
    
    Camera/Camera.cpp
    Camera/Camera3DPerson.cpp
+
    Path/Path.cpp
 )
