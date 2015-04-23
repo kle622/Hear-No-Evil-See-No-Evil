@@ -180,11 +180,16 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
     ground->draw();
+	Guard *guard;
 
     for (int i = 0; i < gameObjects->grid.size(); i ++) {
         for (int j = 0; j < gameObjects->grid[i].size(); j++) {
             for (int k = 0; k < gameObjects->grid[i][j].size(); k++) {
                 if (gameObjects->grid[i][j][k]->alive) {
+					if (guard = dynamic_cast<Guard*>(gameObjects->grid[i][j][k].get())) {
+						// if its a guard, run "detect" on the player
+						guard->detect(playerObject);
+					}
                     SetMaterial(gameObjects->grid[i][j][k]->material);
                     gameObjects->grid[i][j][k]->draw();
                     gameObjects->grid[i][j][k]->move(time);
@@ -243,7 +248,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-Player* initPlayer(WorldGrid* gameObjects) {
+void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &handles,
@@ -258,11 +263,9 @@ Player* initPlayer(WorldGrid* gameObjects) {
    );
 
    gameObjects->add(shared_ptr<GameObject>(playerObject));
-   return playerObject;
 }
 
-// returns the amount of guards we have in the level, a correct return here is IMPORTANT -JB
-Guard* initGuards(WorldGrid* gameObjects) {
+void initGuards(WorldGrid* gameObjects) {
 	vector<vec3> guardPath;
 	guardPath.push_back(vec3(-5, 0, 8));
 	guardPath.push_back(vec3(-5, 0, -8));
@@ -279,8 +282,6 @@ Guard* initGuards(WorldGrid* gameObjects) {
 	);
 
 	gameObjects->add(shared_ptr<GameObject>(guardObject));
-
-	return guardObject;
 }
 
 void initGround() {
@@ -341,11 +342,6 @@ void initWalls(WorldGrid* gameObjects) {
     }
 }
 
-// only accepts one guard for now, we will eventually expand this. -JB
-void checkGuardVision(Player *player, Guard *guard) {
-	guard->detect(player);
-}
-
 int main(int argc, char **argv)
 {
     // Initialise GLFW
@@ -393,11 +389,11 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef _WIN32
-    guardMesh.loadShapes(getResourcePath("models\\shark.obj"));
+    guardMesh.loadShapes(getResourcePath("models\\player.obj"));
     playerMesh.loadShapes(getResourcePath("models\\godzilla.obj"));
     cubeMesh.loadShapes(getResourcePath("models\\cube.obj"));
 #else
-    guardMesh.loadShapes(getResourcePath("models/shark.obj"));
+    guardMesh.loadShapes(getResourcePath("models/player.obj"));
     playerMesh.loadShapes(getResourcePath("models/godzilla.obj"));
     cubeMesh.loadShapes(getResourcePath("models/cube.obj"));
 #endif
@@ -410,8 +406,8 @@ int main(int argc, char **argv)
 	//	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
 
-    Player* player = initPlayer(&gameObjects);
-    Guard *guard = initGuards(&gameObjects);
+    initPlayer(&gameObjects);
+    initGuards(&gameObjects);
     initWalls(&gameObjects);
     initGround();
     
@@ -436,7 +432,7 @@ int main(int argc, char **argv)
         camera->setProjection(g_width, g_height);
         camera->setView(g_width, g_height);
         playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
-		checkGuardVision(player, guard);
+		//checkGuardVision(player, guard);
 		drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 
