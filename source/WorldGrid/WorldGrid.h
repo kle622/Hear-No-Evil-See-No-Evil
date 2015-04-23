@@ -13,6 +13,7 @@ class WorldGrid {
 		//Properties
 		int width;
 		int height;
+		vector<shared_ptr<GameObject>> list; //store list of all game objects so we don't have to iterate the grid
 		vector<vector<vector<shared_ptr<GameObject>>>> grid;
 
 		//Constructor
