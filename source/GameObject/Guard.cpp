@@ -25,7 +25,6 @@ void Guard::move(float time) {
 
 		//check if we're at next node now
 		if (dot(direction, normalize(motionPath[currentNode + pathDirection] - position)) < 0) {
-			printf("Advanced to next node, current = %d, next = %d\n", currentNode, currentNode + pathDirection);
 			moving = false;
 			currentNode += pathDirection;
 			position = motionPath[currentNode];
@@ -33,7 +32,6 @@ void Guard::move(float time) {
 				pathDirection *= -1;
 			}
 			else {
-				printf("Using sweepDirection...\n");
 				sweepDirection = (int)sign(cross(direction, motionPath[currentNode + pathDirection] - motionPath[currentNode]).y);
 			}
 		}
@@ -58,7 +56,6 @@ void Guard::move(float time) {
 bool Guard::collide(GameObject* object) {
 	// if object is within guard's cone of vision, return true
 	if (dynamic_cast<Player*>(object)) {
-		printf("player is in radius\n");
 		if (dot(normalize(object->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
 			material = 3;
 			//velocity = 0;
