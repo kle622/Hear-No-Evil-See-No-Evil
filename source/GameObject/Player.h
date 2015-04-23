@@ -25,7 +25,6 @@ class Player: public GameObject {
   //Object methods
   bool collide(GameObject* object);
   void move(float time);
-  bool* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
 #endif

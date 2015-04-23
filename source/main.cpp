@@ -73,8 +73,6 @@ glm::vec3 g_light(0, 100, 0);
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 
-// [A, D, W, S] : if spot == 1, restrict movement that direction
-bool restrictDirection[4];
 double deltaTime;
 
 float getRand(double M, double N)
@@ -151,39 +149,32 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     float forwardYVelocity = 0;
     float sideYVelocity = 0;
     oldPosition = playerObject->position;
-    //cout << "INSIDE GETWINDOW Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
 
     if (cameraFly) {
         forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
         sideYVelocity = camera->rightV.y * CAMERA_SPEED * deltaTime;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !restrictDirection[0]) {
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
         playerObject->position -= velocity;
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !restrictDirection[1]) {
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(camera->rightV.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, camera->rightV.z * CAMERA_SPEED * deltaTime);
         playerObject->position += velocity;
     }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !restrictDirection[2]) {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
         playerObject->position += velocity;
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS  && !restrictDirection[3]) {
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(camera->direction.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, camera->direction.z * CAMERA_SPEED * deltaTime);
         playerObject->position -= velocity;
     }
-    // Reset all direction restrictions to 0(false)
-    for (size_t i = 0; i < 4; i++)
-    {
-      restrictDirection[i] = false;
-    }
-    //restrictDirection[4] = { false };
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
@@ -207,17 +198,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                                     gameObjects->grid[i][j][k]->position = oldPosition;
                                 }
                             }
-                            /**
-                            // If current gameObject is Player, check if we need to restrict any directions
-                            if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {
-                              //cout << "Check if we must restrict a direction\n";
-                              memcpy(restrictDirection,
-                                     (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get()))->findRestrictedMovement(camera, deltaTime, proximity[r].get()),
-                                     sizeof(restrictDirection)
-                              );
-                              //cout << "Restricted on " << restrictDirection[0] << restrictDirection[1] << restrictDirection[2] << restrictDirection[3] << "\n";
-                            }
-                            **/
                         }
                     }
                 }
@@ -263,6 +243,23 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
+void initPlayer(WorldGrid* gameObjects) {
+    playerObject = new Player(
+      &playerMesh,
+      &handles,
+      vec3(0, 0, 0),
+      0,
+      vec3(1.0, 1.0, 1.0), //scale
+      vec3(1, 0, 0),
+      CAMERA_SPEED,
+      vec3(2.5, 2.5, 2.5),
+      3,
+      3
+   );
+
+   gameObjects->add(shared_ptr<GameObject>(playerObject));
+}
+
 void initGuards(WorldGrid* gameObjects) {
 	vector<vec3> guardPath;
 	guardPath.push_back(vec3(0, 0, 0));
@@ -277,9 +274,67 @@ void initGuards(WorldGrid* gameObjects) {
 		1,
 		5,
 		guardPath
-		);
+	);
 
-	(*gameObjects).add(shared_ptr<GameObject>(guardObject));
+	gameObjects->add(shared_ptr<GameObject>(guardObject));
+}
+
+void initGround() {
+    ground = new Shape(
+        &handles, //model handle
+        vec3(0), //position
+        0, //rotation
+        vec3(1.0,1.0,1.0), //scale
+        vec3(1, 0, 0), //direction
+        0, //velocity
+        6, //indices
+        posBufObjG, 
+        norBufObjG,
+        5 //material
+    );
+}
+
+void initWalls(WorldGrid* gameObjects) {
+    int levelDesign[50][50]; 
+    char ch;
+    fstream fin(getResourcePath("LevelDesign.txt"), fstream::in);
+    int i = 0, j = 0;
+    while (fin >> noskipws >> ch) {
+      if (ch == '\n') {
+        j = 0;
+        i++;
+      }
+      else {
+        levelDesign[i][j] = ch - '0';
+        j++;
+      }
+    }
+    for (i = 0; i < 50; i++) {
+      cout << '\n';
+      for (j = 0; j < 50; j++) {
+        cout << levelDesign[i][j];
+      }
+    }
+    cout << '\n';
+    // Create the wall objects
+    for (i = 0; i < 50; i++) {
+      for (j = 0; j < 50; j++) {
+        if (levelDesign[i][j]) {
+          gameObjects->add(shared_ptr<GameObject>(new Wall(
+        &cubeMesh,
+        &handles, //model handle
+            vec3((i-25), 4, (j-25)), //position
+            0, //rotation
+            vec3(1.0, 5.0, 1.0), //scale
+            vec3(1, 0, 0), //direction
+            0, //speed
+            vec3(1, 8, 1), //bounding box
+            0, //scanRadius
+            1  //material
+            )));
+        }
+      }
+    }
 }
 
 int main(int argc, char **argv)
@@ -344,78 +399,10 @@ int main(int argc, char **argv)
     //vector<shared_ptr <GameObject> > gameObjects;
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
 
-    int currBunnies = 0;
-
-    ground = new Shape(
-        &handles, //model handle
-        vec3(0), //position
-        0, //rotation
-        vec3(1.0,1.0,1.0), //scale
-        vec3(1, 0, 0), //direction
-        0, //velocity
-	6, //indices
-	posBufObjG, 
-	norBufObjG,
-        5 //material
-	);
-
-    playerObject = new Player(
-      &playerMesh,
-      &handles,
-      vec3(0, 0, 0),
-      0,
-      vec3(1.0, 1.0, 1.0), //scale
-      vec3(1, 0, 0),
-      CAMERA_SPEED,
-      vec3(2.5, 2.5, 2.5),
-      3,
-      3
-   );
-
-   gameObjects.add(shared_ptr<GameObject>(playerObject));
-   initGuards(&gameObjects);
-
-    // Read in from text file
-    int levelDesign[50][50]; 
-    char ch;
-    fstream fin(getResourcePath("LevelDesign.txt"), fstream::in);
-    int i = 0, j = 0;
-    while (fin >> noskipws >> ch) {
-      if (ch == '\n') {
-        j = 0;
-        i++;
-      }
-      else {
-        levelDesign[i][j] = ch - '0';
-        j++;
-      }
-    }
-    for (i = 0; i < 50; i++) {
-      cout << '\n';
-      for (j = 0; j < 50; j++) {
-        cout << levelDesign[i][j];
-      }
-    }
-    cout << '\n';
-    // Create the wall objects
-    for (i = 0; i < 50; i++) {
-      for (j = 0; j < 50; j++) {
-        if (levelDesign[i][j]) {
-          gameObjects.add(shared_ptr<GameObject>(new Wall(
-	    &cubeMesh,
-	    &handles, //model handle
-            vec3((i-25), 0, (j-25)), //position
-            0, //rotation
-            vec3(1.0, 5.0, 1.0), //scale
-            vec3(1, 0, 0), //direction
-            0, //speed
-            vec3(1, 10, 1), //bounding box
-            0, //scanRadius
-            1  //material
-            )));
-        }
-      }
-    }
+    initPlayer(&gameObjects);
+    initGuards(&gameObjects);
+    initWalls(&gameObjects);
+    initGround();
     
     //initialize the camera
     camera = new Camera(window, handles.uViewMatrix, handles.uProjMatrix,

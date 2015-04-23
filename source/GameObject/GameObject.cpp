@@ -43,14 +43,8 @@ bool intersect(float point1, float point2, float dim1, float dim2) {
 
 bool GameObject::collide(GameObject* object) {
     //WRITE YOUR OWN DAMN COLLIDE
-    return true;
+    return false;
 }
-
-//int *findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object) {
-//  int blah[1];
-//  // HANDLED IN PLAYER CLASS
-//  return blah;
-//}
 
 void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
