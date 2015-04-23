@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "GameObject.h"
+#include "Player.h"
 #include "Mesh.h"
 #include "Handles.h"
 #include "../glm/glm.hpp"
@@ -32,6 +33,7 @@ public:
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
+	bool detect(Player* player);
 };
 
 #endif

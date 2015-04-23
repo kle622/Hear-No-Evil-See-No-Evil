@@ -54,18 +54,20 @@ void Guard::move(float time) {
 }
 
 bool Guard::collide(GameObject* object) {
+	// moved old code from here down to detect. Should improve performance drastically.
+	return false;
+}
+
+bool Guard::detect(Player* player) {
 	// if object is within guard's cone of vision, return true
-	if (dynamic_cast<Player*>(object)) {
-		if (dot(normalize(object->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
-			material = 3;
-			//velocity = 0;
-			return true;
-		}
-		else {
-			material = 1;
-			return false;
-		}
+	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
+		material = 3;
+		//velocity = 0;
+		return true;
+	}
+	else {
+		material = 1;
+		return false;
 	}
 	return false;
-
 }

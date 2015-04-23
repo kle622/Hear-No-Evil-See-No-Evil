@@ -243,7 +243,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void initPlayer(WorldGrid* gameObjects) {
+Player* initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &handles,
@@ -258,9 +258,11 @@ void initPlayer(WorldGrid* gameObjects) {
    );
 
    gameObjects->add(shared_ptr<GameObject>(playerObject));
+   return playerObject;
 }
 
-void initGuards(WorldGrid* gameObjects) {
+// returns the amount of guards we have in the level, a correct return here is IMPORTANT -JB
+Guard* initGuards(WorldGrid* gameObjects) {
 	vector<vec3> guardPath;
 	guardPath.push_back(vec3(-5, 0, 8));
 	guardPath.push_back(vec3(-5, 0, -8));
@@ -272,11 +274,13 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(1.5, 1.5, 1.5),
 		1,
-		20,
+		1,
 		guardPath
 	);
 
 	gameObjects->add(shared_ptr<GameObject>(guardObject));
+
+	return guardObject;
 }
 
 void initGround() {
@@ -335,6 +339,11 @@ void initWalls(WorldGrid* gameObjects) {
         }
       }
     }
+}
+
+// only accepts one guard for now, we will eventually expand this. -JB
+void checkGuardVision(Player *player, Guard *guard) {
+	guard->detect(player);
 }
 
 int main(int argc, char **argv)
@@ -397,10 +406,12 @@ int main(int argc, char **argv)
 
     //initialize game objects
     //vector<shared_ptr <GameObject> > gameObjects;
+	//First item is always the player, followed by numGuards guards,
+	//	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
 
-    initPlayer(&gameObjects);
-    initGuards(&gameObjects);
+    Player* player = initPlayer(&gameObjects);
+    Guard *guard = initGuards(&gameObjects);
     initWalls(&gameObjects);
     initGround();
     
@@ -425,7 +436,8 @@ int main(int argc, char **argv)
         camera->setProjection(g_width, g_height);
         camera->setView(g_width, g_height);
         playerObject->rotation = atan2f(camera->direction.x, camera->direction.z) * 180 / M_PI + 180;
-        drawGameObjects(&gameObjects, deltaTime);
+		checkGuardVision(player, guard);
+		drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 
         glfwSwapBuffers(window);
