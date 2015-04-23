@@ -262,6 +262,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         cameraFly = !cameraFly;
     }
+    if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      camera3DPerson->zoom *= 0.9;
+    }
+    if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      camera3DPerson->zoom *= 1.1;
+    }
 }
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
