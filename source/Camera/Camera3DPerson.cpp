@@ -5,6 +5,8 @@ Camera3DPerson::Camera3DPerson(Handles *handles, GameObject *focus, float zoom, 
   // when both angles are 0, the camera is directly behind the player, horizontal
   this->phi = 0;  // increase phi to look down
   this->theta = 0;  // increase theta to look left
+  this->boundHigh = 85 * M_PI / 180;  // bound is stored in radians
+  this->boundLow = -10 * M_PI / 180;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
   /*Camera(handles,
@@ -41,6 +43,12 @@ glm::vec3 Camera3DPerson::getEye()
 void Camera3DPerson::moveVert(float step)
 {
   this->phi -= step;
+  if (this->phi > this->boundHigh) {
+    this->phi = this->boundHigh;
+  }
+  if (this->phi < this->boundLow) {
+    this->phi = this->boundLow;
+  }
 }
 
 // positive step looks right
