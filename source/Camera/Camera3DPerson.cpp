@@ -42,7 +42,7 @@ glm::vec3 Camera3DPerson::getEye()
 // positive step looks up
 void Camera3DPerson::moveVert(float step)
 {
-  this->phi -= step;
+  this->phi += step;
   if (this->phi > this->boundHigh) {
     this->phi = this->boundHigh;
   }
