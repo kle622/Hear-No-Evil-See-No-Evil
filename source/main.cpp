@@ -198,6 +198,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         vector<shared_ptr<GameObject>> proximity = 
             gameObjects->getCloseObjects(gameObjects->list[i]);
 
+        if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+            guard->detect(playerObject);
+        }
+
         for (int j = 0; j < proximity.size(); j++) {
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
