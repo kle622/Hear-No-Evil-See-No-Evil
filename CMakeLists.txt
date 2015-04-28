@@ -35,11 +35,6 @@ list(APPEND LIBS
    ${CMAKE_DL_LIBS}
 )
 
-# c math library
-list(APPEND LIBS
-   -lm
-)
-
 foreach(HEADER ${HEADERS})
    list(APPEND ABS_HEADERS
       "${SRC_DIR}/${HEADER}"
