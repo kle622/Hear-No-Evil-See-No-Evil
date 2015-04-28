@@ -5,8 +5,8 @@ Camera3DPerson::Camera3DPerson(Handles *handles, GameObject *focus, float zoom, 
   // when both angles are 0, the camera is directly behind the player, horizontal
   this->phi = 0;  // increase phi to look down
   this->theta = 0;  // increase theta to look left
-  this->boundHigh = 85 * M_PI / 180;  // bound is stored in radians
-  this->boundLow = -10 * M_PI / 180;  // bound is stored in radians
+  this->upperBound = UPPER_BOUND_DEFAULT;  // bound is stored in radians
+  this->lowerBound = LOWER_BOUND_DEFAULT;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
 }
@@ -25,11 +25,13 @@ glm::vec3 Camera3DPerson::getEye()
 void Camera3DPerson::moveVert(float step)
 {
   this->phi += step;
-  if (this->phi > this->boundHigh) {
-    this->phi = this->boundHigh;
+  float upperBoundRad = this->upperBound * M_PI / 180;
+  float lowerBoundRad = this->lowerBound * M_PI / 180;
+  if (this->phi > upperBoundRad) {
+    this->phi = upperBoundRad;
   }
-  if (this->phi < this->boundLow) {
-    this->phi = this->boundLow;
+  if (this->phi < lowerBoundRad) {
+    this->phi = lowerBoundRad;
   }
 }
 
@@ -49,17 +51,6 @@ void Camera3DPerson::setView()
 void Camera3DPerson::setProjection()
 {
   Camera::setProjection();
-}
-
-// bound functions take degrees and convert to radians
-void Camera3DPerson::setUpperBound(float degrees)
-{
-  this->boundHigh = degrees * M_PI / 180;
-}
-
-void Camera3DPerson::setLowerBound(float degrees)
-{
-  this->boundLow = degrees * M_PI / 180;
 }
 
 void Camera3DPerson::checkCollide(vector<shared_ptr<GameObject>> objects)
