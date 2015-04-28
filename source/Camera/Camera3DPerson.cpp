@@ -25,8 +25,8 @@ glm::vec3 Camera3DPerson::getEye()
 void Camera3DPerson::moveVert(float step)
 {
   this->phi += step;
-  float upperBoundRad = this->upperBound * M_PI / 180;
-  float lowerBoundRad = this->lowerBound * M_PI / 180;
+  float upperBoundRad = this->upperBound * PI / 180;
+  float lowerBoundRad = this->lowerBound * PI / 180;
   if (this->phi > upperBoundRad) {
     this->phi = upperBoundRad;
   }

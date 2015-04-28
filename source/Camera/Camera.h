@@ -19,6 +19,8 @@
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
 
+#define PI 3.1415926535897932384626
+
 class Camera {
     public:
         //Properties
