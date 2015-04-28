@@ -421,7 +421,7 @@ int main(int argc, char **argv)
     printf("added objects\n");
     
     //initialize the camera
-    camera3DPerson = new Camera3DPerson(&handles, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+    camera3DPerson = new Camera3DPerson(&handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR);
     double timeCounter = 0;
