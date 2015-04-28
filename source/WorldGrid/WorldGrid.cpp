@@ -1,5 +1,5 @@
 #include "WorldGrid.h"
-#define CELL_SIZE 4
+#define CELL_SIZE 10
 
 WorldGrid::WorldGrid(int width, int height) {
 	this->width = width;
