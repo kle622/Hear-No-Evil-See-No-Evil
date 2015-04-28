@@ -39,7 +39,7 @@ void Guard::move(float time) {
 	else { // at a path node, re-orienting to face next path node
 		//printf("Endpoint? %s\n", (currentNode == 0 || currentNode == motionPath.size() - 1) ? "yes" : "no");
 		int rotateDirection = (currentNode == 0 || currentNode == motionPath.size() - 1) ? endpointDirection : sweepDirection;
-		direction = vec3(glm::rotateY(vec4(direction, 0), 10.0f * velocity * time * rotateDirection));
+		direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * rotateDirection));
 
 		// check to see if we are now oriented correctly
 		float cross_y = cross(direction, motionPath[currentNode + pathDirection] - motionPath[currentNode]).y;
