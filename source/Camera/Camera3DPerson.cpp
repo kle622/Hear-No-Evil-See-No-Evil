@@ -45,8 +45,8 @@ void Camera3DPerson::moveHoriz(float step)
 //Object Methods
 void Camera3DPerson::setView()
 {
-  this->eye = getEye();
   this->lookat = this->focus->position;
+  this->eye = getEye();
   Camera::setView();
 }
 void Camera3DPerson::setProjection()

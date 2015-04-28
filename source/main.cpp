@@ -162,6 +162,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         playerObject->position -= velocity;
         glm::vec3 forward = camera3DPerson->getForward();
         playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+        //camera3DPerson->setView();
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
@@ -169,6 +170,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         playerObject->position += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
         playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+        //camera3DPerson->setView();
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -176,6 +178,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         playerObject->position += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
         playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+        //camera3DPerson->setView();
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -183,6 +186,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         playerObject->position -= velocity;
         glm::vec3 forward = camera3DPerson->getForward();
         playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+        //camera3DPerson->setView();
     }
 }
 
@@ -246,9 +250,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 0.9;
+      //camera3DPerson->setView();
     }
     if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 1.1;
+      //camera3DPerson->setView();
     }
 }
 
@@ -262,6 +268,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 
   camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
   camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
+  //camera3DPerson->setView();
 
   glfwSetCursorPos(window, x_center, y_center);
 }
@@ -436,6 +443,7 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
 
         beginDrawGL();
+        // make sure these lines are in this order
         getWindowinput(window, deltaTime);
         camera3DPerson->setProjection();
         camera3DPerson->setView();
