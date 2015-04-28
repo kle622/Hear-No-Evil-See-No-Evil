@@ -46,6 +46,4 @@ set(SOURCES
    
    Camera/Camera.cpp
    Camera/Camera3DPerson.cpp
-
-   Path/Path.cpp
 )

@@ -327,7 +327,7 @@ void initGround() {
 void initWalls(WorldGrid* gameObjects) {
     int levelDesign[50][50]; 
     char ch;
-    fstream fin(getResourcePath("LevelDesign.txt"), fstream::in);
+    fstream fin(resPath("LevelDesign.txt"), fstream::in);
     int i = 0, j = 0;
     while (fin >> noskipws >> ch) {
       if (ch == '\n') {
@@ -408,21 +408,12 @@ int main(int argc, char **argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initGL();
-#ifdef _WIN32
-    handles.installShaders(getResourcePath("shaders\\vert.glsl"), getResourcePath("shaders\\frag.glsl"));
-#else
-    handles.installShaders(getResourcePath("shaders/vert.glsl"), getResourcePath("shaders/frag.glsl"));
-#endif
+    handles.installShaders(resPath(sysPath("shaders", "vert.glsl")),
+                           resPath(sysPath("shaders", "frag.glsl")));
 
-#ifdef _WIN32
-    guardMesh.loadShapes(getResourcePath("models\\player.obj"));
-    playerMesh.loadShapes(getResourcePath("models\\godzilla.obj"));
-    cubeMesh.loadShapes(getResourcePath("models\\cube.obj"));
-#else
-    guardMesh.loadShapes(getResourcePath("models/player.obj"));
-    playerMesh.loadShapes(getResourcePath("models/godzilla.obj"));
-    cubeMesh.loadShapes(getResourcePath("models/cube.obj"));
-#endif
+    guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+    playerMesh.loadShapes(resPath(sysPath("models", "godzilla.obj")));
+    cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
 
     srand(time(NULL));
 
