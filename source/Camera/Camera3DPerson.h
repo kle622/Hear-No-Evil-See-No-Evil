@@ -22,7 +22,6 @@ class Camera3DPerson: public Camera
     Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
     void moveVert(float step);
     void moveHoriz(float step);
-    void checkCollide(vector<shared_ptr<GameObject>> objects);
     //Object Methods
     virtual void setView();
     virtual void setProjection();

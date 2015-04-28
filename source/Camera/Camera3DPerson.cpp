@@ -53,8 +53,3 @@ void Camera3DPerson::setProjection()
 {
   Camera::setProjection();
 }
-
-void Camera3DPerson::checkCollide(vector<shared_ptr<GameObject>> objects)
-{
-  // TODO implement
-}
