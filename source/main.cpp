@@ -156,11 +156,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     glm::vec3 up = camera3DPerson->getUp();
     oldPosition = playerObject->position;
 
-    /*if (cameraFly) {
-        forwardYVelocity = camera->direction.y * CAMERA_SPEED * deltaTime;
-        sideYVelocity = camera->rightV.y * CAMERA_SPEED * deltaTime;
-    }*/
-
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
@@ -223,8 +218,6 @@ void beginDrawGL() {
     // Use our GLSL program
     glUseProgram(handles.prog);
     glUniform3f(handles.uLightPos, g_light.x, g_light.y, g_light.z);
-    /*glUniform3f(handles.uCamPos, camera->position.x,
-        camera->position.y, camera->position.z);*/
     glUniform3f(handles.uCamPos, camera3DPerson->eye.x,
         camera3DPerson->eye.y, camera3DPerson->eye.z);
     GLSL::enableVertexAttribArray(handles.aPosition);
@@ -390,8 +383,6 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    //printf("correct window address %p\n", window);
-    
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
@@ -430,10 +421,6 @@ int main(int argc, char **argv)
     printf("added objects\n");
     
     //initialize the camera
-    /*camera = new Camera(window, handles.uViewMatrix, handles.uProjMatrix,
-        vec3(0, 1, 0), CAMERA_FOV,
-        (float)g_width / g_height, CAMERA_NEAR, CAMERA_FAR);*/
-
     camera3DPerson = new Camera3DPerson(&handles, playerObject, CAMERA_ZOOM, CAMERA_FOV,
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR);
@@ -447,14 +434,8 @@ int main(int argc, char **argv)
 
         beginDrawGL();
         getWindowinput(window, deltaTime);
-        /*camera->position.x = playerObject->position.x;
-        camera->position.y = playerObject->position.y + 1;
-        camera->position.z = playerObject->position.z;
-        camera->setProjection(g_width, g_height);
-        camera->setView(g_width, g_height);*/
         camera3DPerson->setProjection();
         camera3DPerson->setView();
-        //checkGuardVision(player, guard);
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 

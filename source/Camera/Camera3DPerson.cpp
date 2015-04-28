@@ -9,28 +9,10 @@ Camera3DPerson::Camera3DPerson(Handles *handles, GameObject *focus, float zoom, 
   this->boundLow = -10 * M_PI / 180;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
-  /*Camera(handles,
-         focus->position,
-         getEye(),
-         glm::vec3(0.0f, 1.0f, 0.0f),
-         fov, aspect, _near, _far);*/
 }
 
 glm::vec3 Camera3DPerson::getEye()
 {
-  /*glm::vec3 res = this->focus->direction;
-  res.y = 0;
-  res = glm::normalize(res);
-  float theta = acos(glm::dot(res, glm::vec3(1.0f, 0.0f, 0.0f)));   // theta = 0 points along positive x
-  if (res.z < 0) {  // theta increases towards positive z
-    theta *= -1.0f;
-  }
-  res = glm::vec3(cos(theta) * cos(phi),
-                  sin(phi),
-                  sin(theta) * cos(phi));
-  res *= this->zoom;
-  res += this->focus->position;
-  return res;*/
   glm::vec3 res = glm::vec3(cos(theta) * cos(phi),
                             sin(phi),
                             sin(theta) * cos(phi));
@@ -67,6 +49,17 @@ void Camera3DPerson::setView()
 void Camera3DPerson::setProjection()
 {
   Camera::setProjection();
+}
+
+// bound functions take degrees and convert to radians
+void Camera3DPerson::setUpperBound(float degrees)
+{
+  this->boundHigh = degrees * M_PI / 180;
+}
+
+void Camera3DPerson::setLowerBound(float degrees)
+{
+  this->boundLow = degrees * M_PI / 180;
 }
 
 void Camera3DPerson::checkCollide(vector<shared_ptr<GameObject>> objects)

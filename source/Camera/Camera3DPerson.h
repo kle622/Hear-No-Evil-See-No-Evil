@@ -18,8 +18,8 @@ class Camera3DPerson: public Camera
     void moveVert(float step);
     void moveHoriz(float step);
     void checkCollide(vector<shared_ptr<GameObject>> objects);
-    void setUpperBound(float degrees);
-    void setLowerBound(float degrees);
+    void setUpperBound(float degrees);  // bound functions take angle in degrees
+    void setLowerBound(float degrees);  // defaults to +85, -10
     //Object Methods
     virtual void setView();
     virtual void setProjection();
