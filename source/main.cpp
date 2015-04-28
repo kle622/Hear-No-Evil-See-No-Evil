@@ -33,8 +33,8 @@
 
 #include "WorldGrid/WorldGrid.h"
 
-#define WORLD_WIDTH 60
-#define WORLD_HEIGHT 60
+#define WORLD_WIDTH 3000
+#define WORLD_HEIGHT 3000
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -194,36 +194,25 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
     ground->draw();
-	Guard *guard;
+    Guard *guard;
 
-    for (int i = 0; i < gameObjects->grid.size(); i ++) {
-        for (int j = 0; j < gameObjects->grid[i].size(); j++) {
-            for (int k = 0; k < gameObjects->grid[i][j].size(); k++) {
-                if (gameObjects->grid[i][j][k]->alive) {
-					if (guard = dynamic_cast<Guard*>(gameObjects->grid[i][j][k].get())) {
-						// if its a guard, run "detect" on the player
-						guard->detect(playerObject);
-					}
-                    SetMaterial(gameObjects->grid[i][j][k]->material);
-                    gameObjects->grid[i][j][k]->draw();
-                    gameObjects->grid[i][j][k]->move(time);
-                    vector<shared_ptr<GameObject>> proximity = 
-                        gameObjects->getCloseObjects(gameObjects->grid[i][j][k]);
+    for (int i = 0; i < gameObjects->list.size(); i++) {
+        SetMaterial(gameObjects->list[i]->material);
+        gameObjects->list[i]->draw();
+        gameObjects->list[i]->move(time);
+        vector<shared_ptr<GameObject>> proximity = 
+            gameObjects->getCloseObjects(gameObjects->list[i]);
 
-                    for (int r = 0; r < proximity.size(); r++) {
-                        if (gameObjects->grid[i][j][k].get() != proximity[r].get()) {
-                            if (gameObjects->grid[i][j][k]->collide(proximity[r].get())) {
-                                if (dynamic_cast<Player*>(gameObjects->grid[i][j][k].get())) {                                
-                                    gameObjects->grid[i][j][k]->position = oldPosition;
-                                }
-                            }
-                        }
+        for (int j = 0; j < proximity.size(); j++) {
+            if (gameObjects->list[i] != proximity[j]) {
+                if (gameObjects->list[i]->collide(proximity[j].get())) {
+                    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
+                        gameObjects->list[i]->position = oldPosition;
                     }
                 }
             }
         }
-    }
-
+    } 
     gameObjects->update();
 }
 
@@ -447,6 +436,7 @@ int main(int argc, char **argv)
     initGuards(&gameObjects);
     initWalls(&gameObjects);
     initGround();
+    printf("added objects\n");
     
     //initialize the camera
     /*camera = new Camera(window, handles.uViewMatrix, handles.uProjMatrix,
