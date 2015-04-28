@@ -69,3 +69,27 @@ vector<shared_ptr<GameObject>> WorldGrid::getCloseObjects(
 
 	return inProximity;
 }
+
+vector<shared_ptr<GameObject>> WorldGrid::getCloseObjects(
+	vec3 position, int scanRadius) {
+	vector<shared_ptr<GameObject>> inProximity;
+	int distance = scanRadius;
+	if (distance == 0) {
+		return inProximity;
+	}
+	int x = (floor(position.x) + (width / 2)) / CELL_SIZE;
+	int z = (floor(position.z) + (height / 2)) / CELL_SIZE;
+
+	for (int i = -distance; i <= distance; i++) {
+		for (int j = -distance; j <= distance; j++) {
+			//get objects
+			if ((x + i >= 0) && (z + j >= 0) && 
+				(x + i <= width-1) && (z + j <= height-1)) {
+				inProximity.insert(inProximity.end(), this->grid[x+i][z+j].begin(),
+					this->grid[x+i][z+j].end());
+			}
+		}
+	}
+
+	return inProximity;	
+}

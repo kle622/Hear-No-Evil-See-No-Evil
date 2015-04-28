@@ -25,6 +25,8 @@ class WorldGrid {
 		void update();
 		vector<shared_ptr<GameObject>> getCloseObjects(
 			shared_ptr<GameObject> gameObject);
+		vector<shared_ptr<GameObject>> getCloseObjects(
+			vec3 position, int scanRadius);
 };
 
 #endif
