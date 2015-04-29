@@ -13,6 +13,7 @@ class Camera3DPerson: public Camera
     float theta;
     float phi;
     glm::vec3 getEye();
+    float adjustZoom(glm::vec3 outDir);
   public:
     float zoom;
     float lowerBound; // bounds stored as degrees
