@@ -1,12 +1,14 @@
 // Nodes are formatted in the following way:
 // x-coord y-xoord z-coord smart-turn(y/n/x) turn-delay endpoint-turn-dir(cw/ccw)
-// smart-turn:          represents the type of motion through this node, 'y' means pass through smoothly without stopping; 'n' means stop, turn, then continue to next node. This flag is 'x' and ignored at endpoints.
+// smooth-turn:          represents the type of motion through this node, 'y' means pass through smoothly without stopping; 'n' means stop, turn, then continue to next node. This flag is 'x' and ignored at endpoints.
 // turn-delay:          represents the amount of time (in seconds, decimals supported) to pause before the guard turns towards towards the next node. This value is '0' and ignored if smart-turn is enabled.
 // endpoint-turn-dir:   represents the direction the guard will turn at the given endpoint to start heading the other way on the path. This is 'x' and ignored at midpoints.
 // 'Guard X' denotes a new guard, capitalization is important, numbering is not
+// 'Path: Y' denotes how many nodes the guard has in its path (how many lines to read)
 
 Guard 1:
 // line reserved for guard properties
+Path: 5
 -5 0 8 x 2 cw
 -9 0 7 y 0 x
 -11 0 0 n 1.2 x
@@ -15,5 +17,6 @@ Guard 1:
 
 Guard 2:
 // line reserved for guard properties
+Path: 2
 5 0 4 x 1 ccw
 5 0 -4 x 1.9 ccw
