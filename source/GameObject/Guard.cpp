@@ -15,6 +15,7 @@ Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dime
 	currentNode = 0;
 	pathDirection = sweepDirection = 1;
 	moving = true;
+	waitTime = 0.0f;
 }
 
 void Guard::move(float time) {
@@ -36,6 +37,10 @@ void Guard::move(float time) {
 			}
 		}
 	}
+	else if (waitTime < motionPath[currentNode].moveDelay)
+	{
+		waitTime += time;
+	}
 	else { // at a path node, re-orienting to face next path node
 		int rotateDirection = (motionPath[currentNode].end) ? motionPath[currentNode].endTurnDir : sweepDirection;
 		direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * rotateDirection));
@@ -45,6 +50,7 @@ void Guard::move(float time) {
 		//printf("ROTATING: cross_y = %.3f, sweepDirection = %d\n", cross_y, rotateDirection);
 		if (cross_y * rotateDirection < 0) { // positive value means sweepDirection was clockwise
 			moving = true;
+			waitTime = 0.0f;
 		}
 	}
 	rotation = (atan2f(direction.x, direction.z) * 180 / 3.14159f);

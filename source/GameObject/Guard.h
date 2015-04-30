@@ -25,7 +25,7 @@ public:
 	bool moving;
 	int currentNode;
 	int sweepDirection; // 1 = clockwise, -1 = ccw
-
+	float waitTime;
 
 	//Constructor
 	Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
