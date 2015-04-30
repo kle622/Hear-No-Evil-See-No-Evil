@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Handles.h"
+#include "../WorldGrid/WorldGrid.h"
 
 using namespace glm;
 
@@ -22,6 +23,7 @@ public:
   //Object methods
   void move(float time);
   bool collide(GameObject* object);
+  //void initWalls(WorldGrid* gameObjects);
 };
 
 #endif
