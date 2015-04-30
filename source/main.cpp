@@ -154,6 +154,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+        playerObject->direction = normalize(velocity);
         playerObject->position -= velocity;
         glm::vec3 forward = camera3DPerson->getForward();
 		playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
@@ -162,6 +163,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+        playerObject->direction = normalize(velocity);
         playerObject->position += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
 		playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
@@ -170,6 +172,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+        playerObject->direction = normalize(velocity);
         playerObject->position += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
 		playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
@@ -178,6 +181,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+        playerObject->direction = normalize(velocity);
         playerObject->position -= velocity;
         glm::vec3 forward = camera3DPerson->getForward();
 		playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
@@ -205,7 +209,28 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
                     if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-                        gameObjects->list[i]->position = oldPosition;
+                        vec3 direction = gameObjects->list[i]->position - proximity[j]->position;
+                        direction.y = 0.0f;
+                        direction = normalize(direction);
+                        printf("x: %f, y: %f, z: %f\n", direction.x, direction.y, direction.z);
+                        if (direction.x > 0 && direction.z < 0) {
+                            gameObjects->list[i]->position.z = oldPosition.z;
+                            printf("updated z\n");
+                        }
+                        else if (direction.x < 0 && direction.z > 0) {
+                            gameObjects->list[i]->position.z = oldPosition.z;
+                            printf("updated z\n");
+                        }
+                        else if (direction.x > 0 && direction.z > 0) {
+                            gameObjects->list[i]->position.x = oldPosition.x;
+                            printf("updated x\n");
+                        }
+                        else if (direction.x < 0 && direction.z < 0) {
+                            gameObjects->list[i]->position.x = oldPosition.x;
+                            printf("updated x\n");
+                        }
+                        printf("next object\n");
+                        //gameObjects->list[i]->position = oldPosition;
                     }
                 }
             }
@@ -366,7 +391,7 @@ void initWalls(WorldGrid* gameObjects) {
             vec3(1.0, 5.0, 1.0), //scale
             vec3(1, 0, 0), //direction
             0, //speed
-            vec3(1, 8, 1), //bounding box
+            vec3(1, 20, 1), //bounding box
             0, //scanRadius
             1  //material
             )));
