@@ -17,19 +17,46 @@ Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *f
 glm::vec3 Camera3DPerson::getEye()
 {
   glm::vec3 res = glm::vec3(cos(theta) * cos(phi),
-                            sin(phi),
-                            sin(theta) * cos(phi));
-  
-  res *= adjustZoom(res);
+      sin(phi),
+      sin(theta) * cos(phi));
+
+  res = adjustZoom(res);
   res += this->lookat;
   return res;
 }
 
-float Camera3DPerson::adjustZoom(glm::vec3 outDir)
+// takes a target camera position and returns an adjusted value
+// this value will be between the original position and the focus of the camera
+glm::vec3 Camera3DPerson::adjustZoom(glm::vec3 outDir)
 {
+  std::vector<glm::vec3> nearCorners;
   vector<shared_ptr<GameObject>> collidors = this->world->getCloseObjects(
-			this->eye, 2);
-  return this->zoom;
+      outDir, 2);
+  // get corners of near plane
+  float nearHeight = 2 * tan(this->fov / 2) * this->_near;
+  float nearWidth = nearHeight * this->aspect;
+  glm::vec3 nearCenter = outDir + glm::normalize(this->lookat - outDir) * this->_near;
+  nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
+  nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
+  nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
+  nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
+
+  // raycast from each corner, get minimum fraction
+  float minRayFract = 1.0f;
+  std::vector<glm::vec3>::iterator corner;
+  for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
+    glm::vec3 rayStart = *corner;
+    glm::vec3 rayEnd = rayStart + outDir;
+    float rayHitFract = this->castRay(rayStart, rayEnd);
+    minRayFract = rayHitFract < minRayFract ? rayHitFract : minRayFract;
+  }
+
+  return outDir * minRayFract;
+}
+
+float Camera3DPerson::castRay(glm::vec3 rayStart, glm::vec3 rayEnd)
+{
+  return 1.0f;
 }
 
 // positive step looks up
