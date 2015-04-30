@@ -161,7 +161,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
         playerObject->position -= velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+		playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
         //camera3DPerson->setView();
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
@@ -169,7 +169,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
         playerObject->position += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+		playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
         //camera3DPerson->setView();
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -177,7 +177,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
         playerObject->position += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+		playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
         //camera3DPerson->setView();
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
@@ -185,7 +185,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
         playerObject->position -= velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-        playerObject->rotation = atan2f(forward.x, forward.z) * 180 / M_PI + 180;
+		playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
         //camera3DPerson->setView();
     }
 }
@@ -314,6 +314,12 @@ void initGuards(WorldGrid* gameObjects) {
 	);
 
 	gameObjects->add(shared_ptr<GameObject>(guardObject));
+
+	/**
+	ifstream file(resPath("GuardPaths.txt"), ios::in);
+
+	while (file >> )
+	*/
 }
 
 void initGround() {
