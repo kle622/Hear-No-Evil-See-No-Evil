@@ -30,7 +30,6 @@
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
-
 #include "WorldGrid/WorldGrid.h"
 
 #define WORLD_WIDTH 3000

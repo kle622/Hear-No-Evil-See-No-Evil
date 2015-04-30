@@ -6,6 +6,7 @@
 // 'Guard X' denotes a new guard, capitalization is important, numbering is not
 
 Guard 1:
+// line reserved for guard properties
 -5 0 8 x 2 cw
 -9 0 7 y 0 x
 -11 0 0 n 1.2 x
@@ -13,5 +14,6 @@ Guard 1:
 -5 0 -7 x 2.5 ccw
 
 Guard 2:
+// line reserved for guard properties
 5 0 4 x 1 ccw
 5 0 -4 x 1.9 ccw
