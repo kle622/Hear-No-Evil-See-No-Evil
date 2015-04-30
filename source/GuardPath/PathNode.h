@@ -18,7 +18,7 @@ public:
 	int endTurnDir; // 1 = clockwise, -1 = ccw
 	bool end;
 
-	PathNode::PathNode(vec3 pos, bool smoothTurn, float moveDelay, bool endTurnDir, bool end);
+	PathNode(vec3 pos, bool smoothTurn, float moveDelay, bool endTurnDir, bool end);
 };
 
 #endif
