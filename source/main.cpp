@@ -31,6 +31,7 @@
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
+//#include "GuardPath/PathNode.h"
 
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000

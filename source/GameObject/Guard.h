@@ -26,6 +26,7 @@ public:
 	int endpointDirection; // 1 = clockwise, -1 = ccw
 	int sweepDirection; // 1 = clockwise, -1 = ccw
 
+
 	//Constructor
 	Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
 		int material, int scanRadius, vector<vec3> motionPath);
