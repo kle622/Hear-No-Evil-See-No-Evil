@@ -20,7 +20,6 @@ glm::vec3 Camera3DPerson::getEye()
       sin(phi),
       sin(theta) * cos(phi));
 
-  //res *= this->zoom
   assert((glm::length(res) > 1.0f - EPSILON) && (glm::length(res) < 1.0f + EPSILON));
   res = this->setZoom(res);
   res += this->lookat;
@@ -44,7 +43,6 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float nearHeight = 2 * tan(this->fov / 2) * this->_near;
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
-  //glm::vec3 nearCenter = outVec + glm::normalize(this->lookat - outVec) * this->_near;
   glm::vec3 nearCenter = this->lookat;
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
@@ -57,27 +55,26 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float minRayDist = numeric_limits<double>::max();
   std::vector<glm::vec3>::iterator corner;
   for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
-    // move rayStart to position zoomed in close to player
-    //glm::vec3 rayStart = *corner - outVec * (glm::length(outVec) - this->_near);
     glm::vec3 rayStart = *corner;
-    //glm::vec3 rayDirection = rayStart + outVec;
-    //float rayHitDist = this->castRayOnObjects(rayStart, rayEnd, objects);
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = MIN(rayHitDist, minRayDist);
+    // TODO collide with ground at y = -1
+    if (outVec.y < 0.0f) {
+      float groundIntersect = (-1.0f - rayStart.y) / outVec.y;
+      //groundIntersect += EPSILON; // keep camera slightly above ground
+      minRayDist = MIN(minRayDist, groundIntersect);
+    }
   }
   // given shortest distance from near plane corner to potential collision, determine if zoom should change
   // make sure to handle case where no intersections occured (minRayDist should equal double max in this case)
-
-  return outVec * MIN(minRayDist, this->zoom);
+  minRayDist = MIN(minRayDist, this->zoom);
+  return outVec * minRayDist;
 }
 
 // casts single ray on all potential collision objects, returns shortest distance to collision
 float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirection, std::vector<shared_ptr<GameObject>> objects)
 {
   float minLength = numeric_limits<double>::max();
-  //float rayLength = glm::distance(rayEnd, rayStart);
-  //glm::vec3 rayDirection = glm::normalize(rayEnd - rayStart);
-  //std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
   std::vector<shared_ptr<GameObject>>::iterator iter;
   for (iter = objects.begin(); iter != objects.end(); ++iter) {
     // only check collisions against non-player objects
