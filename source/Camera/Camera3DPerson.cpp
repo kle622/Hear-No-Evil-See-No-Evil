@@ -21,7 +21,6 @@ glm::vec3 Camera3DPerson::getEye()
       sin(theta) * cos(phi));
 
   //res *= this->zoom
-  std::cout << "res length: " << glm::length(res) << endl;
   assert((glm::length(res) > 1.0f - EPSILON) && (glm::length(res) < 1.0f + EPSILON));
   res = this->setZoom(res);
   res += this->lookat;
