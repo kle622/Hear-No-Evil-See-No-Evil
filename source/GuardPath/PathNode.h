@@ -15,7 +15,7 @@ public:
 	vec3 pos;
 	bool smoothTurn; // true for 'spline' turning; false for stop, turn, and go
 	float moveDelay; // in seconds
-	bool endTurnDir; // true for clockwise, false for counterclockwise
+	int endTurnDir; // 1 = clockwise, -1 = ccw
 	bool end;
 
 	PathNode::PathNode(vec3 pos, bool smoothTurn, float moveDelay, bool endTurnDir, bool end);

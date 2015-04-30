@@ -5,6 +5,6 @@ PathNode::PathNode(vec3 pos, bool smoothTurn, float moveDelay, bool endTurnDir, 
 	this->pos = pos;
 	this->smoothTurn = smoothTurn;
 	this->moveDelay = moveDelay;
-	this->endTurnDir = endTurnDir;
+	this->endTurnDir = endTurnDir ? 1: -1;
 	this->end = end;
 }

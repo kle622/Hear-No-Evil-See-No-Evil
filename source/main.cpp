@@ -291,12 +291,12 @@ void initPlayer(WorldGrid* gameObjects) {
 }
 
 void initGuards(WorldGrid* gameObjects) {
-	vector<vec3> guardPath;
-	guardPath.push_back(vec3(-5, 0, 8));
-	guardPath.push_back(vec3(-9, 0, 7));
-	guardPath.push_back(vec3(-11, 0, 0));
-	guardPath.push_back(vec3(-9, 0, -6));
-	guardPath.push_back(vec3(-5, 0, -7));
+	vector<PathNode> guardPath;
+	guardPath.push_back(PathNode(vec3(-5, 0, 8), false, 0.0f, true, true));
+	guardPath.push_back(PathNode(vec3(-9, 0, 7), false, 0.0f, false, false));
+	guardPath.push_back(PathNode(vec3(-11, 0, 0), false, 0.0f, false, false));
+	guardPath.push_back(PathNode(vec3(-9, 0, -6), false, 0.0f, false, false));
+	guardPath.push_back(PathNode(vec3(-5, 0, -7), false, 0.0f, false, true));
 
 	Guard* guardObject = new Guard(
 		&guardMesh,

@@ -6,47 +6,44 @@
 #include "../glm/core/_swizzle_func.hpp"
 
 Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
-	int material, int scanRadius, vector<vec3> motionPath) :
+	int material, int scanRadius, vector<PathNode> motionPath) :
 	GameObject(mesh, handles,
-	motionPath[0], 0, scale,
-	normalize(motionPath[1] - motionPath[0]), velocity, dimensions,
+	motionPath[0].pos, 0, scale,
+	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
 	scanRadius, material) {
 	this->motionPath = motionPath;
 	currentNode = 0;
-	endpointDirection = pathDirection = sweepDirection = 1;
+	pathDirection = sweepDirection = 1;
 	moving = true;
 }
 
 void Guard::move(float time) {
 	if (moving) { // moving between path nodes
 		//set movement direction
-		direction = normalize(motionPath[currentNode + pathDirection] - position);
+		direction = normalize(motionPath[currentNode + pathDirection].pos - position);
 		position += direction * velocity * time;
 
 		//check if we're at next node now
-		if (dot(direction, normalize(motionPath[currentNode + pathDirection] - position)) < 0) {
+		if (dot(direction, normalize(motionPath[currentNode + pathDirection].pos - position)) < 0) {
 			moving = false;
 			currentNode += pathDirection;
-			position = motionPath[currentNode];
-			if (currentNode == 0 || currentNode == motionPath.size() - 1) { // endpoint, switch pathDirection
+			position = motionPath[currentNode].pos;
+			if (motionPath[currentNode].end) { // endpoint, switch pathDirection
 				pathDirection *= -1;
 			}
 			else {
-				sweepDirection = (int)sign(cross(direction, motionPath[currentNode + pathDirection] - motionPath[currentNode]).y);
+				sweepDirection = (int)sign(cross(direction, motionPath[currentNode + pathDirection].pos - motionPath[currentNode].pos).y);
 			}
 		}
 	}
 	else { // at a path node, re-orienting to face next path node
-		//printf("Endpoint? %s\n", (currentNode == 0 || currentNode == motionPath.size() - 1) ? "yes" : "no");
-		int rotateDirection = (currentNode == 0 || currentNode == motionPath.size() - 1) ? endpointDirection : sweepDirection;
+		int rotateDirection = (motionPath[currentNode].end) ? motionPath[currentNode].endTurnDir : sweepDirection;
 		direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * rotateDirection));
 
 		// check to see if we are now oriented correctly
-		float cross_y = cross(direction, motionPath[currentNode + pathDirection] - motionPath[currentNode]).y;
+		float cross_y = cross(direction, motionPath[currentNode + pathDirection].pos - motionPath[currentNode].pos).y;
 		//printf("ROTATING: cross_y = %.3f, sweepDirection = %d\n", cross_y, rotateDirection);
 		if (cross_y * rotateDirection < 0) { // positive value means sweepDirection was clockwise
-			if (currentNode == 0 || currentNode == motionPath.size() - 1)
-				endpointDirection *= -1;
 			moving = true;
 		}
 	}
