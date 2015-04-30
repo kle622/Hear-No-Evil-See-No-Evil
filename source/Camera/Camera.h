@@ -12,6 +12,7 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
+#include <vector>
 #include <time.h>
 #include "../Library/GLSL.h"
 #include "../GameObject/Handles.h"
@@ -22,27 +23,28 @@
 #define PI 3.1415926535897932384626f
 
 class Camera {
-    public:
-        //Properties
-        Handles *handles;
-        glm::vec3 lookat;
-        glm::vec3 eye;
-        glm::vec3 up;
-        float fov;
-        float aspect;
-        float _near;
-        float _far;
+  public:
+    //Properties
+    Handles *handles;
+    glm::vec3 lookat;
+    glm::vec3 eye;
+    glm::vec3 up;
+    float fov;
+    float aspect;
+    float _near;
+    float _far;
 
-        //Constructor
-        Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
+    //Constructor
+    Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
 
-        virtual glm::vec3 getForward();
-        virtual glm::vec3 getStrafe();
-        virtual glm::vec3 getUp();
+    // these vectors are all normalized and don't represent the eye-lookat separation
+    virtual glm::vec3 getForward();
+    virtual glm::vec3 getStrafe();
+    virtual glm::vec3 getUp();
 
-        //Object Methods
-        virtual void setView();
-        virtual void setProjection();
+    //Object Methods
+    virtual void setView();
+    virtual void setProjection();
 };
 
 double clamp(double x, double min, double max);

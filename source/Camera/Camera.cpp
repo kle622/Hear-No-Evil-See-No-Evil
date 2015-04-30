@@ -1,16 +1,16 @@
 #include "Camera.h"
 
 Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
-               float fov, float aspect, float _near, float _far)
+    float fov, float aspect, float _near, float _far)
 {
-    this->handles = handles;
-    this->lookat = lookat;
-    this->eye = eye;
-    this->up = up;
-    this->fov = fov;
-    this->aspect = aspect;
-    this->_near = _near;
-    this->_far = _far;
+  this->handles = handles;
+  this->lookat = lookat;
+  this->eye = eye;
+  this->up = up;
+  this->fov = fov;
+  this->aspect = aspect;
+  this->_near = _near;
+  this->_far = _far;
 }
 
 void Camera::setView() {
@@ -21,9 +21,9 @@ void Camera::setView() {
 }
 
 void Camera::setProjection() {
-    glm::mat4 Projection = glm::perspective(this->fov, this->aspect, this->_near, this->_far);
-    if (this->handles->uProjMatrix >= 0)
-        glUniformMatrix4fv(this->handles->uProjMatrix, 1, GL_FALSE, glm::value_ptr(Projection));
+  glm::mat4 Projection = glm::perspective(this->fov, this->aspect, this->_near, this->_far);
+  if (this->handles->uProjMatrix >= 0)
+    glUniformMatrix4fv(this->handles->uProjMatrix, 1, GL_FALSE, glm::value_ptr(Projection));
 }
 
 glm::vec3 Camera::getForward()
