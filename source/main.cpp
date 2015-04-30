@@ -40,12 +40,9 @@
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
-
-#define BUNNY_COUNT 25
-#define BUNNY_SPEED 10.0f
-#define GUARD_SPEED 5.0f
-
 #define CAMERA_SPEED 10.0f
+
+#define GUARD_SPEED 5.0f
 
 GLFWwindow* window;
 using namespace std;
@@ -58,7 +55,6 @@ vector<tinyobj::shape_t> wall;
 
 int g_width;
 int g_height;
-int g_SM = 2;
 
 Camera* camera;
 Camera3DPerson *camera3DPerson;
