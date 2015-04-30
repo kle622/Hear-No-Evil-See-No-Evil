@@ -17,6 +17,8 @@ set(HEADERS
    GameObject/Shape.h
    GameObject/Guard.h
 
+   GuardPath/PathNode.h
+
    WorldGrid/WorldGrid.h
    
    Camera/Camera.h
@@ -42,6 +44,8 @@ set(SOURCES
    GameObject/Handles.cpp	
    GameObject/Shape.cpp
    GameObject/Guard.cpp
+
+   GuardPath/PathNode.cpp
 
    WorldGrid/WorldGrid.cpp
    
