@@ -50,7 +50,8 @@ glm::vec3 Camera3DPerson::adjustZoom(glm::vec3 outDir)
   float minRayFract = 1.0f;
   std::vector<glm::vec3>::iterator corner;
   for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
-    glm::vec3 rayStart = *corner;
+    // move rayStart to position zoomed in close to player
+    glm::vec3 rayStart = *corner - glm::normalize(outDir) * (glm::length(outDir) - this->_near);
     glm::vec3 rayEnd = rayStart + outDir;
     float rayHitFract = this->castRay(rayStart, rayEnd);
     minRayFract = MIN(rayHitFract, minRayFract);
@@ -68,7 +69,8 @@ float Camera3DPerson::castRay(glm::vec3 rayStart, glm::vec3 rayEnd)
   std::vector<shared_ptr<GameObject>>::iterator iter;
   for (iter = objects.begin(); iter != objects.end(); ++iter) {
     // only check collisions against non-player objects
-    if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
+    //if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
+    if (NULL == dynamic_pointer_cast<Player>(*iter) && NULL != dynamic_pointer_cast<Wall>(*iter)) {
       // converting object bounding box to OBB
       OrientedBoundingBox obb;
       obb.center = (*iter)->position;
