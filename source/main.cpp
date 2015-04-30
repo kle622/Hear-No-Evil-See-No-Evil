@@ -218,11 +218,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                             gameObjects->list[i]->position.x = oldPosition.x;
                             printf("updated z\n");
                         }
-                        else if (direction.x < 0 && direction.z < 0 &&
-                            gameObjects->list[i]->position.x < proximity[j]->position.x) {
-                            gameObjects->list[i]->position.z = oldPosition.z;
-                            printf("updated x\n");
-                        }                        
                         printf("next object\n");
                     }
                 }
