@@ -1,3 +1,6 @@
+#ifndef __CAMERA_3D_PERSON_H
+#define __CAMERA_3D_PERSON_H
+
 #include <memory>
 #include <limits>
 #include <cassert>
@@ -7,8 +10,8 @@
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
 #include "../WorldGrid/WorldGrid.h"
-#include "../DebugDraw/DebugDraw.h"
 #include "../Library/OrientedBoundingBox.h"
+#include "../DebugDraw/DebugDraw.h"
 
 #define UPPER_BOUND_DEFAULT 85.0f
 #define LOWER_BOUND_DEFAULT -35.0f
@@ -27,6 +30,7 @@ class Camera3DPerson: public Camera
     bool rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OrientedBoundingBox obb);
   public:
     float zoom;
+    float minZoom;
     float lowerBound; // bounds stored as degrees
     float upperBound;
     GameObject *focus;
@@ -38,3 +42,5 @@ class Camera3DPerson: public Camera
     virtual void setView();
     virtual void setProjection();
 };
+
+#endif

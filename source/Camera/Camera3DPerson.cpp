@@ -11,6 +11,7 @@ Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *f
   this->lowerBound = LOWER_BOUND_DEFAULT;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
+  this->minZoom = 0.5f;
 }
 
 // note: calling getEye() form constructor causes crash
@@ -67,6 +68,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   // given shortest distance from near plane corner to potential collision, determine if zoom should change
   // make sure to handle case where no intersections occured (minRayDist should equal double max in this case)
   minRayDist = MIN(minRayDist, this->zoom);
+  minRayDist = MAX(minRayDist, this->minZoom);
   return outVec * minRayDist;
 }
 

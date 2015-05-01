@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#define DEBUG
 
 void Mesh::loadShapes(const std::string &objFile) {
   std::string err = tinyobj::LoadObj(this->shapes, this->materials, objFile.c_str());
@@ -7,7 +8,7 @@ void Mesh::loadShapes(const std::string &objFile) {
   }
   this->resize_obj();
   this->sendNormals();
-  this->computeBound();
+  //this->computeBound();
 }
 
 void Mesh::computeBound() {
@@ -84,6 +85,15 @@ void Mesh::resize_obj() {
   shiftY = minY + (yExtent / 2.0);
   scaleZ = 2.0/ maxExtent;
   shiftZ = minZ + (zExtent)/2.0;
+
+#ifdef DEBUG
+  std::cout << "min x: " << (minX - shiftX) * scaleX << std::endl;
+  std::cout << "max x: " << (maxX - shiftX) * scaleX << std::endl;
+  std::cout << "min y: " << (minY - shiftY) * scaleY << std::endl;
+  std::cout << "max y: " << (maxY - shiftY) * scaleY << std::endl;
+  std::cout << "min z: " << (minZ - shiftZ) * scaleZ << std::endl;
+  std::cout << "max z: " << (maxZ - shiftZ) * scaleZ << std::endl;
+#endif
 
   //Go through all verticies shift and scale them
   for (size_t i = 0; i < this->shapes.size(); i++) {
