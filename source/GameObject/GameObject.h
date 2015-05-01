@@ -33,6 +33,7 @@ class GameObject {
  public:
   //Properties
   vec3 position;
+  vec3 oldPosition;
   float rotation;
   vec3 scale;
   

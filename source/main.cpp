@@ -150,6 +150,12 @@ void initGL() {
 void getWindowinput(GLFWwindow* window, double deltaTime) {
   float forwardYVelocity = 0;
   float sideYVelocity = 0;
+  bool accelerate = false;
+  bool upD = false;
+  bool downD = false;
+  bool leftD = false;
+  bool rightD = false;
+  vec3 direction(0, 0, 0);
   glm::vec3 forward = camera3DPerson->getForward();
   glm::vec3 strafe = camera3DPerson->getStrafe();
   glm::vec3 up = camera3DPerson->getUp();
@@ -157,32 +163,61 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 
   if (!debug) {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-      vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
-          sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-      playerObject->position -= velocity;
-      glm::vec3 forward = camera3DPerson->getForward();
-      playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
+        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+        velocity.y = 0;
+        direction += -velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+    playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+        //camera3DPerson->setView();
+        accelerate = true;
+        leftD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-      vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
-          sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-      playerObject->position += velocity;
-      glm::vec3 forward = camera3DPerson->getForward();
-      playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
+        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+        velocity.y = 0;
+        direction += velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+    playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+        //camera3DPerson->setView();
+        accelerate = true;
+        rightD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-      vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-          forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-      playerObject->position += velocity;
-      glm::vec3 forward = camera3DPerson->getForward();
-      playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
+        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+        velocity.y = 0;
+        direction += velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+    playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+        //camera3DPerson->setView();
+        accelerate = true;
+        upD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-      vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-          forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-      playerObject->position -= velocity;
-      glm::vec3 forward = camera3DPerson->getForward();
-      playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
+        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+        velocity.y = 0;
+        direction += -velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+    playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+        //camera3DPerson->setView();
+        accelerate = true;
+        downD = true;
+    }
+
+    if (accelerate) {
+        if ((upD && downD) || (leftD && rightD)) {
+            playerObject->decelerate();
+        }
+        else {
+            playerObject->direction = direction;
+            playerObject->accelerate();
+        }
+    }
+    else {
+        playerObject->decelerate();
     }
   }
   else {
@@ -250,9 +285,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     for (int j = 0; j < proximity.size(); j++) {
       if (gameObjects->list[i] != proximity[j]) {
         if (gameObjects->list[i]->collide(proximity[j].get())) {
-          if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-            gameObjects->list[i]->position = oldPosition;
-          }
+          //do something generic here if you need to
+          //object.collide handles the collision 
         }
       }
     }
@@ -488,7 +522,7 @@ int main(int argc, char **argv)
       resPath(sysPath("shaders", "frag.glsl")));
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
-  playerMesh.loadShapes(resPath(sysPath("models", "godzilla.obj")));
+  playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
 
   srand(time(NULL));

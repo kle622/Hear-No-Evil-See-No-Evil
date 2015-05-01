@@ -7,6 +7,7 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
   this->mesh = mesh;
   this->handles = handles;
   this->position = position;
+  this->oldPosition = position;
   this->rotation = rotation;
   this->scale = scale;
   this->direction = normalize(direction);
@@ -23,7 +24,6 @@ void GameObject::draw() {
 }
 
 void GameObject::move(float time) {
-    vec3 oldPosition = position;
     position += normalize(direction) * velocity * time;
 }
 
