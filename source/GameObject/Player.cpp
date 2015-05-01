@@ -25,6 +25,7 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
+            velocity = 0;
             position = oldPosition;
         }
     }
