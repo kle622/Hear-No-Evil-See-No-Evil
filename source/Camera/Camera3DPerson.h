@@ -7,6 +7,7 @@
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
 #include "../WorldGrid/WorldGrid.h"
+#include "../DebugDraw/DebugDraw.h"
 #include "../Library/OrientedBoundingBox.h"
 
 #define UPPER_BOUND_DEFAULT 85.0f

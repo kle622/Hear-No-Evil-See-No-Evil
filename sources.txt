@@ -25,6 +25,8 @@ set(HEADERS
    Camera/Camera3DPerson.h
 
    Path/Path.h
+
+   DebugDraw/DebugDraw.h
 )
 
 # List all .c / .cpp files here

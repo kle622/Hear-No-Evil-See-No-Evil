@@ -58,10 +58,9 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
     glm::vec3 rayStart = *corner;
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = MIN(rayHitDist, minRayDist);
-    // TODO collide with ground at y = -1
-    if (outVec.y < 0.0f) {
+    // collide with ground at y = -1
+    if (outVec.y < 0.0f) {  // only necessary if camera is below lookat; also makes sure outVec.y != 0
       float groundIntersect = (-1.0f - rayStart.y) / outVec.y;
-      //groundIntersect += EPSILON; // keep camera slightly above ground
       minRayDist = MIN(minRayDist, groundIntersect);
     }
   }
