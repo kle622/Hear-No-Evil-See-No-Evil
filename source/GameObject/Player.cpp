@@ -39,11 +39,13 @@ void Player::move(float time) {
 }
 
 void Player::accelerate() {
+    velocity = std::max(MIN_VELOCITY, velocity);
     velocity += ACCELERATION;
     velocity = std::min(MAX_VELOCITY, velocity);
 }
 
 void Player::decelerate() {
+    velocity = std::min(MAX_VELOCITY, velocity);
     velocity -= DECELERATION;
     velocity = std::max(MIN_VELOCITY, velocity);
     

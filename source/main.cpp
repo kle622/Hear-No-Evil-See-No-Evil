@@ -208,16 +208,19 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
 
     if (accelerate) {
-        if ((upD && downD) || (leftD && rightD)) {
-            playerObject->decelerate();
-        }
-        else {
-            playerObject->direction = direction;
-            playerObject->accelerate();
-        }
+      direction = normalize(direction);
+      if ((upD && downD) || (leftD && rightD)) {
+          playerObject->decelerate();
+      }
+      else {
+          playerObject->velocity *= dot(playerObject->direction, direction);
+          playerObject->direction = direction;
+          playerObject->accelerate();
+          printf("%f\n", playerObject->velocity);
+      }
     }
     else {
-        playerObject->decelerate();
+      playerObject->decelerate();
     }
   }
   else {
