@@ -163,48 +163,48 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 
   if (!debug) {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-    playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
-        accelerate = true;
-        leftD = true;
+      vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+          sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+      velocity.y = 0;
+      direction += -velocity;
+      glm::vec3 forward = camera3DPerson->getForward();
+      playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+      //camera3DPerson->setView();
+      accelerate = true;
+      leftD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-    playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
-        accelerate = true;
-        rightD = true;
+      vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+          sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+      velocity.y = 0;
+      direction += velocity;
+      glm::vec3 forward = camera3DPerson->getForward();
+      playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+      //camera3DPerson->setView();
+      accelerate = true;
+      rightD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-    playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
-        accelerate = true;
-        upD = true;
+      vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+          forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+      velocity.y = 0;
+      direction += velocity;
+      glm::vec3 forward = camera3DPerson->getForward();
+      playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+      //camera3DPerson->setView();
+      accelerate = true;
+      upD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-    playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
-        accelerate = true;
-        downD = true;
+      vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+          forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+      velocity.y = 0;
+      direction += -velocity;
+      glm::vec3 forward = camera3DPerson->getForward();
+      playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+      //camera3DPerson->setView();
+      accelerate = true;
+      downD = true;
     }
 
     if (accelerate) {
@@ -213,10 +213,9 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
           playerObject->decelerate();
       }
       else {
-          playerObject->velocity *= dot(playerObject->direction, direction);
-          playerObject->direction = direction;
+          playerObject->changeDirection(direction);
           playerObject->accelerate();
-          printf("%f\n", playerObject->velocity);
+          printf("velocity: %f\n", playerObject->velocity);
       }
     }
     else {

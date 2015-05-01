@@ -11,7 +11,7 @@ Player::Player(Mesh *mesh, Handles *handles,
     vec3 position, float rotation, vec3 scale, 
            vec3 direction, float velocity, vec3 dimensions, 
            int scanRadius, int material = 0) : 
-  GameObject(mesh, handles, position, rotation, scale, 
+        GameObject(mesh, handles, position, rotation, scale, 
          direction, velocity, dimensions, scanRadius, material) {
 
 }
@@ -25,8 +25,9 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            velocity = 0;
             position = oldPosition;
+            velocity = 0;
+            return true;
         }
     }
 
@@ -48,5 +49,9 @@ void Player::decelerate() {
     velocity = std::min(MAX_VELOCITY, velocity);
     velocity -= DECELERATION;
     velocity = std::max(MIN_VELOCITY, velocity);
-    
+}
+
+void Player::changeDirection(vec3 direction) {
+    velocity *= dot(this->direction, direction);
+    this->direction = direction;
 }

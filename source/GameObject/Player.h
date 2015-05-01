@@ -25,6 +25,7 @@ class Player: public GameObject {
   //Object methods
   void accelerate();
   void decelerate();
+  void changeDirection(vec3 direction);
   bool collide(GameObject* object);
   void move(float time);
 };
