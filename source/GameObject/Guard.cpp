@@ -53,7 +53,7 @@ void Guard::move(float time) {
 			waitTime = 0.0f;
 		}
 	}
-	rotation = (atan2f(direction.x, direction.z) * 180 / 3.14159f);
+	rotation = (atan2f(direction.x, direction.z) * 180 / 3.14159f) + 180;
 }
 
 bool Guard::collide(GameObject* object) {

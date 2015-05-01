@@ -23,6 +23,8 @@ class Player: public GameObject {
   int scanRadius, int material);
   
   //Object methods
+  void accelerate();
+  void decelerate();
   bool collide(GameObject* object);
   void move(float time);
 };
