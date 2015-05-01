@@ -33,7 +33,7 @@ void Wall::move(float time) {
 }
 
 bool Wall::collide(GameObject* object) {
-  float thisRadius = dimensions.x + dimensions.y + dimensions.z;
+  /**float thisRadius = dimensions.x + dimensions.y + dimensions.z;
   float objectRadius = object->dimensions.x + object->dimensions.y +
     object->dimensions.z;
 
@@ -43,6 +43,6 @@ bool Wall::collide(GameObject* object) {
       intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
       return true;
     }
-  }
+  }*/
   return false;
 }

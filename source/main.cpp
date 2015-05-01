@@ -189,6 +189,10 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
 }
 
+int sign(float val) {
+	return (val < 0.0f ? -1 : 1);
+}
+
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
     ground->draw();
@@ -196,10 +200,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     for (int i = 0; i < gameObjects->list.size(); i++) {
         SetMaterial(gameObjects->list[i]->material);
-        gameObjects->list[i]->draw();
+		vec3 oldPos = gameObjects->list[i]->position;
         gameObjects->list[i]->move(time);
-        vector<shared_ptr<GameObject>> proximity = 
-            gameObjects->getCloseObjects(gameObjects->list[i]);
+        vector<shared_ptr<GameObject>> proximity = gameObjects->getCloseObjects(gameObjects->list[i]);
 
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             guard->detect(playerObject);
@@ -207,22 +210,45 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
         for (int j = 0; j < proximity.size(); j++) {
             if (gameObjects->list[i] != proximity[j]) {
-                if (gameObjects->list[i]->collide(proximity[j].get())) {
-                    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-                        vec3 direction = gameObjects->list[i]->position - proximity[j]->position;
-                        direction.y = 0.0f;
-                        direction = normalize(direction);
-                        printf("x: %f, y: %f, z: %f\n", direction.x, direction.y, direction.z);
-                        if (direction.x > 0 && direction.z < 0 &&
-                            gameObjects->list[i]->position.z < proximity[j]->position.z) {
-                            gameObjects->list[i]->position.x = oldPosition.x;
-                            printf("updated z\n");
-                        }
-                        printf("next object\n");
-                    }
+				if (gameObjects->list[i]->collide(proximity[j].get())) {
+					vec3 direction = gameObjects->list[i]->position - proximity[j]->position; // w2p
+					direction.y = 0.0f;
+					direction = normalize(direction);
+					//printf("x: %f, y: %f, z: %f\n", direction.x, direction.y, direction.z);
+
+					vec3 thisCorner = gameObjects->list[i]->position;
+					thisCorner.x -= sign(direction.x) * gameObjects->list[i]->dimensions.x / 2;
+					thisCorner.y = 0;
+					thisCorner.z -= sign(direction.z) * gameObjects->list[i]->dimensions.z / 2;
+
+					//direction = thisCorner - proximity[j]->position;
+
+					vec3 posZnegX(-proximity[j]->dimensions.x, 0, proximity[j]->dimensions.z);
+					vec3 negZnegX(-proximity[j]->dimensions.x, 0, -proximity[j]->dimensions.z);
+
+					float cross1 = cross(posZnegX, direction).y;
+					float cross2 = cross(negZnegX, direction).y;
+
+					int signx = sign(direction.x);
+					int signz = sign(direction.z);
+
+					if (cross1 * cross2 < 0) {
+						// restrict x
+						printf("RESTRICT X!\n");
+						gameObjects->list[i]->position.x = proximity[j]->position.x + signx *
+							(proximity[j]->dimensions.x + gameObjects->list[i]->dimensions.x) / 2;
+					}
+					else {
+						// restrict z
+						printf("RESTRICT Z!\n");
+						gameObjects->list[i]->position.z = proximity[j]->position.z + signz *
+							(proximity[j]->dimensions.z + gameObjects->list[i]->dimensions.z) / 2;
+					}
+                    //printf("next object\n");
                 }
             }
         }
+		gameObjects->list[i]->draw();
     } 
     gameObjects->update();
 }
