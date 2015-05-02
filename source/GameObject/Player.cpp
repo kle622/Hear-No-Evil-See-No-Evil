@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Bunny.h"
 #include "../Camera/Camera.h"
+#include <algorithm>
 
 #define MAX_VELOCITY 15.0f
 #define MIN_VELOCITY 0.0f
