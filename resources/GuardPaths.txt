@@ -1,5 +1,5 @@
 // Nodes are formatted in the following way:
-// x-coord y-xoord z-coord smart-turn(y/n/x) turn-delay endpoint-turn-dir(cw/ccw)
+// x-coord y-xoord z-coord smart-turn(y/n/x) turn-delay endpoint-turn-dir(cw/ccw/x)
 // smooth-turn:          represents the type of motion through this node, 'y' means pass through smoothly without stopping; 'n' means stop, turn, then continue to next node. This flag is 'x' and ignored at endpoints.
 // turn-delay:          represents the amount of time (in seconds, decimals supported) to pause before the guard turns towards towards the next node.
 // endpoint-turn-dir:   represents the direction the guard will turn at the given endpoint to start heading the other way on the path. This is 'x' and ignored at midpoints.

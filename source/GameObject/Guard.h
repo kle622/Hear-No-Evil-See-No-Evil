@@ -9,7 +9,7 @@
 #include "../GuardPath/PathNode.h"
 #include "../glm/glm.hpp"
 
-#define GUARD_SPIN_SPEED 15.0f
+#define GUARD_SPIN_SPEED 75.0f
 #define GUARD_VISION_RANGE 0.2
 
 using namespace std;

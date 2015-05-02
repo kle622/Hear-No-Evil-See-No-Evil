@@ -52,6 +52,10 @@ void Guard::move(float time) {
 			moving = true;
 			waitTime = 0.0f;
 		}
+
+		if (motionPath[currentNode].smoothTurn) {
+			position += direction * velocity * time / 3.0f;
+		}
 	}
 	rotation = (atan2f(direction.x, direction.z) * 180 / 3.14159f);
 }
