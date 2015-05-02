@@ -119,6 +119,12 @@ void Mesh::sendNormals() {
     glBindBuffer(GL_ARRAY_BUFFER, this->posBufObj);
     glBufferData(GL_ARRAY_BUFFER, posBuf.size()*sizeof(float), &posBuf[0], GL_STATIC_DRAW);
 
+	// Send the normal array to the GPU
+	const std::vector<float> &norBuf = this->shapes[s].mesh.normals;
+	glGenBuffers(1, &this->norBufObj);
+	glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
+	glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+	/**
     // compute the normals per vertex
     int idx1, idx2, idx3;
     glm::vec3 v1, v2, v3;
@@ -154,7 +160,7 @@ void Mesh::sendNormals() {
     glGenBuffers(1, &this->norBufObj);
     glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
     glBufferData(GL_ARRAY_BUFFER, this->norBuf.size()*sizeof(float), &this->norBuf[0], GL_STATIC_DRAW);
-
+	*/
     // Send the index array to the GPU
     const std::vector<unsigned int> &indBuf = this->shapes[s].mesh.indices;
     glGenBuffers(1, &this->indBufObj);

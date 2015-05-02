@@ -8,7 +8,13 @@ void initModelObject(std::vector<tinyobj::shape_t>& shape, GLuint* posBuffer,
     glGenBuffers(1, posBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, *posBuffer);
     glBufferData(GL_ARRAY_BUFFER, posBuf.size()*sizeof(float), &posBuf[0], GL_STATIC_DRAW);
-
+	
+	// Send the normal array to the GPU
+	const vector<float> &norBuf = shape[0].mesh.normals;
+	glGenBuffers(1, norBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, *norBuffer);
+	glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+	/**
     // Send the normal array to the GPU
     vector<float> norBuf;
     glm::vec3 v1, v2, v3;
@@ -51,7 +57,7 @@ void initModelObject(std::vector<tinyobj::shape_t>& shape, GLuint* posBuffer,
     glGenBuffers(1, norBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, *norBuffer);
     glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
-
+	*/
     // Send the index array to the GPU
     const vector<unsigned int> &indBuf = shape[0].mesh.indices;
     glGenBuffers(1, indBuffer);
