@@ -464,7 +464,7 @@ int main(int argc, char **argv)
 
     //initialize game objects
     //vector<shared_ptr <GameObject> > gameObjects;
-	//First item is always the player, followed by numGuards guards,
+	//First item is always the player, followed by guards,
 	//	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
 
