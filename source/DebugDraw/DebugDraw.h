@@ -7,6 +7,7 @@ typedef struct LineSegment
 {
   glm::vec3 start;
   glm::vec3 end;
+  glm::vec3 color;
 } LineSegment;
 
 typedef struct
@@ -14,6 +15,7 @@ typedef struct
   glm::vec3 center;
   float radius;
   glm::vec3 normal;
+  glm::vec3 color;
 } Ring3D;
 
 class DebugDraw
@@ -22,13 +24,12 @@ class DebugDraw
     DebugHandles handles;
     DebugDraw();
     DebugDraw(const std::string &vShaderName, const std::string &fShaderName);
-    glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;
     void addLine(LineSegment line);
-    void addLine(glm::vec3 start, glm::vec3 end);
+    void addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
     void addRing(Ring3D ring);
-    void addRing(glm::vec3 center, float radius, glm::vec3 normal);
+    void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color);
     void drawAll();
     //void addPolygon(int numVertices, ...);
   private:

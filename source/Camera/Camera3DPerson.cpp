@@ -11,10 +11,10 @@ Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *f
   this->lowerBound = LOWER_BOUND_DEFAULT;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
-  this->minZoom = 1.0f;
+  this->minZoom = 0.7f;
 }
 
-// note: calling getEye() form constructor causes crash
+// note: calling getEye() from constructor causes crash
 glm::vec3 Camera3DPerson::getEye()
 {
   glm::vec3 res = glm::vec3(cos(theta) * cos(phi),
@@ -94,6 +94,14 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       obb.halfLengths[2] = (*iter)->dimensions.z;
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
+        // TODO bug fix: if ray start is inside bounding box, return max zoom value
+        /*glm::vec3 fromCenter = rayStart - obb.center;
+        for (int i = 0; i < 3; ++i) {
+          float centerProjection = glm::dot(fromCenter, obb.axes[i]);
+          if (centerProjection > obb.halfLengths[i] || centerProjection < -1.0f * obb.halfLengths[i]) {
+            result = this->zoom;
+          }
+        }*/
         minLength = MIN(minLength, result);
       }
     }
@@ -138,11 +146,9 @@ bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3
     }
   }
   if (tmin > 0) {
-    //return false;
     *dist = tmin;
   }
   else {
-    //return false;
     *dist = tmax;
   }
   return true;
@@ -169,12 +175,25 @@ void Camera3DPerson::moveHoriz(float step)
 }
 
 //Object Methods
+glm::mat4 Camera3DPerson::getView()
+{
+  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
+  this->eye = getEye();
+  return Camera::getView();
+}
+
+glm::mat4 Camera3DPerson::getProjection()
+{
+  return Camera::getProjection();
+}
+
 void Camera3DPerson::setView()
 {
   this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
   this->eye = getEye();
   Camera::setView();
 }
+
 void Camera3DPerson::setProjection()
 {
   Camera::setProjection();

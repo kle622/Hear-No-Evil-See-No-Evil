@@ -13,6 +13,16 @@ Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
   this->_far = _far;
 }
 
+glm::mat4 Camera::getView()
+{
+  return glm::lookAt(this->eye, this->lookat, this->up);
+}
+
+glm::mat4 Camera::getProjection()
+{
+  return glm::perspective(this->fov, this->aspect, this->_near, this->_far);
+}
+
 void Camera::setView() {
   glm::mat4 Cam = glm::lookAt(this->eye, this->lookat, this->up);
 

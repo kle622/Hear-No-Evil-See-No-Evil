@@ -17,7 +17,7 @@
 class DebugHandles {
 public:
    GLuint prog;
-   GLuint aPosition, aColor, uProjMatrix, uViewMatrix, uModelMatrix;
+   GLuint aPosition, aColor, uProjMatrix, uViewMatrix;
    bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
 };
 

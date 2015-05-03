@@ -54,7 +54,6 @@ bool DebugHandles::installShaders(const std::string &vShaderName, const std::str
   this->aColor = GLSL::getAttribLocation(this->prog, "aColor");
   this->uProjMatrix = GLSL::getUniformLocation(this->prog, "uProjMatrix");
   this->uViewMatrix = GLSL::getUniformLocation(this->prog, "uViewMatrix");
-  this->uModelMatrix = GLSL::getUniformLocation(this->prog, "uModelMatrix");
 
   assert(glGetError() == GL_NO_ERROR);
   return true;
