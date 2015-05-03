@@ -34,6 +34,7 @@
 
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000
+#define TEST_WORLD 50
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -276,7 +277,7 @@ void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &handles,
-      vec3(20, 0, 0),
+      vec3(0, 0, 0),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
@@ -332,55 +333,108 @@ void initGround() {
     );
 }
 
-void initWalls(WorldGrid* gameObjects) {
-  int levelDesign[50][50], tempI, tempJ;
-    char ch;
-    fstream fin(resPath("LevelDesign.txt"), fstream::in);
-    int i = 0, j = 0;
-    while (fin >> noskipws >> ch) {
-      if (ch == '\n') {
-        j = 0;
-        i++;
-      }
-      else {
-        levelDesign[i][j] = ch - '0';
-        j++;
-      }
-    }
-    for (i = 0; i < 50; i++) {
-      cout << '\n';
-      for (j = 0; j < 50; j++) {
-        cout << levelDesign[i][j];
-      }
-    }
-    cout << '\n';
 
-    // Create the wall objects
-    for (i = 0; i < 50; i++) {
-      for (j = 0; j < 50; j++) {
-      //if (levelDesign[i][j]) {
-      //  tempI = i;
-      //  tempJ = j;
-      //  while (levelDesign[tempI][tempJ] == 1) {
-      //    tempI++
-     
-      //  } 
-          gameObjects->add(shared_ptr<GameObject>(new Wall(
-        &cubeMesh,
-        &handles, //model handle
-          vec3((i - 25), 4, (j - 25)), //position
-            0, //rotation
-            vec3(1.0, 5.0, 1.0), //scale
-            vec3(1, 0, 0), //direction
-            0, //speed
-            vec3(1, 8, 1), //bounding box
-            0, //scanRadius
-            1  //material
-            )));
-      //}
-      }
+/*
+  This assumes a grid built to [i][j], where i represents rows
+  and j represents columns. 
+*/
+void initWalls(WorldGrid* gameObjects) {
+  int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
+  float posX, posY;
+  vec3 tempScale, tempPos;
+  int testWallCount = 0;
+  bool buildRight, buildDown;
+  //
+  char ch;
+  fstream fin(resPath("LevelDesign.txt"), fstream::in);
+  int i = 0, j = 0;
+  while (fin >> noskipws >> ch) {
+    if (ch == '\n') {
+      j = 0;
+      i++;
     }
-}
+    else {
+      levelDesign[i][j] = ch - '0';
+      j++;
+    }
+  }
+  // Test print entire matrix
+  for (i = 0; i < TEST_WORLD; i++) {
+    cout << '\n';
+    for (j = 0; j < TEST_WORLD; j++) {
+      cout << levelDesign[i][j];
+    }
+  }
+  cout << '\n';
+
+  // Create the wall objects
+  for (i = 0; i < TEST_WORLD; i++) {
+    for (j = 0; j < TEST_WORLD; j++) {
+      if (levelDesign[i][j]) {
+        // Flags to build walls in a direction, chooses greedily
+        buildDown = false;
+        buildRight = false;
+        // Tracks acutal size of wall object iterated over by the tempI & tempJ
+        realI = realJ = 0;
+        // Temp iterators over the matrix
+        tempI = i;
+        tempJ = j;
+        //printf("HERE j encountered is %d\n", tempJ);
+        if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
+          printf("Setting right flag\n");
+          buildRight = true;
+        }
+        else if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
+          printf("Setting down flag\n");
+          buildDown = true;
+        }
+        // Keep building object size in a direction if possible
+        while (levelDesign[tempI][tempJ] == 1) {
+          if (buildRight) {
+            printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+            levelDesign[tempI][tempJ] = 0;
+            tempI++;
+            realI++;
+          }
+          else if (buildDown) {
+            levelDesign[tempI][tempJ] = 0;
+            tempJ++;
+            realJ++;
+          }
+        }
+        // Pack the temporary variables with a position and scale to create a Wall
+        if (buildRight) {
+          tempPos = vec3(((float)tempI) / 2 - ((float)TEST_WORLD) / 2, 4, (float)tempJ - (float)(TEST_WORLD / 2));
+          tempScale = vec3(((float)realI - 1) / 2.0, 1.0, 1.0);
+        }
+        else {
+          tempPos = vec3(((float)tempJ - ((float)TEST_WORLD / 2)), 4, (float)tempI - ((float)TEST_WORLD / 2));
+          tempScale = vec3(1.0, 1.0, ((float)realJ - 1) / 2.0);
+        }
+        // Make the actual Wall object and add it to gameObjects list
+        gameObjects->add(shared_ptr<GameObject>(new Wall(
+          &cubeMesh,
+          &handles,
+          tempPos,      //position
+          0,            //rotation
+          tempScale,    //scale
+          vec3(1, 0, 0),
+          0,
+          vec3(1, 8, 1),//bounding box
+          0,            //scanRadius
+          1             //material
+          )));
+
+        ////////// Testing only
+        testWallCount++;
+        printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
+        printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+        printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
+        //////////
+      } 
+    }
+  }
+ }
 
 int main(int argc, char **argv)
 {
@@ -449,7 +503,7 @@ int main(int argc, char **argv)
     double timeCounter = 0;
     do{
         //timer stuff
-        TimeManager::Instance().CalculateFrameRate(true);
+        //TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
