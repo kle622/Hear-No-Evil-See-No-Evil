@@ -450,21 +450,21 @@ void initWalls(WorldGrid* gameObjects) {
   vec3 tempScale, tempPos;
   int testWallCount = 0;
   bool buildRight, buildDown;
-  //
-    char ch;
-    fstream fin(resPath("LevelDesign.txt"), fstream::in);
-    int i = 0, j = 0;
-    while (fin >> noskipws >> ch) {
-      if (ch == '\n') {
-        j = 0;
-        i++;
-      }
-      else {
-        levelDesign[i][j] = ch - '0';
-        j++;
-      }
+
+  char ch;
+  fstream fin(resPath("LevelDesign.txt"), fstream::in);
+  int i = 0, j = 0;
+  while (fin >> noskipws >> ch) {
+    if (ch == '\n') {
+      j = 0;
+      i++;
     }
-  // Test print entire matrix
+    else {
+      levelDesign[i][j] = ch - '0';
+      j++;
+    }
+  }
+  ///////// Test print entire matrix
   for (i = 0; i < TEST_WORLD; i++) {
       cout << '\n';
     for (j = 0; j < TEST_WORLD; j++) {
@@ -472,8 +472,9 @@ void initWalls(WorldGrid* gameObjects) {
       }
     }
     cout << '\n';
+  //////////
 
-    // Create the wall objects
+  // Create the wall objects
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
         if (levelDesign[i][j]) {
@@ -487,21 +488,21 @@ void initWalls(WorldGrid* gameObjects) {
         tempJ = j;
         //printf("HERE j encountered is %d\n", tempJ);
         if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
-          printf("Setting right flag\n");
-          printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
-          printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
+          //printf("Setting right flag\n");
+          //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
+          //printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
           buildRight = true;
         }
         else if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
-          printf("Setting down flag\n");
-          printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
-          printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
+          //printf("Setting down flag\n");
+          //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
+          //printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
           buildDown = true;
         }
         // Keep building object size in a direction if possible
         while (levelDesign[tempI][tempJ] == 1) {
           if (buildRight) {
-            printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+            //printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
             levelDesign[tempI][tempJ] = 0;
             tempJ++;
             realJ++;
@@ -555,12 +556,12 @@ void initWalls(WorldGrid* gameObjects) {
         }
         cout << '\n';*/
         ////////// Testing only
-        testWallCount++;
+        //testWallCount++;
         //printf("Building with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
-        printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
-        printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
-        printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
-        printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
+        //printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
+        //printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
+        //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+        //printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
         //////////
         }
       }
