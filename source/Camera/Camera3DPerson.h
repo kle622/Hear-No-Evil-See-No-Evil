@@ -1,24 +1,23 @@
+#ifndef __CAMERA_3D_PERSON_H
+#define __CAMERA_3D_PERSON_H
+
 #include <memory>
 #include <limits>
+#include <cassert>
 #include "Camera.h"
 #include "../GameObject/GameObject.h"
 #include "../GameObject/Handles.h"
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
 #include "../WorldGrid/WorldGrid.h"
+#include "../Library/OrientedBoundingBox.h"
+#include "../DebugDraw/DebugDraw.h"
 
 #define UPPER_BOUND_DEFAULT 85.0f
-#define LOWER_BOUND_DEFAULT -10.0f
-#define EPSILON .000000000000001
+#define LOWER_BOUND_DEFAULT -35.0f
+#define EPSILON .00001f
 #define MIN(a,b) (a < b ? a : b)
 #define MAX(a,b) (a > b ? a : b)
-
-typedef struct
-{
-  glm::vec3 center;
-  glm::vec3 axes[3];
-  float halfLengths[3];
-} OrientedBoundingBox;
 
 class Camera3DPerson: public Camera
 {
@@ -26,11 +25,12 @@ class Camera3DPerson: public Camera
     float theta;
     float phi;
     glm::vec3 getEye();
-    glm::vec3 adjustZoom(glm::vec3 outDir);
-    float castRay(glm::vec3 rayStart, glm::vec3 rayEnd);
+    glm::vec3 setZoom(glm::vec3 outDir);
+    float castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayEnd, std::vector<shared_ptr<GameObject>> objects);
     bool rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OrientedBoundingBox obb);
   public:
     float zoom;
+    float minZoom;
     float lowerBound; // bounds stored as degrees
     float upperBound;
     GameObject *focus;
@@ -39,6 +39,10 @@ class Camera3DPerson: public Camera
     void moveVert(float step);
     void moveHoriz(float step);
     //Object Methods
+    virtual glm::mat4 getView();
+    virtual glm::mat4 getProjection();
     virtual void setView();
     virtual void setProjection();
 };
+
+#endif

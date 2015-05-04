@@ -11,17 +11,18 @@ Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *f
   this->lowerBound = LOWER_BOUND_DEFAULT;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
+  this->minZoom = 0.7f;
 }
 
-// note: calling getEye() form constructor causes crash
+// note: calling getEye() from constructor causes crash
 glm::vec3 Camera3DPerson::getEye()
 {
   glm::vec3 res = glm::vec3(cos(theta) * cos(phi),
       sin(phi),
       sin(theta) * cos(phi));
 
-  res *= this->zoom;
-  res = adjustZoom(res);
+  assert((glm::length(res) > 1.0f - EPSILON) && (glm::length(res) < 1.0f + EPSILON));
+  res = this->setZoom(res);
   res += this->lookat;
   return res;
 }
@@ -32,44 +33,55 @@ glm::vec3 Camera3DPerson::getEye()
  *
  * near-plane camera collision model from:
  * http://gamasutra.com/blogs/EricUndersander/20131001/201382/Accurate_Collision_Zoom_for_Cameras.php
+ *
+ * assume outVec is normalized; zoom will be set using internal knowledge of target zoom value
 */
-glm::vec3 Camera3DPerson::adjustZoom(glm::vec3 outDir)
+glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
 {
   std::vector<glm::vec3> nearCorners;
   // get corners of near plane
   // http://gamedev.stackexchange.com/questions/19774/determine-corners-of-a-specific-plane-in-the-frustum
   float nearHeight = 2 * tan(this->fov / 2) * this->_near;
   float nearWidth = nearHeight * this->aspect;
-  glm::vec3 nearCenter = outDir + glm::normalize(this->lookat - outDir) * this->_near;
+  // place near center at focal point
+  // nope, this is a bug
+  //glm::vec3 nearCenter = this->eye + glm::normalize(this->lookat - this->eye) * this->_near;
+  glm::vec3 nearCenter = this->lookat;
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
 
+  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+
   // raycast from each corner, get minimum fraction
-  float minRayFract = 1.0f;
+  float minRayDist = numeric_limits<double>::max();
   std::vector<glm::vec3>::iterator corner;
   for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
-    // move rayStart to position zoomed in close to player
-    glm::vec3 rayStart = *corner - glm::normalize(outDir) * (glm::length(outDir) - this->_near);
-    glm::vec3 rayEnd = rayStart + outDir;
-    float rayHitFract = this->castRay(rayStart, rayEnd);
-    minRayFract = MIN(rayHitFract, minRayFract);
+    glm::vec3 rayStart = *corner;
+    //float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects) + glm::distance(this->lookat, this->eye) - this->_near;
+    float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
+    minRayDist = MIN(rayHitDist, minRayDist);
+    // collide with ground at y = -1
+    if (outVec.y < 0.0f) {  // only necessary if camera is below lookat; also makes sure outVec.y != 0
+      float groundIntersect = (-1.0f - rayStart.y) / outVec.y;
+      minRayDist = MIN(minRayDist, groundIntersect);
+    }
   }
-
-  return outDir * minRayFract;
+  // given shortest distance from near plane corner to potential collision, determine if zoom should change
+  // make sure to handle case where no intersections occured (minRayDist should equal double max in this case)
+  minRayDist = MIN(minRayDist, this->zoom);
+  minRayDist = MAX(minRayDist, this->minZoom);
+  return outVec * minRayDist;
 }
 
-float Camera3DPerson::castRay(glm::vec3 rayStart, glm::vec3 rayEnd)
+// casts single ray on all potential collision objects, returns shortest distance to collision
+float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirection, std::vector<shared_ptr<GameObject>> objects)
 {
-  float minFract = 1.0f;
-  float rayLength = glm::distance(rayEnd, rayStart);
-  glm::vec3 rayDirection = glm::normalize(rayEnd - rayStart);
-  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+  float minLength = numeric_limits<double>::max();
   std::vector<shared_ptr<GameObject>>::iterator iter;
   for (iter = objects.begin(); iter != objects.end(); ++iter) {
     // only check collisions against non-player objects
-    //if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
     if (NULL == dynamic_pointer_cast<Player>(*iter) && NULL != dynamic_pointer_cast<Wall>(*iter)) {
       // converting object bounding box to OBB
       OrientedBoundingBox obb;
@@ -82,17 +94,28 @@ float Camera3DPerson::castRay(glm::vec3 rayStart, glm::vec3 rayEnd)
       obb.halfLengths[2] = (*iter)->dimensions.z;
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
-        float rayFract = result / rayLength;
-        minFract = minFract < rayFract ? minFract : rayFract;
+        // TODO bug fix: if ray start is inside bounding box, return max zoom value
+        /*glm::vec3 fromCenter = rayStart - obb.center;
+        for (int i = 0; i < 3; ++i) {
+          float centerProjection = glm::dot(fromCenter, obb.axes[i]);
+          if (centerProjection > obb.halfLengths[i] || centerProjection < -1.0f * obb.halfLengths[i]) {
+            result = this->zoom;
+          }
+        }*/
+        minLength = MIN(minLength, result);
       }
     }
   }
 
-  return minFract;
+  return minLength;
 }
 
-// uses Kay and Kajiya's slab method for ray/box intersection, found in text p.472
-// assume value pointed to by dist is unusable if this method returns false
+/* uses Kay and Kajiya's slab method for ray/box intersection, found in text p.472
+ *
+ * assume value pointed to by dist is unusable if this method returns false
+ *
+ * dist is the distance from the ray origin to the intersection point
+ */
 bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OrientedBoundingBox obb)
 {
   *dist = 0;
@@ -152,12 +175,25 @@ void Camera3DPerson::moveHoriz(float step)
 }
 
 //Object Methods
+glm::mat4 Camera3DPerson::getView()
+{
+  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
+  this->eye = getEye();
+  return Camera::getView();
+}
+
+glm::mat4 Camera3DPerson::getProjection()
+{
+  return Camera::getProjection();
+}
+
 void Camera3DPerson::setView()
 {
-  this->lookat = this->focus->position;
+  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
   this->eye = getEye();
   Camera::setView();
 }
+
 void Camera3DPerson::setProjection()
 {
   Camera::setProjection();

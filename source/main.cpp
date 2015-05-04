@@ -31,6 +31,7 @@
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
+//#include "GuardPath/PathNode.h"
 
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000
@@ -56,7 +57,10 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
-Camera* camera;
+float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
+float theta = 0.0f;
+float phi = 0.0f;
+Camera* debugCamera;
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
@@ -65,7 +69,7 @@ Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
 Shape *ground;
-bool cameraFly = false;
+bool debug = false;
 
 glm::vec3 g_light(0, 100, 0);
 
@@ -147,43 +151,122 @@ void initGL() {
 void getWindowinput(GLFWwindow* window, double deltaTime) {
     float forwardYVelocity = 0;
     float sideYVelocity = 0;
+  bool accelerate = false;
+  bool upD = false;
+  bool downD = false;
+  bool leftD = false;
+  bool rightD = false;
+  vec3 direction(0, 0, 0);
     glm::vec3 forward = camera3DPerson->getForward();
     glm::vec3 strafe = camera3DPerson->getStrafe();
     glm::vec3 up = camera3DPerson->getUp();
     oldPosition = playerObject->position;
 
+  if (!debug) {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        playerObject->position -= velocity;
+      velocity.y = 0;
+      direction += -velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-		playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
+      playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
         //camera3DPerson->setView();
+      accelerate = true;
+      leftD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        playerObject->position += velocity;
+      velocity.y = 0;
+      direction += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-		playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
+      playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
         //camera3DPerson->setView();
+      accelerate = true;
+      rightD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        playerObject->position += velocity;
+      velocity.y = 0;
+      direction += velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-		playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI + 180;
+      playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
         //camera3DPerson->setView();
+      accelerate = true;
+      upD = true;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        playerObject->position -= velocity;
+      velocity.y = 0;
+      direction += -velocity;
         glm::vec3 forward = camera3DPerson->getForward();
-		playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI + 180;
+      playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
         //camera3DPerson->setView();
+      accelerate = true;
+      downD = true;
     }
+
+    if (accelerate) {
+      direction = normalize(direction);
+      if ((upD && downD) || (leftD && rightD)) {
+          playerObject->decelerate();
+      }
+      else {
+          playerObject->changeDirection(direction);
+          playerObject->accelerate();
+          printf("velocity: %f\n", playerObject->velocity);
+      }
+    }
+    else {
+      playerObject->decelerate();
+    }
+  }
+  else {
+    glm::vec3 view = -1.0f * debugCamera->getForward();
+    glm::vec3 up = debugCamera->getUp();
+    glm::vec3 strafe = debugCamera->getStrafe();
+    glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
+    /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+      key_speed -= 0.1;
+    }
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+      key_speed += 0.1;
+    }*/
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+      move = -1.0f * key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+      move = -1.0f * key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+      move = key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+      move = key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+      move = -1.0f * key_speed * view;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+      move = -1.0f * key_speed * view;
+}
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+      move = key_speed * view;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+      move = key_speed * view;
+    }
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+      move = key_speed * glm::vec3(0, 1, 0);
+    }
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+      move = key_speed * glm::vec3(0, -1, 0);
+    }
+    debugCamera->eye += move;
+    debugCamera->lookat += move;
+  }
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
@@ -205,13 +288,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         for (int j = 0; j < proximity.size(); j++) {
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
-                    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-                        gameObjects->list[i]->position = oldPosition;
+          //do something generic here if you need to
+          //object.collide handles the collision 
                     }
                 }
             }
         }
-    } 
     gameObjects->update();
 }
 
@@ -246,16 +328,24 @@ void window_size_callback(GLFWwindow* window, int w, int h){
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        cameraFly = !cameraFly;
+    debug = !debug;
     }
+  if (!debug) {
     if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 0.9;
-      //camera3DPerson->setView();
     }
     if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 1.1;
-      //camera3DPerson->setView();
     }
+}
+  else {
+    if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      key_speed -= 0.1;
+    }
+    if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      key_speed += 0.1;
+    }
+  }
 }
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
@@ -266,9 +356,25 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   double dx = xpos - x_center;
   double dy = ypos - y_center;
 
+  if (!debug) {
   camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
   camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
-  //camera3DPerson->setView();
+  }
+  else {
+    // TODO implement first person camera class 
+    double max_vert_angle = 85;
+    double cursor_speed = 0.3;
+
+    theta -= dx * cursor_speed;
+    // note that ypos is measured from the top of the screen, so
+    // an increase in ypos means moving the mouse down the y axis
+    if ((phi < max_vert_angle && dy > 0) || (phi > -1.0 * max_vert_angle && dy < 0)) {
+      phi += dy * cursor_speed;
+    }
+    debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
+    debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
+    debugCamera->lookat.z = debugCamera->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+  }
 
   glfwSetCursorPos(window, x_center, y_center);
 }
@@ -291,12 +397,12 @@ void initPlayer(WorldGrid* gameObjects) {
 }
 
 void initGuards(WorldGrid* gameObjects) {
-	vector<vec3> guardPath;
-	guardPath.push_back(vec3(-5, 0, 8));
-	guardPath.push_back(vec3(-9, 0, 7));
-	guardPath.push_back(vec3(-11, 0, 0));
-	guardPath.push_back(vec3(-9, 0, -6));
-	guardPath.push_back(vec3(-5, 0, -7));
+  vector<PathNode> guardPath;
+  guardPath.push_back(PathNode(vec3(-5, 0, 8), false, 2.0f, true, true));
+  guardPath.push_back(PathNode(vec3(-9, 0, 7), true, 0.0f, false, false));
+  guardPath.push_back(PathNode(vec3(0, 0, 0), true, 0.0f, false, false));
+  guardPath.push_back(PathNode(vec3(-9, 0, -6), true, 0.0f, false, false));
+  guardPath.push_back(PathNode(vec3(-5, 0, -7), false, 2.0f, false, true));
 
 	Guard* guardObject = new Guard(
 		&guardMesh,
@@ -345,32 +451,32 @@ void initWalls(WorldGrid* gameObjects) {
   int testWallCount = 0;
   bool buildRight, buildDown;
   //
-  char ch;
-  fstream fin(resPath("LevelDesign.txt"), fstream::in);
-  int i = 0, j = 0;
-  while (fin >> noskipws >> ch) {
-    if (ch == '\n') {
-      j = 0;
-      i++;
+    char ch;
+    fstream fin(resPath("LevelDesign.txt"), fstream::in);
+    int i = 0, j = 0;
+    while (fin >> noskipws >> ch) {
+      if (ch == '\n') {
+        j = 0;
+        i++;
+      }
+      else {
+        levelDesign[i][j] = ch - '0';
+        j++;
+      }
     }
-    else {
-      levelDesign[i][j] = ch - '0';
-      j++;
-    }
-  }
   // Test print entire matrix
   for (i = 0; i < TEST_WORLD; i++) {
-    cout << '\n';
+      cout << '\n';
     for (j = 0; j < TEST_WORLD; j++) {
-      cout << levelDesign[i][j];
+        cout << levelDesign[i][j];
+      }
     }
-  }
-  cout << '\n';
+    cout << '\n';
 
-  // Create the wall objects
+    // Create the wall objects
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
-      if (levelDesign[i][j]) {
+        if (levelDesign[i][j]) {
         // Flags to build walls in a direction, chooses greedily
         buildDown = false;
         buildRight = false;
@@ -428,8 +534,8 @@ void initWalls(WorldGrid* gameObjects) {
         }
 
         // Make the actual Wall object and add it to gameObjects list
-        gameObjects->add(shared_ptr<GameObject>(new Wall(
-          &cubeMesh,
+          gameObjects->add(shared_ptr<GameObject>(new Wall(
+        &cubeMesh,
           &handles,
           tempPos,      //position
           0,            //rotation
@@ -439,7 +545,7 @@ void initWalls(WorldGrid* gameObjects) {
           vec3(1, 8, 1),//bounding box
           0,            //scanRadius
           1             //material
-          )));
+            )));
 
         /*for (int k = 0; k < TEST_WORLD; k++) {
           cout << '\n';
@@ -456,9 +562,9 @@ void initWalls(WorldGrid* gameObjects) {
         printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
         printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
         //////////
+        }
       }
     }
-  }
 }
 
 int main(int argc, char **argv)
@@ -500,11 +606,11 @@ int main(int argc, char **argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initGL();
-    handles.installShaders(resPath(sysPath("shaders", "vert.glsl")),
-                           resPath(sysPath("shaders", "frag.glsl")));
+  handles.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
+  //handles.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
 
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
-    playerMesh.loadShapes(resPath(sysPath("models", "godzilla.obj")));
+  playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
 
     srand(time(NULL));
@@ -525,6 +631,15 @@ int main(int argc, char **argv)
     camera3DPerson = new Camera3DPerson(&handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR);
+  // debug camera
+  debugCamera = new Camera(&handles,
+      glm::vec3(0.0f, 0.0f, 1.0f),
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f),
+      CAMERA_FOV,
+      (float)g_width / (float)g_height,
+      CAMERA_NEAR,
+      CAMERA_FAR);
     double timeCounter = 0;
     do{
         //timer stuff
@@ -536,8 +651,14 @@ int main(int argc, char **argv)
         beginDrawGL();
         // make sure these lines are in this order
         getWindowinput(window, deltaTime);
+    if (!debug) {
         camera3DPerson->setProjection();
         camera3DPerson->setView();
+    }
+    else {
+      debugCamera->setProjection();
+      debugCamera->setView();
+    }
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
 

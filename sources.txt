@@ -7,6 +7,7 @@ set(HEADERS
    Library/TimeManager.h
    Library/InitObjects.h
    Library/GLError.h
+   Library/OrientedBoundingBox.h
 
    GameObject/GameObject.h
    GameObject/Player.h
@@ -16,12 +17,17 @@ set(HEADERS
    GameObject/Shape.h
    GameObject/Guard.h
 
+   GuardPath/PathNode.h
+
    WorldGrid/WorldGrid.h
    
    Camera/Camera.h
    Camera/Camera3DPerson.h
 
    Path/Path.h
+
+   DebugDraw/DebugDraw.h
+   DebugDraw/DebugHandles.h
 )
 
 # List all .c / .cpp files here
@@ -42,8 +48,13 @@ set(SOURCES
    GameObject/Shape.cpp
    GameObject/Guard.cpp
 
+   GuardPath/PathNode.cpp
+
    WorldGrid/WorldGrid.cpp
    
    Camera/Camera.cpp
    Camera/Camera3DPerson.cpp
+
+   DebugDraw/DebugDraw.cpp
+   DebugDraw/DebugHandles.cpp
 )
