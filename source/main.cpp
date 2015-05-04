@@ -277,7 +277,7 @@ void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &handles,
-      vec3(0, 0, 0),
+      vec3(10, 0, 20),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
@@ -376,16 +376,20 @@ void initWalls(WorldGrid* gameObjects) {
         buildRight = false;
         // Tracks acutal size of wall object iterated over by the tempI & tempJ
         realI = realJ = 0;
-        // Temp iterators over the matrix
+        // Temporary iterators over the matrix
         tempI = i;
         tempJ = j;
         //printf("HERE j encountered is %d\n", tempJ);
-        if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
+        if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
           printf("Setting right flag\n");
+          printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
+          printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
           buildRight = true;
         }
-        else if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
+        else if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
           printf("Setting down flag\n");
+          printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
+          printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
           buildDown = true;
         }
         // Keep building object size in a direction if possible
@@ -393,24 +397,36 @@ void initWalls(WorldGrid* gameObjects) {
           if (buildRight) {
             printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
             levelDesign[tempI][tempJ] = 0;
-            tempI++;
-            realI++;
-          }
-          else if (buildDown) {
-            levelDesign[tempI][tempJ] = 0;
             tempJ++;
             realJ++;
           }
+          else if (buildDown) {
+            //printf("Building DOWN with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+            levelDesign[tempI][tempJ] = 0;
+            tempI++;
+            realI++;
+          }
         }
+        tempI--;
+        tempJ--;
         // Pack the temporary variables with a position and scale to create a Wall
-        if (buildRight) {
-          tempPos = vec3(((float)tempI) / 2 - ((float)TEST_WORLD) / 2, 4, (float)tempJ - (float)(TEST_WORLD / 2));
-          tempScale = vec3(((float)realI - 1) / 2.0, 1.0, 1.0);
+        if      (buildRight && (tempJ - realJ) < 2) {
+          tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2) + 2, 1, ((float)tempI) - ((float)TEST_WORLD / 2) + 2);
+          tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
         }
-        else {
-          tempPos = vec3(((float)tempJ - ((float)TEST_WORLD / 2)), 4, (float)tempI - ((float)TEST_WORLD / 2));
-          tempScale = vec3(1.0, 1.0, ((float)realJ - 1) / 2.0);
+        else if (buildRight && (tempJ - realJ) > 2) {
+          tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
+          tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
         }
+        else if (buildDown  && (tempI - realI) < 2) {
+          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2) + 2, 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2) + 2);
+          tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+        }
+        else if (buildDown  && (tempI - realI) > 2) {
+          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD/2) - ((float)realI) / 2);
+          tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+        }
+
         // Make the actual Wall object and add it to gameObjects list
         gameObjects->add(shared_ptr<GameObject>(new Wall(
           &cubeMesh,
@@ -425,16 +441,25 @@ void initWalls(WorldGrid* gameObjects) {
           1             //material
           )));
 
+        /*for (int k = 0; k < TEST_WORLD; k++) {
+          cout << '\n';
+          for (int m = 0; m < TEST_WORLD; m++) {
+            cout << levelDesign[k][m];
+          }
+        }
+        cout << '\n';*/
         ////////// Testing only
         testWallCount++;
+        //printf("Building with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
         printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
+        printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
         printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
         printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
         //////////
-      } 
+      }
     }
   }
- }
+}
 
 int main(int argc, char **argv)
 {
@@ -503,7 +528,7 @@ int main(int argc, char **argv)
     double timeCounter = 0;
     do{
         //timer stuff
-        //TimeManager::Instance().CalculateFrameRate(true);
+        TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
