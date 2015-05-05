@@ -27,6 +27,7 @@ set(HEADERS
    Path/Path.h
 
    DebugDraw/DebugDraw.h
+   DebugDraw/DebugHandles.h
 )
 
 # List all .c / .cpp files here
@@ -53,4 +54,7 @@ set(SOURCES
    
    Camera/Camera.cpp
    Camera/Camera3DPerson.cpp
+
+   DebugDraw/DebugDraw.cpp
+   DebugDraw/DebugHandles.cpp
 )

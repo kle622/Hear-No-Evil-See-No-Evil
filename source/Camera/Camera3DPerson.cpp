@@ -11,10 +11,10 @@ Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *f
   this->lowerBound = LOWER_BOUND_DEFAULT;  // bound is stored in radians
   this->focus = focus;
   this->zoom = zoom;
-  this->minZoom = 0.5f;
+  this->minZoom = 0.7f;
 }
 
-// note: calling getEye() form constructor causes crash
+// note: calling getEye() from constructor causes crash
 glm::vec3 Camera3DPerson::getEye()
 {
   glm::vec3 res = glm::vec3(cos(theta) * cos(phi),
@@ -44,6 +44,8 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float nearHeight = 2 * tan(this->fov / 2) * this->_near;
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
+  // nope, this is a bug
+  //glm::vec3 nearCenter = this->eye + glm::normalize(this->lookat - this->eye) * this->_near;
   glm::vec3 nearCenter = this->lookat;
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
@@ -57,6 +59,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   std::vector<glm::vec3>::iterator corner;
   for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
     glm::vec3 rayStart = *corner;
+    //float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects) + glm::distance(this->lookat, this->eye) - this->_near;
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = MIN(rayHitDist, minRayDist);
     // collide with ground at y = -1
@@ -91,6 +94,14 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       obb.halfLengths[2] = (*iter)->dimensions.z;
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
+        // TODO bug fix: if ray start is inside bounding box, return max zoom value
+        /*glm::vec3 fromCenter = rayStart - obb.center;
+        for (int i = 0; i < 3; ++i) {
+          float centerProjection = glm::dot(fromCenter, obb.axes[i]);
+          if (centerProjection > obb.halfLengths[i] || centerProjection < -1.0f * obb.halfLengths[i]) {
+            result = this->zoom;
+          }
+        }*/
         minLength = MIN(minLength, result);
       }
     }
@@ -164,12 +175,25 @@ void Camera3DPerson::moveHoriz(float step)
 }
 
 //Object Methods
+glm::mat4 Camera3DPerson::getView()
+{
+  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
+  this->eye = getEye();
+  return Camera::getView();
+}
+
+glm::mat4 Camera3DPerson::getProjection()
+{
+  return Camera::getProjection();
+}
+
 void Camera3DPerson::setView()
 {
-  this->lookat = this->focus->position;
+  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
   this->eye = getEye();
   Camera::setView();
 }
+
 void Camera3DPerson::setProjection()
 {
   Camera::setProjection();

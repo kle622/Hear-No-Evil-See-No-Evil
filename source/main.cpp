@@ -35,6 +35,7 @@
 
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000
+#define TEST_WORLD 50
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -383,7 +384,7 @@ void initPlayer(WorldGrid* gameObjects) {
   playerObject = new Player(
       &playerMesh,
       &handles,
-      vec3(20, 0, 0),
+      vec3(10, 0, 20),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
@@ -429,7 +430,7 @@ void initGround() {
       &handles, //model handle
       vec3(0), //position
       0, //rotation
-      vec3(1.0,1.0,1.0), //scale
+    vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0), //direction
       0, //velocity
       6, //indices
@@ -439,8 +440,18 @@ void initGround() {
       );
 }
 
+
+/*
+  This assumes a grid built to [i][j], where i represents rows
+  and j represents columns. 
+*/
 void initWalls(WorldGrid* gameObjects) {
-  int levelDesign[50][50]; 
+  int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
+  float posX, posY;
+  vec3 tempScale, tempPos;
+  int testWallCount = 0;
+  bool buildRight, buildDown;
+
   char ch;
   fstream fin(resPath("LevelDesign.txt"), fstream::in);
   int i = 0, j = 0;
@@ -454,29 +465,105 @@ void initWalls(WorldGrid* gameObjects) {
       j++;
     }
   }
-  for (i = 0; i < 50; i++) {
+  ///////// Test print entire matrix
+  for (i = 0; i < TEST_WORLD; i++) {
     cout << '\n';
-    for (j = 0; j < 50; j++) {
+    for (j = 0; j < TEST_WORLD; j++) {
       cout << levelDesign[i][j];
     }
   }
   cout << '\n';
+  //////////
+
   // Create the wall objects
-  for (i = 0; i < 50; i++) {
-    for (j = 0; j < 50; j++) {
+  for (i = 0; i < TEST_WORLD; i++) {
+    for (j = 0; j < TEST_WORLD; j++) {
       if (levelDesign[i][j]) {
+        // Flags to build walls in a direction, chooses greedily
+        buildDown = false;
+        buildRight = false;
+        // Tracks acutal size of wall object iterated over by the tempI & tempJ
+        realI = realJ = 0;
+        // Temporary iterators over the matrix
+        tempI = i;
+        tempJ = j;
+        //printf("HERE j encountered is %d\n", tempJ);
+        if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
+          //printf("Setting right flag\n");
+          //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
+          //printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
+          buildRight = true;
+        }
+        else if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
+          //printf("Setting down flag\n");
+          //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
+          //printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
+          buildDown = true;
+        }
+        // Keep building object size in a direction if possible
+        while (levelDesign[tempI][tempJ] == 1) {
+          if (buildRight) {
+            //printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+            levelDesign[tempI][tempJ] = 0;
+            tempJ++;
+            realJ++;
+          }
+          else if (buildDown) {
+            //printf("Building DOWN with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+            levelDesign[tempI][tempJ] = 0;
+            tempI++;
+            realI++;
+          }
+        }
+        tempI--;
+        tempJ--;
+        // Pack the temporary variables with a position and scale to create a Wall
+        if      (buildRight && (tempJ - realJ) < 2) {
+          tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2) + 2, 1, ((float)tempI) - ((float)TEST_WORLD / 2) + 2);
+          tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
+        }
+        else if (buildRight && (tempJ - realJ) > 2) {
+          tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
+          tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
+        }
+        else if (buildDown  && (tempI - realI) < 2) {
+          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2) + 2, 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2) + 2);
+          tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+        }
+        else if (buildDown  && (tempI - realI) > 2) {
+          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD/2) - ((float)realI) / 2);
+          tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+        }
+
+        // Make the actual Wall object and add it to gameObjects list
         gameObjects->add(shared_ptr<GameObject>(new Wall(
                 &cubeMesh,
-                &handles, //model handle
-                vec3((i-25), 4, (j-25)), //position
-                0, //rotation
-                vec3(1.0, 5.0, 1.0), //scale
-                vec3(1, 0, 0), //direction
-                0, //speed
-                vec3(1, 8, 1), //bounding box
-                0, //scanRadius
-                1  //material
+          &handles,
+          tempPos,      //position
+          0,            //rotation
+          tempScale,    //scale
+          vec3(1, 0, 0),
+          0,
+          vec3(1, 8, 1),//bounding box
+          0,            //scanRadius
+          1             //material
                 )));
+
+        /*for (int k = 0; k < TEST_WORLD; k++) {
+          cout << '\n';
+          for (int m = 0; m < TEST_WORLD; m++) {
+            cout << levelDesign[k][m];
+          }
+        }
+        cout << '\n';*/
+        ////////// Testing only
+        //testWallCount++;
+        //printf("Building with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+        //printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
+        //printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
+        //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+        //printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
+        //////////
       }
     }
   }
@@ -579,8 +666,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-  } 
-  while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS 
+  } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
   glfwTerminate();

@@ -39,6 +39,8 @@ class Camera3DPerson: public Camera
     void moveVert(float step);
     void moveHoriz(float step);
     //Object Methods
+    virtual glm::mat4 getView();
+    virtual glm::mat4 getProjection();
     virtual void setView();
     virtual void setProjection();
 };
