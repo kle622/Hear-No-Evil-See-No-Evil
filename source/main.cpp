@@ -125,7 +125,7 @@ void SetMaterial(int i) {
     break;
   case 3: // green (ground)
     glUniform3f(handles.uMatAmb, 0.06f, 0.09f, 0.06f);
-    glUniform3f(handles.uMatDif, 0.2f, 0.95f, 0.1f);
+    glUniform3f(handles.uMatDif, 0.2f, 0.80f, 0.1f);
     glUniform3f(handles.uMatSpec, 0.8f, 1.0f, 0.8f);
     glUniform1f(handles.uMatShine, 4.0f);
     break;
@@ -140,7 +140,7 @@ void SetMaterial(int i) {
 
 void initGL() {
   // Set the background color
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
@@ -274,6 +274,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
 
   for (int i = 0; i < gameObjects->list.size(); i++) {
+	//printf("Drawing game object...\n");
     SetMaterial(gameObjects->list[i]->material);
     gameObjects->list[i]->draw();
     gameObjects->list[i]->move(time);
