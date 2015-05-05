@@ -440,7 +440,6 @@ void initGround() {
     );
 }
 
-
 /*
   This assumes a grid built to [i][j], where i represents rows
   and j represents columns. 
