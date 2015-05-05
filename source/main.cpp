@@ -447,7 +447,7 @@ void initGround() {
 void initWalls(WorldGrid* gameObjects) {
   int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
   float posX, posY;
-  vec3 tempScale, tempPos;
+  vec3 tempScale, tempPos, tempBBox;
   int testWallCount = 0;
   bool buildRight, buildDown;
 
@@ -518,35 +518,39 @@ void initWalls(WorldGrid* gameObjects) {
         tempJ--;
         // Pack the temporary variables with a position and scale to create a Wall
         if      (buildRight && (tempJ - realJ) < 2) {
-          tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2) + 2, 1, ((float)tempI) - ((float)TEST_WORLD / 2) + 2);
+          tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2), 1, ((float)tempI) - ((float)TEST_WORLD / 2));
           tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
+          tempBBox = vec3((float)realJ, 8.0, 1.0);
         }
         else if (buildRight && (tempJ - realJ) > 2) {
           tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
           tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
+          tempBBox = vec3((float)realJ, 8.0, 1.0);
         }
         else if (buildDown  && (tempI - realI) < 2) {
-          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2) + 2, 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2) + 2);
+          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2));
           tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+          tempBBox = vec3(1.0, 8.0, (float)realI);
         }
         else if (buildDown  && (tempI - realI) > 2) {
           tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD/2) - ((float)realI) / 2);
           tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+          tempBBox = vec3(1.0, 8.0, (float)realI);
         }
 
         // Make the actual Wall object and add it to gameObjects list
-          gameObjects->add(shared_ptr<GameObject>(new Wall(
-        &cubeMesh,
+        gameObjects->add(shared_ptr<GameObject>(new Wall(
+          &cubeMesh,
           &handles,
           tempPos,      //position
           0,            //rotation
           tempScale,    //scale
           vec3(1, 0, 0),
           0,
-          vec3(1, 8, 1),//bounding box
+          tempBBox,     //bounding box
           0,            //scanRadius
           1             //material
-            )));
+        )));
 
         /*for (int k = 0; k < TEST_WORLD; k++) {
           cout << '\n';
@@ -556,11 +560,11 @@ void initWalls(WorldGrid* gameObjects) {
         }
         cout << '\n';*/
         ////////// Testing only
-        //testWallCount++;
+        testWallCount++;
         //printf("Building with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
         //printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
         //printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
-        //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+         printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
         //printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
         //////////
         }
