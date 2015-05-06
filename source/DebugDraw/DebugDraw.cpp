@@ -65,7 +65,7 @@ void DebugDraw::drawAll()
   glUniformMatrix4fv(this->handles.uViewMatrix, 1, GL_FALSE, glm::value_ptr(this->view));
   glUniformMatrix4fv(this->handles.uProjMatrix, 1, GL_FALSE, glm::value_ptr(this->projection));
 
-  glDrawElements(GL_LINES, this->posBuf.size(), GL_UNSIGNED_INT, 0);
+  glDrawArrays(GL_LINES, 0, this->posBuf.size());
 
   // Disable and unbind
   GLSL::disableVertexAttribArray(this->handles.aPosition);
