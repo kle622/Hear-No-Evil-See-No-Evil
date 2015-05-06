@@ -3,20 +3,12 @@
 #include "DebugHandles.h"
 #include <string>
 
-typedef struct LineSegment
-{
-  glm::vec3 start;
-  glm::vec3 end;
-  glm::vec3 color;
-} LineSegment;
-
-typedef struct
-{
-  glm::vec3 center;
-  float radius;
-  glm::vec3 normal;
-  glm::vec3 color;
-} Ring3D;
+/*
+ * Basic usage:
+ * Add a line or ring to the instance of DebugDraw in main
+ * All geometry added in this way will be drawn during the call to drawAll(), which is already written
+ * Debug geometry is currenty only drawn in debug mode, which switches to a free-floating camera, but this can be changed
+ */
 
 class DebugDraw
 {
@@ -25,15 +17,13 @@ class DebugDraw
     DebugDraw();
     glm::mat4 view;
     glm::mat4 projection;
-    void addLine(LineSegment line);
     void addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
-    void addRing(Ring3D ring);
-    void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color);
+    void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
+    void addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
     void drawAll();
-    //void addPolygon(int numVertices, ...);
+    void clear();
+    //void addPolygon(int numVertices, ...);  // not supported
   private:
-    std::vector<LineSegment> lines;
-    std::vector<Ring3D> rings;
     std::vector<float> posBuf;
     std::vector<float> colBuf;
     GLuint posBufObj;

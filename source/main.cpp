@@ -698,10 +698,16 @@ int main(int argc, char **argv)
         endDrawGL();
         // draw debug
         if (debug) {
+          vector<shared_ptr<GameObject>> objs = gameObjects.list;
+          vector<shared_ptr<GameObject>>::iterator objIter;
+          for (objIter = objs.begin(); objIter != objs.end(); ++objIter) {
+            debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f));
+          }
+
           debugDraw.view = debugCamera->getView();
           debugDraw.projection = debugCamera->getProjection();
-          debugDraw.addLine(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 24.0f, 6.0f), glm::vec3(0.5f, 0.9f, 0.1f));
           debugDraw.drawAll();
+          debugDraw.clear();
         }
 
         glfwSwapBuffers(window);

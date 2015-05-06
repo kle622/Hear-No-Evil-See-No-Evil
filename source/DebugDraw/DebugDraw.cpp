@@ -4,12 +4,6 @@ DebugDraw::DebugDraw()
 {
 }
 
-// TODO not supported
-void DebugDraw::addLine(LineSegment line)
-{
-}
-
-// TODO not supported
 void DebugDraw::addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 {
   this->posBuf.push_back(start.x);
@@ -27,16 +21,41 @@ void DebugDraw::addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 }
 
 // TODO not supported
-void DebugDraw::addRing(Ring3D ring)
-{
-}
-
-// TODO not supported
 void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
 }
 
-// TODO not supported
+void DebugDraw::addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color)
+{
+  glm::vec3 halfDims = dimensions * 0.5f;
+  glm::vec3 topleftfront = center + glm::vec3(-1.0f * halfDims.x, halfDims.y, -1.0f * halfDims.z);
+  glm::vec3 topleftback = center + glm::vec3(-1.0f * halfDims.x, halfDims.y, halfDims.z);
+  glm::vec3 toprightfront = center + glm::vec3(halfDims.x, halfDims.y, -1.0f * halfDims.z);
+  glm::vec3 toprightback = center + glm::vec3(halfDims.x, halfDims.y, halfDims.z);
+  glm::vec3 botleftfront = center + glm::vec3(-1.0f * halfDims.x, -1.0f * halfDims.y, -1.0f * halfDims.z);
+  glm::vec3 botleftback = center + glm::vec3(-1.0f * halfDims.x, -1.0f * halfDims.y, halfDims.z);
+  glm::vec3 botrightfront = center + glm::vec3(halfDims.x, -1.0f * halfDims.y, -1.0f * halfDims.z);
+  glm::vec3 botrightback = center + glm::vec3(halfDims.x, -1.0f * halfDims.y, halfDims.z);
+  this->addLine(topleftfront, topleftback, color);
+  this->addLine(topleftfront, toprightfront, color);
+  this->addLine(topleftfront, botleftfront, color);
+  this->addLine(topleftback, toprightback, color);
+  this->addLine(topleftback, botleftback, color);
+  this->addLine(toprightfront, botrightfront, color);
+  this->addLine(toprightfront, toprightback, color);
+  this->addLine(toprightback, botrightback, color);
+  this->addLine(botleftfront, botrightfront, color);
+  this->addLine(botleftfront, botleftback, color);
+  this->addLine(botrightfront, botrightback, color);
+  this->addLine(botleftback, botrightback, color);
+}
+
+void DebugDraw::clear()
+{
+  this->posBuf.clear();
+  this->colBuf.clear();
+}
+
 void DebugDraw::drawAll()
 {
   glUseProgram(handles.prog);
