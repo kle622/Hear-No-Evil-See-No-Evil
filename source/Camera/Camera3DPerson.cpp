@@ -21,7 +21,6 @@ glm::vec3 Camera3DPerson::getEye()
       sin(phi),
       sin(theta) * cos(phi));
 
-  //assert((glm::length(res) > 1.0f - EPSILON) && (glm::length(res) < 1.0f + EPSILON));
   assertNormalized(res);
   res = this->setZoom(res);
   res += this->lookat;
@@ -45,8 +44,6 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float nearHeight = 2 * tan(this->fov / 2) * this->_near;
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
-  // nope, this is a bug
-  //glm::vec3 nearCenter = this->eye + glm::normalize(this->lookat - this->eye) * this->_near;
   glm::vec3 nearCenter = this->lookat;
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
@@ -61,7 +58,6 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   std::vector<glm::vec3>::iterator corner;
   for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
     glm::vec3 rayStart = *corner;
-    //float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects) + glm::distance(this->lookat, this->eye) - this->_near;
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = fmin(rayHitDist, minRayDist);
     // collide with ground at y = -1
@@ -73,7 +69,6 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   // given shortest distance from near plane corner to potential collision, determine if zoom should change
   // make sure to handle case where no intersections occured (minRayDist should equal double max in this case)
   minRayDist = fmin(minRayDist, this->zoom);
-  //minRayDist = fmax(minRayDist, this->minZoom);
   return outVec * minRayDist;
 }
 
