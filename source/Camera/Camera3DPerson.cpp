@@ -51,6 +51,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
   nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
+  nearCorners.push_back(nearCenter);  // helps mitigate camera clipping through outside wall corners
 
   std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
 
@@ -94,14 +95,6 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       obb.halfLengths[2] = (*iter)->dimensions.z;
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
-        // TODO bug fix: if ray start is inside bounding box, return max zoom value
-        /*glm::vec3 fromCenter = rayStart - obb.center;
-        for (int i = 0; i < 3; ++i) {
-          float centerProjection = glm::dot(fromCenter, obb.axes[i]);
-          if (centerProjection > obb.halfLengths[i] || centerProjection < -1.0f * obb.halfLengths[i]) {
-            result = this->zoom;
-          }
-        }*/
         minLength = MIN(minLength, result);
       }
     }
