@@ -42,17 +42,4 @@ void checkGLError()
   }
 }
 
-void assertNormalized(glm::vec2 v)
-{
-  assert((glm::length(v) > 1.0f - EPSILON) && (glm::length(v) < 1.0f + EPSILON));
-}
 
-void assertNormalized(glm::vec3 v)
-{
-  assert((glm::length(v) > 1.0f - EPSILON) && (glm::length(v) < 1.0f + EPSILON));
-}
-
-void assertNormalized(glm::vec4 v)
-{
-  assert((glm::length(v) > 1.0f - EPSILON) && (glm::length(v) < 1.0f + EPSILON));
-}

@@ -8,8 +8,19 @@
 #define EPSILON 0.0001f
 
 void checkGLError();
-void assertNormalized(glm::vec2 v);
-void assertNormalized(glm::vec3 v);
-void assertNormalized(glm::vec4 v);
+inline void assertNormalized(glm::vec2 v)
+{
+  assert((glm::length(v) > 1.0f - EPSILON) && (glm::length(v) < 1.0f + EPSILON));
+}
+
+inline void assertNormalized(glm::vec3 v)
+{
+  assert((glm::length(v) > 1.0f - EPSILON) && (glm::length(v) < 1.0f + EPSILON));
+}
+
+inline void assertNormalized(glm::vec4 v)
+{
+  assert((glm::length(v) > 1.0f - EPSILON) && (glm::length(v) < 1.0f + EPSILON));
+}
 
 #endif
