@@ -352,7 +352,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
       if (action == GLFW_PRESS) {
         playerObject->SetMotion(RUN);
       }
-      else {
+	  else if (action == GLFW_RELEASE) {
         playerObject->SetMotion(WALK);
       }
     }
@@ -361,7 +361,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         playerObject->SetMotion(CROUCH);
         playerObject->crouch = true;
       }
-      else {
+	  else if (action == GLFW_RELEASE) {
         playerObject->SetMotion(WALK);
         playerObject->crouch = false;
       }
