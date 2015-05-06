@@ -398,28 +398,6 @@ void initPlayer(WorldGrid* gameObjects) {
 }
 
 void initGuards(WorldGrid* gameObjects) {
-	/**
-	vector<PathNode> *guardPath;
-	guardPath.push_back(PathNode(vec3(-5, 0, 8), false, 2.0f, true, true));
-	guardPath.push_back(PathNode(vec3(-9, 0, 7), true, 0.0f, false, false));
-	guardPath.push_back(PathNode(vec3(0, 0, 0), true, 0.0f, false, false));
-	guardPath.push_back(PathNode(vec3(-9, 0, -6), true, 0.0f, false, false));
-	guardPath.push_back(PathNode(vec3(-5, 0, -7), false, 2.0f, false, true));
-
-	Guard* guardObject = new Guard(
-		&guardMesh,
-		&handles,
-		vec3(1, 1, 1),
-		GUARD_SPEED,
-		vec3(1.5, 1.5, 1.5),
-		1,
-		1,
-		guardPath
-	);
-
-	gameObjects->add(shared_ptr<GameObject>(guardObject));
-	*/
-
 	vector<PathNode> guardPath;
 	FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
 	char line[100];
@@ -432,11 +410,13 @@ void initGuards(WorldGrid* gameObjects) {
 			guardPath.clear();
 			fgets(line, 100, file); // guard settings, ignored for now
 			fscanf(file, "%s %d", line, &numNodes); // read number of nodes in path
+
 			for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
 				fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
 				printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
 				guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
 			}
+
 			Guard* guardObject = new Guard(
 				&guardMesh,
 				&handles,
@@ -450,7 +430,6 @@ void initGuards(WorldGrid* gameObjects) {
 			gameObjects->add(shared_ptr<GameObject>(guardObject));
 		}
 	}
-	
 }
 
 void initGround() {
@@ -492,6 +471,7 @@ void initWalls(WorldGrid* gameObjects) {
       j++;
     }
   }
+
   ///////// Test print entire matrix
   for (i = 0; i < TEST_WORLD; i++) {
       cout << '\n';
@@ -500,9 +480,10 @@ void initWalls(WorldGrid* gameObjects) {
       }
     }
     cout << '\n';
-  //////////
 
-  // Create the wall objects
+
+	     
+  //////////// Create the wall objects
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
         if (levelDesign[i][j]) {
