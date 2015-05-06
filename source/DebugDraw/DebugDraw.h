@@ -23,7 +23,6 @@ class DebugDraw
   public:
     DebugHandles handles;
     DebugDraw();
-    DebugDraw(const std::string &vShaderName, const std::string &fShaderName);
     glm::mat4 view;
     glm::mat4 projection;
     void addLine(LineSegment line);
