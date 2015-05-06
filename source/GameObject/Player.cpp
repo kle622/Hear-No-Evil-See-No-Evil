@@ -3,18 +3,15 @@
 #include "../Camera/Camera.h"
 #include <algorithm>
 
-#define MAX_VELOCITY 15.0f
-#define MIN_VELOCITY 0.0f
-#define ACCELERATION 0.2f
-#define DECELERATION 0.5f
-
 Player::Player(Mesh *mesh, Handles *handles,
     vec3 position, float rotation, vec3 scale, 
-           vec3 direction, float velocity, vec3 dimensions, 
+           vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
         GameObject(mesh, handles, position, rotation, scale, 
-         direction, velocity, dimensions, scanRadius, material) {
-
+         direction, WALK, dimensions, scanRadius, material) {
+    maxVelocity = WALK;
+    crouch = false;
+    standingScale = scale.y;
 }
 
 bool Player::collide(GameObject* object) {
@@ -37,17 +34,28 @@ bool Player::collide(GameObject* object) {
 
 void Player::move(float time) {
     oldPosition = position;
+    static float yPos = position.y;
     position += normalize(direction) * velocity * time;
+    if (crouch) {
+        if (scale.y > CROUCH_SCALE) {
+            scale.y -= 0.1f * (standingScale - CROUCH_SCALE);
+            position.y -= 0.05f * standingScale;
+        }
+    }
+    else {
+        scale.y = std::min(scale.y + 0.1f, standingScale);
+        position.y = yPos;
+    }
 }
 
 void Player::accelerate() {
     velocity = std::max(MIN_VELOCITY, velocity);
     velocity += ACCELERATION;
-    velocity = std::min(MAX_VELOCITY, velocity);
+    velocity = std::min(maxVelocity, velocity);
 }
 
 void Player::decelerate() {
-    velocity = std::min(MAX_VELOCITY, velocity);
+    velocity = std::min(maxVelocity, velocity);
     velocity -= DECELERATION;
     velocity = std::max(MIN_VELOCITY, velocity);
 }
@@ -55,4 +63,8 @@ void Player::decelerate() {
 void Player::changeDirection(vec3 direction) {
     velocity *= dot(this->direction, direction);
     this->direction = direction;
+}
+
+void Player::SetMotion(float motion) {
+    maxVelocity = motion;
 }

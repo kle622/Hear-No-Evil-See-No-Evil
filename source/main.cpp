@@ -331,22 +331,42 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     debug = !debug;
     }
-  if (!debug) {
-    if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      camera3DPerson->zoom *= 0.9;
+    if (!debug) {
+      if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        camera3DPerson->zoom *= 0.9;
+      }
+      if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        camera3DPerson->zoom *= 1.1;
+      }
     }
-    if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      camera3DPerson->zoom *= 1.1;
+    else {
+      if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        key_speed -= 0.1;
+      }
+      if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        key_speed += 0.1;
+      }
     }
-}
-  else {
-    if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      key_speed -= 0.1;
+
+    if (key == GLFW_KEY_LEFT_SHIFT) {
+      if (action == GLFW_PRESS) {
+        playerObject->SetMotion(RUN);
+      }
+      else {
+        playerObject->SetMotion(WALK);
+      }
     }
-    if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      key_speed += 0.1;
+    if (key == GLFW_KEY_LEFT_CONTROL) {
+      if (action == GLFW_PRESS) {
+        playerObject->SetMotion(CROUCH);
+        playerObject->crouch = true;
+      }
+      else {
+        playerObject->SetMotion(WALK);
+        playerObject->crouch = false;
+      }
+
     }
-  }
 }
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
@@ -388,7 +408,6 @@ void initPlayer(WorldGrid* gameObjects) {
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
-      CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
       3,
       3
