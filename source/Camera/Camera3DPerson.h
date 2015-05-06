@@ -11,13 +11,15 @@
 #include "../GameObject/Wall.h"
 #include "../WorldGrid/WorldGrid.h"
 #include "../Library/OrientedBoundingBox.h"
+#include "../Library/GLError.h"
 #include "../DebugDraw/DebugDraw.h"
+#include <cmath>
 
 #define UPPER_BOUND_DEFAULT 85.0f
 #define LOWER_BOUND_DEFAULT -35.0f
-#define EPSILON .00001f
-#define MIN(a,b) (a < b ? a : b)
-#define MAX(a,b) (a > b ? a : b)
+//#define EPSILON .00001f
+//#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+//#define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 class Camera3DPerson: public Camera
 {

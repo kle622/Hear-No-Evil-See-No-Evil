@@ -14,14 +14,15 @@ Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *f
   this->minZoom = 0.7f;
 }
 
-// note: calling getEye() from constructor causes crash
+// note: calling getEye() from constructor causes crash because setZoom() queries the WorldGrid for collision checking
 glm::vec3 Camera3DPerson::getEye()
 {
   glm::vec3 res = glm::vec3(cos(theta) * cos(phi),
       sin(phi),
       sin(theta) * cos(phi));
 
-  assert((glm::length(res) > 1.0f - EPSILON) && (glm::length(res) < 1.0f + EPSILON));
+  //assert((glm::length(res) > 1.0f - EPSILON) && (glm::length(res) < 1.0f + EPSILON));
+  assertNormalized(res);
   res = this->setZoom(res);
   res += this->lookat;
   return res;
@@ -62,17 +63,17 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
     glm::vec3 rayStart = *corner;
     //float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects) + glm::distance(this->lookat, this->eye) - this->_near;
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
-    minRayDist = MIN(rayHitDist, minRayDist);
+    minRayDist = fmin(rayHitDist, minRayDist);
     // collide with ground at y = -1
     if (outVec.y < 0.0f) {  // only necessary if camera is below lookat; also makes sure outVec.y != 0
       float groundIntersect = (-1.0f - rayStart.y) / outVec.y;
-      minRayDist = MIN(minRayDist, groundIntersect);
+      minRayDist = fmin(minRayDist, groundIntersect);
     }
   }
   // given shortest distance from near plane corner to potential collision, determine if zoom should change
   // make sure to handle case where no intersections occured (minRayDist should equal double max in this case)
-  minRayDist = MIN(minRayDist, this->zoom);
-  minRayDist = MAX(minRayDist, this->minZoom);
+  minRayDist = fmin(minRayDist, this->zoom);
+  //minRayDist = fmax(minRayDist, this->minZoom);
   return outVec * minRayDist;
 }
 
@@ -95,7 +96,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       obb.halfLengths[2] = (*iter)->dimensions.z;
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
-        minLength = MIN(minLength, result);
+        minLength = fmin(minLength, result);
       }
     }
   }
@@ -127,8 +128,8 @@ bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3
         t1 = t2;
         t2 = temp;
       }
-      tmin = MAX(tmin, t1);
-      tmax = MIN(tmax, t2);
+      tmin = fmax(tmin, t1);
+      tmax = fmin(tmax, t2);
       if (tmin > tmax || tmax < 0) {
         return false;
       }
