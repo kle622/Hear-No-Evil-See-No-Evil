@@ -17,8 +17,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include "../Library/GLSL.h"
+#include "../Library/OBB.h"
 #include "../GameObject/GameObject.h"
 #include "../GameObject/Handles.h"
+#include "../WorldGrid/WorldGrid.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
@@ -52,8 +54,10 @@ class Camera {
     // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
     virtual void setView(); 
     virtual void setProjection();
-    bool isCulled(shared_ptr<GameObject>);  // use to check a specific object (i.e. player)
-    vector<shared_ptr<GameObject>> getUnculled(); // use for culling entire scene (more efficient)
+    bool isCulled(std::shared_ptr<GameObject>);  // use to check a specific object (i.e. player)
+    std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid); // use for culling entire scene (more efficient)
+  private:
+    bool obbInsidePlane(OBB obb, glm::vec4 plane);
 };
 
 double clamp(double x, double min, double max);

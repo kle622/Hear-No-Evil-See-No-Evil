@@ -64,8 +64,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
 
   // raycast from each corner, get minimum fraction
   float minRayDist = numeric_limits<double>::max();
-  std::vector<glm::vec3>::iterator corner;
-  for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
+  for (auto corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
     glm::vec3 rayStart = *corner;
     this->debug->addLine(rayStart, rayStart + this->zoom * outVec, glm::vec3(0.0f, 0.0f, 1.0f));
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
@@ -86,21 +85,20 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
 float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirection, std::vector<shared_ptr<GameObject>> objects)
 {
   float minLength = numeric_limits<double>::max();
-  std::vector<shared_ptr<GameObject>>::iterator iter;
-  for (iter = objects.begin(); iter != objects.end(); ++iter) {
+  for (auto iter = objects.begin(); iter != objects.end(); ++iter) {
     // only check collisions against walls
     if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
       // send bounding box to debug output
       this->debug->addThickBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f));
       // converting object bounding box to OBB
-      OBB obb;
-      obb.center = (*iter)->position;
+      OBB obb((*iter)->position, (*iter)->dimensions);
+      /*obb.center = (*iter)->position;
       obb.axes[0] = glm::vec3(1.0f, 0.0f, 0.0f);
       obb.axes[1] = glm::vec3(0.0f, 1.0f, 0.0f);
       obb.axes[2] = glm::vec3(0.0f, 0.0f, 1.0f);
       obb.halfLengths[0] = (*iter)->dimensions.x * 0.5;
       obb.halfLengths[1] = (*iter)->dimensions.y * 0.5;
-      obb.halfLengths[2] = (*iter)->dimensions.z * 0.5;
+      obb.halfLengths[2] = (*iter)->dimensions.z * 0.5;*/
       this->debug->addThickOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f));
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {

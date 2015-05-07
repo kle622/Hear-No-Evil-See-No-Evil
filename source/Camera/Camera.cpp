@@ -54,10 +54,31 @@ bool Camera::isCulled(shared_ptr<GameObject>)
   return false;
 }
 
-vector<shared_ptr<GameObject>> Camera::getUnculled()
+std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgrid)
 {
-  vector<shared_ptr<GameObject>> unculled;
+  std::vector<std::shared_ptr<GameObject>> unculled;
+  std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
+  // ----- View Frustum Culling -----
+  std::vector<glm::vec4> planes;
+  glm::mat4 VP = this->getProjection() * this->getView();
+  // the plane normals are not normalized, and point to the inside of the view frustum
+  planes.push_back(glm::vec4(VP[4][1] + VP[1][1], VP[4][2] + VP[1][2], VP[4][3] + VP [1][3], VP[4][4] + VP[1][4])); // left
+  planes.push_back(glm::vec4(VP[4][1] - VP[1][1], VP[4][2] - VP[1][2], VP[4][3] - VP [1][3], VP[4][4] - VP[1][4])); // right
+  planes.push_back(glm::vec4(VP[4][1] + VP[2][1], VP[4][2] + VP[2][2], VP[4][3] + VP [2][3], VP[4][4] + VP[2][4])); // bottom
+  planes.push_back(glm::vec4(VP[4][1] - VP[2][1], VP[4][2] - VP[2][2], VP[4][3] - VP [2][3], VP[4][4] - VP[2][4])); // top
+  planes.push_back(glm::vec4(VP[4][1] + VP[3][1], VP[4][2] + VP[3][2], VP[4][3] + VP [3][3], VP[4][4] + VP[3][4])); // near
+  planes.push_back(glm::vec4(VP[4][1] - VP[3][1], VP[4][2] - VP[3][2], VP[4][3] - VP [3][3], VP[4][4] - VP[3][4])); // far
+
+  for(auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
+    for (auto planeIter = planes.begin(); planeIter != planes.end(); ++planeIter) {
+    }
+  }
+
   return unculled;
+}
+
+bool obbInsidePlane(OBB obb, glm::vec4 plane)
+{
 }
 
 double clamp(double x, double min, double max) {

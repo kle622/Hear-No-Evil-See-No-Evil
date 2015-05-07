@@ -39,6 +39,7 @@ set(SOURCES
    Library/TimeManager.cpp
    Library/InitObjects.cpp
    Library/GLError.cpp
+   Library/OBB.cpp
 
    GameObject/GameObject.cpp
    GameObject/Player.cpp

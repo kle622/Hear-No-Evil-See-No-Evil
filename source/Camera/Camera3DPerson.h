@@ -5,12 +5,8 @@
 #include <limits>
 #include <cassert>
 #include "Camera.h"
-#include "../GameObject/GameObject.h"
-#include "../GameObject/Handles.h"
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
-#include "../WorldGrid/WorldGrid.h"
-#include "../Library/OBB.h"
 #include "../Library/GLError.h"
 #include "../DebugDraw/DebugDraw.h"
 #include <cmath>
