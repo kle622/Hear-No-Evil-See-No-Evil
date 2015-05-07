@@ -51,6 +51,86 @@ void DebugDraw::addThickRing(glm::vec3 center, float radius, glm::vec3 normal, g
   }
 }
 
+void DebugDraw::addOBB(OBB obb, glm::vec3 color)
+{
+  glm::vec3 topleftfront = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 topleftback = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 toprightfront = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 toprightback = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botleftfront = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botleftback = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botrightfront = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botrightback = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  this->addLine(topleftfront, topleftback, color);
+  this->addLine(topleftfront, toprightfront, color);
+  this->addLine(topleftfront, botleftfront, color);
+  this->addLine(topleftback, toprightback, color);
+  this->addLine(topleftback, botleftback, color);
+  this->addLine(toprightfront, botrightfront, color);
+  this->addLine(toprightfront, toprightback, color);
+  this->addLine(toprightback, botrightback, color);
+  this->addLine(botleftfront, botrightfront, color);
+  this->addLine(botleftfront, botleftback, color);
+  this->addLine(botrightfront, botrightback, color);
+  this->addLine(botleftback, botrightback, color);
+}
+
+void DebugDraw::addThickOBB(OBB obb, glm::vec3 color)
+{
+  glm::vec3 topleftfront = obb.center + obb.axes[0] * obb.halfLengths[0]  // x
+                                      - obb.axes[1] * obb.halfLengths[1]  // y
+                                      - obb.axes[2] * obb.halfLengths[2]; // z
+  glm::vec3 topleftback = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 toprightfront = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 toprightback = obb.center + obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botleftfront = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botleftback = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      - obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botrightfront = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      - obb.axes[2] * obb.halfLengths[2];
+  glm::vec3 botrightback = obb.center - obb.axes[0] * obb.halfLengths[0]
+                                      + obb.axes[1] * obb.halfLengths[1]
+                                      + obb.axes[2] * obb.halfLengths[2];
+  this->addThickLine(topleftfront, topleftback, color);
+  this->addThickLine(topleftfront, toprightfront, color);
+  this->addThickLine(topleftfront, botleftfront, color);
+  this->addThickLine(topleftback, toprightback, color);
+  this->addThickLine(topleftback, botleftback, color);
+  this->addThickLine(toprightfront, botrightfront, color);
+  this->addThickLine(toprightfront, toprightback, color);
+  this->addThickLine(toprightback, botrightback, color);
+  this->addThickLine(botleftfront, botrightfront, color);
+  this->addThickLine(botleftfront, botleftback, color);
+  this->addThickLine(botrightfront, botrightback, color);
+  this->addThickLine(botleftback, botrightback, color);
+}
+
 void DebugDraw::addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color)
 {
   glm::vec3 halfDims = dimensions * 0.5f;

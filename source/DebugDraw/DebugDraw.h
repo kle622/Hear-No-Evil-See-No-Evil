@@ -1,6 +1,7 @@
 #ifndef __DEBUG_DRAW_H
 #define __DEBUG_DRAW_H
 #include "DebugHandles.h"
+#include "../Library/OBB.h"
 #include <string>
 
 #define SUBDIVISIONS 100.0f
@@ -22,9 +23,11 @@ class DebugDraw
     void addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
     void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
     void addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
+    void addOBB(OBB obb, glm::vec3 color);
     void addThickLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
     void addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
     void addThickBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
+    void addThickOBB(OBB obb, glm::vec3 color);
     void drawAll();
     void clear();
     //void addPolygon(int numVertices, ...);  // not supported

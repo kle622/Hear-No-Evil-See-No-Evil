@@ -91,16 +91,17 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     // only check collisions against walls
     if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
       // send bounding box to debug output
-      this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f));
+      this->debug->addThickBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f));
       // converting object bounding box to OBB
-      OrientedBoundingBox obb;
+      OBB obb;
       obb.center = (*iter)->position;
       obb.axes[0] = glm::vec3(1.0f, 0.0f, 0.0f);
       obb.axes[1] = glm::vec3(0.0f, 1.0f, 0.0f);
       obb.axes[2] = glm::vec3(0.0f, 0.0f, 1.0f);
-      obb.halfLengths[0] = (*iter)->dimensions.x;
-      obb.halfLengths[1] = (*iter)->dimensions.y;
-      obb.halfLengths[2] = (*iter)->dimensions.z;
+      obb.halfLengths[0] = (*iter)->dimensions.x * 0.5;
+      obb.halfLengths[1] = (*iter)->dimensions.y * 0.5;
+      obb.halfLengths[2] = (*iter)->dimensions.z * 0.5;
+      this->debug->addThickOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f));
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
         minLength = fmin(minLength, result);
@@ -118,7 +119,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
  *
  * dist is the distance from the ray origin to the intersection point
  */
-bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OrientedBoundingBox obb)
+bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OBB obb)
 {
   *dist = 0;
   float tmin = numeric_limits<double>::min();
