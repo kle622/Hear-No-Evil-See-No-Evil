@@ -38,8 +38,6 @@
 //#include "openAL/include/AL/alc.h"
 //#include "openAL/include/includeAllOpenAL.h"
 
-#include <windows.h>
-
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000
 #define TEST_WORLD 500
