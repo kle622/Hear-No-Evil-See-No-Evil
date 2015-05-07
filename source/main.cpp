@@ -500,8 +500,6 @@ void initWalls(WorldGrid* gameObjects) {
     }
     cout << '\n';
 
-
-	     
   //////////// Create the wall objects
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
@@ -600,6 +598,85 @@ void initWalls(WorldGrid* gameObjects) {
     }
 }
 
+void initWalls2(WorldGrid* gameObjects) {
+	int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
+	float posX, posY;
+	vec3 tempScale, tempPos, tempBBox;
+	int testWallCount = 0;
+
+	char ch;
+	fstream fin(resPath("LevelDesign.txt"), fstream::in);
+	int i = 0, j = 0;
+	while (fin >> noskipws >> ch) {
+		if (ch == '\n') {
+			j = 0;
+			i++;
+		}
+		else {
+			levelDesign[i][j] = ch - '0';
+			j++;
+		}
+	}
+
+	///////// Test print entire matrix
+	for (i = 0; i < TEST_WORLD; i++) {
+		cout << '\n';
+		for (j = 0; j < TEST_WORLD; j++) {
+			cout << levelDesign[i][j];
+		}
+	}
+	cout << '\n';
+
+	vec2 start, end;
+	//////////// Create the wall objects
+	for (i = 0; i < TEST_WORLD; i++) {
+		for (j = 0; j < TEST_WORLD; j++) {
+			if (levelDesign[i][j] == 1) {
+				start = vec2(i, j);
+				int i1 = i, j1 = j;
+				// build wall depending on direction it is oriented
+				if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1) { // going right
+					while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1) {
+						levelDesign[i1][j1] = 0;
+						i1++;
+					}
+					end = vec2(i1 - 1, j1);
+				}
+				else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1) { // going down
+					while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1) {
+						levelDesign[i1][j1] = 0;
+						j1++;
+					}
+					end = vec2(i1, j1 - 1);
+				}
+				else { // 1x1 wall
+					end = start;
+				}
+
+				vec2 center((start.x + end.x - TEST_WORLD + 1) / 2, (start.y + end.y - TEST_WORLD + 1) / 2);
+				vec2 dims(abs(end.x - start.x) + 1, abs(end.y - start.y) + 1);
+
+				// Make the actual Wall object and add it to gameObjects list
+				gameObjects->add(shared_ptr<GameObject>(new Wall(
+					&cubeMesh,
+					&handles,
+					vec3(center.x, 1, center.y),      //position
+					0,            //rotation
+					vec3(dims.x / 2, 3, dims.y / 2),    //scale
+					vec3(1, 0, 0),	//direction
+					0,
+					vec3(dims.x, 6, dims.y),     //dimensions
+					0,            //scanRadius
+					2             //material
+					)));
+
+				testWallCount++;
+				printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+			}
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
     // Initialise GLFW
@@ -656,7 +733,7 @@ int main(int argc, char **argv)
 
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
-    initWalls(&gameObjects);
+    initWalls2(&gameObjects);
     initGround();
     printf("added objects\n");
     
