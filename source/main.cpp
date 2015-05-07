@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "../dependencies/libRocket/Include/Rocket/Core.h"
+#include "../dependencies/libRocket/Include/Rocket/Controls.h"
+#include "../dependencies/libRocket/Include/Rocket/Debugger.h"
 #include <iostream>
 #include <fstream>
 #include <cassert>
@@ -304,7 +307,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         }
 
         for (int j = 0; j < proximity.size(); j++) {
-          printf("Proximity size %d\n", proximity.size());
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
                 
