@@ -33,7 +33,6 @@ void DebugDraw::addThickLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 }
 
 
-// TODO not supported
 // assumes normal is not <0, 0, 0>
 void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
@@ -59,7 +58,6 @@ void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::v
   }
 }
 
-// TODO not supported
 void DebugDraw::addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
   normal = glm::normalize(normal);

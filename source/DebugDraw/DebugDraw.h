@@ -21,12 +21,12 @@ class DebugDraw
     glm::mat4 view;
     glm::mat4 projection;
     void addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
-    void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
-    void addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
+    void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color);
+    void addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);
     void addOBB(OBB obb, glm::vec3 color);
     void addThickLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
-    void addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
-    void addThickBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
+    void addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color);
+    void addThickBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);
     void addThickOBB(OBB obb, glm::vec3 color);
     void drawAll();
     void clear();
