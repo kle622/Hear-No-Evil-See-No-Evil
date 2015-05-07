@@ -7,19 +7,31 @@
 #include "../Camera/Camera.h"
 
 using namespace glm;
+#define CROUCH 1.0f
+#define WALK 5.0f
+#define RUN 15.0f
+#define CROUCH_VELOCITY 2.5f
+#define MIN_VELOCITY 0.0f
+#define ACCELERATION 0.5f
+#define DECELERATION 0.5f
+#define CROUCH_SCALE 0.5f
 
 class Player: public GameObject {
  protected:
   Mesh *mesh;
   Handles *handles;
- public:
+  float maxVelocity;
+  float standingScale;
+
+  public:
   //members
+  bool crouch;
   int score = 0;
   
   //Constructor
   Player(Mesh *mesh, Handles *handles,
    vec3 position, float rotation, vec3 scale, 
-   vec3 direction, float velocity, vec3 dimensions, 
+   vec3 direction, vec3 dimensions, 
   int scanRadius, int material);
   
   //Object methods
@@ -28,6 +40,7 @@ class Player: public GameObject {
   void changeDirection(vec3 direction);
   bool collide(GameObject* object);
   void move(float time);
+  void SetMotion(float motion);
 };
 
 #endif

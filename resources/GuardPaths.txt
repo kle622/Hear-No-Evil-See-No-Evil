@@ -7,16 +7,16 @@
 // 'Path: Y' denotes how many nodes the guard has in its path (how many lines to read)
 
 Guard 1:
-// line reserved for guard properties
+// line reserved for guard properties KEEP THIS HERE!
 Path: 5
--5 0 8 x 2 cw
--9 0 7 y 0 x
--11 0 0 n 1.2 x
--9 0 -6 y 0 x
--5 0 -7 x 2.5 ccw
+-5 0 8 x 2 r
+-6 0 7 y 0 x
+0 0 0 n 1.2 x
+-6 0 -6 y 0 x
+-5 0 -7 x 2.5 l
 
 Guard 2:
-// line reserved for guard properties
+// line reserved for guard properties KEEP THIS HERE!
 Path: 2
-5 0 4 x 1 ccw
-5 0 -4 x 1.9 ccw
+3 0 4 x 1 r
+3 0 -4 x 1.9 r

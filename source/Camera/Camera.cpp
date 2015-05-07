@@ -49,6 +49,17 @@ glm::vec3 Camera::getUp()
   return glm::normalize(this->up);
 }
 
+bool Camera::isCulled(shared_ptr<GameObject>)
+{
+  return false;
+}
+
+vector<shared_ptr<GameObject>> Camera::getUnculled()
+{
+  vector<shared_ptr<GameObject>> unculled;
+  return unculled;
+}
+
 double clamp(double x, double min, double max) {
   return x < min ? min : (x > max ? max : x);
 }

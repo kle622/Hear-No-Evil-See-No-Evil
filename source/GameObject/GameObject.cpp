@@ -42,7 +42,7 @@ bool intersect(float point1, float point2, float dim1, float dim2) {
 }
 
 bool GameObject::collide(GameObject* object) {
-    //WRITE YOUR OWN DAMN COLLIDE
+	printf("STOP CALLING GAMEOBJECT'S COLLIDE METHOD!\n");
     return false;
 }
 

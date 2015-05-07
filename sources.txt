@@ -7,7 +7,7 @@ set(HEADERS
    Library/TimeManager.h
    Library/InitObjects.h
    Library/GLError.h
-   Library/OrientedBoundingBox.h
+   Library/OBB.h
 
    GameObject/GameObject.h
    GameObject/Player.h
