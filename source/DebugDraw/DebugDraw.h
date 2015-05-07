@@ -5,6 +5,7 @@
 #include <string>
 
 #define SUBDIVISIONS 100.0f
+#define EPS 0.0000001
 
 /*
  * Basic usage:

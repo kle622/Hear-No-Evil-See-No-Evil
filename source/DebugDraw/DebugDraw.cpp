@@ -34,16 +34,54 @@ void DebugDraw::addThickLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 
 
 // TODO not supported
+// assumes normal is not <0, 0, 0>
 void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
-  glm::vec3 out = radius * glm::normalize(glm::vec3(normal.x, -1.0f * normal.y, 0.0f));
-  for (int i = 0;  i < SUBDIVISIONS; ++i) {
+  normal = glm::normalize(normal);
+  glm::vec4 out;
+  glm::vec4 prevOut;
+  if (normal.x < EPS && normal.x > -1.0f * EPS) {
+    out = glm::vec4(radius, 0.0f, 0.0f, 1.0f);
+  }
+  else if (normal.y < EPS && normal.y > -1.0f * EPS) {
+    out = glm::vec4(0.0f, radius, 0.0f, 1.0f);
+  }
+  else if (normal.z < EPS && normal.z > -1.0f * EPS) {
+    out = glm::vec4(0.0f, 0.0f, radius, 1.0f);
+  }
+  else {
+    out = radius * glm::vec4(glm::normalize(glm::vec3(normal.x, -1.0f * normal.y, 0.0f)), 1.0f);
+  }
+  for (int i = 0;  i <= SUBDIVISIONS; ++i) {
+    prevOut = out;
+    out = glm::rotate(glm::mat4(1.0f), 360.0f / SUBDIVISIONS, normal) * out;
+    this->addLine(center + glm::vec3(prevOut), center + glm::vec3(out), color);
   }
 }
 
 // TODO not supported
 void DebugDraw::addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
+  normal = glm::normalize(normal);
+  glm::vec4 out;
+  glm::vec4 prevOut;
+  if (normal.x < EPS && normal.x > -1.0f * EPS) {
+    out = glm::vec4(radius, 0.0f, 0.0f, 1.0f);
+  }
+  else if (normal.y < EPS && normal.y > -1.0f * EPS) {
+    out = glm::vec4(0.0f, radius, 0.0f, 1.0f);
+  }
+  else if (normal.z < EPS && normal.z > -1.0f * EPS) {
+    out = glm::vec4(0.0f, 0.0f, radius, 1.0f);
+  }
+  else {
+    out = radius * glm::vec4(glm::normalize(glm::vec3(normal.x, -1.0f * normal.y, 0.0f)), 1.0f);
+  }
+  for (int i = 0;  i <= SUBDIVISIONS; ++i) {
+    prevOut = out;
+    out = glm::rotate(glm::mat4(1.0f), 360.0f / SUBDIVISIONS, normal) * out;
+    this->addThickLine(center + glm::vec3(prevOut), center + glm::vec3(out), color);
+  }
 }
 
 void DebugDraw::addOBB(OBB obb, glm::vec3 color)
