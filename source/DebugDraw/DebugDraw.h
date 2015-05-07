@@ -22,6 +22,9 @@ class DebugDraw
     void addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
     void addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
     void addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
+    void addThickLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);
+    void addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color); // not supported
+    void addThickBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color);  // not supported
     void drawAll();
     void clear();
     //void addPolygon(int numVertices, ...);  // not supported
@@ -30,5 +33,9 @@ class DebugDraw
     std::vector<float> colBuf;
     GLuint posBufObj;
     GLuint colBufObj;
+    std::vector<float> posBufThick;
+    std::vector<float> colBufThick;
+    GLuint posBufObjThick;
+    GLuint colBufObjThick;
 };
 #endif

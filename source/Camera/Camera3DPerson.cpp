@@ -108,6 +108,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     }
   }
 
+  this->debug->addThickLine(rayStart, rayStart + rayDirection * minLength, glm::vec3(1.0f, 0.0f, 0.0f));
   return minLength;
 }
 
