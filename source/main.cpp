@@ -13,6 +13,7 @@
 #include "glm/gtc/matrix_transform.hpp" //perspective, txrans etc
 #include "glm/gtc/type_ptr.hpp" //value_ptr
 #include <memory>
+//#include ""
 
 #include "Library/TimeManager.h"
 #include "Library/InitObjects.h"
@@ -33,9 +34,15 @@
 #include "WorldGrid/WorldGrid.h"
 //#include "GuardPath/PathNode.h"
 
+//#include "openAL/include/AL/al.h"
+//#include "openAL/include/AL/alc.h"
+//#include "openAL/include/includeAllOpenAL.h"
+
+#include <windows.h>
+
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000
-#define TEST_WORLD 50
+#define TEST_WORLD 500
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -77,6 +84,16 @@ GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 
 double deltaTime;
+
+// OpenAL error catching
+int endWithError(char* msg, int error = 0)
+{
+  //Display error message in console
+  cout << msg << "\n";
+  system("PAUSE");
+  return error;
+}
+
 
 float getRand(double M, double N)
 {
@@ -287,11 +304,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         }
 
         for (int j = 0; j < proximity.size(); j++) {
+          printf("Proximity size %d\n", proximity.size());
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
+                
           //do something generic here if you need to
           //object.collide handles the collision 
                     }
+
                 }
             }
         }
@@ -390,7 +410,7 @@ void initPlayer(WorldGrid* gameObjects) {
       vec3(1, 0, 0),
       CAMERA_SPEED,
       vec3(2.5, 2.5, 2.5),
-      3,
+      0,
       3
    );
 
@@ -442,8 +462,8 @@ void initGround() {
 
 
 /*
-  This assumes a grid built to [i][j], where i represents rows
-  and j represents columns. 
+This assumes a grid built to [i][j], where i represents rows
+and j represents columns.
 */
 void initWalls(WorldGrid* gameObjects) {
   int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
@@ -466,98 +486,116 @@ void initWalls(WorldGrid* gameObjects) {
     }
   }
   ///////// Test print entire matrix
-  for (i = 0; i < TEST_WORLD; i++) {
-      cout << '\n';
-    for (j = 0; j < TEST_WORLD; j++) {
-        cout << levelDesign[i][j];
-      }
-    }
-    cout << '\n';
+  //for (i = 0; i < TEST_WORLD; i++) {
+  //  cout << '\n';
+  //  for (j = 0; j < TEST_WORLD; j++) {
+  //    cout << levelDesign[i][j];
+  //  }
+  //}
+  //cout << '\n';
   //////////
 
   // Create the wall objects
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
-        if (levelDesign[i][j]) {
-        // Flags to build walls in a direction, chooses greedily
-        buildDown = false;
-        buildRight = false;
-        // Tracks acutal size of wall object iterated over by the tempI & tempJ
-        realI = realJ = 0;
-        // Temporary iterators over the matrix
-        tempI = i;
-        tempJ = j;
-        //printf("HERE j encountered is %d\n", tempJ);
-        if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
-          //printf("Setting right flag\n");
-          //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
-          //printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
-          buildRight = true;
-        }
-        else if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
-          //printf("Setting down flag\n");
-          //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
-          //printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
-          buildDown = true;
-        }
-        // Keep building object size in a direction if possible
-        while (levelDesign[tempI][tempJ] == 1) {
-          if (buildRight) {
-            //printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
-            levelDesign[tempI][tempJ] = 0;
-            tempJ++;
-            realJ++;
-          }
-          else if (buildDown) {
-            //printf("Building DOWN with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
-            levelDesign[tempI][tempJ] = 0;
-            tempI++;
-            realI++;
-          }
-        }
-        tempI--;
-        tempJ--;
-        // Pack the temporary variables with a position and scale to create a Wall
-        if      (buildRight && (tempJ - realJ) < 2) {
-          tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2), 1, ((float)tempI) - ((float)TEST_WORLD / 2));
-          tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
-          tempBBox = vec3((float)realJ, 8.0, 1.0);
-        }
-        else if (buildRight && (tempJ - realJ) > 2) {
-          tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
-          tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
-          tempBBox = vec3((float)realJ, 8.0, 1.0);
-        }
-        else if (buildDown  && (tempI - realI) < 2) {
-          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2));
-          tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
-          tempBBox = vec3(1.0, 8.0, (float)realI);
-        }
-        else if (buildDown  && (tempI - realI) > 2) {
-          tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD/2) - ((float)realI) / 2);
-          tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
-          tempBBox = vec3(1.0, 8.0, (float)realI);
-        }
+      if (levelDesign[i][j]) {
 
-        // Make the actual Wall object and add it to gameObjects list
-          gameObjects->add(shared_ptr<GameObject>(new Wall(
-        &cubeMesh,
+        gameObjects->add(shared_ptr<GameObject>(new Wall(
+          &cubeMesh,
           &handles,
-          tempPos,      //position
+          vec3(i - TEST_WORLD / 2, 0.0, j - TEST_WORLD / 2), //tempPos,      //position
           0,            //rotation
-          tempScale,    //scale
+          vec3(1.0, 1.0, 1.0),    //scale
           vec3(1, 0, 0),
           0,
-          tempBBox,     //bounding box
+          vec3(2.0, 8.0, 2.0),     //bounding box
           0,            //scanRadius
           1             //material
-            )));
+        )));
+
+        // Flags to build walls in a direction, chooses greedily
+        //buildDown = false;
+        //buildRight = false;
+        //// Tracks acutal size of wall object iterated over by the tempI & tempJ
+        //realI = realJ = 0;
+        //// Temporary iterators over the matrix
+        //tempI = i;
+        //tempJ = j;
+        ////printf("HERE j encountered is %d\n", tempJ);
+        //if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
+        //  //printf("Setting right flag\n");
+        //  //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
+        //  //printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
+        //  buildRight = true;
+        //}
+        //else if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
+        //  //printf("Setting down flag\n");
+        //  //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
+        //  //printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
+        //  buildDown = true;
+        //}
+        //// Keep building object size in a direction if possible
+        //do {
+        //  if (buildRight) {
+        //    //printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+        //    //if (tempJ != j)
+        //    levelDesign[tempI][tempJ] = 0;
+        //    tempJ++;
+        //    realJ++;
+        //  }
+        //  else if (buildDown) {
+        //    //printf("Building DOWN with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
+        //    //if (tempI != i)
+        //    levelDesign[tempI][tempJ] = 0;
+        //    tempI++;
+        //    realI++;
+        //  }
+        //} while (levelDesign[tempI][tempJ] == 1);
+        ////tempI--;
+        ////tempJ--;
+        //// Pack the temporary variables with a position and scale to create a Wall
+        //if (buildRight && (tempJ - realJ) < 2) {
+        //  //tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2), 1, ((float)tempI) - ((float)TEST_WORLD / 2));
+        //  tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
+        //  tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
+        //  tempBBox = vec3((float)realJ, 8.0, 1.0);
+        //}
+        //else if (buildRight && (tempJ - realJ) > 2) {
+        //  tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
+        //  tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
+        //  tempBBox = vec3((float)realJ, 8.0, 1.0);
+        //}
+        //else if (buildDown && (tempI - realI) < 2) {
+        //  //tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2));
+        //  tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD / 2) - ((float)realI) / 2);
+        //  tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+        //  tempBBox = vec3(1.0, 8.0, (float)realI);
+        //}
+        //else if (buildDown && (tempI - realI) > 2) {
+        //  tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD / 2) - ((float)realI) / 2);
+        //  tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
+        //  tempBBox = vec3(1.0, 8.0, (float)realI);
+        //}
+
+        // Make the actual Wall object and add it to gameObjects list
+        //gameObjects->add(shared_ptr<GameObject>(new Wall(
+        //  &cubeMesh,
+        //  &handles,
+        //  tempPos,      //position
+        //  0,            //rotation
+        //  tempScale,    //scale
+        //  vec3(1, 0, 0),
+        //  0,
+        //  tempBBox,     //bounding box
+        //  0,            //scanRadius
+        //  1             //material
+        //  )));
 
         /*for (int k = 0; k < TEST_WORLD; k++) {
-          cout << '\n';
-          for (int m = 0; m < TEST_WORLD; m++) {
-            cout << levelDesign[k][m];
-          }
+        cout << '\n';
+        for (int m = 0; m < TEST_WORLD; m++) {
+        cout << levelDesign[k][m];
+        }
         }
         cout << '\n';*/
         ////////// Testing only
@@ -565,16 +603,152 @@ void initWalls(WorldGrid* gameObjects) {
         //printf("Building with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
         //printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
         //printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
-         printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+        //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
         //printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
         //////////
-        }
       }
     }
+  }
 }
+
+
 
 int main(int argc, char **argv)
 {
+    ////Loading of the WAVE file
+    //FILE *fp = NULL;                                                            //Create FILE pointer for the WAVE file
+    //fp = fopen(resPath("openAL/WAVE/Sound.wav").c_str(), "rb");                 //Open the WAVE file
+    //if (!fp) return endWithError("Failed to open file");                        //Could not open file
+
+    ////Variables to store info about the WAVE file (all of them is not needed for OpenAL)
+    //char type[4];
+    //DWORD size, chunkSize;
+    //short formatType, channels;
+    //DWORD sampleRate, avgBytesPerSec;
+    //short bytesPerSample, bitsPerSample;
+    //DWORD dataSize;
+
+    ////Check that the WAVE file is OK
+    //fread(type, sizeof(char), 4, fp);                                              //Reads the first bytes in the file
+    //if (type[0] != 'R' || type[1] != 'I' || type[2] != 'F' || type[3] != 'F')            //Should be "RIFF"
+    //  return endWithError("No RIFF");                                            //Not RIFF
+
+    //fread(&size, sizeof(DWORD), 1, fp);                                           //Continue to read the file
+    //fread(type, sizeof(char), 4, fp);                                             //Continue to read the file
+    //if (type[0] != 'W' || type[1] != 'A' || type[2] != 'V' || type[3] != 'E')           //This part should be "WAVE"
+    //  return endWithError("not WAVE");                                            //Not WAVE
+
+    //fread(type, sizeof(char), 4, fp);                                              //Continue to read the file
+    //if (type[0] != 'f' || type[1] != 'm' || type[2] != 't' || type[3] != ' ')           //This part should be "fmt "
+    //  return endWithError("not fmt ");                                            //Not fmt 
+
+    ////Now we know that the file is a acceptable WAVE file
+    ////Info about the WAVE data is now read and stored
+    //fread(&chunkSize, sizeof(DWORD), 1, fp);
+    //fread(&formatType, sizeof(short), 1, fp);
+    //fread(&channels, sizeof(short), 1, fp);
+    //fread(&sampleRate, sizeof(DWORD), 1, fp);
+    //fread(&avgBytesPerSec, sizeof(DWORD), 1, fp);
+    //fread(&bytesPerSample, sizeof(short), 1, fp);
+    //fread(&bitsPerSample, sizeof(short), 1, fp);
+
+    //fread(type, sizeof(char), 4, fp);
+    //if (type[0] != 'd' || type[1] != 'a' || type[2] != 't' || type[3] != 'a')           //This part should be "data"
+    //  return endWithError("Missing DATA");                                        //not data
+
+    //fread(&dataSize, sizeof(DWORD), 1, fp);                                        //The size of the sound data is read
+
+    ////Display the info about the WAVE file
+    //cout << "Chunk Size: " << chunkSize << "\n";
+    //cout << "Format Type: " << formatType << "\n";
+    //cout << "Channels: " << channels << "\n";
+    //cout << "Sample Rate: " << sampleRate << "\n";
+    //cout << "Average Bytes Per Second: " << avgBytesPerSec << "\n";
+    //cout << "Bytes Per Sample: " << bytesPerSample << "\n";
+    //cout << "Bits Per Sample: " << bitsPerSample << "\n";
+    //cout << "Data Size: " << dataSize << "\n";
+
+    //unsigned char* buf = new unsigned char[dataSize];                            //Allocate memory for the sound data
+    //cout << fread(buf, sizeof(BYTE), dataSize, fp) << " bytes loaded\n";           //Read the sound data and display the 
+    ////number of bytes loaded.
+    ////Should be the same as the Data Size if OK
+
+
+    ////Now OpenAL needs to be initialized 
+    //ALCdevice *device;                                                          //Create an OpenAL Device
+    //ALCcontext *context;                                                        //And an OpenAL Context
+    //device = alcOpenDevice(NULL);                                               //Open the device
+    //if (!device) return endWithError("no sound device");                         //Error during device oening
+    //context = alcCreateContext(device, NULL);                                   //Give the device a context
+    //alcMakeContextCurrent(context);                                             //Make the context the current
+    //if (!context) return endWithError("no sound context");                       //Error during context handeling
+
+    //ALuint source;                                                              //Is the name of source (where the sound come from)
+    //ALuint buffer;                                                           //Stores the sound data
+    //ALuint frequency = sampleRate;;                                               //The Sample Rate of the WAVE file
+    //ALenum format = 0;                                                            //The audio format (bits per sample, number of channels)
+
+    //alGenBuffers(1, &buffer);                                                    //Generate one OpenAL Buffer and link to "buffer"
+    //alGenSources(1, &source);                                                   //Generate one OpenAL Source and link to "source"
+    //if (alGetError() != AL_NO_ERROR) return endWithError("Error GenSource");     //Error during buffer/source generation
+
+    ////Figure out the format of the WAVE file
+    //if (bitsPerSample == 8)
+    //{
+    //  if (channels == 1)
+    //    format = AL_FORMAT_MONO8;
+    //  else if (channels == 2)
+    //    format = AL_FORMAT_STEREO8;
+    //}
+    //else if (bitsPerSample == 16)
+    //{
+    //  if (channels == 1)
+    //    format = AL_FORMAT_MONO16;
+    //  else if (channels == 2)
+    //    format = AL_FORMAT_STEREO16;
+    //}
+    //if (!format) return endWithError("Wrong BitPerSample");                      //Not valid format
+
+    //alBufferData(buffer, format, buf, dataSize, frequency);                    //Store the sound data in the OpenAL Buffer
+    //if (alGetError() != AL_NO_ERROR)
+    //  return endWithError("Error loading ALBuffer");                              //Error during buffer loading
+
+    ////Sound setting variables
+    //ALfloat SourcePos[] = { 0.0, 0.0, 0.0 };                                    //Position of the source sound
+    //ALfloat SourceVel[] = { 0.0, 0.0, 0.0 };                                    //Velocity of the source sound
+    //ALfloat ListenerPos[] = { 0.0, 0.0, 0.0 };                                  //Position of the listener
+    //ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };                                  //Velocity of the listener
+    //ALfloat ListenerOri[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };                 //Orientation of the listener
+    ////First direction vector, then vector pointing up) 
+    ////Listener                                                                               
+    //alListenerfv(AL_POSITION, ListenerPos);                                  //Set position of the listener
+    //alListenerfv(AL_VELOCITY, ListenerVel);                                  //Set velocity of the listener
+    //alListenerfv(AL_ORIENTATION, ListenerOri);                                  //Set orientation of the listener
+
+    ////Source
+    //alSourcei(source, AL_BUFFER, buffer);                                 //Link the buffer to the source
+    //alSourcef(source, AL_PITCH, 1.0f);                                 //Set the pitch of the source
+    //alSourcef(source, AL_GAIN, 1.0f);                                 //Set the gain of the source
+    //alSourcefv(source, AL_POSITION, SourcePos);                                 //Set the position of the source
+    //alSourcefv(source, AL_VELOCITY, SourceVel);                                 //Set the velocity of the source
+    //alSourcei(source, AL_LOOPING, AL_FALSE);                                 //Set if source is looping sound
+
+    ////PLAY 
+    //alSourcePlay(source);                                                       //Play the sound buffer linked to the source
+    //if (alGetError() != AL_NO_ERROR) return endWithError("Error playing sound"); //Error when playing sound
+    //system("PAUSE");                                                            //Pause to let the sound play
+
+    ////Clean-up
+    //fclose(fp);                                                                 //Close the WAVE file
+    //delete[] buf;                                                               //Delete the sound data buffer
+    //alDeleteSources(1, &source);                                                //Delete the OpenAL Source
+    //alDeleteBuffers(1, &buffer);                                                 //Delete the OpenAL Buffer
+    //alcMakeContextCurrent(NULL);                                                //Make no context current
+    //alcDestroyContext(context);                                                 //Destroy the OpenAL Context
+    //alcCloseDevice(device);                                                     //Close the OpenAL Device
+
+    ////////////////////////////////////////////////////
+
     // Initialise GLFW
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
