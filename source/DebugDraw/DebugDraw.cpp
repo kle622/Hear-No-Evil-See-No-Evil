@@ -44,8 +44,6 @@ void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::v
 // TODO not supported
 void DebugDraw::addThickRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
-  for (int i = 0;  i < SUBDIVISIONS; ++i) {
-  }
 }
 
 void DebugDraw::addOBB(OBB obb, glm::vec3 color)
