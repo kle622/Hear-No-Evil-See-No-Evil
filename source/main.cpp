@@ -260,11 +260,11 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
       move = key_speed * view;
     }
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, 1, 0);
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+      move = key_speed * glm::vec3(0, -1, 0);
     }
     if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, -1, 0);
+      move = key_speed * glm::vec3(0, 1, 0);
     }
     debugCamera->eye += move;
     debugCamera->lookat += move;

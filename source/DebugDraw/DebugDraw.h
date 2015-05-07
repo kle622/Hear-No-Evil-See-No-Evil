@@ -9,7 +9,7 @@
 /*
  * Basic usage:
  * Add a line or ring to the instance of DebugDraw in main
- * All geometry added in this way will be drawn during the call to drawAll(), which is already written
+ * All geometry added in this way will be drawn during the call to drawAll(), which is already done in main
  * Debug geometry is currenty only drawn in debug mode, which switches to a free-floating camera, but this can be changed
  */
 
@@ -17,7 +17,6 @@ class DebugDraw
 {
   public:
     DebugHandles handles;
-    DebugDraw();
     glm::mat4 view;
     glm::mat4 projection;
     void addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color);

@@ -1,9 +1,5 @@
 #include "DebugDraw.h"
 
-DebugDraw::DebugDraw()
-{
-}
-
 void DebugDraw::addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 {
   this->posBuf.push_back(start.x);
@@ -40,6 +36,7 @@ void DebugDraw::addThickLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 // TODO not supported
 void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
+  glm::vec3 out = radius * glm::normalize(glm::vec3(normal.x, -1.0f * normal.y, 0.0f));
   for (int i = 0;  i < SUBDIVISIONS; ++i) {
   }
 }
