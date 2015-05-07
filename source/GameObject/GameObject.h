@@ -13,7 +13,6 @@
 #include <time.h>
 #include "Mesh.h"
 #include "Handles.h"
-#include "../Camera/Camera.h"
 #include "../Library/GLSL.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc

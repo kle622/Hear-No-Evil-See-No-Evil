@@ -11,10 +11,13 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cassert>
+#include <memory>
 #include <cmath>
 #include <vector>
 #include <time.h>
+#include <stdlib.h>
 #include "../Library/GLSL.h"
+#include "../GameObject/GameObject.h"
 #include "../GameObject/Handles.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
@@ -37,16 +40,20 @@ class Camera {
     //Constructor
     Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
 
-    // these vectors are all normalized and don't represent the eye-lookat separation
+    // these vectors are all normalized
     virtual glm::vec3 getForward();
     virtual glm::vec3 getStrafe();
     virtual glm::vec3 getUp();
 
     //Object Methods
+    // gets view/proj matrices
     virtual glm::mat4 getView();
     virtual glm::mat4 getProjection();
-    virtual void setView();
+    // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
+    virtual void setView(); 
     virtual void setProjection();
+    bool isCulled(shared_ptr<GameObject>);  // use to check a specific object (i.e. player)
+    vector<shared_ptr<GameObject>> getUnculled(); // use for culling entire scene (more efficient)
 };
 
 double clamp(double x, double min, double max);
