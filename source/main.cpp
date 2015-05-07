@@ -64,12 +64,14 @@ Camera* debugCamera;
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
-Handles handles;
+Handles mainShader;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
 Shape *ground;
 bool debug = false;
+bool boxes = false;
+DebugDraw debugDraw;
 
 glm::vec3 g_light(0, 100, 0);
 
@@ -107,34 +109,34 @@ int printOglError(const char *file, int line) {
 void SetMaterial(int i) {
     switch (i) {
     case 0: // red (chairs)
-        glUniform3f(handles.uMatAmb, 0.05f, 0.025f, 0.025f);
-        glUniform3f(handles.uMatDif, 0.9f, 0.1f, 0.05f);
-        glUniform3f(handles.uMatSpec, 0.8f, 0.2f, 0.2f);
-        glUniform1f(handles.uMatShine, 100.0f);
+    glUniform3f(mainShader.uMatAmb, 0.05f, 0.025f, 0.025f);
+    glUniform3f(mainShader.uMatDif, 0.9f, 0.1f, 0.05f);
+    glUniform3f(mainShader.uMatSpec, 0.8f, 0.2f, 0.2f);
+    glUniform1f(mainShader.uMatShine, 100.0f);
         break;
     case 1: // grey (people + arms)
-        glUniform3f(handles.uMatAmb, 0.13f, 0.13f, 0.14f);
-        glUniform3f(handles.uMatDif, 0.3f, 0.3f, 0.4f);
-        glUniform3f(handles.uMatSpec, 0.3f, 0.3f, 0.4f);
-        glUniform1f(handles.uMatShine, 150.0f);
+    glUniform3f(mainShader.uMatAmb, 0.13f, 0.13f, 0.14f);
+    glUniform3f(mainShader.uMatDif, 0.3f, 0.3f, 0.4f);
+    glUniform3f(mainShader.uMatSpec, 0.3f, 0.3f, 0.4f);
+    glUniform1f(mainShader.uMatShine, 150.0f);
         break;
     case 2: // white (bunnies)
-        glUniform3f(handles.uMatAmb, 0.09f, 0.2f, 0.08f);
-        glUniform3f(handles.uMatDif, 0.9f, 0.9f, 0.9f);
-        glUniform3f(handles.uMatSpec, 1.0f, 0.95f, 0.85f);
-        glUniform1f(handles.uMatShine, 400.0f);
+    glUniform3f(mainShader.uMatAmb, 0.09f, 0.2f, 0.08f);
+    glUniform3f(mainShader.uMatDif, 0.9f, 0.9f, 0.9f);
+    glUniform3f(mainShader.uMatSpec, 1.0f, 0.95f, 0.85f);
+    glUniform1f(mainShader.uMatShine, 400.0f);
         break;
     case 3: // green (ground)
-        glUniform3f(handles.uMatAmb, 0.06f, 0.09f, 0.06f);
-    glUniform3f(handles.uMatDif, 0.2f, 0.80f, 0.1f);
-        glUniform3f(handles.uMatSpec, 0.8f, 1.0f, 0.8f);
-        glUniform1f(handles.uMatShine, 4.0f);
+    glUniform3f(mainShader.uMatAmb, 0.06f, 0.09f, 0.06f);
+    glUniform3f(mainShader.uMatDif, 0.2f, 0.80f, 0.1f);
+    glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
+    glUniform1f(mainShader.uMatShine, 4.0f);
         break;
     case 4: // black (hats)
-        glUniform3f(handles.uMatAmb, 0.08f, 0.08f, 0.08f);
-        glUniform3f(handles.uMatDif, 0.08f, 0.08f, 0.08f);
-        glUniform3f(handles.uMatSpec, 0.08f, 0.08f, 0.08f);
-        glUniform1f(handles.uMatShine, 10.0f);
+    glUniform3f(mainShader.uMatAmb, 0.08f, 0.08f, 0.08f);
+    glUniform3f(mainShader.uMatDif, 0.08f, 0.08f, 0.08f);
+    glUniform3f(mainShader.uMatSpec, 0.08f, 0.08f, 0.08f);
+    glUniform1f(mainShader.uMatShine, 10.0f);
         break;
     }
 }
@@ -258,11 +260,11 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
       move = key_speed * view;
     }
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, 1, 0);
-    }
     if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
       move = key_speed * glm::vec3(0, -1, 0);
+    }
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+      move = key_speed * glm::vec3(0, 1, 0);
     }
     debugCamera->eye += move;
     debugCamera->lookat += move;
@@ -290,7 +292,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
           //do something generic here if you need to
-          //object.collide handles the collision 
+          //object.collide mainShader the collision 
                     }
                 }
             }
@@ -303,17 +305,17 @@ void beginDrawGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Use our GLSL program
-    glUseProgram(handles.prog);
-    glUniform3f(handles.uLightPos, g_light.x, g_light.y, g_light.z);
-    glUniform3f(handles.uCamPos, camera3DPerson->eye.x,
+  glUseProgram(mainShader.prog);
+  glUniform3f(mainShader.uLightPos, g_light.x, g_light.y, g_light.z);
+  glUniform3f(mainShader.uCamPos, camera3DPerson->eye.x,
         camera3DPerson->eye.y, camera3DPerson->eye.z);
-    GLSL::enableVertexAttribArray(handles.aPosition);
-    GLSL::enableVertexAttribArray(handles.aNormal);
+  GLSL::enableVertexAttribArray(mainShader.aPosition);
+  GLSL::enableVertexAttribArray(mainShader.aNormal);
 }
 
 void endDrawGL() {
-    GLSL::disableVertexAttribArray(handles.aPosition);
-    GLSL::disableVertexAttribArray(handles.aNormal);
+  GLSL::disableVertexAttribArray(mainShader.aPosition);
+  GLSL::disableVertexAttribArray(mainShader.aNormal);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glUseProgram(0);
@@ -331,6 +333,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     debug = !debug;
     }
+  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+    boxes = !boxes;
+  }
     if (!debug) {
       if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         camera3DPerson->zoom *= 0.9;
@@ -341,10 +346,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     else {
       if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        key_speed -= 0.1;
+      key_speed *= 0.9;
       }
       if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        key_speed += 0.1;
+      key_speed *= 1.1;
       }
     }
 
@@ -403,7 +408,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
-      &handles,
+      &mainShader,
       vec3(10, 0, 20),
       20,
       vec3(1.0, 1.0, 1.0), //scale
@@ -438,7 +443,7 @@ void initGuards(WorldGrid* gameObjects) {
 
 			Guard* guardObject = new Guard(
 				&guardMesh,
-				&handles,
+          &mainShader,
 				vec3(1, 1, 1),
 				GUARD_SPEED,
 				vec3(1.5, 1.5, 1.5),
@@ -453,7 +458,7 @@ void initGuards(WorldGrid* gameObjects) {
 
 void initGround() {
     ground = new Shape(
-        &handles, //model handle
+      &mainShader, //model handle
         vec3(0), //position
         0, //rotation
     vec3(1.0, 1.0, 1.0), //scale
@@ -567,7 +572,7 @@ void initWalls(WorldGrid* gameObjects) {
         // Make the actual Wall object and add it to gameObjects list
           gameObjects->add(shared_ptr<GameObject>(new Wall(
         &cubeMesh,
-          &handles,
+                &mainShader,
           tempPos,      //position
           0,            //rotation
           tempScale,    //scale
@@ -623,8 +628,8 @@ void initWalls2(WorldGrid* gameObjects) {
 		cout << '\n';
 		for (j = 0; j < TEST_WORLD; j++) {
 			cout << levelDesign[i][j];
-		}
-	}
+    }
+}
 	cout << '\n';
 
 	vec2 start, end;
@@ -716,8 +721,9 @@ int main(int argc, char **argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initGL();
-  handles.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
-  //handles.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
+  debugDraw.handles.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
+  mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
+  //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
 
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
@@ -738,11 +744,12 @@ int main(int argc, char **argv)
     printf("added objects\n");
     
     //initialize the camera
-    camera3DPerson = new Camera3DPerson(&handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+  camera3DPerson = new Camera3DPerson(&mainShader, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR);
+  camera3DPerson->debug = &debugDraw;
   // debug camera
-  debugCamera = new Camera(&handles,
+  debugCamera = new Camera(&mainShader,
       glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
@@ -769,8 +776,33 @@ int main(int argc, char **argv)
       debugCamera->setProjection();
       debugCamera->setView();
     }
+
+    // draw debug
+    if (debug || boxes) {
+      if (debug) {
+        camera3DPerson->getView();
+        camera3DPerson->getProjection();
+        debugDraw.view = debugCamera->getView();
+        debugDraw.projection = debugCamera->getProjection();
+      }
+      else {
+        debugDraw.view = camera3DPerson->getView();
+        debugDraw.projection = camera3DPerson->getProjection();
+      }
+
+      vector<shared_ptr<GameObject>> objs = gameObjects.list;
+      vector<shared_ptr<GameObject>>::iterator objIter;
+      for (objIter = objs.begin(); objIter != objs.end(); ++objIter) {
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f));
+      }
+    }
+
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
+    if (debug || boxes) {
+      debugDraw.drawAll();
+      debugDraw.clear();
+    }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
