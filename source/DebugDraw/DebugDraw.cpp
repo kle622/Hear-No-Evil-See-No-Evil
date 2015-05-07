@@ -23,6 +23,8 @@ void DebugDraw::addLine(glm::vec3 start, glm::vec3 end, glm::vec3 color)
 // TODO not supported
 void DebugDraw::addRing(glm::vec3 center, float radius, glm::vec3 normal, glm::vec3 color)
 {
+  for (int i = 0;  i < SUBDIVISIONS; ++i) {
+  }
 }
 
 void DebugDraw::addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color)

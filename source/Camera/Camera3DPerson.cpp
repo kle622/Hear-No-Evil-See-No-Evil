@@ -45,11 +45,20 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
   glm::vec3 nearCenter = this->lookat;
-  nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
-  nearCorners.push_back(nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
-  nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f));
-  nearCorners.push_back(nearCenter - (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f));
+  glm::vec3 upRight = nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f);
+  glm::vec3 upLeft = nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f);
+  glm::vec3 downRight = nearCenter - (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f);
+  glm::vec3 downLeft = nearCenter - (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f);
+  nearCorners.push_back(upRight);
+  nearCorners.push_back(upLeft);
+  nearCorners.push_back(downRight);
+  nearCorners.push_back(downLeft);
   nearCorners.push_back(nearCenter);  // helps mitigate camera clipping through outside wall corners
+
+  this->debug->addLine(upRight, upLeft, glm::vec3(0.0f, 0.0f, 1.0f));
+  this->debug->addLine(upRight, downRight, glm::vec3(0.0f, 0.0f, 1.0f));
+  this->debug->addLine(upLeft, downLeft, glm::vec3(0.0f, 0.0f, 1.0f));
+  this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f));
 
   std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
 
@@ -58,6 +67,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   std::vector<glm::vec3>::iterator corner;
   for (corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
     glm::vec3 rayStart = *corner;
+    this->debug->addLine(rayStart, rayStart + this->zoom * outVec, glm::vec3(0.0f, 0.0f, 1.0f));
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = fmin(rayHitDist, minRayDist);
     // collide with ground at y = -1
@@ -78,8 +88,10 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
   float minLength = numeric_limits<double>::max();
   std::vector<shared_ptr<GameObject>>::iterator iter;
   for (iter = objects.begin(); iter != objects.end(); ++iter) {
-    // only check collisions against non-player objects
-    if (NULL == dynamic_pointer_cast<Player>(*iter) && NULL != dynamic_pointer_cast<Wall>(*iter)) {
+    // only check collisions against walls
+    if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
+      // send bounding box to debug output
+      this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f));
       // converting object bounding box to OBB
       OrientedBoundingBox obb;
       obb.center = (*iter)->position;

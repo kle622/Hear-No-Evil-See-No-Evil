@@ -3,6 +3,8 @@
 #include "DebugHandles.h"
 #include <string>
 
+#define SUBDIVISIONS 100.0f
+
 /*
  * Basic usage:
  * Add a line or ring to the instance of DebugDraw in main

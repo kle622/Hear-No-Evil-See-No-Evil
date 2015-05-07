@@ -18,8 +18,6 @@
 #define UPPER_BOUND_DEFAULT 85.0f
 #define LOWER_BOUND_DEFAULT -35.0f
 //#define EPSILON .00001f
-//#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-//#define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 class Camera3DPerson: public Camera
 {
@@ -37,6 +35,7 @@ class Camera3DPerson: public Camera
     float upperBound;
     GameObject *focus;
     WorldGrid *world;
+    DebugDraw *debug;
     Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
     void moveVert(float step);
     void moveHoriz(float step);
