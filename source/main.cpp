@@ -664,7 +664,7 @@ void initWalls2(WorldGrid* gameObjects) {
 				// Make the actual Wall object and add it to gameObjects list
 				gameObjects->add(shared_ptr<GameObject>(new Wall(
 					&cubeMesh,
-					&handles,
+					&mainShader,
 					vec3(center.x, 1, center.y),      //position
 					0,            //rotation
 					vec3(dims.x / 2, 3, dims.y / 2),    //scale
@@ -672,7 +672,7 @@ void initWalls2(WorldGrid* gameObjects) {
 					0,
 					vec3(dims.x, 6, dims.y),     //dimensions
 					0,            //scanRadius
-					2             //material
+					1             //material
 					)));
 
 				testWallCount++;
