@@ -57,11 +57,13 @@ bool Camera::isCulled(shared_ptr<GameObject>)
 std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgrid)
 {
   std::vector<std::shared_ptr<GameObject>> unculled;
+  std::vector<std::shared_ptr<GameObject>> inVF;
   std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
   // ----- View Frustum Culling -----
   std::vector<glm::vec4> planes;
   glm::mat4 VP = this->getProjection() * this->getView();
   // the plane normals are not normalized, and point to the inside of the view frustum
+  // plane equations obtained from http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
   planes.push_back(glm::vec4(VP[4][1] + VP[1][1], VP[4][2] + VP[1][2], VP[4][3] + VP [1][3], VP[4][4] + VP[1][4])); // left
   planes.push_back(glm::vec4(VP[4][1] - VP[1][1], VP[4][2] - VP[1][2], VP[4][3] - VP [1][3], VP[4][4] - VP[1][4])); // right
   planes.push_back(glm::vec4(VP[4][1] + VP[2][1], VP[4][2] + VP[2][2], VP[4][3] + VP [2][3], VP[4][4] + VP[2][4])); // bottom
@@ -69,16 +71,28 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   planes.push_back(glm::vec4(VP[4][1] + VP[3][1], VP[4][2] + VP[3][2], VP[4][3] + VP [3][3], VP[4][4] + VP[3][4])); // near
   planes.push_back(glm::vec4(VP[4][1] - VP[3][1], VP[4][2] - VP[3][2], VP[4][3] - VP [3][3], VP[4][4] - VP[3][4])); // far
 
-  for(auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
+  for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
+    OBB obb((*objIter)->position, (*objIter)->dimensions);
     for (auto planeIter = planes.begin(); planeIter != planes.end(); ++planeIter) {
+      if (!obbInsidePlane(obb, *planeIter)) {
+        objIter = allObjects.end();
+      }
     }
+    inVF.push_back(*objIter);
+  }
+
+  // ----- Occlusion Culling -----
+  for (auto objIter = inVF.begin(); objIter != inVF.end(); ++objIter) {
+    unculled.push_back(*objIter); // TODO change this to actually be selective
   }
 
   return unculled;
 }
 
-bool obbInsidePlane(OBB obb, glm::vec4 plane)
+// TODO implement (pseudocode in book)
+bool Camera::obbInsidePlane(OBB obb, glm::vec4 plane)
 {
+  return true;
 }
 
 double clamp(double x, double min, double max) {
