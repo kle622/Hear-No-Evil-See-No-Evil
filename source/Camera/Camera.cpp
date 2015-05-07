@@ -90,6 +90,7 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
 }
 
 // TODO implement (pseudocode in book)
+// p. 755-757
 bool Camera::obbInsidePlane(OBB obb, glm::vec4 plane)
 {
   return true;
