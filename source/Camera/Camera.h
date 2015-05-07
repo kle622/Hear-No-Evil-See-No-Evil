@@ -51,11 +51,18 @@ class Camera {
     // gets view/proj matrices
     virtual glm::mat4 getView();
     virtual glm::mat4 getProjection();
+
     // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
     virtual void setView(); 
     virtual void setProjection();
-    bool isCulled(std::shared_ptr<GameObject>);  // use to check a specific object (i.e. player)
-    std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid); // use for culling entire scene (more efficient)
+
+    // use to check a specific object (i.e. player)
+    bool isCulled(std::shared_ptr<GameObject>);
+
+    // used for culling entire scene
+    // returns list of objects that should be drawn
+    std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid);
+
   private:
     bool obbInsidePlane(OBB obb, glm::vec4 plane);
 };

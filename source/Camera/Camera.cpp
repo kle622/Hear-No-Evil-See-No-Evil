@@ -49,6 +49,7 @@ glm::vec3 Camera::getUp()
   return glm::normalize(this->up);
 }
 
+// TODO implement to mimic getUnculled for one object
 bool Camera::isCulled(shared_ptr<GameObject>)
 {
   return false;
@@ -64,6 +65,7 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   glm::mat4 VP = this->getProjection() * this->getView();
   // the plane normals are not normalized, and point to the inside of the view frustum
   // plane equations obtained from http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+  // a plane is represented by a vec4 as <a, b, c, d>
   planes.push_back(glm::vec4(VP[4][1] + VP[1][1], VP[4][2] + VP[1][2], VP[4][3] + VP [1][3], VP[4][4] + VP[1][4])); // left
   planes.push_back(glm::vec4(VP[4][1] - VP[1][1], VP[4][2] - VP[1][2], VP[4][3] - VP [1][3], VP[4][4] - VP[1][4])); // right
   planes.push_back(glm::vec4(VP[4][1] + VP[2][1], VP[4][2] + VP[2][2], VP[4][3] + VP [2][3], VP[4][4] + VP[2][4])); // bottom
@@ -91,9 +93,25 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
 
 // TODO implement (pseudocode in book)
 // p. 755-757
+// returns true if object is completely inside or intersects plane
+// returns false if object is completely outside plane
+//
+// inside is defined as positive, outside is defined as negative
 bool Camera::obbInsidePlane(OBB obb, glm::vec4 plane)
 {
-  return true;
+  glm::vec3 c = obb.center;
+  glm::vec3 n = glm::normalize(glm::vec3(plane.x, plane.y, plane.z));
+  float d = plane.z;
+  float e = obb.halfLengths[0] * glm::dot(n, obb.axes[0]) +
+            obb.halfLengths[1] * glm::dot(n, obb.axes[1]) +
+            obb.halfLengths[2] * glm::dot(n, obb.axes[2]);
+  float s = glm::dot(c, n) + d;
+  if (s - e > 0) {
+    return false;
+  }
+  else {
+    return true;
+  }
 }
 
 double clamp(double x, double min, double max) {
