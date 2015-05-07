@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "../dependencies/libRocket/Include/Rocket/Core.h"
-#include "../dependencies/libRocket/Include/Rocket/Controls.h"
-#include "../dependencies/libRocket/Include/Rocket/Debugger.h"
 #include <iostream>
 #include <fstream>
 #include <cassert>
