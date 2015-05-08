@@ -21,6 +21,7 @@
 #include "../GameObject/GameObject.h"
 #include "../GameObject/Handles.h"
 #include "../WorldGrid/WorldGrid.h"
+#include "../DebugDraw/DebugDraw.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
@@ -38,6 +39,7 @@ class Camera {
     float aspect;
     float _near;
     float _far;
+    DebugDraw *debug;
 
     //Constructor
     Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
@@ -47,7 +49,6 @@ class Camera {
     virtual glm::vec3 getStrafe();
     virtual glm::vec3 getUp();
 
-    //Object Methods
     // gets view/proj matrices
     virtual glm::mat4 getView();
     virtual glm::mat4 getProjection();
@@ -64,7 +65,7 @@ class Camera {
     std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid);
 
   private:
-    bool obbInsidePlane(OBB obb, glm::vec4 plane);
+    bool obbOutsidePlane(OBB obb, glm::vec4 plane);
 };
 
 double clamp(double x, double min, double max);

@@ -8,7 +8,6 @@
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
 #include "../Library/GLError.h"
-#include "../DebugDraw/DebugDraw.h"
 #include <cmath>
 
 #define UPPER_BOUND_DEFAULT 85.0f
@@ -31,7 +30,6 @@ class Camera3DPerson: public Camera
     float upperBound;
     GameObject *focus;
     WorldGrid *world;
-    DebugDraw *debug;
     Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
     void moveVert(float step);
     void moveHoriz(float step);

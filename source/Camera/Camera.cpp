@@ -66,21 +66,47 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   // the plane normals are not normalized, and point to the inside of the view frustum
   // plane equations obtained from http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
   // a plane is represented by a vec4 as <a, b, c, d>
-  planes.push_back(glm::vec4(VP[4][1] + VP[1][1], VP[4][2] + VP[1][2], VP[4][3] + VP [1][3], VP[4][4] + VP[1][4])); // left
-  planes.push_back(glm::vec4(VP[4][1] - VP[1][1], VP[4][2] - VP[1][2], VP[4][3] - VP [1][3], VP[4][4] - VP[1][4])); // right
-  planes.push_back(glm::vec4(VP[4][1] + VP[2][1], VP[4][2] + VP[2][2], VP[4][3] + VP [2][3], VP[4][4] + VP[2][4])); // bottom
-  planes.push_back(glm::vec4(VP[4][1] - VP[2][1], VP[4][2] - VP[2][2], VP[4][3] - VP [2][3], VP[4][4] - VP[2][4])); // top
-  planes.push_back(glm::vec4(VP[4][1] + VP[3][1], VP[4][2] + VP[3][2], VP[4][3] + VP [3][3], VP[4][4] + VP[3][4])); // near
-  planes.push_back(glm::vec4(VP[4][1] - VP[3][1], VP[4][2] - VP[3][2], VP[4][3] - VP [3][3], VP[4][4] - VP[3][4])); // far
+  glm::vec4 left = glm::vec4(VP[3][0] + VP[0][0], VP[3][1] + VP[0][1], VP[3][2] + VP [0][2], VP[3][3] + VP[0][3]);
+  glm::vec4 right = glm::vec4(VP[3][0] - VP[0][0], VP[3][1] - VP[0][1], VP[3][2] - VP [0][2], VP[3][3] - VP[0][3]);
+  glm::vec4 bottom = glm::vec4(VP[3][0] + VP[1][0], VP[3][1] + VP[1][1], VP[3][2] + VP [1][2], VP[3][3] + VP[1][3]);
+  glm::vec4 top = glm::vec4(VP[3][0] - VP[1][0], VP[3][1] - VP[1][1], VP[3][2] - VP [1][2], VP[3][3] - VP[1][3]);
+  glm::vec4 near = glm::vec4(VP[3][0] + VP[2][0], VP[3][1] + VP[2][1], VP[3][2] + VP [2][2], VP[3][3] + VP[2][3]);
+  glm::vec4 far = glm::vec4(VP[3][0] - VP[2][0], VP[3][1] - VP[2][1], VP[3][2] - VP [2][2], VP[3][3] - VP[2][3]);
+  
+  /*glm::vec4 left = glm::vec4(VP[0][3] + VP[0][0], VP[1][3] + VP[1][0], VP[2][3] + VP [2][0], VP[3][3] + VP[3][0]);
+  glm::vec4 right = glm::vec4(VP[0][3] - VP[0][0], VP[1][3] - VP[1][0], VP[2][3] - VP [2][0], VP[3][3] - VP[3][0]);
+  glm::vec4 bottom = glm::vec4(VP[0][3] + VP[0][1], VP[1][3] + VP[1][1], VP[2][3] + VP [2][1], VP[3][3] + VP[3][1]);
+  glm::vec4 top = glm::vec4(VP[0][3] - VP[0][1], VP[1][3] - VP[1][1], VP[2][3] - VP [2][1], VP[3][3] - VP[3][1]);
+  glm::vec4 near = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
+  glm::vec4 far = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);*/
+
+  this->debug->addBox(left, right, bottom, top, near, far, glm::vec3(0.99f, 0.85f, 0.55f), false);
+  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(left), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(right), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(bottom), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(top), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(near), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(far), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  planes.push_back(left); // left
+  planes.push_back(right); // right
+  planes.push_back(bottom); // bottom
+  planes.push_back(top); // top
+  planes.push_back(near); // near
+  planes.push_back(far); // far
+
+  // TODO figure out how to draw view frustum wireframe
 
   for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
-    OBB obb((*objIter)->position, (*objIter)->dimensions);
-    for (auto planeIter = planes.begin(); planeIter != planes.end(); ++planeIter) {
-      if (!obbInsidePlane(obb, *planeIter)) {
-        objIter = allObjects.end();
+    OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
+    bool pass = true;
+    for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
+      if (!obbOutsidePlane(*obb, *planeIter)) {
+        pass = false;
       }
     }
-    inVF.push_back(*objIter);
+    if (pass) {
+      inVF.push_back(*objIter);
+    }
   }
 
   // ----- Occlusion Culling -----
@@ -97,16 +123,21 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
 // returns false if object is completely outside plane
 //
 // inside is defined as positive, outside is defined as negative
-bool Camera::obbInsidePlane(OBB obb, glm::vec4 plane)
+// plane is not assumed to be normalized
+bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
 {
+  float nlength = glm::length(glm::vec3(plane.x, plane.y, plane.z));
   glm::vec3 c = obb.center;
   glm::vec3 n = glm::normalize(glm::vec3(plane.x, plane.y, plane.z));
-  float d = plane.z;
+  float d = plane.z / nlength;
   float e = obb.halfLengths[0] * glm::dot(n, obb.axes[0]) +
             obb.halfLengths[1] * glm::dot(n, obb.axes[1]) +
             obb.halfLengths[2] * glm::dot(n, obb.axes[2]);
   float s = glm::dot(c, n) + d;
   if (s - e > 0) {
+    return true;
+  }
+  else if (s + e < 0) {
     return false;
   }
   else {

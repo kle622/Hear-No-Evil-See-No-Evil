@@ -14,10 +14,4 @@ class OBB
     float halfLengths[3];
 };
 
-/*typedef struct
-{
-  glm::vec3 center;
-  glm::vec3 axes[3];
-  float halfLengths[3];
-} OBB;*/
 #endif

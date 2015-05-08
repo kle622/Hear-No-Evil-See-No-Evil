@@ -55,10 +55,10 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   nearCorners.push_back(downLeft);
   nearCorners.push_back(nearCenter);  // helps mitigate camera clipping through outside wall corners
 
-  this->debug->addLine(upRight, upLeft, glm::vec3(0.0f, 0.0f, 1.0f));
-  this->debug->addLine(upRight, downRight, glm::vec3(0.0f, 0.0f, 1.0f));
-  this->debug->addLine(upLeft, downLeft, glm::vec3(0.0f, 0.0f, 1.0f));
-  this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f));
+  this->debug->addLine(upRight, upLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  this->debug->addLine(upRight, downRight, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  this->debug->addLine(upLeft, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
 
   std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
 
@@ -66,7 +66,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float minRayDist = numeric_limits<double>::max();
   for (auto corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
     glm::vec3 rayStart = *corner;
-    this->debug->addLine(rayStart, rayStart + this->zoom * outVec, glm::vec3(0.0f, 0.0f, 1.0f));
+    this->debug->addLine(rayStart, rayStart + this->zoom * outVec, glm::vec3(0.0f, 0.0f, 1.0f), false);
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = fmin(rayHitDist, minRayDist);
     // collide with ground at y = -1
@@ -89,7 +89,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     // only check collisions against walls
     if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
       // send bounding box to debug output
-      this->debug->addThickBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f));
+      this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f), true);
       // converting object bounding box to OBB
       OBB obb((*iter)->position, (*iter)->dimensions);
       /*obb.center = (*iter)->position;
@@ -99,7 +99,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       obb.halfLengths[0] = (*iter)->dimensions.x * 0.5;
       obb.halfLengths[1] = (*iter)->dimensions.y * 0.5;
       obb.halfLengths[2] = (*iter)->dimensions.z * 0.5;*/
-      this->debug->addThickOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f));
+      this->debug->addOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f), true);
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
         minLength = fmin(minLength, result);
@@ -107,7 +107,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     }
   }
 
-  this->debug->addThickLine(rayStart, rayStart + rayDirection * minLength, glm::vec3(1.0f, 0.0f, 0.0f));
+  this->debug->addLine(rayStart, rayStart + rayDirection * minLength, glm::vec3(1.0f, 0.0f, 0.0f), true);
   return minLength;
 }
 

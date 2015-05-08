@@ -326,8 +326,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       SetMaterial(gameObjects->wallList[i]->material);
       gameObjects->wallList[i]->draw();
     }
-
-    gameObjects->update();
+  }
+  gameObjects->update();
 }
 
 void beginDrawGL() {
@@ -862,13 +862,21 @@ int main(int argc, char **argv)
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
       vector<shared_ptr<GameObject>>::iterator objIter;
       for (objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f));
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
       }
     }
 
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
     if (debug || boxes) {
+      debugDraw.addBox(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+                       glm::vec4(1.0f, 0.0f, 0.0f, -1.0f),
+                       glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+                       glm::vec4(0.0f, 1.0f, 0.0f, -1.0f),
+                       glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+                       glm::vec4(0.0f, 0.0f, 1.0f, -1.0f),
+                       glm::vec3(1.0f, 0.0f, 0.0f),
+                       true);
       debugDraw.drawAll();
       debugDraw.clear();
     }
