@@ -38,9 +38,9 @@
 //#include "openAL/include/AL/alc.h"
 //#include "openAL/include/includeAllOpenAL.h"
 
-#define WORLD_WIDTH 3000
-#define WORLD_HEIGHT 3000
-#define TEST_WORLD 50
+#define WORLD_WIDTH 300
+#define WORLD_HEIGHT 300
+#define TEST_WORLD 200
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -488,7 +488,7 @@ void initGround() {
       &mainShader, //model handle
         vec3(0), //position
         0, //rotation
-    vec3(1.0, 1.0, 1.0), //scale
+    vec3(5, 1, 5), //scale
         vec3(1, 0, 0), //direction
         0, //velocity
         6, //indices
@@ -656,7 +656,7 @@ void initWalls2(WorldGrid* gameObjects) {
 	int testWallCount = 0;
 
 	char ch;
-	fstream fin(resPath("LevelDesign.txt"), fstream::in);
+	fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
 	int i = 0, j = 0;
 	while (fin >> noskipws >> ch) {
 		if (ch == '\n') {
