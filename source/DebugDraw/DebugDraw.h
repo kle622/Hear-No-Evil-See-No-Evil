@@ -4,6 +4,7 @@
 #include "../Library/OBB.h"
 #include <string>
 #include <cassert>
+#include <iostream>
 
 #define SUBDIVISIONS 100.0f
 #define EPS 0.000001

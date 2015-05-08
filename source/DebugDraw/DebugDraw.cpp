@@ -149,13 +149,21 @@ void DebugDraw::addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color, 
 void DebugDraw::addBox(glm::vec4 left, glm::vec4 right, glm::vec4 bottom, glm::vec4 top, glm::vec4 front, glm::vec4 back, glm::vec3 color, bool thick)
 {
   glm::vec3 topleftfront = intersectPlanes(top, left, front);
+  std::cout << "topleftfront: <" << topleftfront.x << ", " << topleftfront.y << ", " << topleftfront.z << ">" << std::endl;
   glm::vec3 topleftback = intersectPlanes(top, left, back);
+  std::cout << "topleftback: <" << topleftback.x << ", " << topleftback.y << ", " << topleftback.z << ">" << std::endl;
   glm::vec3 toprightfront = intersectPlanes(top, right, front);
+  std::cout << "toprightfront: <" << toprightfront.x << ", " << toprightfront.y << ", " << toprightfront.z << ">" << std::endl;
   glm::vec3 toprightback = intersectPlanes(top, right, back);
+  std::cout << "toprightback: <" << toprightback.x << ", " << toprightback.y << ", " << toprightback.z << ">" << std::endl;
   glm::vec3 botleftfront = intersectPlanes(bottom, left, front);
+  std::cout << "botleftfront: <" << botleftfront.x << ", " << botleftfront.y << ", " << botleftfront.z << ">" << std::endl;
   glm::vec3 botleftback = intersectPlanes(bottom, left, back);
+  std::cout << "botleftback: <" << botleftback.x << ", " << botleftback.y << ", " << botleftback.z << ">" << std::endl;
   glm::vec3 botrightfront = intersectPlanes(bottom, right, front);
+  std::cout << "botrightfront: <" << botrightfront.x << ", " << botrightfront.y << ", " << botrightfront.z << ">" << std::endl;
   glm::vec3 botrightback = intersectPlanes(bottom, right, back);
+  std::cout << "botrightback: <" << botrightback.x << ", " << botrightback.y << ", " << botrightback.z << ">" << std::endl;
 
   this->addBox(topleftfront,
                topleftback,
@@ -198,10 +206,18 @@ glm::vec3 DebugDraw::intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::ve
   glm::vec3 p2 = this->getPlanePoint(pl2);
   glm::vec3 p3 = this->getPlanePoint(pl3);
 
+  /*glm::vec3 p1 = this->getPlanePoint(plane1);
+  glm::vec3 p2 = this->getPlanePoint(plane2);
+  glm::vec3 p3 = this->getPlanePoint(plane3);*/
+
   // get plane normals
   glm::vec3 n1 = glm::vec3(pl1);
   glm::vec3 n2 = glm::vec3(pl2);
   glm::vec3 n3 = glm::vec3(pl3);
+
+  /*glm::vec3 n1 = glm::vec3(plane1);
+  glm::vec3 n2 = glm::vec3(plane2);
+  glm::vec3 n3 = glm::vec3(plane3);*/
 
   glm::mat3 matrix = glm::mat3(n1, n2, n3);
   // get determinant, assert nonzero
@@ -211,7 +227,8 @@ glm::vec3 DebugDraw::intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::ve
   assert(det > EPS || det < EPS);
 
   // MATH
-  return (glm::dot(p1, n1) * glm::cross(n2, n3) + glm::dot(p2, n2) * glm::cross(n3, n1) + glm::dot(p3, n3) * glm::cross(n1, n2)) / det;
+  glm::vec3 result = (glm::dot(p1, n1) * glm::cross(n2, n3) + glm::dot(p2, n2) * glm::cross(n3, n1) + glm::dot(p3, n3) * glm::cross(n1, n2)) / det;
+  return result;
   //return (glm::dot(p1, n1) * glm::cross(n2, n3) + glm::dot(p2, n2) * glm::cross(n3, n1) + glm::dot(p3, n3) * glm::cross(n1, n2));
 }
 
