@@ -148,7 +148,7 @@ void DebugDraw::addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color, 
 // assumes planes are not parallel
 void DebugDraw::addBox(glm::vec4 left, glm::vec4 right, glm::vec4 bottom, glm::vec4 top, glm::vec4 front, glm::vec4 back, glm::vec3 color, bool thick)
 {
-  glm::vec3 topleftfront = intersectPlanes(top, left, front);
+  glm::vec3 topleftfront = intersectPlanes(front, left, top);
   std::cout << "topleftfront: <" << topleftfront.x << ", " << topleftfront.y << ", " << topleftfront.z << ">" << std::endl;
   glm::vec3 topleftback = intersectPlanes(top, left, back);
   std::cout << "topleftback: <" << topleftback.x << ", " << topleftback.y << ", " << topleftback.z << ">" << std::endl;
