@@ -32,6 +32,8 @@
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
+
+#include "../dependencies/irrKlang/include/irrKlang.h"
 //#include "GuardPath/PathNode.h"
 
 //#include "openAL/include/AL/al.h"
@@ -40,7 +42,7 @@
 
 #define WORLD_WIDTH 3000
 #define WORLD_HEIGHT 3000
-#define TEST_WORLD 50
+#define TEST_WORLD 400
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -53,6 +55,9 @@
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
+using namespace irrklang;
+
+#pragma comment(lib, "../dependencies/irrKlang/lib/Win32-visualStudio/irrKlang.lib") // link with irrKlang.dll
 
 vector<tinyobj::shape_t> player;
 vector<tinyobj::shape_t> guard;
@@ -86,13 +91,13 @@ GLuint norBufObjG = 0;
 double deltaTime;
 
 // OpenAL error catching
-int endWithError(char* msg, int error = 0)
-{
-  //Display error message in console
-  cout << msg << "\n";
-  system("PAUSE");
-  return error;
-}
+//int endWithError(char* msg, int error = 0)
+//{
+//  //Display error message in console
+//  cout << msg << "\n";
+//  system("PAUSE");
+//  return error;
+//}
 
 
 float getRand(double M, double N)
@@ -501,7 +506,7 @@ void initWalls(WorldGrid* gameObjects) {
   bool buildRight, buildDown;
 
   char ch;
-  fstream fin(resPath("LevelDesign.txt"), fstream::in);
+  fstream fin(resPath("LevelDesignTest.txt"), fstream::in);
   int i = 0, j = 0;
   while (fin >> noskipws >> ch) {
     if (ch == '\n') {
@@ -647,7 +652,7 @@ void initWalls2(WorldGrid* gameObjects) {
 	int testWallCount = 0;
 
 	char ch;
-	fstream fin(resPath("LevelDesign.txt"), fstream::in);
+	fstream fin(resPath("LevelDesignTest.txt"), fstream::in);
 	int i = 0, j = 0;
 	while (fin >> noskipws >> ch) {
 		if (ch == '\n') {
@@ -661,13 +666,13 @@ void initWalls2(WorldGrid* gameObjects) {
 	}
 
 	///////// Test print entire matrix
-	for (i = 0; i < TEST_WORLD; i++) {
-		cout << '\n';
-		for (j = 0; j < TEST_WORLD; j++) {
-			cout << levelDesign[i][j];
-    }
-}
-	cout << '\n';
+//	for (i = 0; i < TEST_WORLD; i++) {
+//		cout << '\n';
+//		for (j = 0; j < TEST_WORLD; j++) {
+//			cout << levelDesign[i][j];
+//    }
+//}
+//	cout << '\n';
 
 	vec2 start, end;
 	//////////// Create the wall objects
@@ -721,7 +726,16 @@ void initWalls2(WorldGrid* gameObjects) {
 
 int main(int argc, char **argv)
 {
+    // start the sound engine with default parameters
+    ISoundEngine* engine = createIrrKlangDevice();
+    //std::cout << "Press any key to play some sound, press 'q' to quit.\n";
 
+    // play a single sound
+    //engine->play2D("../dependencies/irrKlang/media/damnSon.mp3");
+
+   //std::cin >> i; // wait for user to press some key
+    if (!engine)
+      return 0; // error starting up the engine
 
     ////////////////////////////////////////////////////
 
@@ -799,7 +813,10 @@ int main(int argc, char **argv)
       CAMERA_NEAR,
       CAMERA_FAR);
     double timeCounter = 0;
+    engine->play2D("../dependencies/irrKlang/media/bell.wav", true);
     do{
+        // play a single sound
+
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
