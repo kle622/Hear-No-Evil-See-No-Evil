@@ -296,6 +296,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         SetMaterial(gameObjects->list[i]->material);
         gameObjects->list[i]->draw();
         gameObjects->list[i]->move(time);
+        if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
+          for (int j = 0; j < gameObjects->wallList.size(); j++) {
+            if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+              //do some shit
+            }
+          }
+        }
+
         vector<shared_ptr<GameObject>> proximity = 
             gameObjects->getCloseObjects(gameObjects->list[i]);
 
@@ -305,15 +313,17 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
         for (int j = 0; j < proximity.size(); j++) {
             if (gameObjects->list[i] != proximity[j]) {
-                if (gameObjects->list[i]->collide(proximity[j].get())) {
-                
-          //do something generic here if you need to
-          //object.collide mainShader the collision 
-                    }
-
-                }
+              if (gameObjects->list[i]->collide(proximity[j].get())) {
+                //do some shit
+              }
             }
-        }
+          }
+    }
+    for (int i = 0; i < gameObjects->wallList.size(); i++) {
+      SetMaterial(gameObjects->wallList[i]->material);
+      gameObjects->wallList[i]->draw();
+    }
+
     gameObjects->update();
 }
 
@@ -430,7 +440,7 @@ void initPlayer(WorldGrid* gameObjects) {
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
-      vec3(2.5, 2.5, 2.5),
+      vec3(1.0, 2.0, 1.0),
       1,
       3
    );
@@ -463,7 +473,7 @@ void initGuards(WorldGrid* gameObjects) {
           &mainShader,
 		vec3(1, 1, 1),
 		GUARD_SPEED,
-		vec3(1.5, 1.5, 1.5),
+		vec3(1.0, 2.0, 1.0),
 		1,
 		1,
 		guardPath
