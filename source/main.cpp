@@ -321,6 +321,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
               }
             }
           }
+      }
     }
     for (int i = 0; i < gameObjects->wallList.size(); i++) {
       SetMaterial(gameObjects->wallList[i]->material);
