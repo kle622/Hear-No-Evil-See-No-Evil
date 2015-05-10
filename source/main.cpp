@@ -313,21 +313,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             guard->detect(playerObject);
         }
-
-        for (int j = 0; j < proximity.size(); j++) {
-            if (gameObjects->list[i] != proximity[j]) {
-              if (gameObjects->list[i]->collide(proximity[j].get())) {
-                //do some shit
-              }
-            }
-          }
       }
     }
-    for (int i = 0; i < gameObjects->wallList.size(); i++) {
-      SetMaterial(gameObjects->wallList[i]->material);
-      gameObjects->wallList[i]->draw();
-    }
   }
+  for (int i = 0; i < gameObjects->wallList.size(); i++) {
+    SetMaterial(gameObjects->wallList[i]->material);
+    gameObjects->wallList[i]->draw();
+  }
+
   gameObjects->update();
 }
 

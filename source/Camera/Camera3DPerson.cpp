@@ -1,5 +1,7 @@
 #include "Camera3DPerson.h"
 
+#define DEBUG
+
 // note: calling getEye() form constructor causes crash
 Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far) : Camera(handles, focus->position, focus->position + glm::vec3(0.0f, 0.0f, zoom), glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far)
 {
@@ -55,18 +57,23 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   nearCorners.push_back(downLeft);
   nearCorners.push_back(nearCenter);  // helps mitigate camera clipping through outside wall corners
 
+#ifdef DEBUG
   this->debug->addLine(upRight, upLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
   this->debug->addLine(upRight, downRight, glm::vec3(0.0f, 0.0f, 1.0f), false);
   this->debug->addLine(upLeft, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
   this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
+#endif
 
-  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+  //std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+  std::vector<shared_ptr<GameObject>> objects = this->world->wallList;
 
   // raycast from each corner, get minimum fraction
   float minRayDist = numeric_limits<double>::max();
   for (auto corner = nearCorners.begin(); corner != nearCorners.end(); ++corner) {
     glm::vec3 rayStart = *corner;
+#ifdef DEBUG
     this->debug->addLine(rayStart, rayStart + this->zoom * outVec, glm::vec3(0.0f, 0.0f, 1.0f), false);
+#endif
     float rayHitDist = this->castRayOnObjects(rayStart, outVec, objects);
     minRayDist = fmin(rayHitDist, minRayDist);
     // collide with ground at y = -1
@@ -78,6 +85,14 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   // given shortest distance from near plane corner to potential collision, determine if zoom should change
   // make sure to handle case where no intersections occured (minRayDist should equal double max in this case)
   minRayDist = fmin(minRayDist, this->zoom);
+
+#ifdef DEBUG
+  this->debug->addLine(upRight + outVec * minRayDist, upLeft + outVec * minRayDist, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  this->debug->addLine(upRight + outVec * minRayDist, downRight + outVec * minRayDist, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  this->debug->addLine(upLeft + outVec * minRayDist, downLeft + outVec * minRayDist, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  this->debug->addLine(downRight + outVec * minRayDist, downLeft + outVec * minRayDist, glm::vec3(0.0f, 0.0f, 1.0f), false);
+#endif
+
   return outVec * minRayDist;
 }
 
@@ -89,7 +104,9 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     // only check collisions against walls
     if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
       // send bounding box to debug output
+#ifdef DEBUG
       this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f), true);
+#endif
       // converting object bounding box to OBB
       OBB obb((*iter)->position, (*iter)->dimensions);
       /*obb.center = (*iter)->position;
@@ -99,7 +116,9 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       obb.halfLengths[0] = (*iter)->dimensions.x * 0.5;
       obb.halfLengths[1] = (*iter)->dimensions.y * 0.5;
       obb.halfLengths[2] = (*iter)->dimensions.z * 0.5;*/
+#ifdef DEBUG
       this->debug->addOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f), true);
+#endif
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
         minLength = fmin(minLength, result);
@@ -107,16 +126,19 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     }
   }
 
+#ifdef DEBUG
   this->debug->addLine(rayStart, rayStart + rayDirection * minLength, glm::vec3(1.0f, 0.0f, 0.0f), true);
+#endif
   return minLength;
 }
 
-/* uses Kay and Kajiya's slab method for ray/box intersection, found in text p.472
+/* uses Kay and Kajiya's slab method for ray/box intersection, found in text p.742
  *
  * assume value pointed to by dist is unusable if this method returns false
  *
  * dist is the distance from the ray origin to the intersection point
  */
+// TODO make it so this returns false if the intersect point is inside the box
 bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OBB obb)
 {
   *dist = 0;
@@ -150,7 +172,8 @@ bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3
     *dist = tmin;
   }
   else {
-    *dist = tmax;
+    //*dist = tmax;
+    return false;
   }
   return true;
 }
