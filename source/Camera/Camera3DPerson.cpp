@@ -1,6 +1,6 @@
 #include "Camera3DPerson.h"
 
-//#define DEBUG
+#define DEBUG
 
 // note: calling getEye() form constructor causes crash
 Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far) : Camera(handles, focus->position, focus->position + glm::vec3(0.0f, 0.0f, zoom), glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far)
@@ -65,8 +65,10 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
 #endif
 
-  //std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
-  std::vector<shared_ptr<GameObject>> objects = this->world->wallList;
+  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+  //std::vector<shared_ptr<GameObject>> objects = this->world->wallList;
+  std::vector<shared_ptr<GameObject>> walls = this->world->wallList;
+  objects.insert(objects.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
 
   // raycast from each corner, get minimum fraction
   float minRayDist = numeric_limits<double>::max();
