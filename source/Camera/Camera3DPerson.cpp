@@ -1,6 +1,6 @@
 #include "Camera3DPerson.h"
 
-#define DEBUG
+//#define DEBUG
 
 // note: calling getEye() form constructor causes crash
 Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far) : Camera(handles, focus->position, focus->position + glm::vec3(0.0f, 0.0f, zoom), glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far)

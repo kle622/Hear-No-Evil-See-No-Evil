@@ -296,8 +296,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
-    SetMaterial(drawList[i]->material);
-    drawList[i]->draw();
+    //if (!(dynamic_cast<Wall*>(gameObjects->list[i].get()))) {
+      SetMaterial(drawList[i]->material);
+      drawList[i]->draw();
+    //}
   }
 
   // collide
