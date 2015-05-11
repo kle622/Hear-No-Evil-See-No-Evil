@@ -68,7 +68,8 @@ bool Guard::collide(GameObject* object) {
 
 bool Guard::detect(Player* player) {
 	// if object is within guard's cone of vision, return true
-	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
+	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)
+            && glm::distance(this->position, player->position) < 35) {
 		material = 3;
 		//velocity = 0;
 		return true;
