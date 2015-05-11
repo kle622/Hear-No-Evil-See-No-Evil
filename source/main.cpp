@@ -288,32 +288,30 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
-    SetMaterial(ground->material);
-    ground->draw();
-    SetMaterial(ceiling->material);
-    ceiling->draw();
-    Guard *guard;
+  SetMaterial(ground->material);
+  ground->draw();
+  SetMaterial(ceiling->material);
+  ceiling->draw();
+  Guard *guard;
 
-    for (int i = 0; i < gameObjects->list.size(); i++) {
-	//printf("Drawing game object...\n");
-        SetMaterial(gameObjects->list[i]->material);
-        gameObjects->list[i]->draw();
-        gameObjects->list[i]->move(time);
-        if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-          for (int j = 0; j < gameObjects->wallList.size(); j++) {
-            if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-              //do some shit
-            }
-          }
-        }
-
-        vector<shared_ptr<GameObject>> proximity = 
-            gameObjects->getCloseObjects(gameObjects->list[i]);
-
-        if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-            guard->detect(playerObject);
+  for (int i = 0; i < gameObjects->list.size(); i++) {
+    //printf("Drawing game object...\n");
+    SetMaterial(gameObjects->list[i]->material);
+    gameObjects->list[i]->draw();
+    gameObjects->list[i]->move(time);
+    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
+      for (int j = 0; j < gameObjects->wallList.size(); j++) {
+        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+          //do some shit
         }
       }
+    }
+
+    vector<shared_ptr<GameObject>> proximity = 
+      gameObjects->getCloseObjects(gameObjects->list[i]);
+
+    if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+      guard->detect(playerObject);
     }
   }
   for (int i = 0; i < gameObjects->wallList.size(); i++) {
