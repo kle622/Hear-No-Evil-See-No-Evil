@@ -59,9 +59,6 @@ bool Camera::isCulled(shared_ptr<GameObject>)
 
 std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgrid)
 {
-  std::vector<std::shared_ptr<GameObject>> unculled;
-  std::vector<std::shared_ptr<GameObject>> inVF;
-  std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
   // ----- View Frustum Culling -----
   std::vector<glm::vec4> planes;
   glm::mat4 VP = this->getProjection() * this->getView();
@@ -102,6 +99,8 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
 
   // TODO figure out how to draw view frustum wireframe
 
+  std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
+  std::vector<std::shared_ptr<GameObject>> inVF;
   for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
     OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
 #ifdef DEBUG
@@ -119,7 +118,27 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
     }
   }
 
+  // ----- Wall VFC -----
+  std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
+  for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
+    OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
+#ifdef DEBUG
+    //this->debug->addOBB(*obb, glm::vec3(0.0f, 0.0f, 1.0f), true);
+#endif
+    bool pass = true;
+    for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
+      pass = obbOutsidePlane(*obb, *planeIter);
+      /*if (!obbOutsidePlane(*obb, *planeIter)) {
+        pass = false;
+      }*/
+    }
+    if (pass) {
+      inVF.push_back(*objIter);
+    }
+  }
+
   // ----- Occlusion Culling -----
+  std::vector<std::shared_ptr<GameObject>> unculled;
   for (auto objIter = inVF.begin(); objIter != inVF.end(); ++objIter) {
     unculled.push_back(*objIter); // TODO change this to actually be selective
   }

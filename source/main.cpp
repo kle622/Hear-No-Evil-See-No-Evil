@@ -325,10 +325,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       guard->detect(playerObject);
     }
   }
-  for (int i = 0; i < gameObjects->wallList.size(); i++) {
+  /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
     SetMaterial(gameObjects->wallList[i]->material);
     gameObjects->wallList[i]->draw();
-  }
+  }*/
 
   gameObjects->update();
 }
@@ -898,8 +898,12 @@ int main(int argc, char **argv)
       }
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
-      vector<shared_ptr<GameObject>>::iterator objIter;
-      for (objIter = objs.begin(); objIter != objs.end(); ++objIter) {
+      for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
+      }
+
+      vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
+      for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
         debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
       }
     }
