@@ -1,5 +1,8 @@
 #include "Camera3DPerson.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 
+#define M_PI 3.141592654
 //#define DEBUG
 
 // note: calling getEye() form constructor causes crash
