@@ -861,14 +861,14 @@ int main(int argc, char **argv)
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
     if (debug || boxes) {
-      debugDraw.addBox(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+      /*debugDraw.addBox(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
                        glm::vec4(1.0f, 0.0f, 0.0f, -1.0f),
                        glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
                        glm::vec4(0.0f, 1.0f, 0.0f, -1.0f),
                        glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
                        glm::vec4(0.0f, 0.0f, 1.0f, -1.0f),
                        glm::vec3(1.0f, 0.0f, 0.0f),
-                       true);
+                       true);*/
       debugDraw.drawAll();
       debugDraw.clear();
     }

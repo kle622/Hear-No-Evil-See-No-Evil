@@ -149,21 +149,21 @@ void DebugDraw::addBox(glm::vec3 center, glm::vec3 dimensions, glm::vec3 color, 
 void DebugDraw::addBox(glm::vec4 left, glm::vec4 right, glm::vec4 bottom, glm::vec4 top, glm::vec4 front, glm::vec4 back, glm::vec3 color, bool thick)
 {
   glm::vec3 topleftfront = intersectPlanes(top, left, front);
-  std::cout << "topleftfront: <" << topleftfront.x << ", " << topleftfront.y << ", " << topleftfront.z << ">" << std::endl;
+  //std::cout << "topleftfront: <" << topleftfront.x << ", " << topleftfront.y << ", " << topleftfront.z << ">" << std::endl;
   glm::vec3 topleftback = intersectPlanes(top, left, back);
-  std::cout << "topleftback: <" << topleftback.x << ", " << topleftback.y << ", " << topleftback.z << ">" << std::endl;
+  //std::cout << "topleftback: <" << topleftback.x << ", " << topleftback.y << ", " << topleftback.z << ">" << std::endl;
   glm::vec3 toprightfront = intersectPlanes(top, right, front);
-  std::cout << "toprightfront: <" << toprightfront.x << ", " << toprightfront.y << ", " << toprightfront.z << ">" << std::endl;
+  //std::cout << "toprightfront: <" << toprightfront.x << ", " << toprightfront.y << ", " << toprightfront.z << ">" << std::endl;
   glm::vec3 toprightback = intersectPlanes(top, right, back);
-  std::cout << "toprightback: <" << toprightback.x << ", " << toprightback.y << ", " << toprightback.z << ">" << std::endl;
+  //std::cout << "toprightback: <" << toprightback.x << ", " << toprightback.y << ", " << toprightback.z << ">" << std::endl;
   glm::vec3 botleftfront = intersectPlanes(bottom, left, front);
-  std::cout << "botleftfront: <" << botleftfront.x << ", " << botleftfront.y << ", " << botleftfront.z << ">" << std::endl;
+  //std::cout << "botleftfront: <" << botleftfront.x << ", " << botleftfront.y << ", " << botleftfront.z << ">" << std::endl;
   glm::vec3 botleftback = intersectPlanes(bottom, left, back);
-  std::cout << "botleftback: <" << botleftback.x << ", " << botleftback.y << ", " << botleftback.z << ">" << std::endl;
+  //std::cout << "botleftback: <" << botleftback.x << ", " << botleftback.y << ", " << botleftback.z << ">" << std::endl;
   glm::vec3 botrightfront = intersectPlanes(bottom, right, front);
-  std::cout << "botrightfront: <" << botrightfront.x << ", " << botrightfront.y << ", " << botrightfront.z << ">" << std::endl;
+  //std::cout << "botrightfront: <" << botrightfront.x << ", " << botrightfront.y << ", " << botrightfront.z << ">" << std::endl;
   glm::vec3 botrightback = intersectPlanes(bottom, right, back);
-  std::cout << "botrightback: <" << botrightback.x << ", " << botrightback.y << ", " << botrightback.z << ">" << std::endl;
+  //std::cout << "botrightback: <" << botrightback.x << ", " << botrightback.y << ", " << botrightback.z << ">" << std::endl;
 
   this->addBox(topleftfront,
                topleftback,
@@ -179,16 +179,22 @@ void DebugDraw::addBox(glm::vec4 left, glm::vec4 right, glm::vec4 bottom, glm::v
 
 glm::vec4 DebugDraw::normalizePlane(glm::vec4 plane)
 {
+  //std::cout << "plane: <" << plane.x << ", " << plane.y << ", " << plane.z << ", " << plane.w << ">" << std::endl;
   glm::vec3 n = glm::vec3(plane);
+  //std::cout << "n: <" << n.x << ", " << n.y << ", " << n.z << ">" << std::endl;
   float l = glm::length(n);
-  float d = plane.z / l;
+  //std::cout << "l: " << l << std::endl;
+  float d = plane.w / l;
+  //std::cout << "d: " << d << std::endl;
   n = glm::normalize(n);
+  //std::cout << "n: <" << n.x << ", " << n.y << ", " << n.z << ">" << std::endl;
+
   return glm::vec4(n, d);
 }
 
 glm::vec3 DebugDraw::getPlanePoint(glm::vec4 plane)
 {
-  return -1.0f * plane.z * glm::vec3(plane.x, plane.y, plane.z);
+  return -1.0f * plane.w * glm::vec3(plane.x, plane.y, plane.z);
 }
 
 // does not assume normalized planes
@@ -214,6 +220,21 @@ glm::vec3 DebugDraw::intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::ve
   glm::vec3 n1 = glm::vec3(pl1);
   glm::vec3 n2 = glm::vec3(pl2);
   glm::vec3 n3 = glm::vec3(pl3);
+
+  /*std::cout << "plane1: <" << plane1.x << ", " << plane1.y << ", " << plane1.z << ", " << plane1.w << ">" << std::endl;
+  std::cout << "pl1: <" << pl1.x << ", " << pl1.y << ", " << pl1.z << ", " << pl1.w << ">" << std::endl;
+  std::cout << "p1: <" << p1.x << ", " << p1.y << ", " << p1.z << ">" << std::endl;
+  std::cout << "n1: <" << n1.x << ", " << n1.y << ", " << n1.z << ">" << std::endl;
+
+  std::cout << "plane2: <" << plane2.x << ", " << plane2.y << ", " << plane2.z << ", " << plane2.w << ">" << std::endl;
+  std::cout << "pl2: <" << pl2.x << ", " << pl2.y << ", " << pl2.z << ", " << pl2.w << ">" << std::endl;
+  std::cout << "p2: <" << p2.x << ", " << p2.y << ", " << p2.z << ">" << std::endl;
+  std::cout << "n2: <" << n2.x << ", " << n2.y << ", " << n2.z << ">" << std::endl;
+
+  std::cout << "plane3: <" << plane3.x << ", " << plane3.y << ", " << plane3.z << ", " << plane3.w << ">" << std::endl;
+  std::cout << "pl3: <" << pl3.x << ", " << pl3.y << ", " << pl3.z << ", " << pl3.w << ">" << std::endl;
+  std::cout << "p3: <" << p3.x << ", " << p3.y << ", " << p3.z << ">" << std::endl;
+  std::cout << "n3: <" << n3.x << ", " << n3.y << ", " << n3.z << ">" << std::endl;*/
 
   /*glm::vec3 n1 = glm::vec3(plane1);
   glm::vec3 n2 = glm::vec3(plane2);

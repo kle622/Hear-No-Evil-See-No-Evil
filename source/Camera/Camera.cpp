@@ -80,7 +80,7 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   glm::vec4 near = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
   glm::vec4 far = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);*/
 
-  //this->debug->addBox(left, right, bottom, top, near, far, glm::vec3(0.99f, 0.85f, 0.55f), false);
+  this->debug->addBox(left, right, bottom, top, near, far, glm::vec3(0.99f, 0.85f, 0.55f), true);
   //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(left), glm::vec3(0.99f, 0.85f, 0.55f), false);
   //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(right), glm::vec3(0.99f, 0.85f, 0.55f), false);
   //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(bottom), glm::vec3(0.99f, 0.85f, 0.55f), false);
