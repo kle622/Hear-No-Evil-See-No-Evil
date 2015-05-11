@@ -102,6 +102,7 @@ Mesh playerMesh;
 Mesh cubeMesh;
 Mesh tripleBarrelMesh;
 Mesh boxStackMesh;
+Mesh tableMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -117,154 +118,160 @@ double deltaTime;
 
 float getRand(double M, double N)
 {
-    float random = (float)(M + (rand() / (RAND_MAX / (N - M))));
-    return roundf(random * 1000) / 1000;
+  float random = (float)(M + (rand() / (RAND_MAX / (N - M))));
+  return roundf(random * 1000) / 1000;
 }
 
 bool floatCompare(double a, double b)
 {
-    return fabs(a - b) < .01;
+  return fabs(a - b) < .01;
 }
 
 int printOglError(const char *file, int line) {
-    /* Returns 1 if an OpenGL error occurred, 0 otherwise. */
-    GLenum glErr;
-    int    retCode = 0;
+  /* Returns 1 if an OpenGL error occurred, 0 otherwise. */
+  GLenum glErr;
+  int    retCode = 0;
 
+  glErr = glGetError();
+  while (glErr != GL_NO_ERROR)
+  {
+    //printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
+    retCode = 1;
     glErr = glGetError();
-    while (glErr != GL_NO_ERROR)
-    {
-        //printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
-        retCode = 1;
-        glErr = glGetError();
-    }
-    return retCode;
+  }
+  return retCode;
 }
 
 void SetMaterial(int i) {
-    switch (i) {
+  switch (i) {
   case 0: // guards
     glUniform3f(mainShader.uMatAmb, 0.05f, 0.025f, 0.025f);
     glUniform3f(mainShader.uMatDif, 0.9f, 0.1f, 0.05f);
     glUniform3f(mainShader.uMatSpec, 0.8f, 0.2f, 0.2f);
     glUniform1f(mainShader.uMatShine, 100.0f);
-        break;
+    break;
   case 1: // floor
     glUniform3f(mainShader.uMatAmb, 0.13f, 0.13f, 0.14f);
     glUniform3f(mainShader.uMatDif, 0.3f, 0.3f, 0.4f);
     glUniform3f(mainShader.uMatSpec, 0.3f, 0.3f, 0.4f);
     glUniform1f(mainShader.uMatShine, 150.0f);
-        break;
+    break;
   case 2: // player
     glUniform3f(mainShader.uMatAmb, 0.3f, 0.3f, 0.3f);
     glUniform3f(mainShader.uMatDif, 0.9f, 0.9f, 0.9f);
     glUniform3f(mainShader.uMatSpec, 0.0f, 0.0f, 0.0f);
     glUniform1f(mainShader.uMatShine, 150.0f);
-        break;
+    break;
   case 3: // guard detect
     glUniform3f(mainShader.uMatAmb, 0.06f, 0.09f, 0.06f);
     glUniform3f(mainShader.uMatDif, 0.2f, 0.80f, 0.1f);
     glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
     glUniform1f(mainShader.uMatShine, 4.0f);
-        break;
-  case 4: //wall color
+    break;
+  case 4: //big wall color
     glUniform3f(mainShader.uMatAmb, 0.2f, 0.1f, 0.0f);
     glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
     glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(mainShader.uMatShine, 10.0f);
-        break;
+    break;
   case 5: // ceiling
     glUniform3f(mainShader.uMatAmb, 0.1f, 0.1f, 0.1f);
     glUniform3f(mainShader.uMatDif, 0.0f, 0.0f, 0.00f);
     glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
     glUniform1f(mainShader.uMatShine, 100.0f);
     break;
-    }
+  case 6: //big wall color
+    glUniform3f(mainShader.uMatAmb, 0.2f, 0.2f, 0.2f);
+    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(mainShader.uMatShine, 10.0f);
+    break;
+  }
 }
 
 void initGL() {
-    // Set the background color
+  // Set the background color
   glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
-    // Enable Z-buffer test
-    glEnable(GL_DEPTH_TEST);
-    glPointSize(18);
-    initVertexObject(&posBufObjG, &norBufObjG);
+  // Enable Z-buffer test
+  glEnable(GL_DEPTH_TEST);
+  glPointSize(18);
+  initVertexObject(&posBufObjG, &norBufObjG);
 }
 
 void getWindowinput(GLFWwindow* window, double deltaTime) {
-    float forwardYVelocity = 0;
-    float sideYVelocity = 0;
+  float forwardYVelocity = 0;
+  float sideYVelocity = 0;
   bool accelerate = false;
   bool upD = false;
   bool downD = false;
   bool leftD = false;
   bool rightD = false;
   vec3 direction(0, 0, 0);
-    glm::vec3 forward = camera3DPerson->getForward();
-    glm::vec3 strafe = camera3DPerson->getStrafe();
-    glm::vec3 up = camera3DPerson->getUp();
-    oldPosition = playerObject->position;
+  glm::vec3 forward = camera3DPerson->getForward();
+  glm::vec3 strafe = camera3DPerson->getStrafe();
+  glm::vec3 up = camera3DPerson->getUp();
+  oldPosition = playerObject->position;
 
   if (!debug) {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+      vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+          sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
       velocity.y = 0;
       direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
+      glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
+      //camera3DPerson->setView();
       accelerate = true;
       leftD = true;
       if (footSndPlayr->isFinished()) {
         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-      }
+    }
       else if (footSndPlayr->getIsPaused()) {
         footSndPlayr->setIsPaused(false);
       }
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+      vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
+          sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
       velocity.y = 0;
       direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
+      glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
+      //camera3DPerson->setView();
       accelerate = true;
       rightD = true;
       if (footSndPlayr->isFinished()) {
         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-      }
+    }
       else if (footSndPlayr->getIsPaused()) {
         footSndPlayr->setIsPaused(false);
       }
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+      vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+          forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
       velocity.y = 0;
       direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
+      glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
+      //camera3DPerson->setView();
       accelerate = true;
       upD = true;
       if (footSndPlayr->isFinished()) {
         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-      }
+    }
       else if (footSndPlayr->getIsPaused()) {
         footSndPlayr->setIsPaused(false);
       }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+      vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+          forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
       velocity.y = 0;
       direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
+      glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        //camera3DPerson->setView();
+      //camera3DPerson->setView();
       accelerate = true;
       downD = true;
       if (footSndPlayr->isFinished()) {
@@ -278,12 +285,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     if (accelerate) {
       direction = normalize(direction);
       if ((upD && downD) || (leftD && rightD)) {
-          playerObject->decelerate();
+        playerObject->decelerate();
       }
       else {
-          playerObject->changeDirection(direction);
-          playerObject->accelerate();
-          printf("velocity: %f\n", playerObject->velocity);
+        playerObject->changeDirection(direction);
+        playerObject->accelerate();
+        printf("velocity: %f\n", playerObject->velocity);
       }
     }
     else {
@@ -297,10 +304,10 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
     /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
       key_speed -= 0.1;
-    }
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+      }
+      if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
       key_speed += 0.1;
-    }*/
+      }*/
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
       move = -1.0f * key_speed * strafe;
     }
@@ -318,7 +325,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
       move = -1.0f * key_speed * view;
-}
+    }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
       move = key_speed * view;
     }
@@ -337,11 +344,11 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
-    SetMaterial(ground->material);
-    ground->draw();
+  SetMaterial(ground->material);
+  ground->draw();
   SetMaterial(ceiling->material);
   ceiling->draw();
-    Guard *guard;
+  Guard *guard;
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
@@ -350,8 +357,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   }
 
   // collide
-    for (int i = 0; i < gameObjects->list.size(); i++) {
-        gameObjects->list[i]->move(time);
+  for (int i = 0; i < gameObjects->list.size(); i++) {
+    gameObjects->list[i]->move(time);
     vector<shared_ptr<GameObject>> proximity = 
       gameObjects->getCloseObjects(gameObjects->list[i]);
 
@@ -365,11 +372,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
 
     //players
-        if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
+    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
           engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
             vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
-          for (int j = 0; j < gameObjects->wallList.size(); j++) {
-            if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+      for (int j = 0; j < gameObjects->wallList.size(); j++) {
+        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
               // Example of event based sound, just for fun
               if (noseSnd->isFinished()) {
                 noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
@@ -378,13 +385,13 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                 noseSnd->setIsPaused(false);
           }
         }
-          }
-        }
+      }
+    }
 
     //guards
-        if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-            guard->detect(playerObject);
-        }
+    if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+      guard->detect(playerObject);
+    }
 
         for (int j = 0; j < proximity.size(); j++) {
             if (gameObjects->list[i] != proximity[j]) {
@@ -407,20 +414,20 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     for (int i = 0; i < gameObjects->wallList.size(); i++) {
       SetMaterial(gameObjects->wallList[i]->material);
       gameObjects->wallList[i]->draw();
-    }
+  }
 
-    gameObjects->update();
+  gameObjects->update();
 }
 
 void beginDrawGL() {
-    // Clear the screen
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // Clear the screen
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Use our GLSL program
+  // Use our GLSL program
   glUseProgram(mainShader.prog);
   glUniform3f(mainShader.uLightPos, g_light.x, g_light.y, g_light.z);
   glUniform3f(mainShader.uCamPos, camera3DPerson->eye.x,
-        camera3DPerson->eye.y, camera3DPerson->eye.z);
+      camera3DPerson->eye.y, camera3DPerson->eye.z);
   GLSL::enableVertexAttribArray(mainShader.aPosition);
   GLSL::enableVertexAttribArray(mainShader.aNormal);
 }
@@ -428,23 +435,23 @@ void beginDrawGL() {
 void endDrawGL() {
   GLSL::disableVertexAttribArray(mainShader.aPosition);
   GLSL::disableVertexAttribArray(mainShader.aNormal);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glUseProgram(0);
-    checkGLError();
+  glUseProgram(0);
+  checkGLError();
 }
 
 void window_size_callback(GLFWwindow* window, int w, int h){
-    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-    g_width = w;
-    g_height = h;
+  glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+  g_width = w;
+  g_height = h;
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     debug = !debug;
-    }
+  }
   if (key == GLFW_KEY_B && action == GLFW_PRESS) {
     boxes = !boxes;
   }
@@ -455,7 +462,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 1.1;
     }
-}
+  }
   else {
     if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       key_speed *= 0.9;
@@ -465,25 +472,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
   }
 
-    if (key == GLFW_KEY_LEFT_SHIFT) {
-      if (action == GLFW_PRESS) {
-        playerObject->SetMotion(RUN);
-}
-	  else if (action == GLFW_RELEASE) {
-        playerObject->SetMotion(WALK);
-      }
+  if (key == GLFW_KEY_LEFT_SHIFT) {
+    if (action == GLFW_PRESS) {
+      playerObject->SetMotion(RUN);
     }
-    if (key == GLFW_KEY_LEFT_CONTROL) {
-      if (action == GLFW_PRESS) {
-        playerObject->SetMotion(CROUCH);
-        playerObject->crouch = true;
-      }
-	  else if (action == GLFW_RELEASE) {
-        playerObject->SetMotion(WALK);
-        playerObject->crouch = false;
-      }
+    else if (action == GLFW_RELEASE) {
+      playerObject->SetMotion(WALK);
+    }
+  }
+  if (key == GLFW_KEY_LEFT_CONTROL) {
+    if (action == GLFW_PRESS) {
+      playerObject->SetMotion(CROUCH);
+      playerObject->crouch = true;
+    }
+    else if (action == GLFW_RELEASE) {
+      playerObject->SetMotion(WALK);
+      playerObject->crouch = false;
+    }
 
-    }
+  }
 }
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
@@ -495,8 +502,8 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   double dy = ypos - y_center;
 
   if (!debug) {
-  camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
-  camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
+    camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
+    camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
   }
   else {
     // TODO implement first person camera class 
@@ -518,10 +525,31 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 }
 
 void initObjects(WorldGrid* gameObjects) {
-  GameObject* tripleBarrel = new GameObject(
+  int levelDesign[TEST_WORLD][TEST_WORLD];
+
+  char ch;
+  fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
+  int i = 0, j = 0;
+  while (fin >> noskipws >> ch) {
+    if (ch == '\n') {
+      j = 0;
+      i++;
+    }
+    else {
+      levelDesign[i][j] = ch - '0';
+      j++;
+    }
+  }
+
+  //////////// Create the wall objects
+  for (i = 0; i < TEST_WORLD; i++) {
+    for (j = 0; j < TEST_WORLD; j++) {
+      switch(levelDesign[i][j]) {
+        case 3:
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
     &tripleBarrelMesh,
     &mainShader,
-    vec3(5, 1, 0),
+            vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
     0, 
     vec3(2.5, 2.5, 2.5),
     vec3(1.0, 0, 0),
@@ -529,14 +557,13 @@ void initObjects(WorldGrid* gameObjects) {
     vec3(2.5, 4, 4.5),
     1,
     0
-  );
-
-  gameObjects->add(shared_ptr<GameObject>(tripleBarrel));
-
-    GameObject* boxStack = new GameObject(
+          )));
+          break;
+        case 4:
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
     &boxStackMesh,
     &mainShader,
-    vec3(10, 1, 0),
+            vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
     0, 
     vec3(4, 2, 4),
     vec3(1.0, 0.0, 0.0),
@@ -544,13 +571,15 @@ void initObjects(WorldGrid* gameObjects) {
     vec3(3.0, 5, 3.0),
     1,
     0
-  );
-
-  gameObjects->add(shared_ptr<GameObject>(boxStack));
+          )));
+          break;
+      }
+    }
+  }
 }
 
 void initPlayer(WorldGrid* gameObjects) {
-    playerObject = new Player(
+  playerObject = new Player(
       &playerMesh,
       &mainShader,
       vec3(0, 0, 0),
@@ -560,57 +589,57 @@ void initPlayer(WorldGrid* gameObjects) {
       vec3(1.0, 2.0, 1.0),
       1,
       2
-   );
+      );
 
-   gameObjects->add(shared_ptr<GameObject>(playerObject));
+  gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
 
 void initGuards(WorldGrid* gameObjects) {
   vector<PathNode> guardPath;
-	FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
-	char line[100];
-	float x, y, z, dur;
-	char smartTurn, endTurnDir;
-	int numNodes;
+  FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
+  char line[100];
+  float x, y, z, dur;
+  char smartTurn, endTurnDir;
+  int numNodes;
 
-	while (fgets(line, 100, file)) {
-		if (line[0] == 'G') { // build new guard
-			guardPath.clear();
-			fgets(line, 100, file); // guard settings, ignored for now
-			fscanf(file, "%s %d", line, &numNodes); // read number of nodes in path
+  while (fgets(line, 100, file)) {
+    if (line[0] == 'G') { // build new guard
+      guardPath.clear();
+      fgets(line, 100, file); // guard settings, ignored for now
+      fscanf(file, "%s %d", line, &numNodes); // read number of nodes in path
 
-			for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
-				fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
-				printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
-				guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
-			}
+      for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
+        fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
+        printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
+        guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
+      }
 
-	Guard* guardObject = new Guard(
-		&guardMesh,
+      Guard* guardObject = new Guard(
+          &guardMesh,
           &mainShader,
-		vec3(1, 1, 1),
-		GUARD_SPEED,
-		vec3(1.0, 2.0, 1.0),
-		1,
+          vec3(1, 1, 1),
+          GUARD_SPEED,
+          vec3(1.0, 2.0, 1.0),
+          1,
           0,
-		guardPath
-	);
-	gameObjects->add(shared_ptr<GameObject>(guardObject));
-		}
-	}
+          guardPath
+          );
+      gameObjects->add(shared_ptr<GameObject>(guardObject));
+    }
+  }
 }
 
 void initGround() {
-    ground = new Shape(
+  ground = new Shape(
       &mainShader, //model handle
-        vec3(0), //position
-        0, //rotation
-    vec3(5, 1, 5), //scale
-        vec3(1, 0, 0), //direction
-        0, //velocity
-        6, //indices
-        posBufObjG, 
-        norBufObjG,
+      vec3(0), //position
+      0, //rotation
+      vec3(5, 1, 5), //scale
+      vec3(1, 0, 0), //direction
+      0, //velocity
+      6, //indices
+      posBufObjG, 
+      norBufObjG,
       1 //material
       );
 }
@@ -626,17 +655,18 @@ void initCeiling() {
       6, //indices
       posBufObjG, 
       norBufObjG,
-        5 //material
-    );
+      5 //material
+      );
 }
 
 void initWalls(WorldGrid* gameObjects) {
-  int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
-  float posX, posY;
-  vec3 tempScale, tempPos, tempBBox;
-  int testWallCount = 0;
+	int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
+	float posX, posY;
+	vec3 tempScale, tempPos, tempBBox;
+	int testWallCount = 0;
+  bool shortWall = false;
 
-  char ch;
+	char ch;
 	fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
 	int i = 0, j = 0;
 	while (fin >> noskipws >> ch) {
@@ -663,19 +693,26 @@ void initWalls(WorldGrid* gameObjects) {
 	//////////// Create the wall objects
 	for (i = 0; i < TEST_WORLD; i++) {
 		for (j = 0; j < TEST_WORLD; j++) {
-			if (levelDesign[i][j] == 1) {
+			if (levelDesign[i][j] == 1 || levelDesign[i][j] == 2) {
+        if (levelDesign[i][j] == 2) {
+          shortWall = true;
+        }
 				start = vec2(i, j);
 				int i1 = i, j1 = j;
 				// build wall depending on direction it is oriented
-				if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1) { // going right
-					while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1) {
+				if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1 ||
+          i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 2) { // going right
+					while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+          i1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
 						levelDesign[i1][j1] = 0;
 						i1++;
 					}
 					end = vec2(i1 - 1, j1);
 				}
-				else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1) { // going down
-					while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1) {
+				else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1 ||
+          j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 2) { // going down
+					while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+            j1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
 						levelDesign[i1][j1] = 0;
 						j1++;
 					}
@@ -689,19 +726,35 @@ void initWalls(WorldGrid* gameObjects) {
 				vec2 dims(abs(end.x - start.x) + 1, abs(end.y - start.y) + 1);
 
 				// Make the actual Wall object and add it to gameObjects list
+        if (shortWall) {
+          gameObjects->add(shared_ptr<GameObject>(new Wall(
+            &cubeMesh,
+            &mainShader,
+            vec3(center.x, 0, center.y),      //position
+            0,            //rotation
+            vec3(dims.x / 2, 1, dims.y / 2),    //scale
+            vec3(1, 0, 0),  //direction
+            0,
+            vec3(dims.x, 1, dims.y),     //dimensions
+            0,            //scanRadius
+            6             //material
+            )));
+            shortWall = false;     
+        }
+        else {
 				gameObjects->add(shared_ptr<GameObject>(new Wall(
 					&cubeMesh,
 					&mainShader,
 					vec3(center.x, 9, center.y),      //position
 					0,            //rotation
 					vec3(dims.x / 2, 10, dims.y / 2),    //scale
-					vec3(1, 0, 0),	//direction
+            vec3(1, 0, 0),  //direction
 					0,
 					vec3(dims.x, 20, dims.y),     //dimensions
 					0,            //scanRadius
 					4             //material
 					)));
-
+        }
 				testWallCount++;
 				printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
 			}
@@ -726,72 +779,72 @@ int main(int argc, char **argv)
     guardTalk->setVolume(1);
     engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 
-    // Initialise GLFW
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        return -1;
-    }
+  // Initialise GLFW
+  if (!glfwInit()) {
+    fprintf(stderr, "Failed to initialize GLFW\n");
+    return -1;
+  }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+  glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
-    // Open a window and create its OpenGL context
-    g_width = 1080;
-    g_height = 720;
-    window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
-    if (window == NULL) {
-        fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
-        glfwTerminate();
-        return -1;
-    }
+  // Open a window and create its OpenGL context
+  g_width = 1080;
+  g_height = 720;
+  window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
+  if (window == NULL) {
+    fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+    glfwTerminate();
+    return -1;
+  }
 
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, cursor_pos_callback);
-    glfwSetWindowSizeCallback(window, window_size_callback);
-    // Initialize GLAD
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+  glfwMakeContextCurrent(window);
+  glfwSetKeyCallback(window, key_callback);
+  glfwSetCursorPosCallback(window, cursor_pos_callback);
+  glfwSetWindowSizeCallback(window, window_size_callback);
+  // Initialize GLAD
+  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    glfwSetCursorPos(window, g_width / 2, g_height / 2);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetCursorPos(window, g_width / 2, g_height / 2);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  // Ensure we can capture the escape key being pressed below
+  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    initGL();
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  initGL();
   debugDraw.handles.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
   //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
 
-    guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
-    cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+  cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
 
-    srand(time(NULL));
+  srand(time(NULL));
 
-    //initialize game objects
-    //vector<shared_ptr <GameObject> > gameObjects;
-	//First item is always the player, followed by numGuards guards,
-	//	followed by however many walls we need. -JB
-    WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
+  //initialize game objects
+  //vector<shared_ptr <GameObject> > gameObjects;
+  //First item is always the player, followed by numGuards guards,
+  //	followed by however many walls we need. -JB
+  WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
 
-    initPlayer(&gameObjects);
-    initGuards(&gameObjects);
+  initPlayer(&gameObjects);
+  initGuards(&gameObjects);
   initObjects(&gameObjects);
   initWalls(&gameObjects);
-    initGround();
+  initGround();
   initCeiling();
-    
+      
     //initialize the camera
   camera3DPerson = new Camera3DPerson(&mainShader, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
-                                        (float)g_width / (float)g_height,
-                                        CAMERA_NEAR, CAMERA_FAR);
+      (float)g_width / (float)g_height,
+      CAMERA_NEAR, CAMERA_FAR);
   camera3DPerson->debug = &debugDraw;
   // debug camera
   debugCamera = new Camera(&mainShader,
@@ -802,21 +855,21 @@ int main(int argc, char **argv)
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
       CAMERA_FAR);
-    double timeCounter = 0;
+  double timeCounter = 0;
 
-    do{
-        //timer stuff
-        TimeManager::Instance().CalculateFrameRate(true);
-        deltaTime = TimeManager::Instance().DeltaTime;
-        double currentTime = TimeManager::Instance().CurrentTime;
-        timeCounter += deltaTime;
+  do{
+    //timer stuff
+    TimeManager::Instance().CalculateFrameRate(true);
+    deltaTime = TimeManager::Instance().DeltaTime;
+    double currentTime = TimeManager::Instance().CurrentTime;
+    timeCounter += deltaTime;
 
-        beginDrawGL();
-        // make sure these lines are in this order
-        getWindowinput(window, deltaTime);
+    beginDrawGL();
+    // make sure these lines are in this order
+    getWindowinput(window, deltaTime);
     if (!debug) {
-        camera3DPerson->setProjection();
-        camera3DPerson->setView();
+      camera3DPerson->setProjection();
+      camera3DPerson->setView();
     }
     else {
       debugCamera->setProjection();
@@ -847,23 +900,23 @@ int main(int argc, char **argv)
       }
     }
 
-        drawGameObjects(&gameObjects, deltaTime);
-        endDrawGL();
+    drawGameObjects(&gameObjects, deltaTime);
+    endDrawGL();
     if (debug || boxes) {
       debugDraw.drawAll();
       debugDraw.clear();
     }
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+    glfwSwapBuffers(window);
+    glfwPollEvents();
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
-        && glfwWindowShouldClose(window) == 0);
+      && glfwWindowShouldClose(window) == 0);
 
-    glfwTerminate();
+  glfwTerminate();
     backGroundSnd->drop();
     noseSnd->drop();
     footSndPlayr->drop();
     guardTalk->drop();
     engine->drop();
-    return 0;
+  return 0;
 }
