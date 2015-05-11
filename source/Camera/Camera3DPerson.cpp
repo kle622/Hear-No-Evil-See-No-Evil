@@ -43,7 +43,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   std::vector<glm::vec3> nearCorners;
   // get corners of near plane
   // http://gamedev.stackexchange.com/questions/19774/determine-corners-of-a-specific-plane-in-the-frustum
-  float nearHeight = 2 * tan(this->fov / 2) * this->_near;
+  float nearHeight = 2 * tan(this->fov * M_PI / (2 * 180)) * this->_near;
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
   // TODO feel like this near plane calculation is off, look at fixing it
@@ -104,8 +104,8 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
 {
   float minLength = numeric_limits<double>::max();
   for (auto iter = objects.begin(); iter != objects.end(); ++iter) {
-    // only check collisions against walls
-    if (NULL != dynamic_pointer_cast<Wall>(*iter)) {
+    // don't check collisions against guards
+    if (NULL == dynamic_pointer_cast<Guard>(*iter) && NULL == dynamic_pointer_cast<Player>(*iter)) {
       // send bounding box to debug output
 #ifdef DEBUG
       this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f), true);
@@ -175,8 +175,9 @@ bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3
     *dist = tmin;
   }
   else {
-    //*dist = tmax;
-    return false;
+    *dist = tmax;
+    return true;
+    //return true;
   }
   return true;
 }
