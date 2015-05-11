@@ -38,8 +38,8 @@
 //#include "openAL/include/AL/alc.h"
 //#include "openAL/include/includeAllOpenAL.h"
 
-#define WORLD_WIDTH 300
-#define WORLD_HEIGHT 300
+#define WORLD_WIDTH 200
+#define WORLD_HEIGHT 200
 #define TEST_WORLD 200
 
 #define CAMERA_FOV 60
@@ -75,6 +75,7 @@ Mesh playerMesh;
 Mesh cubeMesh;
 Mesh tripleBarrelMesh;
 Mesh boxStackMesh;
+Mesh tableMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -150,7 +151,7 @@ void SetMaterial(int i) {
     glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
     glUniform1f(mainShader.uMatShine, 4.0f);
     break;
-  case 4: //wall color
+  case 4: //big wall color
     glUniform3f(mainShader.uMatAmb, 0.2f, 0.1f, 0.0f);
     glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
     glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
@@ -161,6 +162,12 @@ void SetMaterial(int i) {
     glUniform3f(mainShader.uMatDif, 0.0f, 0.0f, 0.00f);
     glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
     glUniform1f(mainShader.uMatShine, 100.0f);
+    break;
+  case 6: //big wall color
+    glUniform3f(mainShader.uMatAmb, 0.2f, 0.2f, 0.2f);
+    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(mainShader.uMatShine, 10.0f);
     break;
   }
 }
@@ -447,35 +454,57 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 }
 
 void initObjects(WorldGrid* gameObjects) {
-  GameObject* tripleBarrel = new GameObject(
-    &tripleBarrelMesh,
-    &mainShader,
-    vec3(5, 1, 0),
-    0, 
-    vec3(2.5, 2.5, 2.5),
-    vec3(1.0, 0, 0),
-    0,
-    vec3(2.5, 4, 4.5),
-    1,
-    0
-  );
+  int levelDesign[TEST_WORLD][TEST_WORLD];
 
-  gameObjects->add(shared_ptr<GameObject>(tripleBarrel));
+  char ch;
+  fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
+  int i = 0, j = 0;
+  while (fin >> noskipws >> ch) {
+    if (ch == '\n') {
+      j = 0;
+      i++;
+    }
+    else {
+      levelDesign[i][j] = ch - '0';
+      j++;
+    }
+  }
 
-    GameObject* boxStack = new GameObject(
-    &boxStackMesh,
-    &mainShader,
-    vec3(10, 1, 0),
-    0, 
-    vec3(4, 2, 4),
-    vec3(1.0, 0.0, 0.0),
-    0,
-    vec3(3.0, 5, 3.0),
-    1,
-    0
-  );
-
-  gameObjects->add(shared_ptr<GameObject>(boxStack));
+  //////////// Create the wall objects
+  for (i = 0; i < TEST_WORLD; i++) {
+    for (j = 0; j < TEST_WORLD; j++) {
+      switch(levelDesign[i][j]) {
+        case 3:
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+            &tripleBarrelMesh,
+            &mainShader,
+            vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
+            0, 
+            vec3(2.5, 2.5, 2.5),
+            vec3(1.0, 0, 0),
+            0,
+            vec3(2.5, 4, 4.5),
+            1,
+            0
+          )));
+          break;
+        case 4:
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+            &boxStackMesh,
+            &mainShader,
+            vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
+            0, 
+            vec3(4, 2, 4),
+            vec3(1.0, 0.0, 0.0),
+            0,
+            vec3(3.0, 5, 3.0),
+            1,
+            0
+          )));
+          break;
+      }
+    }
+  }
 }
 
 void initPlayer(WorldGrid* gameObjects) {
@@ -564,6 +593,7 @@ void initWalls(WorldGrid* gameObjects) {
 	float posX, posY;
 	vec3 tempScale, tempPos, tempBBox;
 	int testWallCount = 0;
+  bool shortWall = false;
 
 	char ch;
 	fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
@@ -585,26 +615,33 @@ void initWalls(WorldGrid* gameObjects) {
 		for (j = 0; j < TEST_WORLD; j++) {
 			cout << levelDesign[i][j];
     }
-}
+  }
 	cout << '\n';
 
 	vec2 start, end;
 	//////////// Create the wall objects
 	for (i = 0; i < TEST_WORLD; i++) {
 		for (j = 0; j < TEST_WORLD; j++) {
-			if (levelDesign[i][j] == 1) {
+			if (levelDesign[i][j] == 1 || levelDesign[i][j] == 2) {
+        if (levelDesign[i][j] == 2) {
+          shortWall = true;
+        }
 				start = vec2(i, j);
 				int i1 = i, j1 = j;
 				// build wall depending on direction it is oriented
-				if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1) { // going right
-					while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1) {
+				if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1 ||
+          i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 2) { // going right
+					while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+          i1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
 						levelDesign[i1][j1] = 0;
 						i1++;
 					}
 					end = vec2(i1 - 1, j1);
 				}
-				else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1) { // going down
-					while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1) {
+				else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1 ||
+          j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 2) { // going down
+					while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+            j1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
 						levelDesign[i1][j1] = 0;
 						j1++;
 					}
@@ -618,19 +655,35 @@ void initWalls(WorldGrid* gameObjects) {
 				vec2 dims(abs(end.x - start.x) + 1, abs(end.y - start.y) + 1);
 
 				// Make the actual Wall object and add it to gameObjects list
-				gameObjects->add(shared_ptr<GameObject>(new Wall(
-					&cubeMesh,
-					&mainShader,
-					vec3(center.x, 9, center.y),      //position
-					0,            //rotation
-					vec3(dims.x / 2, 10, dims.y / 2),    //scale
-					vec3(1, 0, 0),	//direction
-					0,
-					vec3(dims.x, 20, dims.y),     //dimensions
-					0,            //scanRadius
-					4             //material
-					)));
-
+        if (shortWall) {
+          gameObjects->add(shared_ptr<GameObject>(new Wall(
+            &cubeMesh,
+            &mainShader,
+            vec3(center.x, 0, center.y),      //position
+            0,            //rotation
+            vec3(dims.x / 2, 1, dims.y / 2),    //scale
+            vec3(1, 0, 0),  //direction
+            0,
+            vec3(dims.x, 1, dims.y),     //dimensions
+            0,            //scanRadius
+            6             //material
+            )));
+            shortWall = false;     
+        }
+        else {
+          gameObjects->add(shared_ptr<GameObject>(new Wall(
+            &cubeMesh,
+            &mainShader,
+            vec3(center.x, 9, center.y),      //position
+            0,            //rotation
+            vec3(dims.x / 2, 10, dims.y / 2),    //scale
+            vec3(1, 0, 0),  //direction
+            0,
+            vec3(dims.x, 20, dims.y),     //dimensions
+            0,            //scanRadius
+            4             //material
+            )));
+        }
 				testWallCount++;
 				printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
 			}
