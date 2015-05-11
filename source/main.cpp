@@ -74,6 +74,7 @@ Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
 Shape *ground;
+Shape *ceiling;
 bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
@@ -289,6 +290,8 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
     ground->draw();
+    SetMaterial(ceiling->material);
+    ceiling->draw();
     Guard *guard;
 
     for (int i = 0; i < gameObjects->list.size(); i++) {
@@ -494,7 +497,22 @@ void initGround() {
         6, //indices
         posBufObjG, 
         norBufObjG,
-        5 //material
+        4 //material
+    );
+}
+
+void initCeiling() {
+    ceiling = new Shape(
+      &mainShader, //model handle
+        vec3(0, 5, 0), //position
+        0, //rotation
+    vec3(5, 1, 5), //scale
+        vec3(1, 0, 0), //direction
+        0, //velocity
+        6, //indices
+        posBufObjG, 
+        norBufObjG,
+        4 //material
     );
 }
 
@@ -718,7 +736,7 @@ void initWalls2(WorldGrid* gameObjects) {
 					0,
 					vec3(dims.x, 6, dims.y),     //dimensions
 					0,            //scanRadius
-					1             //material
+					4             //material
 					)));
 
 				testWallCount++;
@@ -791,6 +809,7 @@ int main(int argc, char **argv)
     initGuards(&gameObjects);
     initWalls2(&gameObjects);
     initGround();
+    initCeiling();
     printf("added objects\n");
     
     //initialize the camera
