@@ -33,15 +33,35 @@
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
 
+// Stuff for 3D sound in windows
+#if defined WIN32
+#include <windows.h>
+#include <conio.h>
+inline void sleepSomeTime() { Sleep(100); }
+//#pragma comment(lib, "../dependencies/irrKlang/lib/Win32-visualStudio/irrKlang.lib") // link with irrKlang.dll
+#else
+#include "..dependencies/irrKlang/examples/common/conio.h"
+//#pragma comment(lib, "../dependencies/irrKlang/lib/irrKlang.lib") // link with irrKlang.dll
+#endif
+//#if defined __APPLE__ && __MACH__
+//#include "..dependencies/irrKlang/examples/common/conio.h"
+//#endif
+
+#pragma comment(lib, "../dependencies/irrKlang/lib/irrKlang.lib") // link with irrKlang.dll
+
 #include "../dependencies/irrKlang/include/irrKlang.h"
+using namespace irrklang;
+/// Init irrKlang sound library, start the sound engine with default parameters
+ISoundEngine* engine;
+ISound* noseSnd;
+ISound* guardTalk;
+ISound* backGroundSnd;
+ISound* footSndPlayr;
+
 //#include "GuardPath/PathNode.h"
 
-//#include "openAL/include/AL/al.h"
-//#include "openAL/include/AL/alc.h"
-//#include "openAL/include/includeAllOpenAL.h"
-
-#define WORLD_WIDTH 3000
-#define WORLD_HEIGHT 3000
+#define WORLD_WIDTH 300
+#define WORLD_HEIGHT 300
 #define TEST_WORLD 400
 
 #define CAMERA_FOV 60
@@ -51,13 +71,15 @@
 #define CAMERA_SPEED 10.0f
 
 #define GUARD_SPEED 5.0f
+#define BOTTOM_LEVEL 1.0f
+#define MID_LEVEL 2.0f
+#define TOP_LEVEL 3.0f
 
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
-using namespace irrklang;
 
-#pragma comment(lib, "../dependencies/irrKlang/lib/Win32-visualStudio/irrKlang.lib") // link with irrKlang.dll
+//#pragma comment(lib, "../dependencies/irrKlang/lib/Win32-visualStudio/irrKlang.lib") // link with irrKlang.dll
 
 vector<tinyobj::shape_t> player;
 vector<tinyobj::shape_t> guard;
@@ -89,16 +111,6 @@ GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 
 double deltaTime;
-
-// OpenAL error catching
-//int endWithError(char* msg, int error = 0)
-//{
-//  //Display error message in console
-//  cout << msg << "\n";
-//  system("PAUSE");
-//  return error;
-//}
-
 
 float getRand(double M, double N)
 {
@@ -195,6 +207,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         //camera3DPerson->setView();
       accelerate = true;
       leftD = true;
+      if (footSndPlayr->isFinished()) {
+        footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+      }
+      else if (footSndPlayr->getIsPaused()) {
+        footSndPlayr->setIsPaused(false);
+      }
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
@@ -206,6 +224,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         //camera3DPerson->setView();
       accelerate = true;
       rightD = true;
+      if (footSndPlayr->isFinished()) {
+        footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+      }
+      else if (footSndPlayr->getIsPaused()) {
+        footSndPlayr->setIsPaused(false);
+      }
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -217,6 +241,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         //camera3DPerson->setView();
       accelerate = true;
       upD = true;
+      if (footSndPlayr->isFinished()) {
+        footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+      }
+      else if (footSndPlayr->getIsPaused()) {
+        footSndPlayr->setIsPaused(false);
+      }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -228,6 +258,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
         //camera3DPerson->setView();
       accelerate = true;
       downD = true;
+      if (footSndPlayr->isFinished()) {
+        footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+      }
+      else if (footSndPlayr->getIsPaused()) {
+        footSndPlayr->setIsPaused(false);
+      }
     }
 
     if (accelerate) {
@@ -301,6 +337,22 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         SetMaterial(gameObjects->list[i]->material);
         gameObjects->list[i]->draw();
         gameObjects->list[i]->move(time);
+        if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
+          engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
+            vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
+          for (int j = 0; j < gameObjects->wallList.size(); j++) {
+            if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+              // Example of event based sound, just for fun
+              if (noseSnd->isFinished()) {
+                noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
+              }
+              else if(noseSnd->getIsPaused()) {
+                noseSnd->setIsPaused(false);
+              }
+            }
+          }
+        }
+
         vector<shared_ptr<GameObject>> proximity = 
             gameObjects->getCloseObjects(gameObjects->list[i]);
 
@@ -309,17 +361,28 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         }
 
         for (int j = 0; j < proximity.size(); j++) {
-          printf("Proximity size %d\n", proximity.size());
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
-                
-          //do something generic here if you need to
-          //object.collide mainShader the collision 
-                    }
+                  //do some shit
 
+                  if (guardTalk->isFinished()) {
+                    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+                      vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
+                  }
+                  else if (guardTalk->getIsPaused()) {
+                    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+                      vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
+                    guardTalk->setIsPaused(false);
+                  }
                 }
             }
         }
+    }
+    for (int i = 0; i < gameObjects->wallList.size(); i++) {
+      SetMaterial(gameObjects->wallList[i]->material);
+      gameObjects->wallList[i]->draw();
+    }
+
     gameObjects->update();
 }
 
@@ -436,7 +499,7 @@ void initPlayer(WorldGrid* gameObjects) {
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
-      vec3(2.5, 2.5, 2.5),
+      vec3(1.0, 2.0, 1.0),
       1,
       3
    );
@@ -469,7 +532,7 @@ void initGuards(WorldGrid* gameObjects) {
           &mainShader,
 		vec3(1, 1, 1),
 		GUARD_SPEED,
-		vec3(1.5, 1.5, 1.5),
+		vec3(1.0, 2.0, 1.0),
 		1,
 		1,
 		guardPath
@@ -484,7 +547,7 @@ void initGround() {
       &mainShader, //model handle
         vec3(0), //position
         0, //rotation
-    vec3(1.0, 1.0, 1.0), //scale
+    vec3(5, 1, 5), //scale
         vec3(1, 0, 0), //direction
         0, //velocity
         6, //indices
@@ -645,7 +708,7 @@ void initWalls(WorldGrid* gameObjects) {
     }
 }
 
-void initWalls2(WorldGrid* gameObjects) {
+void initWalls2(WorldGrid* gameObjects, int flag) {
 	int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
 	float posX, posY;
 	vec3 tempScale, tempPos, tempBBox;
@@ -726,18 +789,20 @@ void initWalls2(WorldGrid* gameObjects) {
 
 int main(int argc, char **argv)
 {
-    // start the sound engine with default parameters
-    ISoundEngine* engine = createIrrKlangDevice();
-    //std::cout << "Press any key to play some sound, press 'q' to quit.\n";
-
-    // play a single sound
-    //engine->play2D("../dependencies/irrKlang/media/damnSon.mp3");
-
-   //std::cin >> i; // wait for user to press some key
-    if (!engine)
+    // irrKlang init
+    engine = createIrrKlangDevice();
+    if (!engine) {
       return 0; // error starting up the engine
-
-    ////////////////////////////////////////////////////
+    }
+    // Play something on loop for background music
+    backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
+    backGroundSnd->setVolume(.2);
+    backGroundSnd->setIsPaused(false);
+    noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
+    footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
+    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
+    guardTalk->setVolume(1);
+    engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 
     // Initialise GLFW
     if (!glfwInit()) {
@@ -794,7 +859,7 @@ int main(int argc, char **argv)
 
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
-    initWalls2(&gameObjects);
+    initWalls2(&gameObjects, BOTTOM_LEVEL);
     initGround();
     printf("added objects\n");
     
@@ -813,10 +878,8 @@ int main(int argc, char **argv)
       CAMERA_NEAR,
       CAMERA_FAR);
     double timeCounter = 0;
-    engine->play2D("../dependencies/irrKlang/media/bell.wav", true);
-    do{
-        // play a single sound
 
+    do{
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
@@ -868,6 +931,10 @@ int main(int argc, char **argv)
         && glfwWindowShouldClose(window) == 0);
 
     glfwTerminate();
-
+    backGroundSnd->drop();
+    noseSnd->drop();
+    footSndPlayr->drop();
+    guardTalk->drop();
+    engine->drop();
     return 0;
 }

@@ -10,11 +10,20 @@ WorldGrid::WorldGrid(int width, int height) {
 }
 
 void WorldGrid::add(shared_ptr<GameObject> gameObject) {
-	int x = (floor(gameObject.get()->position.x) + (width / 2)) / CELL_SIZE;
-	int z = (floor(gameObject.get()->position.z) + (height / 2)) / CELL_SIZE;
+	if (dynamic_cast<Wall*>(gameObject.get())) {
+		static int count = 0;
+		int x = (floor(gameObject.get()->position.x) + (width / 2)) / CELL_SIZE;
+		int z = (floor(gameObject.get()->position.z) + (height / 2)) / CELL_SIZE;
 
-	list.push_back(gameObject);
-	grid[x][z].push_back(gameObject);
+		wallList.push_back(gameObject);
+	}
+	else {
+		int x = (floor(gameObject.get()->position.x) + (width / 2)) / CELL_SIZE;
+		int z = (floor(gameObject.get()->position.z) + (height / 2)) / CELL_SIZE;
+
+		list.push_back(gameObject);
+		grid[x][z].push_back(gameObject);		
+	}
 }
 
 void WorldGrid::remove(int i, int j, int k) {
