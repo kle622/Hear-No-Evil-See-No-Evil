@@ -397,8 +397,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
         if (detectCounter >= MAX_DETECT) {
           // TODO lose
+#ifndef DEBUG
           cout << "You lose! Not sneaky enough!" << endl;
           exit(0);
+#endif
         }
       }
     }
