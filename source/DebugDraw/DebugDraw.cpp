@@ -245,7 +245,7 @@ glm::vec3 DebugDraw::intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::ve
   //float det = glm::determinant(matrix);
   float det = glm::dot(n1, glm::cross(n2, n3));
   //printf("%f\n", det);
-  assert(det > EPS || det < EPS);
+  assert(det > EPS || det < -1.0f*EPS);
 
   // MATH
   glm::vec3 result = (glm::dot(p1, n1) * glm::cross(n2, n3) + glm::dot(p2, n2) * glm::cross(n3, n1) + glm::dot(p3, n3) * glm::cross(n1, n2)) / det;

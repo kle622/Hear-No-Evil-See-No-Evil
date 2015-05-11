@@ -553,7 +553,7 @@ void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &mainShader,
-      vec3(0, 0, 0),
+      vec3(1, 1, 1),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
