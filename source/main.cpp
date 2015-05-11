@@ -62,7 +62,7 @@ ISound* footSndPlayr;
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
-#define TEST_WORLD 400
+#define TEST_WORLD 200
 
 #define CAMERA_FOV 60
 #define CAMERA_NEAR 0.1f
@@ -553,7 +553,7 @@ void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &mainShader,
-      vec3(1, 1, 1),
+      vec3(0, 0, 0),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
