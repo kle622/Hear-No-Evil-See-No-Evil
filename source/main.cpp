@@ -73,6 +73,8 @@ ISound* footSndPlayr;
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
+#define MAX_DETECT 600
+
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
@@ -87,6 +89,7 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
+unsigned int detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
@@ -290,7 +293,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       else {
         playerObject->changeDirection(direction);
         playerObject->accelerate();
-        printf("velocity: %f\n", playerObject->velocity);
+        //printf("velocity: %f\n", playerObject->velocity);
       }
     }
     else {
@@ -390,7 +393,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-      guard->detect(playerObject);
+      if (guard->detect(playerObject)) {
+        cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
+        if (detectCounter >= MAX_DETECT) {
+          // TODO lose
+          cout << "You lose! Not sneaky enough!" << endl;
+          exit(0);
+        }
+      }
     }
 
         for (int j = 0; j < proximity.size(); j++) {
@@ -411,10 +421,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             }
         }
     }
-    for (int i = 0; i < gameObjects->wallList.size(); i++) {
+    /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
       SetMaterial(gameObjects->wallList[i]->material);
       gameObjects->wallList[i]->draw();
-  }
+  }*/
 
   gameObjects->update();
 }
