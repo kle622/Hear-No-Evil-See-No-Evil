@@ -70,26 +70,26 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   glm::vec4 right = glm::vec4(VP[0][3] - VP[0][0], VP[1][3] - VP[1][0], VP[2][3] - VP [2][0], VP[3][3] - VP[3][0]);
   glm::vec4 bottom = glm::vec4(VP[0][3] + VP[0][1], VP[1][3] + VP[1][1], VP[2][3] + VP [2][1], VP[3][3] + VP[3][1]);
   glm::vec4 top = glm::vec4(VP[0][3] - VP[0][1], VP[1][3] - VP[1][1], VP[2][3] - VP [2][1], VP[3][3] - VP[3][1]);
-  glm::vec4 nearDiff = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
-  glm::vec4 farDiff = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
+  glm::vec4 nearPlane = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
+  glm::vec4 farPlane = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
 
 #ifdef DEBUG
-  this->debug->addBox(left, right, bottom, top, nearDiff, farDiff, glm::vec3(0.99f, 0.85f, 0.55f), false);
+  this->debug->addBox(left, right, bottom, top, nearPlane, farPlane, glm::vec3(0.99f, 0.85f, 0.55f), false);
 
   /*std::cout << "left: <" << left.x << ", " << left.y << ", " << left.z << ", " << left.w << ">" << std::endl;
   std::cout << "right: <" << right.x << ", " << right.y << ", " << right.z << ", " << right.w << ">" << std::endl;
   std::cout << "bottom: <" << bottom.x << ", " << bottom.y << ", " << bottom.z << ", " << bottom.w << ">" << std::endl;
   std::cout << "top: <" << top.x << ", " << top.y << ", " << top.z << ", " << top.w << ">" << std::endl;
-  std::cout << "nearDiff: <" << nearDiff.x << ", " << nearDiff.y << ", " << nearDiff.z << ", " << nearDiff.w << ">" << std::endl;
-  std::cout << "farDiff: <" << farDiff.x << ", " << farDiff.y << ", " << farDiff.z << ", " << farDiff.w << ">" << std::endl;*/
+  std::cout << "near: <" << nearPlane.x << ", " << nearPlane.y << ", " << nearPlane.z << ", " << nearPlane.w << ">" << std::endl;
+  std::cout << "far: <" << farPlane.x << ", " << farPlane.y << ", " << farPlane.z << ", " << farPlane.w << ">" << std::endl;*/
 #endif
 
   planes.push_back(left); // left
   planes.push_back(right); // right
   planes.push_back(bottom); // bottom
   planes.push_back(top); // top
-  planes.push_back(nearDiff); // nearDiff
-  planes.push_back(farDiff); // farDiff
+  planes.push_back(nearPlane); // near
+  planes.push_back(farPlane); // far
 
   std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
   std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;

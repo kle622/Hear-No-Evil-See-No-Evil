@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
+#include "../GameObject/Guard.h"
 #include "../Library/GLError.h"
 #include <cmath>
 
