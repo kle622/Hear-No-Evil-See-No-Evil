@@ -141,8 +141,11 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
  *
  * inside is defined as positive, outside is defined as negative
  * plane is not assumed to be normalized
+ * 
+ * uses opposite corners of box, which is a limited approximation
+ * the book is wrong and dumb
  */
-bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
+/*bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
 {
   float nlength = glm::length(glm::vec3(plane.x, plane.y, plane.z));
   glm::vec3 c = obb.center;
@@ -163,6 +166,48 @@ bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
   else {
     return true;
   }
+}*/
+
+/*
+ * 
+ */
+bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
+{
+  bool result = false;
+  std::vector<glm::vec3> corners;
+  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
+                               + obb.axes[1] * obb.halfLengths[1]  // y
+                               + obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
+                               + obb.axes[1] * obb.halfLengths[1]  // y
+                               - obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
+                               - obb.axes[1] * obb.halfLengths[1]  // y
+                               + obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
+                               - obb.axes[1] * obb.halfLengths[1]  // y
+                               - obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
+                               + obb.axes[1] * obb.halfLengths[1]  // y
+                               + obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
+                               + obb.axes[1] * obb.halfLengths[1]  // y
+                               - obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
+                               - obb.axes[1] * obb.halfLengths[1]  // y
+                               + obb.axes[2] * obb.halfLengths[2]); // z
+  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
+                               - obb.axes[1] * obb.halfLengths[1]  // y
+                               - obb.axes[2] * obb.halfLengths[2]); // z
+
+  for (auto cornerItr = corners.begin(); cornerItr != corners.end(); ++cornerItr) {
+    glm::vec3 corner = *cornerItr;
+    if (corner.x * plane.x + corner.y * plane.y + corner.z * plane.z + plane.w >= 0) {
+      result = true;
+    }
+  }
+
+  return result;
 }
 
 double clamp(double x, double min, double max) {
