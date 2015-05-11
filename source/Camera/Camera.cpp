@@ -1,4 +1,5 @@
 #include "Camera.h"
+#define _USE_MATH_DEFINES
 
 #define DEBUG
 #define EPSILON 6.0f
