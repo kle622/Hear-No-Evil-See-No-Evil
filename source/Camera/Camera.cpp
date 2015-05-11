@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#define DEBUG
+
 Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
     float fov, float aspect, float _near, float _far)
 {
@@ -102,11 +104,15 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
 
   for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
     OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
+#ifdef DEBUG
+    //this->debug->addOBB(*obb, glm::vec3(0.0f, 0.0f, 1.0f), true);
+#endif
     bool pass = true;
     for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
-      if (!obbOutsidePlane(*obb, *planeIter)) {
+      pass = obbOutsidePlane(*obb, *planeIter);
+      /*if (!obbOutsidePlane(*obb, *planeIter)) {
         pass = false;
-      }
+      }*/
     }
     if (pass) {
       inVF.push_back(*objIter);
