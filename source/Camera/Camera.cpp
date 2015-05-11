@@ -152,6 +152,8 @@ bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
             obb.halfLengths[1] * glm::dot(n, obb.axes[1]) +
             obb.halfLengths[2] * glm::dot(n, obb.axes[2]);
   float s = glm::dot(c, n) + d;
+  //this->debug->addLine(c, c + n * e, glm::vec3(0.0f, 0.0f, 0.0f), true);
+  //this->debug->addLine(c, c + n * s, glm::vec3(1.0f, 1.0f, 1.0f), false);
   if (s - e > 0) {
     return true;
   }
