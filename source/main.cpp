@@ -545,33 +545,50 @@ void initObjects(WorldGrid* gameObjects) {
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
       switch(levelDesign[i][j]) {
-        case 3:
+        case 3: //barrels
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
-    &tripleBarrelMesh,
-    &mainShader,
-            vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
-    0, 
-    vec3(2.5, 2.5, 2.5),
-    vec3(1.0, 0, 0),
-    0,
-    vec3(2.5, 4, 4.5),
-    1,
-    0
+          &tripleBarrelMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+          getRand(0, 360), 
+          vec3(2.5, 2.5, 2.5),
+          vec3(1.0, 0, 0),
+          0,
+          vec3(2.5, 4, 4.5),
+          1,
+          0
           )));
           break;
-        case 4:
+        case 4: //stack of boxes
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
-    &boxStackMesh,
-    &mainShader,
-            vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
-    0, 
-    vec3(4, 2, 4),
-    vec3(1.0, 0.0, 0.0),
-    0,
-    vec3(3.0, 5, 3.0),
-    1,
-    0
+          &boxStackMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+          0, 
+          vec3(4, 2, 4),
+          vec3(1.0, 0.0, 0.0),
+          0,
+          vec3(3.0, 5, 3.0),
+          1,
+          0
           )));
+          break;
+        case 5:
+          printf("DONT GET HERE PLS\n");
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          &tableMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
+          0, 
+          vec3(1, 1, 1),
+          vec3(1.0, 0.0, 0.0),
+          0,
+          vec3(2, 1, 1.25),
+          1,
+          0
+          )));
+          break;
+        default:
           break;
       }
     }
@@ -825,6 +842,7 @@ int main(int argc, char **argv)
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
+  tableMesh.loadShapes(resPath(sysPath("models", "table.obj")));
 
   srand(time(NULL));
 
