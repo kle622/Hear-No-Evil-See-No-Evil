@@ -240,7 +240,7 @@ glm::vec3 DebugDraw::intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::ve
   glm::vec3 n2 = glm::vec3(plane2);
   glm::vec3 n3 = glm::vec3(plane3);*/
 
-  glm::mat3 matrix = glm::mat3(n1, n2, n3);
+  //glm::mat3 matrix = glm::mat3(n1, n2, n3);
   // get determinant, assert nonzero
   //float det = glm::determinant(matrix);
   float det = glm::dot(n1, glm::cross(n2, n3));

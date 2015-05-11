@@ -66,27 +66,29 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   // the plane normals are not normalized, and point to the inside of the view frustum
   // plane equations obtained from http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
   // a plane is represented by a vec4 as <a, b, c, d>
-  glm::vec4 left = glm::vec4(VP[3][0] + VP[0][0], VP[3][1] + VP[0][1], VP[3][2] + VP [0][2], VP[3][3] + VP[0][3]);
+  /*glm::vec4 left = glm::vec4(VP[3][0] + VP[0][0], VP[3][1] + VP[0][1], VP[3][2] + VP [0][2], VP[3][3] + VP[0][3]);
   glm::vec4 right = glm::vec4(VP[3][0] - VP[0][0], VP[3][1] - VP[0][1], VP[3][2] - VP [0][2], VP[3][3] - VP[0][3]);
   glm::vec4 bottom = glm::vec4(VP[3][0] + VP[1][0], VP[3][1] + VP[1][1], VP[3][2] + VP [1][2], VP[3][3] + VP[1][3]);
   glm::vec4 top = glm::vec4(VP[3][0] - VP[1][0], VP[3][1] - VP[1][1], VP[3][2] - VP [1][2], VP[3][3] - VP[1][3]);
   glm::vec4 near = glm::vec4(VP[3][0] + VP[2][0], VP[3][1] + VP[2][1], VP[3][2] + VP [2][2], VP[3][3] + VP[2][3]);
-  glm::vec4 far = glm::vec4(VP[3][0] - VP[2][0], VP[3][1] - VP[2][1], VP[3][2] - VP [2][2], VP[3][3] - VP[2][3]);
+  glm::vec4 far = glm::vec4(VP[3][0] - VP[2][0], VP[3][1] - VP[2][1], VP[3][2] - VP [2][2], VP[3][3] - VP[2][3]);*/
   
-  /*glm::vec4 left = glm::vec4(VP[0][3] + VP[0][0], VP[1][3] + VP[1][0], VP[2][3] + VP [2][0], VP[3][3] + VP[3][0]);
+  // seems to be correct view frustum
+  glm::vec4 left = glm::vec4(VP[0][3] + VP[0][0], VP[1][3] + VP[1][0], VP[2][3] + VP [2][0], VP[3][3] + VP[3][0]);
   glm::vec4 right = glm::vec4(VP[0][3] - VP[0][0], VP[1][3] - VP[1][0], VP[2][3] - VP [2][0], VP[3][3] - VP[3][0]);
   glm::vec4 bottom = glm::vec4(VP[0][3] + VP[0][1], VP[1][3] + VP[1][1], VP[2][3] + VP [2][1], VP[3][3] + VP[3][1]);
   glm::vec4 top = glm::vec4(VP[0][3] - VP[0][1], VP[1][3] - VP[1][1], VP[2][3] - VP [2][1], VP[3][3] - VP[3][1]);
   glm::vec4 near = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
-  glm::vec4 far = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);*/
+  glm::vec4 far = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
 
-  this->debug->addBox(left, right, bottom, top, near, far, glm::vec3(0.99f, 0.85f, 0.55f), true);
-  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(left), glm::vec3(0.99f, 0.85f, 0.55f), false);
-  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(right), glm::vec3(0.99f, 0.85f, 0.55f), false);
-  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(bottom), glm::vec3(0.99f, 0.85f, 0.55f), false);
-  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(top), glm::vec3(0.99f, 0.85f, 0.55f), false);
-  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(near), glm::vec3(0.99f, 0.85f, 0.55f), false);
-  //this->debug->addRing(glm::vec3(2.0f, 2.0f, 2.0f), 5, glm::vec3(far), glm::vec3(0.99f, 0.85f, 0.55f), false);
+  this->debug->addBox(left, right, bottom, top, near, far, glm::vec3(0.99f, 0.85f, 0.55f), false);
+  /*std::cout << "left: <" << left.x << ", " << left.y << ", " << left.z << ", " << left.w << ">" << std::endl;
+  std::cout << "right: <" << right.x << ", " << right.y << ", " << right.z << ", " << right.w << ">" << std::endl;
+  std::cout << "bottom: <" << bottom.x << ", " << bottom.y << ", " << bottom.z << ", " << bottom.w << ">" << std::endl;
+  std::cout << "top: <" << top.x << ", " << top.y << ", " << top.z << ", " << top.w << ">" << std::endl;
+  std::cout << "near: <" << near.x << ", " << near.y << ", " << near.z << ", " << near.w << ">" << std::endl;
+  std::cout << "far: <" << far.x << ", " << far.y << ", " << far.z << ", " << far.w << ">" << std::endl;*/
+
   planes.push_back(left); // left
   planes.push_back(right); // right
   planes.push_back(bottom); // bottom
@@ -129,7 +131,7 @@ bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
   float nlength = glm::length(glm::vec3(plane.x, plane.y, plane.z));
   glm::vec3 c = obb.center;
   glm::vec3 n = glm::normalize(glm::vec3(plane.x, plane.y, plane.z));
-  float d = plane.z / nlength;
+  float d = plane.w / nlength;
   float e = obb.halfLengths[0] * glm::dot(n, obb.axes[0]) +
             obb.halfLengths[1] * glm::dot(n, obb.axes[1]) +
             obb.halfLengths[2] * glm::dot(n, obb.axes[2]);

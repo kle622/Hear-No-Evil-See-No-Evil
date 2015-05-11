@@ -293,11 +293,18 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   SetMaterial(ceiling->material);
   ceiling->draw();
   Guard *guard;
+  // draw
+  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  for (int i = 0; i < drawList.size(); i++) {
+    SetMaterial(drawList[i]->material);
+    drawList[i]->draw();
+  }
 
+  // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
     //printf("Drawing game object...\n");
-    SetMaterial(gameObjects->list[i]->material);
-    gameObjects->list[i]->draw();
+    //SetMaterial(gameObjects->list[i]->material);
+    //gameObjects->list[i]->draw();
     gameObjects->list[i]->move(time);
     if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
       for (int j = 0; j < gameObjects->wallList.size(); j++) {
