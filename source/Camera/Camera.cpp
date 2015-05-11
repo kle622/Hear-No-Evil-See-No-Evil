@@ -1,6 +1,7 @@
 #include "Camera.h"
 
 #define DEBUG
+#define EPSILON 3.0f
 
 Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
     float fov, float aspect, float _near, float _far)
@@ -153,7 +154,7 @@ bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
   if (s - e > 0) {
     return true;
   }
-  else if (s + e < 0) {
+  else if (s + e < -1.0f * EPSILON) {
     return false;
   }
   else {

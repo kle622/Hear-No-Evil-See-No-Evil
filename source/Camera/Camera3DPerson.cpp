@@ -46,6 +46,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   float nearHeight = 2 * tan(this->fov / 2) * this->_near;
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
+  // TODO feel like this near plane calculation is off, look at fixing it
   glm::vec3 nearCenter = this->lookat;
   glm::vec3 upRight = nearCenter + (this->getUp() * nearHeight / 2.0f) + (this->getStrafe() * nearWidth / 2.0f);
   glm::vec3 upLeft = nearCenter + (this->getUp() * nearHeight / 2.0f) - (this->getStrafe() * nearWidth / 2.0f);
