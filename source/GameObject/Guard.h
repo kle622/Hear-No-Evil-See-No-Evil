@@ -26,10 +26,11 @@ public:
 	int currentNode;
 	int sweepDirection; // 1 = clockwise, -1 = ccw
 	float waitTime;
+	int originalMaterial;
 
 	//Constructor
 	Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
-		int material, int scanRadius, vector<PathNode> motionPath);
+		int scanRadius, int material, vector<PathNode> motionPath);
 
 	//Object methods
 	void move(float time);

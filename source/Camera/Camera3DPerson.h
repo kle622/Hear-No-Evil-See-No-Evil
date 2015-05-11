@@ -5,14 +5,9 @@
 #include <limits>
 #include <cassert>
 #include "Camera.h"
-#include "../GameObject/GameObject.h"
-#include "../GameObject/Handles.h"
 #include "../GameObject/Player.h"
 #include "../GameObject/Wall.h"
-#include "../WorldGrid/WorldGrid.h"
-#include "../Library/OBB.h"
 #include "../Library/GLError.h"
-#include "../DebugDraw/DebugDraw.h"
 #include <cmath>
 
 #define UPPER_BOUND_DEFAULT 85.0f
@@ -35,13 +30,15 @@ class Camera3DPerson: public Camera
     float upperBound;
     GameObject *focus;
     WorldGrid *world;
-    DebugDraw *debug;
     Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
     void moveVert(float step);
     void moveHoriz(float step);
-    //Object Methods
+
+    // gets view/proj matrices
     virtual glm::mat4 getView();
     virtual glm::mat4 getProjection();
+
+    // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
     virtual void setView();
     virtual void setProjection();
 };

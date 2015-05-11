@@ -50,7 +50,7 @@ class GameObject {
   GameObject(Mesh *mesh, Handles *handles, 
 	     vec3 position, float rotation, vec3 scale, 
 	     vec3 direction, float velocity, vec3 dimensions, 
-       int material, int scanRadius);
+       int scanRadius, int material);
   
   //Object Methods
   virtual void draw();

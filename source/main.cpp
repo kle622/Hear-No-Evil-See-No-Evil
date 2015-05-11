@@ -100,7 +100,10 @@ Handles mainShader;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
+Mesh tripleBarrelMesh;
+Mesh boxStackMesh;
 Shape *ground;
+Shape *ceiling;
 bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
@@ -140,36 +143,42 @@ int printOglError(const char *file, int line) {
 
 void SetMaterial(int i) {
     switch (i) {
-    case 0: // red (chairs)
+  case 0: // guards
     glUniform3f(mainShader.uMatAmb, 0.05f, 0.025f, 0.025f);
     glUniform3f(mainShader.uMatDif, 0.9f, 0.1f, 0.05f);
     glUniform3f(mainShader.uMatSpec, 0.8f, 0.2f, 0.2f);
     glUniform1f(mainShader.uMatShine, 100.0f);
         break;
-    case 1: // grey (people + arms)
+  case 1: // floor
     glUniform3f(mainShader.uMatAmb, 0.13f, 0.13f, 0.14f);
     glUniform3f(mainShader.uMatDif, 0.3f, 0.3f, 0.4f);
     glUniform3f(mainShader.uMatSpec, 0.3f, 0.3f, 0.4f);
     glUniform1f(mainShader.uMatShine, 150.0f);
         break;
-    case 2: // white (bunnies)
-    glUniform3f(mainShader.uMatAmb, 0.09f, 0.2f, 0.08f);
+  case 2: // player
+    glUniform3f(mainShader.uMatAmb, 0.3f, 0.3f, 0.3f);
     glUniform3f(mainShader.uMatDif, 0.9f, 0.9f, 0.9f);
-    glUniform3f(mainShader.uMatSpec, 1.0f, 0.95f, 0.85f);
-    glUniform1f(mainShader.uMatShine, 400.0f);
+    glUniform3f(mainShader.uMatSpec, 0.0f, 0.0f, 0.0f);
+    glUniform1f(mainShader.uMatShine, 150.0f);
         break;
-    case 3: // green (ground)
+  case 3: // guard detect
     glUniform3f(mainShader.uMatAmb, 0.06f, 0.09f, 0.06f);
     glUniform3f(mainShader.uMatDif, 0.2f, 0.80f, 0.1f);
     glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
     glUniform1f(mainShader.uMatShine, 4.0f);
         break;
-    case 4: // black (hats)
-    glUniform3f(mainShader.uMatAmb, 0.08f, 0.08f, 0.08f);
-    glUniform3f(mainShader.uMatDif, 0.08f, 0.08f, 0.08f);
-    glUniform3f(mainShader.uMatSpec, 0.08f, 0.08f, 0.08f);
+  case 4: //wall color
+    glUniform3f(mainShader.uMatAmb, 0.2f, 0.1f, 0.0f);
+    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(mainShader.uMatShine, 10.0f);
         break;
+  case 5: // ceiling
+    glUniform3f(mainShader.uMatAmb, 0.1f, 0.1f, 0.1f);
+    glUniform3f(mainShader.uMatDif, 0.0f, 0.0f, 0.00f);
+    glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
+    glUniform1f(mainShader.uMatShine, 100.0f);
+    break;
     }
 }
 
@@ -260,7 +269,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       downD = true;
       if (footSndPlayr->isFinished()) {
         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-      }
+    }
       else if (footSndPlayr->getIsPaused()) {
         footSndPlayr->setIsPaused(false);
       }
@@ -330,13 +339,32 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     SetMaterial(ground->material);
     ground->draw();
+  SetMaterial(ceiling->material);
+  ceiling->draw();
     Guard *guard;
+  // draw
+  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  for (int i = 0; i < drawList.size(); i++) {
+    SetMaterial(drawList[i]->material);
+    drawList[i]->draw();
+  }
 
+  // collide
     for (int i = 0; i < gameObjects->list.size(); i++) {
-	//printf("Drawing game object...\n");
-        SetMaterial(gameObjects->list[i]->material);
-        gameObjects->list[i]->draw();
         gameObjects->list[i]->move(time);
+    vector<shared_ptr<GameObject>> proximity = 
+      gameObjects->getCloseObjects(gameObjects->list[i]);
+
+    //all objects
+    for (int j = 0; j < proximity.size(); j++) {
+      if (gameObjects->list[i].get() != proximity[j].get()) {
+        if (gameObjects->list[i]->collide(proximity[j].get())) {
+          //do some stuff
+        } 
+      }
+    }
+
+    //players
         if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
           engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
             vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
@@ -345,17 +373,15 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
               // Example of event based sound, just for fun
               if (noseSnd->isFinished()) {
                 noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
-              }
+            }
               else if(noseSnd->getIsPaused()) {
                 noseSnd->setIsPaused(false);
-              }
-            }
+          }
+        }
           }
         }
 
-        vector<shared_ptr<GameObject>> proximity = 
-            gameObjects->getCloseObjects(gameObjects->list[i]);
-
+    //guards
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             guard->detect(playerObject);
         }
@@ -481,7 +507,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
     // note that ypos is measured from the top of the screen, so
     // an increase in ypos means moving the mouse down the y axis
     if ((phi < max_vert_angle && dy > 0) || (phi > -1.0 * max_vert_angle && dy < 0)) {
-      phi += dy * cursor_speed;
+      phi -= dy * cursor_speed;
     }
     debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
     debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
@@ -491,17 +517,49 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   glfwSetCursorPos(window, x_center, y_center);
 }
 
+void initObjects(WorldGrid* gameObjects) {
+  GameObject* tripleBarrel = new GameObject(
+    &tripleBarrelMesh,
+    &mainShader,
+    vec3(5, 1, 0),
+    0, 
+    vec3(2.5, 2.5, 2.5),
+    vec3(1.0, 0, 0),
+    0,
+    vec3(2.5, 4, 4.5),
+    1,
+    0
+  );
+
+  gameObjects->add(shared_ptr<GameObject>(tripleBarrel));
+
+    GameObject* boxStack = new GameObject(
+    &boxStackMesh,
+    &mainShader,
+    vec3(10, 1, 0),
+    0, 
+    vec3(4, 2, 4),
+    vec3(1.0, 0.0, 0.0),
+    0,
+    vec3(3.0, 5, 3.0),
+    1,
+    0
+  );
+
+  gameObjects->add(shared_ptr<GameObject>(boxStack));
+}
+
 void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &mainShader,
-      vec3(10, 0, 20),
+      vec3(0, 0, 0),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
       vec3(1.0, 2.0, 1.0),
       1,
-      3
+      2
    );
 
    gameObjects->add(shared_ptr<GameObject>(playerObject));
@@ -534,7 +592,7 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(1.0, 2.0, 1.0),
 		1,
-		1,
+          0,
 		guardPath
 	);
 	gameObjects->add(shared_ptr<GameObject>(guardObject));
@@ -553,169 +611,33 @@ void initGround() {
         6, //indices
         posBufObjG, 
         norBufObjG,
+      1 //material
+      );
+}
+
+void initCeiling() {
+  ceiling = new Shape(
+      &mainShader, //model handle
+      vec3(0, 20, 0), //position
+      0, //rotation
+      vec3(5, 1, 5), //scale
+      vec3(1, 0, 0), //direction
+      0, //velocity
+      6, //indices
+      posBufObjG, 
+      norBufObjG,
         5 //material
     );
 }
 
-/*
-  This assumes a grid built to [i][j], where i represents rows
-  and j represents columns. 
-*/
 void initWalls(WorldGrid* gameObjects) {
   int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
   float posX, posY;
   vec3 tempScale, tempPos, tempBBox;
   int testWallCount = 0;
-  bool buildRight, buildDown;
 
   char ch;
-  fstream fin(resPath("LevelDesignTest.txt"), fstream::in);
-  int i = 0, j = 0;
-  while (fin >> noskipws >> ch) {
-    if (ch == '\n') {
-      j = 0;
-      i++;
-    }
-    else {
-      levelDesign[i][j] = ch - '0';
-      j++;
-    }
-  }
-
-  ///////// Test print entire matrix
-  //for (i = 0; i < TEST_WORLD; i++) {
-  //  cout << '\n';
-  //  for (j = 0; j < TEST_WORLD; j++) {
-  //    cout << levelDesign[i][j];
-  //  }
-  //}
-  //cout << '\n';
-  //////////
-
-  //////////// Create the wall objects
-  for (i = 0; i < TEST_WORLD; i++) {
-    for (j = 0; j < TEST_WORLD; j++) {
-        if (levelDesign[i][j]) {
-
-          gameObjects->add(shared_ptr<GameObject>(new Wall(
-        &cubeMesh,
-                &mainShader,
-          tempPos,      //position
-          0,            //rotation
-          vec3(1.0, 1.0, 1.0),    //scale
-          vec3(1, 0, 0),
-          0,
-          vec3(2.0, 8.0, 2.0),     //bounding box
-          0,            //scanRadius
-          1             //material
-            )));
-
-        // Flags to build walls in a direction, chooses greedily
-        //buildDown = false;
-        //buildRight = false;
-        //// Tracks acutal size of wall object iterated over by the tempI & tempJ
-        //realI = realJ = 0;
-        //// Temporary iterators over the matrix
-        //tempI = i;
-        //tempJ = j;
-        ////printf("HERE j encountered is %d\n", tempJ);
-        //if (levelDesign[tempI][tempJ + 1] == 1 && levelDesign[tempI][tempJ + 2] == 1) {
-        //  //printf("Setting right flag\n");
-        //  //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI, tempJ + 1, tempI, tempJ + 2);
-        //  //printf("Values are %d and %d\n", levelDesign[tempI][tempJ + 1], levelDesign[tempI][tempJ + 2] == 1);
-        //  buildRight = true;
-        //}
-        //else if (levelDesign[tempI + 1][tempJ] == 1 && levelDesign[tempI + 2][tempJ] == 1) {
-        //  //printf("Setting down flag\n");
-        //  //printf("Testing [%d][%d] and then checking [%d][%d]\n", tempI + 1, tempJ, tempI + 2, tempJ);
-        //  //printf("Values are %d and %d\n", levelDesign[tempI + 1][tempJ], levelDesign[tempI + 2][tempJ] == 1);
-        //  buildDown = true;
-        //}
-        //// Keep building object size in a direction if possible
-        //do {
-        //  if (buildRight) {
-        //    //printf("Building RIGHT with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
-        //    //if (tempJ != j)
-        //    levelDesign[tempI][tempJ] = 0;
-        //    tempJ++;
-        //    realJ++;
-        //  }
-        //  else if (buildDown) {
-        //    //printf("Building DOWN with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
-        //    //if (tempI != i)
-        //    levelDesign[tempI][tempJ] = 0;
-        //    tempI++;
-        //    realI++;
-        //  }
-        //} while (levelDesign[tempI][tempJ] == 1);
-        ////tempI--;
-        ////tempJ--;
-        //// Pack the temporary variables with a position and scale to create a Wall
-        //if (buildRight && (tempJ - realJ) < 2) {
-        //  //tempPos = vec3((float)tempJ/2 - ((float)TEST_WORLD/2), 1, ((float)tempI) - ((float)TEST_WORLD / 2));
-        //  tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
-        //  tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
-        //  tempBBox = vec3((float)realJ, 8.0, 1.0);
-        //}
-        //else if (buildRight && (tempJ - realJ) > 2) {
-        //  tempPos = vec3(((float)TEST_WORLD / 2) - (float)(realJ) / 2, 1, ((float)tempI) - (float)TEST_WORLD / 2);
-        //  tempScale = vec3(((float)realJ) / 2.0, 3.0, 1.0);
-        //  tempBBox = vec3((float)realJ, 8.0, 1.0);
-        //}
-        //else if (buildDown && (tempI - realI) < 2) {
-        //  //tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)tempI)/2 - ((float)TEST_WORLD / 2));
-        //  tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD / 2) - ((float)realI) / 2);
-        //  tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
-        //  tempBBox = vec3(1.0, 8.0, (float)realI);
-        //}
-        //else if (buildDown && (tempI - realI) > 2) {
-        //  tempPos = vec3((float)tempJ - ((float)TEST_WORLD / 2), 1, ((float)TEST_WORLD / 2) - ((float)realI) / 2);
-        //  tempScale = vec3(1.0, 3.0, ((float)realI) / 2.0);
-        //  tempBBox = vec3(1.0, 8.0, (float)realI);
-        //}
-
-        // Make the actual Wall object and add it to gameObjects list
-        //gameObjects->add(shared_ptr<GameObject>(new Wall(
-        //  &cubeMesh,
-        //  &handles,
-        //  tempPos,      //position
-        //  0,            //rotation
-        //  tempScale,    //scale
-        //  vec3(1, 0, 0),
-        //  0,
-        //  tempBBox,     //bounding box
-        //  0,            //scanRadius
-        //  1             //material
-        //  )));
-
-        /*for (int k = 0; k < TEST_WORLD; k++) {
-          cout << '\n';
-          for (int m = 0; m < TEST_WORLD; m++) {
-            cout << levelDesign[k][m];
-          }
-        }
-        cout << '\n';*/
-        ////////// Testing only
-        testWallCount++;
-        //printf("Building with current val: %d, at [ %d ][ %d ]\n", levelDesign[tempI][tempJ], tempI, tempJ);
-        //printf("RIGHT: %d , DOWN: %d\n", buildRight, buildDown);
-        //printf("temps not offset: tempI: %d, tempJ: %d", tempI, tempJ);
-        //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
-        //printf("With scale as (%f, %f, %f)\n", tempScale.x, tempScale.y, tempScale.z);
-        //////////
-        }
-      }
-    }
-}
-
-void initWalls2(WorldGrid* gameObjects, int flag) {
-	int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
-	float posX, posY;
-	vec3 tempScale, tempPos, tempBBox;
-	int testWallCount = 0;
-
-	char ch;
-	fstream fin(resPath("LevelDesignTest.txt"), fstream::in);
+	fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
 	int i = 0, j = 0;
 	while (fin >> noskipws >> ch) {
 		if (ch == '\n') {
@@ -770,14 +692,14 @@ void initWalls2(WorldGrid* gameObjects, int flag) {
 				gameObjects->add(shared_ptr<GameObject>(new Wall(
 					&cubeMesh,
 					&mainShader,
-					vec3(center.x, 1, center.y),      //position
+					vec3(center.x, 9, center.y),      //position
 					0,            //rotation
-					vec3(dims.x / 2, 3, dims.y / 2),    //scale
+					vec3(dims.x / 2, 10, dims.y / 2),    //scale
 					vec3(1, 0, 0),	//direction
 					0,
-					vec3(dims.x, 6, dims.y),     //dimensions
+					vec3(dims.x, 20, dims.y),     //dimensions
 					0,            //scanRadius
-					1             //material
+					4             //material
 					)));
 
 				testWallCount++;
@@ -848,6 +770,8 @@ int main(int argc, char **argv)
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+  tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
+  boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
 
     srand(time(NULL));
 
@@ -859,9 +783,10 @@ int main(int argc, char **argv)
 
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
-    initWalls2(&gameObjects, BOTTOM_LEVEL);
+  initObjects(&gameObjects);
+  initWalls(&gameObjects);
     initGround();
-    printf("added objects\n");
+  initCeiling();
     
     //initialize the camera
   camera3DPerson = new Camera3DPerson(&mainShader, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
@@ -912,9 +837,13 @@ int main(int argc, char **argv)
       }
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
-      vector<shared_ptr<GameObject>>::iterator objIter;
-      for (objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f));
+      for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
+      }
+
+      vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
+      for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
       }
     }
 
