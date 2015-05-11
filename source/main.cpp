@@ -126,35 +126,41 @@ int printOglError(const char *file, int line) {
 
 void SetMaterial(int i) {
   switch (i) {
-  case 0: // red (chairs)
+  case 0: // guards
     glUniform3f(mainShader.uMatAmb, 0.05f, 0.025f, 0.025f);
     glUniform3f(mainShader.uMatDif, 0.9f, 0.1f, 0.05f);
     glUniform3f(mainShader.uMatSpec, 0.8f, 0.2f, 0.2f);
     glUniform1f(mainShader.uMatShine, 100.0f);
     break;
-  case 1: // grey (people + arms)
+  case 1: // floor
     glUniform3f(mainShader.uMatAmb, 0.13f, 0.13f, 0.14f);
     glUniform3f(mainShader.uMatDif, 0.3f, 0.3f, 0.4f);
     glUniform3f(mainShader.uMatSpec, 0.3f, 0.3f, 0.4f);
     glUniform1f(mainShader.uMatShine, 150.0f);
     break;
-  case 2: // white (bunnies)
-    glUniform3f(mainShader.uMatAmb, 0.09f, 0.2f, 0.08f);
+  case 2: // player
+    glUniform3f(mainShader.uMatAmb, 0.3f, 0.3f, 0.3f);
     glUniform3f(mainShader.uMatDif, 0.9f, 0.9f, 0.9f);
-    glUniform3f(mainShader.uMatSpec, 1.0f, 0.95f, 0.85f);
-    glUniform1f(mainShader.uMatShine, 400.0f);
+    glUniform3f(mainShader.uMatSpec, 0.0f, 0.0f, 0.0f);
+    glUniform1f(mainShader.uMatShine, 150.0f);
     break;
-  case 3: // green (ground)
+  case 3: // guard detect
     glUniform3f(mainShader.uMatAmb, 0.06f, 0.09f, 0.06f);
     glUniform3f(mainShader.uMatDif, 0.2f, 0.80f, 0.1f);
     glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
     glUniform1f(mainShader.uMatShine, 4.0f);
     break;
-  case 4: // black (hats)
-    glUniform3f(mainShader.uMatAmb, 0.08f, 0.08f, 0.08f);
-    glUniform3f(mainShader.uMatDif, 0.08f, 0.08f, 0.08f);
-    glUniform3f(mainShader.uMatSpec, 0.08f, 0.08f, 0.08f);
+  case 4: //wall color
+    glUniform3f(mainShader.uMatAmb, 0.2f, 0.1f, 0.0f);
+    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(mainShader.uMatShine, 10.0f);
+    break;
+  case 5: // ceiling
+    glUniform3f(mainShader.uMatAmb, 0.1f, 0.1f, 0.1f);
+    glUniform3f(mainShader.uMatDif, 0.0f, 0.0f, 0.00f);
+    glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
+    glUniform1f(mainShader.uMatShine, 100.0f);
     break;
   }
 }
@@ -482,7 +488,7 @@ void initPlayer(WorldGrid* gameObjects) {
       vec3(1, 0, 0),
       vec3(1.0, 2.0, 1.0),
       1,
-      0
+      2
       );
 
   gameObjects->add(shared_ptr<GameObject>(playerObject));
@@ -534,14 +540,14 @@ void initGround() {
       6, //indices
       posBufObjG, 
       norBufObjG,
-      4 //material
+      1 //material
       );
 }
 
 void initCeiling() {
   ceiling = new Shape(
       &mainShader, //model handle
-      vec3(0, 10, 0), //position
+      vec3(0, 20, 0), //position
       0, //rotation
       vec3(5, 1, 5), //scale
       vec3(1, 0, 0), //direction
@@ -549,7 +555,7 @@ void initCeiling() {
       6, //indices
       posBufObjG, 
       norBufObjG,
-      4 //material
+      5 //material
       );
 }
 
@@ -615,7 +621,7 @@ void initWalls(WorldGrid* gameObjects) {
 				gameObjects->add(shared_ptr<GameObject>(new Wall(
 					&cubeMesh,
 					&mainShader,
-					vec3(center.x, 1, center.y),      //position
+					vec3(center.x, 9, center.y),      //position
 					0,            //rotation
 					vec3(dims.x / 2, 10, dims.y / 2),    //scale
 					vec3(1, 0, 0),	//direction
