@@ -6,7 +6,7 @@
 #include "../glm/core/_swizzle_func.hpp"
 
 Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
-	int material, int scanRadius, vector<PathNode> motionPath) :
+	int scanRadius, int material, vector<PathNode> motionPath) :
 	GameObject(mesh, handles,
 	motionPath[0].pos, 0, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
@@ -16,6 +16,7 @@ Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dime
 	pathDirection = sweepDirection = 1;
 	moving = true;
 	waitTime = 0.0f;
+	originalMaterial = material;
 }
 
 void Guard::move(float time) {
@@ -73,7 +74,7 @@ bool Guard::detect(Player* player) {
 		return true;
 	}
 	else {
-		material = 1;
+		material = originalMaterial;
 		return false;
 	}
 	return false;

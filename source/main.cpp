@@ -73,6 +73,8 @@ Handles mainShader;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
+Mesh tripleBarrelMesh;
+Mesh boxStackMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -436,17 +438,49 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   glfwSetCursorPos(window, x_center, y_center);
 }
 
+void initObjects(WorldGrid* gameObjects) {
+  GameObject* tripleBarrel = new GameObject(
+    &tripleBarrelMesh,
+    &mainShader,
+    vec3(1, 1, 1),
+    0, 
+    vec3(2.5, 2.5, 2.5),
+    vec3(1.0, 1.0, 1.0),
+    0,
+    vec3(2.5, 4, 4.5),
+    1,
+    0
+  );
+
+  gameObjects->add(shared_ptr<GameObject>(tripleBarrel));
+
+    GameObject* boxStack = new GameObject(
+    &boxStackMesh,
+    &mainShader,
+    vec3(4, 1, 4),
+    0, 
+    vec3(4, 2, 4),
+    vec3(1.0, 1.0, 1.0),
+    0,
+    vec3(1, 4, 1),
+    1,
+    0
+  );
+
+  gameObjects->add(shared_ptr<GameObject>(boxStack));
+}
+
 void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
       &playerMesh,
       &mainShader,
-      vec3(10, 0, 20),
+      vec3(0, 0, 0),
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
       vec3(1.0, 2.0, 1.0),
       1,
-      3
+      0
    );
 
    gameObjects->add(shared_ptr<GameObject>(playerObject));
@@ -479,7 +513,7 @@ void initGuards(WorldGrid* gameObjects) {
 		GUARD_SPEED,
 		vec3(1.0, 2.0, 1.0),
 		1,
-		1,
+		0,
 		guardPath
 	);
 	gameObjects->add(shared_ptr<GameObject>(guardObject));
@@ -797,6 +831,8 @@ int main(int argc, char **argv)
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+    tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
+    boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
 
     srand(time(NULL));
 
@@ -808,6 +844,7 @@ int main(int argc, char **argv)
 
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
+    initObjects(&gameObjects);
     initWalls2(&gameObjects);
     initGround();
     initCeiling();
