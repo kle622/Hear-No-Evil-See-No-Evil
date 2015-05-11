@@ -42,7 +42,18 @@ bool intersect(float point1, float point2, float dim1, float dim2) {
 }
 
 bool GameObject::collide(GameObject* object) {
-	printf("STOP CALLING GAMEOBJECT'S COLLIDE METHOD!\n");
+    float thisRadius = dimensions.x + dimensions.y + dimensions.z;
+    float objectRadius = object->dimensions.x + object->dimensions.y + 
+        object->dimensions.z;
+
+    if (compareDistance(position, object->position, thisRadius + objectRadius)) {
+        if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
+            intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
+            intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
