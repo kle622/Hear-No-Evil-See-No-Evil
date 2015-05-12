@@ -474,7 +474,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 		  }
 	  }
 
-	  if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+	  //if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
 	    //  engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
 	    //vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
 		  for (int j = 0; j < gameObjects->wallList.size(); j++) {
@@ -488,7 +488,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 					  }*/
 			  }
 		  }
-	  }
+	  //}
 
 	  //guards
 	  if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {

@@ -54,7 +54,6 @@ void Player::move(float time) {
         scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
     }
-    printf("x: %f, y: %f, z: %f\n", position.x, position.y, position.z);
 }
 
 void Player::accelerate() {
