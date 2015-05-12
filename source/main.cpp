@@ -119,7 +119,7 @@ bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
 
-glm::vec3 g_light(0, 100, 5);
+glm::vec3 g_light(10, 10, 0);
 
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -217,8 +217,8 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
 }
 
 void initFramebuffer() {
-  glGenFramebuffers(1, &frameBufObj);
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
+  glGenFramebuffersEXT(1, &frameBufObj);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   assert(glGetError() == GL_NO_ERROR);
 
   glGenTextures(1, &shadowMap);
@@ -228,7 +228,7 @@ void initFramebuffer() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   assert(glGetError() == GL_NO_ERROR);
@@ -239,7 +239,7 @@ void initFramebuffer() {
   }
 
   // Unbind the arrays                                                                                              
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   assert(glGetError() == GL_NO_ERROR);
 }
 
@@ -542,7 +542,7 @@ void beginPass1Draw() {
   //assert(glGetError() == GL_NO_ERROR);                                                                              
   //glEnable(GL_CULL_FACE);             
   //assert(glGetError() == GL_NO_ERROR);                                                                              
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   // cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                   
   //glViewport(0, 0, 1080, 1080);
@@ -566,7 +566,7 @@ void beginPass1Draw() {
 
 void beginPass2Draw() {
   //Second Pass                                                                                                     
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   //glViewport(0, 0, g_width, g_height);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);                                                                                        
