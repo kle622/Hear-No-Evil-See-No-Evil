@@ -290,7 +290,7 @@ void DebugDraw::drawAll()
   glVertexAttribPointer(handles.aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   // draw
-  glLineWidth(1);
+  glLineWidth(2);
   glDrawArrays(GL_LINES, 0, this->posBuf.size());
 
   // Send the index array to the GPU (thick)
@@ -314,7 +314,7 @@ void DebugDraw::drawAll()
   glVertexAttribPointer(handles.aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   // draw (thick)
-  glLineWidth(5);
+  glLineWidth(6);
   glDrawArrays(GL_LINES, 0, this->posBufThick.size());
 
   // Disable and unbind
