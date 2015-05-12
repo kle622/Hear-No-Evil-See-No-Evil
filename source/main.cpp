@@ -106,6 +106,7 @@ Mesh chairMesh;
 Mesh cartMesh;
 Mesh rafterMesh;
 Mesh textureMesh;
+Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -364,7 +365,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
     gameObjects->list[i]->move(time);
-    vector<shared_ptr<GameObject>> proximity =
+    vector<shared_ptr<GameObject>> proximity = 
       gameObjects->getCloseObjects(gameObjects->list[i]);
 
     //all objects
@@ -372,7 +373,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       if (gameObjects->list[i].get() != proximity[j].get()) {
         if (gameObjects->list[i]->collide(proximity[j].get())) {
           //do some stuff
-        }
+        } 
       }
     }
 
@@ -380,56 +381,56 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
       engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
         vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+    for (int j = 0; j < gameObjects->wallList.size(); j++) {
+      if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
           // Example of event based sound, just for fun
-          if (noseSnd->isFinished()) {
-            noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
+            if (noseSnd->isFinished()) {
+              noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
           }
           else if (noseSnd->getIsPaused()) {
             noseSnd->setIsPaused(false);
           }
-        }
       }
+    }
 
-      //guards
-      if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-        if (guard->detect(playerObject)) {
-          cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
-          if (detectCounter >= MAX_DETECT) {
-            // TODO lose
+    //guards
+    if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+      if (guard->detect(playerObject)) {
+        cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
+        if (detectCounter >= MAX_DETECT) {
+          // TODO lose
 #ifndef DEBUG
-            cout << "You lose! Not sneaky enough!" << endl;
-            exit(0);
+          cout << "You lose! Not sneaky enough!" << endl;
+          exit(0);
 #endif
-          }
         }
       }
+    }
 
-      for (int j = 0; j < proximity.size(); j++) {
-        if (gameObjects->list[i] != proximity[j]) {
-          if (gameObjects->list[i]->collide(proximity[j].get())) {
-            //do some shit
+        for (int j = 0; j < proximity.size(); j++) {
+            if (gameObjects->list[i] != proximity[j]) {
+                if (gameObjects->list[i]->collide(proximity[j].get())) {
+                  //do some shit
             if (guardTalk->isFinished()) {
-              guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
-                vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
+                    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+                      vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
+                  }
+                  else if (guardTalk->getIsPaused()) {
+                    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+                      vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
+                    guardTalk->setIsPaused(false);
             }
-            else if (guardTalk->getIsPaused()) {
-              guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
-                vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
-              guardTalk->setIsPaused(false);
+                }
             }
-          }
         }
-      }
     }
     /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
       SetMaterial(gameObjects->wallList[i]->material);
       gameObjects->wallList[i]->draw();
-      }*/
+  }*/
 
-    gameObjects->update();
-  }
+  gameObjects->update();
+}
 }
 
 void beginDrawGL() {
@@ -645,6 +646,21 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(44, 5.0, 1.0),
           1,
           6,
+          false
+          )));
+          break;
+        case 9: //flag
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          &winMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
+          0, 
+          vec3(4, 6, 4),
+          vec3(1.0, 0.0, 0.0),
+          0,
+          vec3(1, 10, 1),
+          1,
+          3,
           false
           )));
           break;
@@ -967,6 +983,7 @@ int main(int argc, char **argv)
   chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
   cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
+  winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
 
   srand(time(NULL));
 
