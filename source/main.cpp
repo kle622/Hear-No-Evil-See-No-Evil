@@ -60,6 +60,7 @@ ISound* footSndPlayr;
 **/
 
 //#include "GuardPath/PathNode.h"
+#define DEBUG
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -218,10 +219,12 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
 
 void initFramebuffer() {
   glGenFramebuffersEXT(1, &frameBufObj);
+  assert(frameBufObj > 0);
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   assert(glGetError() == GL_NO_ERROR);
 
   glGenTextures(1, &shadowMap);
+  assert(shadowMap > 0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -275,7 +278,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += -velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       leftD = true;
     //   if (footSndPlayr->isFinished()) {
@@ -292,7 +294,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       rightD = true;
     //   if (footSndPlayr->isFinished()) {
@@ -309,7 +310,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       upD = true;
     //   if (footSndPlayr->isFinished()) {
@@ -326,7 +326,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += -velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       downD = true;
     //   if (footSndPlayr->isFinished()) {
@@ -401,7 +400,10 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawPass1(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
-  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->list;
+  drawList.insert(drawList.end(), walls.begin(), walls.end());
   for (int i = 0; i < drawList.size(); i++) {
     pass1Handles.draw(drawList[i].get());
     //drawList[i]->draw();
@@ -1076,12 +1078,12 @@ int main(int argc, char **argv)
   initCeiling();
       
     //initialize the camera
-  camera3DPerson = new Camera3DPerson(&mainShader, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+  camera3DPerson = new Camera3DPerson(&pass2Handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR, CAMERA_FAR);
   camera3DPerson->debug = &debugDraw;
   // debug camera
-  debugCamera = new Camera(&mainShader,
+  debugCamera = new Camera(&pass2Handles,
       glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
@@ -1103,14 +1105,6 @@ int main(int argc, char **argv)
     beginPass2Draw();
     // make sure these lines are in this order
     getWindowinput(window, deltaTime);
-    if (!debug) {
-      camera3DPerson->setProjection();
-      camera3DPerson->setView();
-    }
-    else {
-      debugCamera->setProjection();
-      debugCamera->setView();
-    }
 
     // draw debug
     if (debug || boxes) {
