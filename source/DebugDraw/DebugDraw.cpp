@@ -265,63 +265,67 @@ void DebugDraw::drawAll()
 {
   glUseProgram(handles.prog);
 
-  // send view/projection
-  glUniformMatrix4fv(this->handles.uViewMatrix, 1, GL_FALSE, glm::value_ptr(this->view));
-  glUniformMatrix4fv(this->handles.uProjMatrix, 1, GL_FALSE, glm::value_ptr(this->projection));
+  if (this->posBuf.size() > 0 && this->colBuf.size() > 0) {
+    // send view/projection
+    glUniformMatrix4fv(this->handles.uViewMatrix, 1, GL_FALSE, glm::value_ptr(this->view));
+    glUniformMatrix4fv(this->handles.uProjMatrix, 1, GL_FALSE, glm::value_ptr(this->projection));
 
-  // Send the index array to the GPU
-  glGenBuffers(1, &this->posBufObj);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->posBufObj);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->posBuf.size()*sizeof(float), &this->posBuf[0], GL_STATIC_DRAW);
+    // Send the index array to the GPU
+    glGenBuffers(1, &this->posBufObj);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->posBufObj);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->posBuf.size()*sizeof(float), &this->posBuf[0], GL_STATIC_DRAW);
 
-  // Send the color array to the GPU
-  glGenBuffers(1, &this->colBufObj);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->colBufObj);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->colBuf.size()*sizeof(float), &this->colBuf[0], GL_STATIC_DRAW);
+    // Send the color array to the GPU
+    glGenBuffers(1, &this->colBufObj);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->colBufObj);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->colBuf.size()*sizeof(float), &this->colBuf[0], GL_STATIC_DRAW);
 
-  // Enable and bind position array for drawing
-  GLSL::enableVertexAttribArray(handles.aPosition);
-  glBindBuffer(GL_ARRAY_BUFFER, this->posBufObj);
-  glVertexAttribPointer(handles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // Enable and bind position array for drawing
+    GLSL::enableVertexAttribArray(handles.aPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, this->posBufObj);
+    glVertexAttribPointer(handles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  // Enable and bind color array for drawing
-  GLSL::enableVertexAttribArray(handles.aColor);
-  glBindBuffer(GL_ARRAY_BUFFER, this->colBufObj);
-  glVertexAttribPointer(handles.aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // Enable and bind color array for drawing
+    GLSL::enableVertexAttribArray(handles.aColor);
+    glBindBuffer(GL_ARRAY_BUFFER, this->colBufObj);
+    glVertexAttribPointer(handles.aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  // draw
-  glLineWidth(2);
-  glDrawArrays(GL_LINES, 0, this->posBuf.size());
+    // draw
+    glLineWidth(2);
+    glDrawArrays(GL_LINES, 0, this->posBuf.size());
+  }
 
-  // Send the index array to the GPU (thick)
-  glGenBuffers(1, &this->posBufObjThick);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->posBufObjThick);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->posBufThick.size()*sizeof(float), &this->posBufThick[0], GL_STATIC_DRAW);
+  if (this->posBufThick.size() > 0 && this->colBufThick.size() > 0) {
+    // Send the index array to the GPU (thick)
+    glGenBuffers(1, &this->posBufObjThick);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->posBufObjThick);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->posBufThick.size()*sizeof(float), &this->posBufThick[0], GL_STATIC_DRAW);
 
-  // Send the color array to the GPU (thick)
-  glGenBuffers(1, &this->colBufObjThick);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->colBufObjThick);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->colBufThick.size()*sizeof(float), &this->colBufThick[0], GL_STATIC_DRAW);
+    // Send the color array to the GPU (thick)
+    glGenBuffers(1, &this->colBufObjThick);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->colBufObjThick);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->colBufThick.size()*sizeof(float), &this->colBufThick[0], GL_STATIC_DRAW);
 
-  // Enable and bind position array for drawing (thick)
-  GLSL::enableVertexAttribArray(handles.aPosition);
-  glBindBuffer(GL_ARRAY_BUFFER, this->posBufObjThick);
-  glVertexAttribPointer(handles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // Enable and bind position array for drawing (thick)
+    GLSL::enableVertexAttribArray(handles.aPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, this->posBufObjThick);
+    glVertexAttribPointer(handles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  // Enable and bind color array for drawing (thick)
-  GLSL::enableVertexAttribArray(handles.aColor);
-  glBindBuffer(GL_ARRAY_BUFFER, this->colBufObjThick);
-  glVertexAttribPointer(handles.aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // Enable and bind color array for drawing (thick)
+    GLSL::enableVertexAttribArray(handles.aColor);
+    glBindBuffer(GL_ARRAY_BUFFER, this->colBufObjThick);
+    glVertexAttribPointer(handles.aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  // draw (thick)
-  glLineWidth(6);
-  glDrawArrays(GL_LINES, 0, this->posBufThick.size());
+    // draw (thick)
+    glLineWidth(6);
+    glDrawArrays(GL_LINES, 0, this->posBufThick.size());
 
-  // Disable and unbind
-  GLSL::disableVertexAttribArray(this->handles.aPosition);
-  GLSL::disableVertexAttribArray(this->handles.aColor);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // Disable and unbind
+    GLSL::disableVertexAttribArray(this->handles.aPosition);
+    GLSL::disableVertexAttribArray(this->handles.aColor);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
 
   glUseProgram(0);
 }
