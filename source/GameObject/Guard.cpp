@@ -10,7 +10,7 @@ Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dime
 	GameObject(mesh, handles,
 	motionPath[0].pos, 0, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
-	scanRadius, material) {
+	scanRadius, material, false) {
 	this->motionPath = motionPath;
 	currentNode = 0;
 	pathDirection = sweepDirection = 1;

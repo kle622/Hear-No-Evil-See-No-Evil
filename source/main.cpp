@@ -106,6 +106,7 @@ Mesh boxStackMesh;
 Mesh tableMesh;
 Mesh chairMesh;
 Mesh cartMesh;
+Mesh rafterMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -183,7 +184,7 @@ void SetMaterial(int i) {
     glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
     glUniform1f(mainShader.uMatShine, 100.0f);
     break;
-  case 6: //big wall color
+  case 6: //short wall color
     glUniform3f(mainShader.uMatAmb, 0.2f, 0.2f, 0.2f);
     glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
     glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
@@ -568,7 +569,8 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(2.5, 4, 4.5),
           1,
-          0
+          0,
+          false
           )));
           break;
         case 4: //stack of boxes
@@ -576,46 +578,76 @@ void initObjects(WorldGrid* gameObjects) {
           &boxStackMesh,
           &mainShader,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-          0, 
+          getRand(0, 360), 
           vec3(4, 2, 4),
           vec3(1.0, 0.0, 0.0),
           0,
           vec3(3.0, 5, 3.0),
           1,
-          0
+          0,
+          false
           )));
           break;
-        case 5:
-          printf("DONT GET HERE PLS\n");
+        case 5: //table
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tableMesh,
           &mainShader,
-          vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
+          vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
           0, 
-          vec3(1, 1, 1),
+          vec3(1.5, 1, 1.5),
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(2, 1, 1.25),
+          vec3(2.5, 1, 1.4),
           1,
-          0
+          0,
+          true
           )));
           break;
-        case 6:
-          printf("DONT GET HERE PLS\n");
+        case 6: //chair
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &chairMesh,
           &mainShader,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-          0, 
+          getRand(0, 360), 
           vec3(1, 1, 1),
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(1.25, 2, 1.25),
+          vec3(1.5, 2, 1.5),
           1,
-          0
+          0,
+          true
           )));
           break;
-
+        case 7: //cart
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          &cartMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
+          getRand(0, 360), 
+          vec3(1, 1, 1),
+          vec3(1.0, 0.0, 0.0),
+          0,
+          vec3(2.2, 2, 1.2),
+          1,
+          0,
+          true
+          )));
+          break;
+        case 8: //rafter
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          &rafterMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
+          90, 
+          vec3(24, 15, 24),
+          vec3(1.0, 0.0, 0.0),
+          0,
+          vec3(44, 5.0, 1.0),
+          1,
+          6,
+          false
+          )));
+          break;
         default:
           break;
       }
@@ -872,7 +904,8 @@ int main(int argc, char **argv)
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
   tableMesh.loadShapes(resPath(sysPath("models", "table.obj")));
   chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
-
+  cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
+  rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
 
   srand(time(NULL));
 

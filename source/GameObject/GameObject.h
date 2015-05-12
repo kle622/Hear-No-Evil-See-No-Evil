@@ -45,12 +45,13 @@ class GameObject {
   int material;
   
   bool alive;
+  bool pushable;
   
   //Constructor
   GameObject(Mesh *mesh, Handles *handles, 
 	     vec3 position, float rotation, vec3 scale, 
 	     vec3 direction, float velocity, vec3 dimensions, 
-       int scanRadius, int material);
+       int scanRadius, int material, bool pushable);
   
   //Object Methods
   virtual void draw();
