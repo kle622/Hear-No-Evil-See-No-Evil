@@ -34,5 +34,5 @@ void main() {
            visibility = 0.5;
     	}
 	
-	gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
+	gl_FragColor = vec4(visibility * (diffuse + specular /*+ ambient*/), 1.0);
 }

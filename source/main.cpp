@@ -37,6 +37,9 @@
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
 
+
+
+//Seperate
 // Stuff for 3D sound in windows
 #if defined WIN32
 #include <windows.h>
@@ -59,6 +62,7 @@ ISound* guardTalk;
 ISound* backGroundSnd;
 ISound* footSndPlayr;
 ISound* loseSnd;
+ISound* winSnd;
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -78,7 +82,7 @@ ISound* loseSnd;
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 150
+#define MAX_DETECT 400
 
 GLFWwindow* window;
 using namespace std;
@@ -486,9 +490,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 				  else if (noseSnd->getIsPaused()) {
 					  noseSnd->setIsPaused(false);
 				  }
+         }
 			  }
 		  }
-	  }
+	  //}
 
 	  //guards
 	  if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
@@ -1044,7 +1049,8 @@ int main(int argc, char **argv)
      footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
      guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
      guardTalk->setVolume(1);
-	 loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
+	   loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
+     winSnd = engine->play2D("../dependencies/irrKlang/media/victory_music.wav", false, true, true);
      //engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 
   // Initialise GLFW
