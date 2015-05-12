@@ -28,6 +28,7 @@ set(HEADERS
 
    DebugDraw/DebugDraw.h
    DebugDraw/DebugHandles.h
+   Textures/Textures.h
 )
 
 # List all .c / .cpp files here
@@ -58,4 +59,5 @@ set(SOURCES
 
    DebugDraw/DebugDraw.cpp
    DebugDraw/DebugHandles.cpp
+   Textures/Textures.cpp
 )

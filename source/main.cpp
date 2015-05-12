@@ -13,7 +13,6 @@
 #include "glm/gtc/matrix_transform.hpp" //perspective, txrans etc
 #include "glm/gtc/type_ptr.hpp" //value_ptr
 #include <memory>
-//#include ""
 
 #include "Library/TimeManager.h"
 #include "Library/InitObjects.h"
@@ -32,6 +31,7 @@
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
+#include "Textures/Textures.h"
 
 // Stuff for 3D sound in windows
 #if defined WIN64
@@ -57,8 +57,6 @@ ISound* noseSnd;
 ISound* guardTalk;
 ISound* backGroundSnd;
 ISound* footSndPlayr;
-
-//#include "GuardPath/PathNode.h"
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -103,6 +101,7 @@ Mesh cubeMesh;
 Mesh tripleBarrelMesh;
 Mesh boxStackMesh;
 Mesh tableMesh;
+Mesh textureMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -115,6 +114,8 @@ GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 
 double deltaTime;
+
+GLuint texture;
 
 float getRand(double M, double N)
 {
@@ -781,20 +782,20 @@ void initWalls(WorldGrid* gameObjects) {
 
 int main(int argc, char **argv)
 {
-    // irrKlang init
-    engine = createIrrKlangDevice();
-    if (!engine) {
-      return 0; // error starting up the engine
-    }
-    // Play something on loop for background music
-    backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
-    backGroundSnd->setVolume(.2);
-    backGroundSnd->setIsPaused(false);
-    noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
-    footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
-    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
-    guardTalk->setVolume(1);
-    engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
+  // irrKlang init
+  engine = createIrrKlangDevice();
+  if (!engine) {
+    return 0; // error starting up the engine
+  }
+  // Play something on loop for background music
+  backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
+  backGroundSnd->setVolume(.2);
+  backGroundSnd->setIsPaused(false);
+  noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
+  footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
+  guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
+  guardTalk->setVolume(1);
+  engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 
   // Initialise GLFW
   if (!glfwInit()) {
@@ -874,6 +875,12 @@ int main(int argc, char **argv)
       CAMERA_NEAR,
       CAMERA_FAR);
   double timeCounter = 0;
+
+
+  // Textures load
+  Textures* textureObj = new Textures();
+  textureObj->LoadTexture((char *)"../resources/Textures/sunset.bmp", 0);
+  //texture = textureObj->LoadTexture("../resources/Textures/sunset.bmp");
 
   do{
     //timer stuff
