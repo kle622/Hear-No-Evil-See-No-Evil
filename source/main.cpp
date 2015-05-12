@@ -429,7 +429,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
     gameObjects->update();
   }
-  cubeTexture->drawTexture(1);
+  //cubeTexture->drawTexture(1);
 }
 
 void beginDrawGL() {
