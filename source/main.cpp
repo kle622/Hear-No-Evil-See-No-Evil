@@ -35,18 +35,18 @@
 #include "Textures/Textures.h"
 
 // Stuff for 3D sound in windows
-#if defined WIN32
+//#if defined WIN32
 #include <windows.h>
 #include <conio.h>
 inline void sleepSomeTime() { Sleep(100); }
 #pragma comment(lib, "../dependencies/irrKlang/lib/Winx64-visualStudio/irrKlang.lib") // link with irrKlang.dll
-#else
+/*#else
 #include "../dependencies/irrKlang/examples/common/conio.h"
 //#pragma comment(lib, "../dependencies/irrKlang/lib/irrKlang.lib") // link with irrKlang.dll
 #endif
 //#if defined __APPLE__ && __MACH__
 //#include "..dependencies/irrKlang/examples/common/conio.h"
-//#endif
+//#endif*/
 #include "../dependencies/irrKlang/include/irrKlang.h"
 using namespace irrklang;
 /// Init irrKlang sound library, start the sound engine with default parameters
@@ -73,7 +73,7 @@ ISound* loseSnd;
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 100
+#define MAX_DETECT 600
 
 GLFWwindow* window;
 using namespace std;
