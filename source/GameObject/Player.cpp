@@ -8,7 +8,7 @@ Player::Player(Mesh *mesh, Handles *handles,
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
         GameObject(mesh, handles, position, rotation, scale, 
-         direction, WALK, dimensions, scanRadius, material) {
+         direction, WALK, dimensions, scanRadius, material, false) {
     maxVelocity = WALK;
     crouch = false;
     standingScale = scale.y;

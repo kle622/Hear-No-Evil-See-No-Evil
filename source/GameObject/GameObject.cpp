@@ -3,7 +3,7 @@
 GameObject::GameObject(Mesh *mesh, Handles *handles,
 		       vec3 position, float rotation, vec3 scale, 
 		       vec3 direction, float velocity, vec3 dimensions,
-           int scanRadius, int material = 0) {
+           int scanRadius, int material = 0, bool pushable = false) {
   this->mesh = mesh;
   this->handles = handles;
   this->position = position;
@@ -16,6 +16,7 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
   this->scanRadius = scanRadius;
   this->material = material;
   this->alive = true;
+  this->pushable = pushable;
 }
 
 void GameObject::draw() {
@@ -25,6 +26,7 @@ void GameObject::draw() {
 
 void GameObject::move(float time) {
     position += normalize(direction) * velocity * time;
+    velocity = 0;
 }
 
 bool compareDistance(vec3 first, vec3 second, float max) {
@@ -50,6 +52,8 @@ bool GameObject::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
+            this->velocity = object->velocity;
+            this->direction = object->direction;
             return true;
         }
     }
