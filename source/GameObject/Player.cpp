@@ -24,7 +24,7 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > 10.0f) {
+            if (object->pushable && this->velocity > WALK) {
                 object->velocity = this->velocity;
                 object->direction = this->direction;
             }
@@ -54,6 +54,7 @@ void Player::move(float time) {
         scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
     }
+    printf("x: %f, y: %f, z: %f\n", position.x, position.y, position.z);
 }
 
 void Player::accelerate() {

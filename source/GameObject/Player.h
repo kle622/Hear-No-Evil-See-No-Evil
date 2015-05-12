@@ -9,7 +9,7 @@
 using namespace glm;
 #define CROUCH 1.0f
 #define WALK 5.0f
-#define RUN 15.0f
+#define RUN 8.0f
 #define CROUCH_VELOCITY 2.5f
 #define MIN_VELOCITY 0.0f
 #define ACCELERATION 0.5f

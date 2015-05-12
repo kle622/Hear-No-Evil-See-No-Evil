@@ -6,7 +6,7 @@
 #include <fstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
-#define DEBUG 1
+//#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -61,7 +61,7 @@ ISound* footSndPlayr;
 ISound* loseSnd;
 
 //#include "GuardPath/PathNode.h"
-#define DEBUG
+//#define DEBUG
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -78,7 +78,7 @@ ISound* loseSnd;
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 600
+#define MAX_DETECT 150
 
 GLFWwindow* window;
 using namespace std;
