@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
+//#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -35,9 +36,9 @@
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
-/**
+
 // Stuff for 3D sound in windows
-#if defined WIN64
+#if defined WIN32
 #include <windows.h>
 #include <conio.h>
 inline void sleepSomeTime() { Sleep(100); }
@@ -57,9 +58,10 @@ ISound* noseSnd;
 ISound* guardTalk;
 ISound* backGroundSnd;
 ISound* footSndPlayr;
-**/
+ISound* loseSnd;
 
 //#include "GuardPath/PathNode.h"
+//#define DEBUG
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -76,7 +78,7 @@ ISound* footSndPlayr;
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 600
+#define MAX_DETECT 150
 
 GLFWwindow* window;
 using namespace std;
@@ -217,16 +219,16 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
 }
 
 void initFramebuffer() {
-  GLuint test = 0;
-  glGenFramebuffers(1, &test);
-  printf("PLS WORK: %u\n", test);
+  glGenFramebuffersEXT(1, &frameBufObj);
+  assert(frameBufObj > 0);
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   //cerr << "got here\n" << endl;
   assert(glGetError() == GL_NO_ERROR);
 
   glGenTextures(1, &shadowMap);
+  assert(shadowMap > 0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -278,15 +280,14 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += -velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       leftD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+    }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
@@ -295,15 +296,14 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       rightD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+    }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -312,15 +312,14 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       upD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+    }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -329,15 +328,14 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += -velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       downD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+    }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
 
     if (accelerate) {
@@ -404,7 +402,10 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawPass1(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
-  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->list;
+  drawList.insert(drawList.end(), walls.begin(), walls.end());
   for (int i = 0; i < drawList.size(); i++) {
     pass1Handles.draw(drawList[i].get());
     //drawList[i]->draw();
@@ -445,58 +446,78 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-        /*engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
-          vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));*/
+	  if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+		  engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
+			  vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
     for (int j = 0; j < gameObjects->wallList.size(); j++) {
       if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-            /*// Example of event based sound, just for fun
+				  // Example of event based sound, just for fun
             if (noseSnd->isFinished()) {
               noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
           }
-            else if(noseSnd->getIsPaused()) {
-              noseSnd->setIsPaused(false);*/
-        //}
+				  else if (noseSnd->getIsPaused()) {
+					  noseSnd->setIsPaused(false);
       }
     }
+		  }
+	  }
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       if (guard->detect(playerObject)) {
+			  if (guardTalk->isFinished()) {
+				  guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
+					  vec3df(playerObject->position.x, playerObject->position.y, playerObject->position.z), false, false, true);
+			  }
+			  else if (guardTalk->getIsPaused()) {
+				  guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
+					  vec3df(playerObject->position.x, playerObject->position.y, playerObject->position.z), false, true, true);
+				  guardTalk->setIsPaused(false);
+			  }
         cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
         if (detectCounter >= MAX_DETECT) {
           // TODO lose
-#ifndef DEBUG
+//#ifndef DEBUG
           cout << "You lose! Not sneaky enough!" << endl;
+				  if (loseSnd->getIsPaused()) {
+					  backGroundSnd->setIsPaused(true);
+					  loseSnd->setIsPaused(false);
+					  //Sleep(10);
+
+				  }
+				  else if (loseSnd->isFinished()) {
           exit(0);
-#endif
+				  }
+//#endif
         }
       }
     }
 
-        for (int j = 0; j < proximity.size(); j++) {
-            if (gameObjects->list[i] != proximity[j]) {
-                if (gameObjects->list[i]->collide(proximity[j].get())) {
-                  //do some shit
+	  //    for (int j = 0; j < proximity.size(); j++) {
+	  //        if (gameObjects->list[i] != proximity[j]) {
+	  //            if (gameObjects->list[i]->collide(proximity[j].get())) {
+	  //              //do some shit
 
-                  /*if (guardTalk->isFinished()) {
-                    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-                      vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
-                  }
-                  else if (guardTalk->getIsPaused()) {
-                    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-                      vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
-                    guardTalk->setIsPaused(false);
-                  }*/
-                }
-            }
-        }
-    }
+	  //              if (guardTalk->isFinished()) {
+	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
+	  //              }
+	  //              else if (guardTalk->getIsPaused()) {
+	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
+	  //                guardTalk->setIsPaused(false);
+	  //              }
+	  //            }
+	  //        }
+	  //    }
+	  //}
     /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
       SetMaterial(gameObjects->wallList[i]->material);
       gameObjects->wallList[i]->draw();
   }*/
 
   gameObjects->update();
+}
 }
 
 /*void beginDrawGL() {
@@ -546,7 +567,7 @@ void beginPass1Draw() {
   //glEnable(GL_CULL_FACE);             
   //assert(glGetError() == GL_NO_ERROR);                                                                              
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
-  // cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                   
   //glViewport(0, 0, 1080, 1080);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -992,20 +1013,21 @@ void initWalls(WorldGrid* gameObjects) {
 
 int main(int argc, char **argv)
 {
-    // // irrKlang init
-    // engine = createIrrKlangDevice();
-    // if (!engine) {
-    //   return 0; // error starting up the engine
-    // }
-    // // Play something on loop for background music
-    // backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
-    // backGroundSnd->setVolume(.2);
-    // backGroundSnd->setIsPaused(false);
-    // noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
-    // footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
-    // guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
-    // guardTalk->setVolume(1);
-    // engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
+     // irrKlang init
+     engine = createIrrKlangDevice();
+     if (!engine) {
+       return 0; // error starting up the engine
+     }
+     // Play something on loop for background music
+     backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
+     backGroundSnd->setVolume(.2);
+     backGroundSnd->setIsPaused(false);
+     noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
+     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
+     guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
+     guardTalk->setVolume(1);
+	 loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
+     //engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 
   // Initialise GLFW
   if (!glfwInit()) {
@@ -1027,6 +1049,7 @@ int main(int argc, char **argv)
     glfwTerminate();
     return -1;
   }
+
 
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
@@ -1079,12 +1102,12 @@ int main(int argc, char **argv)
   initCeiling();
       
     //initialize the camera
-  camera3DPerson = new Camera3DPerson(&mainShader, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+  camera3DPerson = new Camera3DPerson(&pass2Handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR, CAMERA_FAR);
   camera3DPerson->debug = &debugDraw;
   // debug camera
-  debugCamera = new Camera(&mainShader,
+  debugCamera = new Camera(&pass2Handles,
       glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
@@ -1106,14 +1129,6 @@ int main(int argc, char **argv)
     beginPass2Draw();
     // make sure these lines are in this order
     getWindowinput(window, deltaTime);
-    if (!debug) {
-      camera3DPerson->setProjection();
-      camera3DPerson->setView();
-    }
-    else {
-      debugCamera->setProjection();
-      debugCamera->setView();
-    }
 
     // draw debug
     if (debug || boxes) {
@@ -1153,10 +1168,10 @@ int main(int argc, char **argv)
       && glfwWindowShouldClose(window) == 0);
 
   glfwTerminate();
-    // backGroundSnd->drop();
-    // noseSnd->drop();
-    // footSndPlayr->drop();
-    // guardTalk->drop();
-    // engine->drop();
+     backGroundSnd->drop();
+     noseSnd->drop();
+     footSndPlayr->drop();
+     guardTalk->drop();
+     engine->drop();
   return 0;
 }
