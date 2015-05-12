@@ -31,7 +31,7 @@ void main() {
 	vec3 ambient = UaColor;
 
 	if ( texture2D(shadowMap, ShadowCoord.xy).z < ShadowCoord.z - bias) {
-           visibility = 0.5;
+           visibility = 0.25;
     	}
 	
 	gl_FragColor = vec4(visibility * (diffuse + specular) + ambient, 1.0);
