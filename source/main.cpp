@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
+#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -226,7 +227,7 @@ void initFramebuffer() {
   glGenTextures(1, &shadowMap);
   assert(shadowMap > 0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1026,6 +1027,7 @@ int main(int argc, char **argv)
     glfwTerminate();
     return -1;
   }
+  
 
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
