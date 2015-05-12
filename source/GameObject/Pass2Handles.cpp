@@ -54,6 +54,7 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   uViewMatrix = GLSL::getUniformLocation(this->prog, "uViewMatrix");
   uModelMatrix = GLSL::getUniformLocation(this->prog, "uModelMatrix");
   uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
+  uCamPos = GLSL::getUniformLocation(this->prog, "uCamPos");
   uMatAmb = GLSL::getUniformLocation(this->prog, "UaColor");
   uMatDif = GLSL::getUniformLocation(this->prog, "UdColor");
   uMatSpec = GLSL::getUniformLocation(this->prog, "UsColor");
@@ -78,11 +79,11 @@ void Pass2Handles::draw(GameObject* obj) {
     
     glDrawElements(GL_TRIANGLES, nIndices, GL_UNSIGNED_INT, 0);
   }
-
+  /*
   GLSL::disableVertexAttribArray(this->aPosition);
   GLSL::disableVertexAttribArray(this->aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
 }
 
 void Pass2Handles::draw(Shape* obj) {
@@ -96,8 +97,8 @@ void Pass2Handles::draw(Shape* obj) {
 
   glDrawArrays(GL_TRIANGLES, 0, obj->indices);
 
-  GLSL::disableVertexAttribArray(this->aPosition);
+  /*  GLSL::disableVertexAttribArray(this->aPosition);
   GLSL::disableVertexAttribArray(this->aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
 }
