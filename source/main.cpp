@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
+#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -1024,6 +1025,7 @@ int main(int argc, char **argv)
     glfwTerminate();
     return -1;
   }
+  
 
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
