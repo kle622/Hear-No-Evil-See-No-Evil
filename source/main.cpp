@@ -223,7 +223,7 @@ void initFramebuffer() {
 
   glGenTextures(1, &shadowMap);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1080, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -533,9 +533,9 @@ void SetDepthMVP(bool pass1) {
 }
 
 void beginPass1Draw() {
-  //glBindTexture(GL_TEXTURE_2D, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
   // assert(glGetError() == GL_NO_ERROR);
-  //glEnable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_2D);
   //assert(glGetError() == GL_NO_ERROR);
   glEnable(GL_DEPTH_TEST);            
   //cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
@@ -545,12 +545,12 @@ void beginPass1Draw() {
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
   // cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                   
-  glViewport(0, 0, 1024, 1024);
+  //glViewport(0, 0, 1080, 1080);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
-  //  glCullFace(GL_FRONT);
-  //glDrawBuffer(GL_NONE);
+  //glCullFace(GL_FRONT);
+  glDrawBuffer(GL_NONE);
   //cerr << "BeginPass1Draw error: " << glGetError() << endl;
   assert(glGetError() == GL_NO_ERROR);
   //cerr << glGetError() << endl;
@@ -567,7 +567,7 @@ void beginPass1Draw() {
 void beginPass2Draw() {
   //Second Pass                                                                                                     
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(0, 0, g_width, g_height);
+  //glViewport(0, 0, g_width, g_height);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);                                                                                        
   glDrawBuffer(GL_BACK);
