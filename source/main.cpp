@@ -115,6 +115,8 @@ bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
 
+Textures* cubeTexture;
+
 glm::vec3 g_light(0, 100, 0);
 
 GLuint posBufObjG = 0;
@@ -427,6 +429,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
     gameObjects->update();
   }
+  cubeTexture->drawTexture(1);
 }
 
 void beginDrawGL() {
@@ -850,67 +853,6 @@ void initWalls(WorldGrid* gameObjects) {
 	}
 }
 
-//void initTexture() {
-//  float CubePos[] = {
-//    //-worldSize, -3.0, -worldSize, //back face 5 verts :0 - clockwise 
-//    //-worldSize, worldSize, -worldSize,
-//    //worldSize, worldSize, -worldSize,
-//    //worldSize, -3.0, -worldSize,
-//
-//    //worldSize, -3.0, worldSize, //right face 5 verts :4
-//    //worldSize, worldSize, worldSize,
-//    //worldSize, worldSize, -worldSize,
-//    //worldSize, -3.0, -worldSize,
-//
-//    //-worldSize, -3.0, worldSize, //front face 4 verts :8
-//    //-worldSize, worldSize, worldSize,
-//    //worldSize, worldSize, worldSize,
-//    //worldSize, -3.0, worldSize,
-//
-//    //-worldSize, -3.0, -worldSize, //left face 4 verts :12
-//    //-worldSize, worldSize, -worldSize,
-//    //-worldSize, worldSize, worldSize,
-//    //-worldSize, -3.0, worldSize
-//  };
-//
-//  static GLfloat CubeTex[] = {
-//    .75, 0, // back 
-//    .75, 1,
-//    .5, 1,
-//    .5, 0,
-//
-//    .25, 0, //right 
-//    .25, 1,
-//    .5, 1,
-//    .5, 0,
-//
-//    0, 0, //front 
-//    0, 1,
-//    .25, 1,
-//    .25, 0,
-//
-//    .75, 0, // left 
-//    .75, 1,
-//    1, 1,
-//    1, 0
-//  };
-//
-//  unsigned short idx[] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12 };
-//
-//  //g_CiboLen = 24;
-//  //glGenBuffers(1, &CubeBuffObj);
-//  //glBindBuffer(GL_ARRAY_BUFFER, CubeBuffObj);
-//  //glBufferData(GL_ARRAY_BUFFER, sizeof(CubePos), CubePos, GL_STATIC_DRAW);
-//
-//  //glGenBuffers(1, &CIndxBuffObj);
-//  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
-//  //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(idx), idx, GL_STATIC_DRAW);
-//
-//  //glGenBuffers(1, &TexBuffObj);
-//  //glBindBuffer(GL_ARRAY_BUFFER, TexBuffObj);
-//  //glBufferData(GL_ARRAY_BUFFER, sizeof(CubeTex), CubeTex, GL_STATIC_DRAW);
-//}
-
 int main(int argc, char **argv)
 {
      // irrKlang init
@@ -1012,10 +954,9 @@ int main(int argc, char **argv)
       CAMERA_FAR);
   double timeCounter = 0;
 
-
   // Textures load
-  Textures* textureObj = new Textures();
-  textureObj->LoadTexture((char *)"../resources/Textures/sunset.bmp", 0);
+  cubeTexture = new Textures(&cubeMesh, &mainShader);
+  cubeTexture->LoadTexture((char *)"../resources/Textures/sunset.bmp", 0);
   //texture = textureObj->LoadTexture("../resources/Textures/sunset.bmp");
 
   do{
