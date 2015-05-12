@@ -217,8 +217,11 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
 }
 
 void initFramebuffer() {
-  glGenFramebuffersEXT(1, &frameBufObj);
+  GLuint test = 0;
+  glGenFramebuffers(1, &test);
+  printf("PLS WORK: %u\n", test);
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  //cerr << "got here\n" << endl;
   assert(glGetError() == GL_NO_ERROR);
 
   glGenTextures(1, &shadowMap);
