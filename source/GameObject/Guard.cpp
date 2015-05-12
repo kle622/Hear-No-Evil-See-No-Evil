@@ -71,7 +71,7 @@ bool Guard::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > WALK) {
+            if (object->pushable) {
                 object->velocity = this->velocity;
                 object->direction = this->direction;
             }
