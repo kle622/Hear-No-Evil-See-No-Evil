@@ -31,7 +31,7 @@ void GameObject::move(float time) {
     if (velocity > 0) {
       velocity -= DECELERATION;
     }
-    velocity = max(velocity, 0.0f);
+    velocity = std::max(velocity, 0.0f);
 }
 
 bool compareDistance(vec3 first, vec3 second, float max) {
