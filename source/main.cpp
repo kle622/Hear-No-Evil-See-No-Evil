@@ -476,7 +476,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 			  cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
 			  if (detectCounter >= MAX_DETECT) {
 				  // TODO lose
-#ifndef DEBUG
+//#ifndef DEBUG
 				  cout << "You lose! Not sneaky enough!" << endl;
 				  if (loseSnd->getIsPaused()) {
 					  backGroundSnd->setIsPaused(true);
@@ -487,7 +487,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 				  else if (loseSnd->isFinished()) {
 					  exit(0);
 				  }
-#endif
+//#endif
 			  }
 		  }
 	  }
@@ -561,22 +561,22 @@ void beginPass1Draw() {
   glEnable(GL_TEXTURE_2D);
   //assert(glGetError() == GL_NO_ERROR);
   glEnable(GL_DEPTH_TEST);            
-  cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                              
   //glEnable(GL_CULL_FACE);             
   //assert(glGetError() == GL_NO_ERROR);                                                                              
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
-   cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                   
   //glViewport(0, 0, 1080, 1080);
-  cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
   //glCullFace(GL_FRONT);
   glDrawBuffer(GL_NONE);
-  cerr << "BeginPass1Draw error: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error: " << glGetError() << endl;
   assert(glGetError() == GL_NO_ERROR);
-  cerr << glGetError() << endl;
+  //cerr << glGetError() << endl;
 
   glUseProgram(pass1Handles.prog);
   assert(glGetError() == GL_NO_ERROR);
