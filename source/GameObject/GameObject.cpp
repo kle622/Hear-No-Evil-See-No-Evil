@@ -1,5 +1,5 @@
 #include "GameObject.h"
-#define DECELERATION 0.3f
+#define DECELERATION 0.45f
 
 GameObject::GameObject(Mesh *mesh, Handles *handles,
 		       vec3 position, float rotation, vec3 scale, 
