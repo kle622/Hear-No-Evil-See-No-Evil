@@ -28,6 +28,7 @@
 #include "GameObject/Wall.h"
 #include "GameObject/Handles.h"
 #include "GameObject/Mesh.h"
+#include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
@@ -647,7 +648,7 @@ void initObjects(WorldGrid* gameObjects) {
           )));
           break;
         case 9: //flag
-          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          gameObjects->add(shared_ptr<GameObject>(new WinCondition(
           &winMesh,
           &mainShader,
           vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
@@ -657,8 +658,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(1, 10, 1),
           1,
-          3,
-          false
+          3
           )));
           break;
         default:

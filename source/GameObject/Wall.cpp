@@ -12,25 +12,6 @@ Wall::Wall(Mesh *mesh, Handles *handles,
 }
 
 void Wall::move(float time) {
-  if (position.x >= 29.0f) {
-    position.x = 29.0f;
-    direction.x = -direction.x;
-  }
-  if (position.x <= -29.0f) {
-    position.x = -29.0f;
-    direction.x = -direction.x;
-  }
-  if (position.z >= 29.0f) {
-    position.z = 29.0f;
-    direction.z = -direction.z;
-  }
-  if (position.z <= -29.0f) {
-    position.z = -29.0f;
-    direction.z = -direction.z;
-  }
-
-  position += normalize(direction) * velocity * time;
-  rotation = 90 + (atan2f(direction.x, direction.z) * 180 / M_PI);
 }
 
 bool Wall::collide(GameObject* object) {

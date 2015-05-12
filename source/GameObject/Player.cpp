@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Bunny.h"
 #include "../Camera/Camera.h"
+#include "WinCondition.h"
 #include <algorithm>
 
 Player::Player(Mesh *mesh, Handles *handles,
@@ -26,6 +27,10 @@ bool Player::collide(GameObject* object) {
             if (object->pushable && this->velocity > 10.0f) {
                 object->velocity = this->velocity;
                 object->direction = this->direction;
+            }
+            if (dynamic_cast<WinCondition*>(object)) {
+                //do win stuff here
+                printf("I WIN\n");
             }
             position = oldPosition;
             return true;
