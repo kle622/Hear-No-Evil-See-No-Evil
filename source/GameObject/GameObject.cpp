@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#define DECELERATION 0.3f
 
 GameObject::GameObject(Mesh *mesh, Handles *handles,
 		       vec3 position, float rotation, vec3 scale, 
@@ -25,8 +26,12 @@ void GameObject::draw() {
 }
 
 void GameObject::move(float time) {
+    oldPosition = position;
     position += normalize(direction) * velocity * time;
-    velocity = 0;
+    if (velocity > 0) {
+      velocity -= DECELERATION;
+    }
+    velocity = std::max(velocity, 0.0f);
 }
 
 bool compareDistance(vec3 first, vec3 second, float max) {
@@ -52,8 +57,11 @@ bool GameObject::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            this->velocity = object->velocity;
-            this->direction = object->direction;
+            if (object->pushable && this->velocity > 10.0f) {
+              object->velocity = this->velocity;
+              object->direction = this->direction;
+            }
+            position = oldPosition;
             return true;
         }
     }

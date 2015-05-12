@@ -375,20 +375,17 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-    //players
-    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-          /*engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
-            vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));*/
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-              /*// Example of event based sound, just for fun
-              if (noseSnd->isFinished()) {
-                noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
-            }
-              else if(noseSnd->getIsPaused()) {
-                noseSnd->setIsPaused(false);*/
-          //}
-        }
+        /*engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
+          vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));*/
+    for (int j = 0; j < gameObjects->wallList.size(); j++) {
+      if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+            /*// Example of event based sound, just for fun
+            if (noseSnd->isFinished()) {
+              noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
+          }
+            else if(noseSnd->getIsPaused()) {
+              noseSnd->setIsPaused(false);*/
+        //}
       }
     }
 
@@ -567,7 +564,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(2.5, 2.5, 2.5),
           vec3(1.0, 0, 0),
           0,
-          vec3(2.5, 4, 4.5),
+          vec3(4.5, 4, 4.5),
           1,
           0,
           false
@@ -597,7 +594,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1.5, 1, 1.5),
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(2.5, 1, 1.4),
+          vec3(2.8, 1.5, 1.4),
           1,
           0,
           true
