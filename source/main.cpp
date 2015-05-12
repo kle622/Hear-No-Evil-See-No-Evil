@@ -107,6 +107,7 @@ Mesh tableMesh;
 Mesh chairMesh;
 Mesh cartMesh;
 Mesh rafterMesh;
+Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -645,6 +646,21 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
+        case 9: //flag
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          &winMesh,
+          &mainShader,
+          vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
+          0, 
+          vec3(4, 6, 4),
+          vec3(1.0, 0.0, 0.0),
+          0,
+          vec3(1, 10, 1),
+          1,
+          3,
+          false
+          )));
+          break;
         default:
           break;
       }
@@ -903,6 +919,7 @@ int main(int argc, char **argv)
   chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
   cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
+  winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
 
   srand(time(NULL));
 
