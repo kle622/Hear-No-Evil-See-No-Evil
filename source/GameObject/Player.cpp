@@ -75,3 +75,4 @@ void Player::changeDirection(vec3 direction) {
 
 void Player::SetMotion(float motion) {
     maxVelocity = motion;
+}

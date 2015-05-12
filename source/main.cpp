@@ -178,7 +178,7 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
     glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
     glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
-    glUniform1f(mainShader.uMatShine, 150.0f);
+    glUniform1f(pass2Handles.uMatShine, 150.0f);
     break;
   case 3: // guard detect
     glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
@@ -745,7 +745,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 6: //chair
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &chairMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
           getRand(0, 360), 
           vec3(1, 1, 1),
@@ -760,7 +759,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 7: //cart
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &cartMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
           getRand(0, 360), 
           vec3(1, 1, 1),
@@ -775,7 +773,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 8: //rafter
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &rafterMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
           90, 
           vec3(24, 15, 24),
@@ -790,7 +787,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 9: //flag
           gameObjects->add(shared_ptr<GameObject>(new WinCondition(
           &winMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
           0, 
           vec3(4, 6, 4),
@@ -1042,7 +1038,7 @@ int main(int argc, char **argv)
   initGL();
   assert(glGetError() == GL_NO_ERROR);
   debugDraw.handles.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
+  //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
   //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
   pass1Handles.installShaders();
   pass2Handles.installShaders();
