@@ -1,11 +1,14 @@
-#include "ShadowMapPass1Handles.h"
+#include "MainShader.h"
 
-bool Pass1Handles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
+bool Handles::installShaders() {
   GLint rc;
 
   // Create shader handles
   GLuint VS = glCreateShader(GL_VERTEX_SHADER);
   GLuint FS = glCreateShader(GL_FRAGMENT_SHADER);
+  
+  std::string vShaderName = resPath(sysPath("shaders", "vert.glsl"));
+  std::string fShaderName = resPath(sysPath("shaders", "frag.glsl"));
 
   // Read shader sources
   const char *vshader = GLSL::textFileRead(vShaderName.c_str());
@@ -47,20 +50,21 @@ bool Pass1Handles::installShaders(const std::string &vShaderName, const std::str
     return false;
   }
 
-  aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
-  this->uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
-}
+  /* get handles to attribute data */
 
-
-void Pass1Handles::draw(GameObject* obj) {
-  GLSL::enableVertexAttribArray(this->aPosition);
-  glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->posBufObj);
-  glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  this->aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
+  this->aNormal = GLSL::getAttribLocation(this->prog, "aNormal");
+  this->uProjMatrix = GLSL::getUniformLocation(this->prog, "uProjMatrix");
+  this->uViewMatrix = GLSL::getUniformLocation(this->prog, "uViewMatrix");
+  this->uModelMatrix = GLSL::getUniformLocation(this->prog, "uModelMatrix");
+  this->uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
+  this->uMatAmb = GLSL::getUniformLocation(this->prog, "UaColor");
+  this->uMatDif = GLSL::getUniformLocation(this->prog, "UdColor");
+  this->uMatSpec = GLSL::getUniformLocation(this->prog, "UsColor");
+  this->uMatShine = GLSL::getUniformLocation(this->prog, "Ushine");
+  //this->uCamPos = GLSL::getUniformLocation(this->prog, "uCamPos");
   
-  for (int s = 0; s < obj->mesh->shapes.size(); ++s) {
-    int nIndices = (int)obj->mesh->shapes[s].mesh.indices.size();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->mesh->indBufObj);
+  assert(glGetError() == GL_NO_ERROR);
+  return true;
 
-    glDrawElements(GL_TRIANGLES, nIndices, GL_UNSIGNED_INT, 0);
-  }
 }

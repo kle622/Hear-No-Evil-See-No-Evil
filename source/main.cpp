@@ -538,17 +538,17 @@ void beginPass1Draw() {
   //glEnable(GL_TEXTURE_2D);
   //assert(glGetError() == GL_NO_ERROR);
   glEnable(GL_DEPTH_TEST);            
-  cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                              
   //glEnable(GL_CULL_FACE);             
   //assert(glGetError() == GL_NO_ERROR);                                                                              
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
-  cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
+  // cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
   //assert(glGetError() == GL_NO_ERROR);                                                                   
   glViewport(0, 0, 1024, 1024);
-  cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
   //  glCullFace(GL_FRONT);
   //glDrawBuffer(GL_NONE);
   //cerr << "BeginPass1Draw error: " << glGetError() << endl;
@@ -1040,8 +1040,8 @@ int main(int argc, char **argv)
   debugDraw.handles.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
   //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
-  pass1Handles.installShaders();
-  pass2Handles.installShaders();
+  pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
+  pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));

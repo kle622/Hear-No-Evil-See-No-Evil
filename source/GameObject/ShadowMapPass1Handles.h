@@ -6,7 +6,7 @@
 class Pass1Handles : public Handles {
  public:
   GLuint uDepthMVP;
-  bool installShaders();
+  bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(GameObject* obj);
 };
 #endif

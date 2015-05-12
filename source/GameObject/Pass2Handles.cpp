@@ -1,14 +1,11 @@
 #include "ShadowMapPass2Handles.h"
 
-bool Pass2Handles::installShaders() {
+bool Pass2Handles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
   GLint rc;
 
   // Create shader handles
   GLuint VS = glCreateShader(GL_VERTEX_SHADER);
   GLuint FS = glCreateShader(GL_FRAGMENT_SHADER);
-
-  std::string vShaderName = "../resources/shaders/pass2Vert.glsl";
-  std::string fShaderName = "../resources/shaders/pass2Frag.glsl";
 
   // Read shader sources
   const char *vshader = GLSL::textFileRead(vShaderName.c_str());
