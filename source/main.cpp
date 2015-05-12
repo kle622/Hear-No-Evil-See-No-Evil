@@ -224,7 +224,7 @@ void initFramebuffer() {
 
   glGenTextures(1, &shadowMap);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -402,7 +402,8 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
 void drawPass1(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
-  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //Create new 3D camera with light and then lookAt is along lightDir!!
+  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
   for (int i = 0; i < drawList.size(); i++) {
     pass1Handles.draw(drawList[i].get());
     //drawList[i]->draw();
