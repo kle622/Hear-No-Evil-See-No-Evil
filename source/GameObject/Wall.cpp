@@ -2,11 +2,11 @@
 #include "Player.h"
 #include "../WorldGrid/WorldGrid.h"
 
-Wall::Wall(Mesh *mesh, Handles *handles,
+Wall::Wall(Mesh *mesh,
   vec3 position, float rotation, vec3 scale,
   vec3 direction, float velocity, vec3 dimensions, 
   int scanRadius, int material = 0) :
-  GameObject(mesh, handles, position, rotation, scale,
+  GameObject(mesh, position, rotation, scale,
   direction, velocity, dimensions, scanRadius, material) {
 
 }

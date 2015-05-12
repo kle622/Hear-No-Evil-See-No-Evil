@@ -27,6 +27,8 @@
 #include "GameObject/Shape.h"
 #include "GameObject/Wall.h"
 #include "GameObject/Handles.h"
+#include "GameObject/ShadowMapPass1Handles.h"
+#include "GameObject/ShadowMapPass2Handles.h"
 #include "GameObject/Mesh.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
@@ -97,6 +99,8 @@ Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
 Handles mainShader;
+Pass1Handles pass1Handles;
+Pass2Handles pass2Handles;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
@@ -109,10 +113,12 @@ bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
 
-glm::vec3 g_light(0, 100, 0);
+glm::vec3 g_light(0, 100, -5);
 
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
+GLuint frameBufObj = 0;
+GLuint shadowMap = 0;
 
 double deltaTime;
 
@@ -142,51 +148,93 @@ int printOglError(const char *file, int line) {
   return retCode;
 }
 
+/* helper function to make sure your matrix handle is correct */
+inline void safe_glUniformMatrix4fv(const GLint handle, const GLfloat data[]) {
+  if (handle >= 0)
+    glUniformMatrix4fv(handle, 1, GL_FALSE, data);
+}
+
 void SetMaterial(int i) {
   switch (i) {
   case 0: // guards
-    glUniform3f(mainShader.uMatAmb, 0.05f, 0.025f, 0.025f);
-    glUniform3f(mainShader.uMatDif, 0.9f, 0.1f, 0.05f);
-    glUniform3f(mainShader.uMatSpec, 0.8f, 0.2f, 0.2f);
-    glUniform1f(mainShader.uMatShine, 100.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.025f, 0.025f);
+    glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
+    glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
+    glUniform1f(pass2Handles.uMatShine, 100.0f);
     break;
   case 1: // floor
-    glUniform3f(mainShader.uMatAmb, 0.13f, 0.13f, 0.14f);
-    glUniform3f(mainShader.uMatDif, 0.3f, 0.3f, 0.4f);
-    glUniform3f(mainShader.uMatSpec, 0.3f, 0.3f, 0.4f);
-    glUniform1f(mainShader.uMatShine, 150.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
+    glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
+    glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
+    glUniform1f(pass2Handles.uMatShine, 150.0f);
     break;
   case 2: // player
-    glUniform3f(mainShader.uMatAmb, 0.3f, 0.3f, 0.3f);
-    glUniform3f(mainShader.uMatDif, 0.9f, 0.9f, 0.9f);
-    glUniform3f(mainShader.uMatSpec, 0.0f, 0.0f, 0.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
+    glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
+    glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
     glUniform1f(mainShader.uMatShine, 150.0f);
     break;
   case 3: // guard detect
-    glUniform3f(mainShader.uMatAmb, 0.06f, 0.09f, 0.06f);
-    glUniform3f(mainShader.uMatDif, 0.2f, 0.80f, 0.1f);
-    glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
-    glUniform1f(mainShader.uMatShine, 4.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
+    glUniform3f(pass2Handles.uMatDif, 0.2f, 0.80f, 0.1f);
+    glUniform3f(pass2Handles.uMatSpec, 0.8f, 1.0f, 0.8f);
+    glUniform1f(pass2Handles.uMatShine, 4.0f);
     break;
   case 4: //big wall color
-    glUniform3f(mainShader.uMatAmb, 0.2f, 0.1f, 0.0f);
-    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
-    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
-    glUniform1f(mainShader.uMatShine, 10.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.1f, 0.0f);
+    glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
   case 5: // ceiling
-    glUniform3f(mainShader.uMatAmb, 0.1f, 0.1f, 0.1f);
-    glUniform3f(mainShader.uMatDif, 0.0f, 0.0f, 0.00f);
-    glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
-    glUniform1f(mainShader.uMatShine, 100.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.1f, 0.1f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.0f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 1.0f, 1.0f, 1.0f);
+    glUniform1f(pass2Handles.uMatShine, 100.0f);
     break;
   case 6: //big wall color
-    glUniform3f(mainShader.uMatAmb, 0.2f, 0.2f, 0.2f);
-    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
-    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
-    glUniform1f(mainShader.uMatShine, 10.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
+    glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
   }
+}
+
+void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
+  glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
+  glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
+  glm::mat4 com = Trans*RotateY*Sc;
+  if (handle >= 0)
+    glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
+}
+
+void initFramebuffer() {
+  glGenFramebuffers(1, &frameBufObj);
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
+  assert(glGetError() == GL_NO_ERROR);
+
+  glGenTextures(1, &shadowMap);
+  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+  glDrawBuffer(GL_NONE);
+  glReadBuffer(GL_NONE);
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+  }
+
+  // Unbind the arrays                                                                                              
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  assert(glGetError() == GL_NO_ERROR);
 }
 
 void initGL() {
@@ -196,6 +244,7 @@ void initGL() {
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
   initVertexObject(&posBufObjG, &norBufObjG);
+  initFramebuffer();
 }
 
 void getWindowinput(GLFWwindow* window, double deltaTime) {
@@ -343,17 +392,33 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
   }
 }
 
+void drawPass1(WorldGrid* gameObjects) {
+  Guard *guard;
+  // draw
+  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  for (int i = 0; i < drawList.size(); i++) {
+    pass1Handles.draw(drawList[i].get());
+    //drawList[i]->draw();
+  }
+}
+
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   SetMaterial(ground->material);
-  ground->draw();
+  SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
+  pass2Handles.draw(ground);
+  //ground->draw();
   SetMaterial(ceiling->material);
-  ceiling->draw();
+  SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
+  pass2Handles.draw(ceiling);
+  //ceiling->draw();
   Guard *guard;
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
     SetMaterial(drawList[i]->material);
-    drawList[i]->draw();
+    SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+    pass2Handles.draw(drawList[i].get());
+    //drawList[i]->draw();
   }
 
   // collide
@@ -413,13 +478,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
     for (int i = 0; i < gameObjects->wallList.size(); i++) {
       SetMaterial(gameObjects->wallList[i]->material);
-      gameObjects->wallList[i]->draw();
+      pass2Handles.draw(gameObjects->wallList[i].get());
+      //gameObjects->wallList[i]->draw();
   }
 
   gameObjects->update();
 }
 
-void beginDrawGL() {
+/*void beginDrawGL() {
   // Clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -430,12 +496,90 @@ void beginDrawGL() {
       camera3DPerson->eye.y, camera3DPerson->eye.z);
   GLSL::enableVertexAttribArray(mainShader.aPosition);
   GLSL::enableVertexAttribArray(mainShader.aNormal);
+}*/
+
+void SetDepthMVP(bool pass1) {
+
+  glm::vec3 lightInv = g_light;
+  glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
+  glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  glm::mat4 depthModelMatrix = glm::mat4(1.0);
+  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
+
+  glm::mat4 biasMatrix(
+		       0.5, 0.0, 0.0, 0.0,
+		       0.0, 0.5, 0.0, 0.0,
+		       0.0, 0.0, 0.5, 0.0,
+		       0.5, 0.5, 0.5, 1.0
+		       );
+  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+
+  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthBiasMVP)) : 
+    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+
+  cerr << glGetError() << endl;
+
+}
+
+void beginPass1Draw() {
+  //glBindTexture(GL_TEXTURE_2D, 0);
+  // assert(glGetError() == GL_NO_ERROR);
+  //glEnable(GL_TEXTURE_2D);
+  //assert(glGetError() == GL_NO_ERROR);
+  glEnable(GL_DEPTH_TEST);            
+  cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
+  //assert(glGetError() == GL_NO_ERROR);                                                                              
+  //glEnable(GL_CULL_FACE);             
+  //assert(glGetError() == GL_NO_ERROR);                                                                              
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
+  cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
+  //assert(glGetError() == GL_NO_ERROR);                                                                   
+  glViewport(0, 0, 1024, 1024);
+  cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  //  glCullFace(GL_FRONT);
+  //glDrawBuffer(GL_NONE);
+  //cerr << "BeginPass1Draw error: " << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+
+  glUseProgram(pass1Handles.prog);
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+
+  SetDepthMVP(true);
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+}
+
+void beginPass2Draw() {
+  //Second Pass                                                                                                     
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glViewport(0, 0, g_width, g_height);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);                                                                                        
+  glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);                                                                                            
+
+  glUseProgram(pass2Handles.prog);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glUniform1i(pass2Handles.shadowMap, 0);
+
+  SetDepthMVP(false);
+  safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
+  safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
+
+  checkGLError();
 }
 
 void endDrawGL() {
+  /*
   GLSL::disableVertexAttribArray(mainShader.aPosition);
   GLSL::disableVertexAttribArray(mainShader.aNormal);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 
   glUseProgram(0);
   checkGLError();
@@ -548,7 +692,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 3:
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
     &tripleBarrelMesh,
-    &mainShader,
             vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
     0, 
     vec3(2.5, 2.5, 2.5),
@@ -562,7 +705,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 4:
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
     &boxStackMesh,
-    &mainShader,
             vec3(i - TEST_WORLD, 1, j - TEST_WORLD),
     0, 
     vec3(4, 2, 4),
@@ -581,7 +723,6 @@ void initObjects(WorldGrid* gameObjects) {
 void initPlayer(WorldGrid* gameObjects) {
   playerObject = new Player(
       &playerMesh,
-      &mainShader,
       vec3(0, 0, 0),
       20,
       vec3(1.0, 1.0, 1.0), //scale
@@ -616,7 +757,6 @@ void initGuards(WorldGrid* gameObjects) {
 
       Guard* guardObject = new Guard(
           &guardMesh,
-          &mainShader,
           vec3(1, 1, 1),
           GUARD_SPEED,
           vec3(1.0, 2.0, 1.0),
@@ -631,7 +771,6 @@ void initGuards(WorldGrid* gameObjects) {
 
 void initGround() {
   ground = new Shape(
-      &mainShader, //model handle
       vec3(0), //position
       0, //rotation
       vec3(5, 1, 5), //scale
@@ -646,7 +785,6 @@ void initGround() {
 
 void initCeiling() {
   ceiling = new Shape(
-      &mainShader, //model handle
       vec3(0, 20, 0), //position
       0, //rotation
       vec3(5, 1, 5), //scale
@@ -729,7 +867,6 @@ void initWalls(WorldGrid* gameObjects) {
         if (shortWall) {
           gameObjects->add(shared_ptr<GameObject>(new Wall(
             &cubeMesh,
-            &mainShader,
             vec3(center.x, 0, center.y),      //position
             0,            //rotation
             vec3(dims.x / 2, 1, dims.y / 2),    //scale
@@ -744,7 +881,6 @@ void initWalls(WorldGrid* gameObjects) {
         else {
 				gameObjects->add(shared_ptr<GameObject>(new Wall(
 					&cubeMesh,
-					&mainShader,
 					vec3(center.x, 9, center.y),      //position
 					0,            //rotation
 					vec3(dims.x / 2, 10, dims.y / 2),    //scale
@@ -762,8 +898,7 @@ void initWalls(WorldGrid* gameObjects) {
 	}
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     //// irrKlang init
     //engine = createIrrKlangDevice();
     //if (!engine) {
@@ -816,9 +951,13 @@ int main(int argc, char **argv)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   initGL();
+  assert(glGetError() == GL_NO_ERROR);
   debugDraw.handles.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
+  //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
   //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
+  pass1Handles.installShaders();
+  pass2Handles.installShaders();
+  assert(glGetError() == GL_NO_ERROR);
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
@@ -864,7 +1003,9 @@ int main(int argc, char **argv)
     double currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
-    beginDrawGL();
+    beginPass1Draw();
+    drawPass1(&gameObjects);
+    beginPass2Draw();
     // make sure these lines are in this order
     getWindowinput(window, deltaTime);
     if (!debug) {
@@ -899,9 +1040,10 @@ int main(int argc, char **argv)
         debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
       }
     }
-
+    //    pass2Handles.uProjMatrix = camera3DPerson->getProjection();
+    //pass2Handles.uViewMatrix = camera3DPerson->getView();
     drawGameObjects(&gameObjects, deltaTime);
-    endDrawGL();
+    // endDrawGL();
     if (debug || boxes) {
       debugDraw.drawAll();
       debugDraw.clear();

@@ -3,11 +3,11 @@
 #include "../Camera/Camera.h"
 #include <algorithm>
 
-Player::Player(Mesh *mesh, Handles *handles,
+Player::Player(Mesh *mesh,
     vec3 position, float rotation, vec3 scale, 
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
-        GameObject(mesh, handles, position, rotation, scale, 
+        GameObject(mesh, position, rotation, scale, 
          direction, WALK, dimensions, scanRadius, material) {
     maxVelocity = WALK;
     crouch = false;

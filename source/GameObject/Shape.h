@@ -20,7 +20,6 @@ using namespace glm;
 
 class Shape {
  public:
-  Handles *handles;
   vec3 position;
   float rotation;
   vec3 scale;
@@ -34,13 +33,13 @@ class Shape {
   int material;
 
   //Constructor
-  Shape(Handles *handles, vec3 position, float rotation, 
+  Shape(vec3 position, float rotation, 
 	vec3 scale, vec3 direction, float velocity, int indices, 
 	GLuint posBuffer, GLuint norBuffer, int material);
   
   //Object methods
-  void draw();
-  void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
+  //void draw();
+  //void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
 };
 
 #endif

@@ -5,9 +5,9 @@
 #include "../glm/ext.hpp"
 #include "../glm/core/_swizzle_func.hpp"
 
-Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
+Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	int scanRadius, int material, vector<PathNode> motionPath) :
-	GameObject(mesh, handles,
+	GameObject(mesh,
 	motionPath[0].pos, 0, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
 	scanRadius, material) {

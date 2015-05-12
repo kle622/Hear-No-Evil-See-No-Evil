@@ -19,7 +19,6 @@ using namespace glm;
 class Player: public GameObject {
  protected:
   Mesh *mesh;
-  Handles *handles;
   float maxVelocity;
   float standingScale;
 
@@ -29,7 +28,7 @@ class Player: public GameObject {
   int score = 0;
   
   //Constructor
-  Player(Mesh *mesh, Handles *handles,
+  Player(Mesh *mesh,
    vec3 position, float rotation, vec3 scale, 
    vec3 direction, vec3 dimensions, 
   int scanRadius, int material);
