@@ -525,7 +525,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
     theta -= dx * cursor_speed;
     // note that ypos is measured from the top of the screen, so
     // an increase in ypos means moving the mouse down the y axis
-    if ((phi < max_vert_angle && dy > 0) || (phi > -1.0 * max_vert_angle && dy < 0)) {
+    if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
       phi -= dy * cursor_speed;
     }
     debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
