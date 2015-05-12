@@ -119,7 +119,7 @@ bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
 
-glm::vec3 g_light(0, 100, -5);
+glm::vec3 g_light(0, 100, 5);
 
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -528,7 +528,7 @@ void SetDepthMVP(bool pass1) {
   pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthBiasMVP)) : 
     safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
-  cerr << glGetError() << endl;
+  //cerr << glGetError() << endl;
 
 }
 
@@ -580,9 +580,14 @@ void beginPass2Draw() {
   glUniform1i(pass2Handles.shadowMap, 0);
 
   SetDepthMVP(false);
-  safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
-  safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
-
+  if (debug) {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
+  }
+  else {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
+  }
   checkGLError();
 }
 
