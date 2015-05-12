@@ -47,11 +47,11 @@ void Player::move(float time) {
     if (crouch) {
         if (scale.y > CROUCH_SCALE) {
             scale.y -= 0.1f * (standingScale - CROUCH_SCALE);
-            position.y -= 0.05f * standingScale;
+            position.y -= 0.05 * standingScale;
         }
     }
     else {
-        scale.y = std::min(scale.y + 0.1f, standingScale);
+        scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
     }
 }
