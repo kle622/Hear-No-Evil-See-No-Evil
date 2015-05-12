@@ -230,7 +230,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       leftD = true;
        if (footSndPlayr->isFinished()) {
          footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-     }
+    }
        else if (footSndPlayr->getIsPaused()) {
          footSndPlayr->setIsPaused(false);
        }
@@ -247,7 +247,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       rightD = true;
        if (footSndPlayr->isFinished()) {
          footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-     }
+    }
        else if (footSndPlayr->getIsPaused()) {
          footSndPlayr->setIsPaused(false);
        }
@@ -391,7 +391,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
           }
         }
       }
-    }
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
@@ -567,7 +566,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(2.5, 2.5, 2.5),
           vec3(1.0, 0, 0),
           0,
-          vec3(2.5, 4, 4.5),
+          vec3(4.5, 4, 4.5),
           1,
           0,
           false
@@ -597,7 +596,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1.5, 1, 1.5),
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(2.5, 1, 1.4),
+          vec3(2.8, 1.5, 1.4),
           1,
           0,
           true
@@ -611,7 +610,7 @@ void initObjects(WorldGrid* gameObjects) {
           getRand(0, 360), 
           vec3(1, 1, 1),
           vec3(1.0, 0.0, 0.0),
-          0, 
+          0,
           vec3(1.5, 2, 1.5),
           1,
           0,
