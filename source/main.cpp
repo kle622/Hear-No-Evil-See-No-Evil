@@ -34,7 +34,7 @@
 #include "Textures/Textures.h"
 
 // Stuff for 3D sound in windows
-#if defined WIN64
+#if defined WIN32
 #include <windows.h>
 #include <conio.h>
 inline void sleepSomeTime() { Sleep(100); }
@@ -54,7 +54,7 @@ ISound* noseSnd;
 ISound* guardTalk;
 ISound* backGroundSnd;
 ISound* footSndPlayr;
-**/
+
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -228,12 +228,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       //camera3DPerson->setView();
       accelerate = true;
       leftD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+     }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
@@ -245,12 +245,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       //camera3DPerson->setView();
       accelerate = true;
       rightD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+     }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -262,12 +262,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       //camera3DPerson->setView();
       accelerate = true;
       upD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+     }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -279,12 +279,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       //camera3DPerson->setView();
       accelerate = true;
       downD = true;
-    //   if (footSndPlayr->isFinished()) {
-    //     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    // }
-    //   else if (footSndPlayr->getIsPaused()) {
-    //     footSndPlayr->setIsPaused(false);
-    //   }
+       if (footSndPlayr->isFinished()) {
+         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
+     }
+       else if (footSndPlayr->getIsPaused()) {
+         footSndPlayr->setIsPaused(false);
+       }
     }
 
     if (accelerate) {
@@ -378,17 +378,17 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     //players
     if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-          /*engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
-            vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));*/
+          engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
+            vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
       for (int j = 0; j < gameObjects->wallList.size(); j++) {
         if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-              /*// Example of event based sound, just for fun
+              // Example of event based sound, just for fun
               if (noseSnd->isFinished()) {
                 noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
             }
               else if(noseSnd->getIsPaused()) {
-                noseSnd->setIsPaused(false);*/
-          //}
+                noseSnd->setIsPaused(false);
+          }
         }
       }
     }
@@ -411,8 +411,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get())) {
                   //do some shit
-
-                  /*if (guardTalk->isFinished()) {
+                  if (guardTalk->isFinished()) {
                     guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
                       vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
                   }
@@ -420,7 +419,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                     guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
                       vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
                     guardTalk->setIsPaused(false);
-                  }*/
+                  }
                 }
             }
         }
@@ -840,22 +839,83 @@ void initWalls(WorldGrid* gameObjects) {
 	}
 }
 
+//void initTexture() {
+//  float CubePos[] = {
+//    //-worldSize, -3.0, -worldSize, //back face 5 verts :0 - clockwise 
+//    //-worldSize, worldSize, -worldSize,
+//    //worldSize, worldSize, -worldSize,
+//    //worldSize, -3.0, -worldSize,
+//
+//    //worldSize, -3.0, worldSize, //right face 5 verts :4
+//    //worldSize, worldSize, worldSize,
+//    //worldSize, worldSize, -worldSize,
+//    //worldSize, -3.0, -worldSize,
+//
+//    //-worldSize, -3.0, worldSize, //front face 4 verts :8
+//    //-worldSize, worldSize, worldSize,
+//    //worldSize, worldSize, worldSize,
+//    //worldSize, -3.0, worldSize,
+//
+//    //-worldSize, -3.0, -worldSize, //left face 4 verts :12
+//    //-worldSize, worldSize, -worldSize,
+//    //-worldSize, worldSize, worldSize,
+//    //-worldSize, -3.0, worldSize
+//  };
+//
+//  static GLfloat CubeTex[] = {
+//    .75, 0, // back 
+//    .75, 1,
+//    .5, 1,
+//    .5, 0,
+//
+//    .25, 0, //right 
+//    .25, 1,
+//    .5, 1,
+//    .5, 0,
+//
+//    0, 0, //front 
+//    0, 1,
+//    .25, 1,
+//    .25, 0,
+//
+//    .75, 0, // left 
+//    .75, 1,
+//    1, 1,
+//    1, 0
+//  };
+//
+//  unsigned short idx[] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12 };
+//
+//  //g_CiboLen = 24;
+//  //glGenBuffers(1, &CubeBuffObj);
+//  //glBindBuffer(GL_ARRAY_BUFFER, CubeBuffObj);
+//  //glBufferData(GL_ARRAY_BUFFER, sizeof(CubePos), CubePos, GL_STATIC_DRAW);
+//
+//  //glGenBuffers(1, &CIndxBuffObj);
+//  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
+//  //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(idx), idx, GL_STATIC_DRAW);
+//
+//  //glGenBuffers(1, &TexBuffObj);
+//  //glBindBuffer(GL_ARRAY_BUFFER, TexBuffObj);
+//  //glBufferData(GL_ARRAY_BUFFER, sizeof(CubeTex), CubeTex, GL_STATIC_DRAW);
+//}
+
 int main(int argc, char **argv)
 {
-    // // irrKlang init
-    // engine = createIrrKlangDevice();
-    // if (!engine) {
-    //   return 0; // error starting up the engine
-    // }
-    // // Play something on loop for background music
-    // backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
-    // backGroundSnd->setVolume(.2);
-    // backGroundSnd->setIsPaused(false);
-    // noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
-    // footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
-    // guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
-    // guardTalk->setVolume(1);
-    // engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
+     // irrKlang init
+     engine = createIrrKlangDevice();
+     if (!engine) {
+       return 0; // error starting up the engine
+     }
+     // Play something on loop for background music
+     backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
+     backGroundSnd->setVolume(.2);
+     backGroundSnd->setIsPaused(false);
+     noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
+     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
+     guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
+     guardTalk->setVolume(1);
+     engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 
   // Initialise GLFW
   if (!glfwInit()) {
@@ -1001,10 +1061,10 @@ int main(int argc, char **argv)
       && glfwWindowShouldClose(window) == 0);
 
   glfwTerminate();
-    // backGroundSnd->drop();
-    // noseSnd->drop();
-    // footSndPlayr->drop();
-    // guardTalk->drop();
-    // engine->drop();
+     backGroundSnd->drop();
+     noseSnd->drop();
+     footSndPlayr->drop();
+     guardTalk->drop();
+     engine->drop();
   return 0;
 }

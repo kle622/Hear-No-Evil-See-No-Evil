@@ -11,6 +11,10 @@ varying vec3 vPos;
 varying vec3 vCol;
 varying vec3 vLight;
 // CHECKPOINT!!!!!!!!!
+uniform sampler2D uTexUnit;
+varying vec2 vTexCoord;
+uniform int uTexFlag;
+
 void main()
 {
 	vec3 normal_fin = normalize(vNormal);
@@ -27,4 +31,10 @@ void main()
 	vec3 ambient = UaColor;
 
 	gl_FragColor = vec4(diffuse + specular + ambient, 1.0);
+
+   // Texture stuff?
+   //vec4 texColor1 = texture2D(uTexUnit, vTexCoord);
+   //if (uTexFlag == 0 ) {
+      //gl_FragColor = texColor1;
+   //}
 }
