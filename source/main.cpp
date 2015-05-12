@@ -986,12 +986,12 @@ int main(int argc, char **argv)
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
       for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
+        //debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
       }
 
       vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
       for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
+        //debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
       }
     }
 
