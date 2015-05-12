@@ -10,7 +10,7 @@ Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	GameObject(mesh,
 	motionPath[0].pos, 0, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
-	scanRadius, material) {
+	scanRadius, material, false) {
 	this->motionPath = motionPath;
 	currentNode = 0;
 	pathDirection = sweepDirection = 1;
@@ -68,7 +68,8 @@ bool Guard::collide(GameObject* object) {
 
 bool Guard::detect(Player* player) {
 	// if object is within guard's cone of vision, return true
-	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)) {
+	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)
+            && glm::distance(this->position, player->position) < 35) {
 		material = 3;
 		//velocity = 0;
 		return true;

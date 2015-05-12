@@ -18,6 +18,7 @@ set(HEADERS
    GameObject/ShadowMapPass2Handles.h
    GameObject/Shape.h
    GameObject/Guard.h
+   GameObject/WinCondition.h
 
    GuardPath/PathNode.h
 
@@ -52,6 +53,7 @@ set(SOURCES
    GameObject/Pass2Handles.cpp
    GameObject/Shape.cpp
    GameObject/Guard.cpp
+   GameObject/WinCondition.cpp
 
    GuardPath/PathNode.cpp
 

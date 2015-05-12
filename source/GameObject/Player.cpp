@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Bunny.h"
 #include "../Camera/Camera.h"
+#include "WinCondition.h"
 #include <algorithm>
 
 Player::Player(Mesh *mesh,
@@ -8,7 +9,7 @@ Player::Player(Mesh *mesh,
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
         GameObject(mesh, position, rotation, scale, 
-         direction, WALK, dimensions, scanRadius, material) {
+         direction, WALK, dimensions, scanRadius, material, false) {
     maxVelocity = WALK;
     crouch = false;
     standingScale = scale.y;
@@ -23,8 +24,15 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
+            if (object->pushable && this->velocity > 10.0f) {
+                object->velocity = this->velocity;
+                object->direction = this->direction;
+            }
+            if (dynamic_cast<WinCondition*>(object)) {
+                //do win stuff here
+                printf("I WIN\n");
+            }
             position = oldPosition;
-            velocity = 0;
             return true;
         }
     }
@@ -67,4 +75,3 @@ void Player::changeDirection(vec3 direction) {
 
 void Player::SetMotion(float motion) {
     maxVelocity = motion;
-}

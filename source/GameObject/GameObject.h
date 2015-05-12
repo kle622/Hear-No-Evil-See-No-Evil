@@ -44,12 +44,15 @@ class GameObject {
   int material;
   
   bool alive;
+  bool pushable;
+
   Mesh* mesh;
+  
   //Constructor
   GameObject(Mesh *mesh, 
 	     vec3 position, float rotation, vec3 scale, 
 	     vec3 direction, float velocity, vec3 dimensions, 
-       int scanRadius, int material);
+       int scanRadius, int material, bool pushable);
   
   //Object Methods
   virtual void move(float time);
