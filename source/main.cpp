@@ -239,9 +239,9 @@ void initFramebuffer() {
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
 
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
-  }
+  //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    //cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+  //}
 
   // Unbind the arrays                                                                                              
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
