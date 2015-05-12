@@ -206,6 +206,18 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
+  case 7: //box stack
+    glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 8: //chairs
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
+    glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
   }
 }
 
@@ -771,7 +783,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(3.0, 5, 3.0),
           1,
-          0,
+          7,
           false
           )));
           break;
@@ -785,7 +797,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(2.8, 1.5, 1.4),
           1,
-          0,
+          5,
           true
           )));
           break;
@@ -799,7 +811,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(1.5, 2, 1.5),
           1,
-          0,
+          8,
           true
           )));
           break;
