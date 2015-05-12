@@ -57,6 +57,8 @@ void Player::move(float time) {
     else {
         scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
+        crouchStamina += 1.0f * time;
+        crouchStamina = std::min(crouchStamina, MAX_CROUCH_STAMINA);
     }
     printf("crouchStamina: %f\n", crouchStamina);
 }
