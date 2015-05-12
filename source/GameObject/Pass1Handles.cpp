@@ -64,3 +64,15 @@ void Pass1Handles::draw(GameObject* obj) {
     glDrawElements(GL_TRIANGLES, nIndices, GL_UNSIGNED_INT, 0);
   }
 }
+
+void Pass1Handles::draw(Shape* obj) {
+  GLSL::enableVertexAttribArray(this->aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, obj->posBuffer);
+  glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glDrawArrays(GL_TRIANGLES, 0, obj->indices);
+
+  //GLSL::disableVertexAttribArray(this->aPosition);
+  // glBindBuffer(GL_ARRAY_BUFFER, 0);
+  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}

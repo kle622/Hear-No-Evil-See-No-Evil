@@ -8,7 +8,6 @@ uniform vec3 UaColor;	// ambient
 uniform vec3 UdColor;	// diffuse
 uniform vec3 UsColor;	// specular
 uniform float Ushine;
-uniform int uShadeModel;
 uniform mat4 uDepthMVP;
 
 varying vec3 vNormal;
