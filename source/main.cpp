@@ -210,6 +210,18 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
+  case 7: //box stack
+    glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 8: //chairs
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
+    glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
   }
 }
 
@@ -311,10 +323,10 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       leftD = true;
        if (footSndPlayr->isFinished()) {
          footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-     }
+       }
        else if (footSndPlayr->getIsPaused()) {
          footSndPlayr->setIsPaused(false);
-       }
+    }
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
@@ -330,7 +342,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
      }
        else if (footSndPlayr->getIsPaused()) {
          footSndPlayr->setIsPaused(false);
-       }
+    }
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -346,7 +358,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
      }
        else if (footSndPlayr->getIsPaused()) {
          footSndPlayr->setIsPaused(false);
-       }
+    }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -490,8 +502,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 				  else if (noseSnd->getIsPaused()) {
 					  noseSnd->setIsPaused(false);
 				  }
-         }
 			  }
+		  }
 		  }
 	  //}
 
@@ -499,8 +511,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	  if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
 		  if (guard->detect(playerObject)) {
 			  if (guardTalk->isFinished()) {
-				  guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
-					  vec3df(playerObject->position.x, playerObject->position.y, playerObject->position.z), false, false, true);
+			    guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
+			    	  vec3df(playerObject->position.x, playerObject->position.y, playerObject->position.z), false, false, true);
 			  }
 			  else if (guardTalk->getIsPaused()) {
 				  guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
@@ -776,7 +788,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(3.0, 5, 3.0),
           1,
-          0,
+          7,
           false
           )));
           break;
@@ -790,7 +802,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(2.8, 1.5, 1.4),
           1,
-          0,
+          5,
           true
           )));
           break;
@@ -804,7 +816,7 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(1.5, 2, 1.5),
           1,
-          0,
+          8,
           true
           )));
           break;
@@ -1049,7 +1061,7 @@ int main(int argc, char **argv)
      footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
      guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
      guardTalk->setVolume(1);
-	   loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
+	 loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
      winSnd = engine->play2D("../dependencies/irrKlang/media/victory_music.wav", false, true, true);
      //engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
 

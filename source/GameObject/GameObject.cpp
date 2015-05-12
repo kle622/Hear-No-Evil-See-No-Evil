@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "Player.h"
 #define DECELERATION 0.45f
 
 GameObject::GameObject(Mesh *mesh,
@@ -56,7 +57,7 @@ bool GameObject::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > 10.0f) {
+            if (object->pushable && this->velocity > WALK) {
               object->velocity = this->velocity;
               object->direction = this->direction;
             }
