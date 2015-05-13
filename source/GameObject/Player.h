@@ -15,8 +15,8 @@ using namespace glm;
 #define ACCELERATION 0.5f
 #define DECELERATION 0.5f
 #define CROUCH_SCALE 0.5f
-#define MAX_STAMINA 300
-#define MAX_CROUCH_STAMINA 300
+#define MAX_STAMINA 5.0f
+#define MAX_CROUCH_STAMINA 5.0f
 
 class Player: public GameObject {
  protected:
@@ -27,8 +27,8 @@ class Player: public GameObject {
   public:
   //members
   bool crouch;
-  int stamina = MAX_STAMINA;
-  int crouchStamina = MAX_CROUCH_STAMINA;
+  float stamina = MAX_STAMINA;
+  float crouchStamina = MAX_CROUCH_STAMINA;
   int score = 0;
   
   //Constructor
