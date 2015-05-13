@@ -9,12 +9,14 @@ uniform vec3 UdColor;	// diffuse
 uniform vec3 UsColor;	// specular
 uniform float Ushine;
 uniform mat4 uDepthMVP;
+uniform vec2 texCoordIn;
 
 varying vec3 vNormal;
 varying vec3 vPos;
 varying vec3 vLight;
 varying vec3 vCol;
 varying vec4 ShadowCoord;
+varying vec2 texCoordOut;
 
 // CHECKPOINT!!!!!!!!!
 void main()
@@ -29,4 +31,6 @@ void main()
 	vPos = pre_pos;
 	
 	ShadowCoord = uDepthMVP * vec4(aPosition, 1.0);
+
+	texCoordOut = texCoordIn;
 }

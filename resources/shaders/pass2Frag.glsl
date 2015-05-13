@@ -5,6 +5,9 @@ uniform float Ushine;
 uniform vec3 uLightPos;
 uniform vec3 uCamPos;
 uniform sampler2D shadowMap;
+uniform vec2 texCoordOut;
+uniform sampler2D texture;
+uniform int hasText;
 
 varying vec3 vNormal;
 varying vec3 vPos;
@@ -34,5 +37,11 @@ void main() {
            visibility = 0.5;
     	}
 	
-	gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
+	//gl_FragColor = vec4(visibility * (diffuse 
+	//+ specular + ambient), 1.0);
+	gl_FragColor = vec4(visibility * (diffuse 
+		+specular) + (ambient * 0.8), 1.0);
+	if (hasText == 1) {
+		gl_FragColor = texture2D(texture, texCoordOut);
+	}
 }

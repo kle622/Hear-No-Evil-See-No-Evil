@@ -61,6 +61,11 @@ bool Handles::installShaders(const std::string &vShaderName, const std::string &
   this->uMatSpec = GLSL::getUniformLocation(this->prog, "UsColor");
   this->uMatShine = GLSL::getUniformLocation(this->prog, "Ushine");
   this->uCamPos = GLSL::getUniformLocation(this->prog, "uCamPos");
+  this->texCoordId = GLSL::getAttribLocation(this->prog, "texCoord");
+  this->texId = GLSL::getUniformLocation(this->prog, "texture");
+  this->hasText = GLSL::getUniformLocation(this->prog, "hasText");
+  glActiveTexture(GL_TEXTURE0);
+  glUniform1i(texId, 0);
 
 
   assert(glGetError() == GL_NO_ERROR);

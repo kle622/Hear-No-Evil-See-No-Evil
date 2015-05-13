@@ -440,7 +440,7 @@ void drawPass1(WorldGrid* gameObjects) {
   //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   //pass1Handles.draw(ground);
   vector<shared_ptr<GameObject>> drawList = gameObjects->list;
-  vector<shared_ptr<GameObject>> walls = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
   drawList.insert(drawList.end(), walls.begin(), walls.end());
   for (int i = 0; i < drawList.size(); i++) {
     SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
@@ -464,6 +464,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
+    if (drawList[i]->mesh->hasTexture) {
+      glUniform1i(mainShader.hasText, 1);
+    }
+    else {
+      glUniform1i(mainShader.hasText, 0);
+    }
     SetMaterial(drawList[i]->material);
     SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
     SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
@@ -1107,6 +1113,8 @@ int main(int argc, char **argv)
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  playerMesh.hasTexture = true;
+  playerMesh.loadShapes(resPath(sysPath("textures", "Player_texture.bmp")));
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));

@@ -11,6 +11,21 @@ void Mesh::loadShapes(const std::string &objFile) {
   //this->computeBound();
 }
 
+void Mesh::loadTextures(Handles *handles, const std::string &filename) {
+  glGenTextures(1, &texBufferId);
+  glBindTexture(GL_TEXTURE_2D, texBufferId);
+  bmp = imageLoad(filename.c_str());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_SIZE, TEX_SIZE,
+    0, GL_BGR, GL_UNSIGNED_BYTE, bmp);
+  
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+}
+
 void Mesh::computeBound() {
   glm::vec3 result = glm::vec3(0, 0, 0);
   float minX, minY, minZ;
@@ -124,6 +139,7 @@ void Mesh::sendNormals() {
 	glGenBuffers(1, &this->norBufObj);
 	glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
 	glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+
 	/**
     // compute the normals per vertex
     int idx1, idx2, idx3;
@@ -187,6 +203,12 @@ void Mesh::drawObject(Handles *handles)
   glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
   glVertexAttribPointer(handles->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+  if (hasTexture) {
+    GLSL::enableVertexAttribArray(handles->texCoordId);
+    glBindBuffer(GL_ARRAY_BUFFER, this->texBufObj);
+    glVertexAttribPointer(handles->texCoordId, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+
   for (int s = 0; s < this->shapes.size(); ++s) {
     // Bind index array for drawing
     int nIndices = (int)this->shapes[s].mesh.indices.size();
@@ -203,4 +225,106 @@ void Mesh::drawObject(Handles *handles)
   // Disable and unbind
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+/* BMP file loader loads a 24-bit bmp file only */
+
+/*
+* getint and getshort are help functions to load the bitmap byte by byte
+*/
+static unsigned int getint(FILE *fp) {
+  int c, c1, c2, c3;
+
+  /*  get 4 bytes */
+  c = getc(fp);
+  c1 = getc(fp);
+  c2 = getc(fp);
+  c3 = getc(fp);
+
+  return ((unsigned int)c) +
+    (((unsigned int)c1) << 8) +
+    (((unsigned int)c2) << 16) +
+    (((unsigned int)c3) << 24);
+}
+
+static unsigned int getshort(FILE *fp){
+  int c, c1;
+
+  /* get 2 bytes*/
+  c = getc(fp);
+  c1 = getc(fp);
+
+  return ((unsigned int)c) + (((unsigned int)c1) << 8);
+}
+
+/*  quick and dirty bitmap loader...for 24 bit bitmaps with 1 plane only.  */
+
+char* imageLoad(const char* filename) {
+  FILE *file;
+  unsigned long size;                 /*  size of the image in bytes. */
+  unsigned long i;                    /*  standard counter. */
+  unsigned short int planes;          /*  number of planes in image (must be 1)  */
+  unsigned short int bpp;             /*  number of bits per pixel (must be 24) */
+  char temp;                          /*  used to convert bgr to rgb color. */
+  char* data;
+
+  /*  make sure the file is there. */
+  if ((file = fopen(filename, "rb")) == NULL) {
+    printf("File Not Found : %s\n", filename);
+    return 0;
+  }
+
+  /*  seek through the bmp header, up to the width height: */
+  fseek(file, 18, SEEK_CUR);
+
+  /*  No 100% errorchecking anymore!!! */
+
+  /*  read the width */
+  int sizeX = getint(file);
+
+  /*  read the height */
+  int sizeY = getint(file);
+
+  /*  calculate the size (assuming 24 bits or 3 bytes per pixel). */
+  size = sizeX * sizeY * 3;
+
+  /*  read the planes */
+  planes = getshort(file);
+  if (planes != 1) {
+    printf("Planes from %s is not 1: %u\n", filename, planes);
+    return 0;
+  }
+
+  /*  read the bpp */
+  bpp = getshort(file);
+  if (bpp != 24) {
+    printf("Bpp from %s is not 24: %u\n", filename, bpp);
+    return 0;
+  }
+
+  /*  seek past the rest of the bitmap header. */
+  fseek(file, 24, SEEK_CUR);
+
+  /*  read the data.  */
+  data = (char *)malloc(size);
+  if (data == NULL) {
+    printf("Error allocating memory for color-corrected image data");
+    return 0;
+  }
+
+  if ((i = fread(data, size, 1, file)) != 1) {
+    printf("Error reading image data from %s.\n", filename);
+    return 0;
+  }
+
+  for (i = 0; i<size; i += 3) { /*  reverse all of the colors. (bgr -> rgb) */
+    temp = data[i];
+    data[i] = data[i + 2];
+    data[i + 2] = temp;
+  }
+
+  fclose(file); /* Close the file and release the filedes */
+
+  /*  we're done. */
+  return data;
 }
