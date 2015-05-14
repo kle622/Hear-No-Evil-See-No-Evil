@@ -28,11 +28,22 @@ void main() {
 	float temp = dot(vNormal, normalize(normalize(uCamPos - vec3(vPos)) + vLight));
 	temp = temp < 0.0 ? 0.0: temp;
 	vec3 specular = UsColor * pow(temp, Ushine); // n=1
-	vec3 ambient = UaColor;
+	vec3 ambient = UaColor * 0.3;
 
-	if ( texture2D(shadowMap, ShadowCoord.xy).z < ShadowCoord.z - bias) {
-           visibility = 0.0;
-    	}
+	/*for (int i = 0; i < 4; i++) {
+	   if ( texture2D(shadowMap, ShadowCoord.xy + vec2( -0.94201624, -0.39906216 )).z < ShadowCoord.z - bias) {
+              visibility -= 0.2;
+    	   }
+	}*/
+
+	visibility -= 0.1 *  (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0, 
+           (ShadowCoord.z-bias)/ShadowCoord.w))).z);
+	visibility -= 0.1 * (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy + vec2( 0.94558609, -0.76890725)  / 700.0, 
+	   (ShadowCoord.z-bias)/ShadowCoord.w))).z);
+	visibility -= 0.1 * (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy +  vec2( -0.094184101, -0.9293887)  / 700.0, 
+	   (ShadowCoord.z-bias)/ShadowCoord.w))).z);
+	visibility -= 0.1 * (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0, 
+	   (ShadowCoord.z-bias)/ShadowCoord.w))).z);
 	
 	gl_FragColor = vec4(visibility * (diffuse + specular) + ambient, 1.0);
 	//gl_FragColor = texture2D(shadowMap, ShadowCoord.xy);
