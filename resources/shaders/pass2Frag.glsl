@@ -16,23 +16,48 @@ varying vec4 ShadowCoord;
 void main() {
      float visibility = 1.0;
      float bias = 0.005;
-	//vec3 normal_fin = normalize(vNormal);
-	//vec3 light_dir = normalize(vLight);
-	//vec3 light_dir = normalize(uLightPos - vec3(gl_FragCoord));
 
 	vec3 diffuse = UdColor * dot(vNormal, vLight);
 	diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
 	diffuse.y = diffuse.y < 0.0 ? 0.0: diffuse.y;
 	diffuse.z = diffuse.z < 0.0 ? 0.0: diffuse.z;
-	//vec3 diffuse = vec3(ShadowCoord.z, gl_FragCoord.z, gl_FragCoord.z) * dot(normal_fin, light_dir);
 	float temp = dot(vNormal, normalize(normalize(uCamPos - vec3(vPos)) + vLight));
 	temp = temp < 0.0 ? 0.0: temp;
 	vec3 specular = UsColor * pow(temp, Ushine); // n=1
-	vec3 ambient = UaColor;
+	vec3 ambient = UaColor * 0.3;
 
-	if ( texture2D(shadowMap, ShadowCoord.xy).z < ShadowCoord.z - bias) {
-           visibility = 0.5;
+	if (texture2D(shadowMap, ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0).z  <  (ShadowCoord.z-bias)/ShadowCoord.w) {
+	   visibility -= 0.2;
+	}
+	
+	if (texture2D(shadowMap, ShadowCoord.xy + vec2( 0.94558609, -0.76890725)  / 700.0).z  <  (ShadowCoord.z-bias)/ShadowCoord.w) {
+           visibility -= 0.2;
+        }
+
+	if (texture2D(shadowMap, ShadowCoord.xy + vec2( -0.094184101, -0.9293887)  / 700.0).z  <  (ShadowCoord.z-bias)/ShadowCoord.w) {
+           visibility -= 0.2;
+	}
+
+	if (texture2D(shadowMap, ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0).z  <  (ShadowCoord.z-bias)/ShadowCoord.w) {
+           visibility -= 0.2;
     	}
 	
-	gl_FragColor = vec4(visibility * (diffuse + specular ) + (ambient*.8), 1.0);
+
+/*	visibility -= 0.2 *  (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0, 
+           (ShadowCoord.z-bias)/ShadowCoord.w))).z);
+	visibility -= 0.2 * (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy + vec2( 0.94558609, -0.76890725)  / 700.0, 
+	   (ShadowCoord.z-bias)/ShadowCoord.w))).z);
+	visibility -= 0.2 * (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy +  vec2( -0.094184101, -0.9293887)  / 700.0, 
+	   (ShadowCoord.z-bias)/ShadowCoord.w))).z);
+	visibility -= 0.2 * (1.0 - texture2D(shadowMap, vec2(vec3(ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0, 
+	   (ShadowCoord.z-bias)/ShadowCoord.w))).z);*/
+
+	/*visibility -= 0.2 *  (1.0 - texture2D(shadowMap, ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0).z);
+        visibility -= 0.2 * (1.0 - texture2D(shadowMap, ShadowCoord.xy + vec2( 0.94558609, -0.76890725)  / 700.0).z);
+        visibility -= 0.2 * (1.0 - texture2D(shadowMap, ShadowCoord.xy +  vec2( -0.094184101, -0.9293887)  / 700.0).z);
+        visibility -= 0.2 * (1.0 - texture2D(shadowMap, ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0).z);*/
+	
+	gl_FragColor = vec4(visibility * (diffuse + specular) + ambient, 1.0);
+	//gl_FragColor = texture2D(shadowMap, ShadowCoord.xy);
+	//gl_FragColor = vec4(ShadowCoord.x, 0.0, ShadowCoord.z, 1.0);
 }

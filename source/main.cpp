@@ -99,7 +99,7 @@ bool boxes = false;
 DebugDraw debugDraw;
 MySound *soundObj;
 
-glm::vec3 g_light(0, 100, 0);
+glm::vec3 g_light(0, 10, -5);
 
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -210,11 +210,12 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
 
 void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale) {
 
-  glm::vec3 lightInv = glm::vec3(0, 0, 0) - g_light;
-  glm::mat4 depthProjMatrix = glm::ortho<float>(-100, 100, -100, 100, -100, 200);
-  glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  glm::vec3 lightInv = g_light;
+  glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
+  glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0));
   glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) * 
     glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
+  //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
 
   glm::mat4 biasMatrix(
@@ -223,12 +224,15 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale) {
 		       0.0, 0.0, 0.5, 0.0,
 		       0.5, 0.5, 0.5, 1.0
 		       );
+
   glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
-  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthBiasMVP)) : 
+  
+  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) : 
     safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
   //cerr << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
 
 }
 
@@ -241,11 +245,11 @@ void initFramebuffer() {
   glGenTextures(1, &shadowMap);
   assert(shadowMap > 0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 1080, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
@@ -263,7 +267,7 @@ void initFramebuffer() {
 
 void initGL() {
   // Set the background color
-  glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
@@ -392,15 +396,18 @@ void drawPass1(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
   //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //SetDepthMVP(true, ground->position, ground->rotation, ground->scale);
   //pass1Handles.draw(ground);
   vector<shared_ptr<GameObject>> drawList = gameObjects->list;
-  vector<shared_ptr<GameObject>> walls = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
   drawList.insert(drawList.end(), walls.begin(), walls.end());
   for (int i = 0; i < drawList.size(); i++) {
     SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
     pass1Handles.draw(drawList[i].get());
     //drawList[i]->draw();
   }
+
+  gameObjects->update();
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
@@ -505,22 +512,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
 
 void beginPass1Draw() {
-  glBindTexture(GL_TEXTURE_2D, 0);
-  // assert(glGetError() == GL_NO_ERROR);
-  glEnable(GL_TEXTURE_2D);
-  //assert(glGetError() == GL_NO_ERROR);
-  glEnable(GL_DEPTH_TEST);            
-  //cerr << "BeginPass1Draw error line 529: " << glGetError() << endl;
-  //assert(glGetError() == GL_NO_ERROR);                                                                              
-  //glEnable(GL_CULL_FACE);             
-  //assert(glGetError() == GL_NO_ERROR);                                                                              
-  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
-  //cerr << "BeginPass1Draw error line 534: " << glGetError() << endl;
-  //assert(glGetError() == GL_NO_ERROR);                                                                   
-  //glViewport(0, 0, 1080, 1080);
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  glEnable(GL_DEPTH_TEST);
   glCullFace(GL_FRONT);
   glDrawBuffer(GL_NONE);
   //cerr << "BeginPass1Draw error: " << glGetError() << endl;
@@ -530,8 +526,6 @@ void beginPass1Draw() {
   glUseProgram(pass1Handles.prog);
   assert(glGetError() == GL_NO_ERROR);
   //cerr << glGetError() << endl;
-
-  //SetDepthMVP(true);
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
 }
@@ -540,7 +534,7 @@ void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 }
 
 void beginPass2Draw() {
@@ -575,8 +569,8 @@ void beginPass2Draw() {
 
 void endDrawGL() {
   
-  GLSL::disableVertexAttribArray(mainShader.aPosition);
-  GLSL::disableVertexAttribArray(mainShader.aNormal);
+  GLSL::disableVertexAttribArray(pass2Handles.aPosition);
+  GLSL::disableVertexAttribArray(pass2Handles.aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -1106,7 +1100,7 @@ int main(int argc, char **argv)
     //    pass2Handles.uProjMatrix = camera3DPerson->getProjection();
     //pass2Handles.uViewMatrix = camera3DPerson->getView();
     drawGameObjects(&gameObjects, deltaTime);
-    // endDrawGL();
+    endDrawGL();
     if (debug || boxes) {
       //debugDraw.drawAll();
       debugDraw.clear();
