@@ -212,7 +212,7 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale) {
 
   glm::vec3 lightInv = g_light;
   glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
-  glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0));
+  glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
   glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) * 
     glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
   //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
