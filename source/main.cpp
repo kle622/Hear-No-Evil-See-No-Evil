@@ -445,7 +445,7 @@ void drawPass1(WorldGrid* gameObjects) {
   //SetDepthMVP(true, ground->position, ground->rotation, ground->scale);
   //pass1Handles.draw(ground);
   vector<shared_ptr<GameObject>> drawList = gameObjects->list;
-  //vector<shared_ptr<GameObject>> walls = gameObjects->list;
+  //vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
   //drawList.insert(drawList.end(), walls.begin(), walls.end());
   for (int i = 0; i < drawList.size(); i++) {
     SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
