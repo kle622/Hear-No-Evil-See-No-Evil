@@ -17,8 +17,7 @@ varying vec3 vCol;
 varying vec4 ShadowCoord;
 
 // CHECKPOINT!!!!!!!!!
-void main()
-{
+void main() {
 	vec3 pre_pos = vec3(uModelMatrix * vec4(aPosition, 1.0));
 	gl_Position = uProjMatrix * uViewMatrix * vec4(pre_pos, 1.0); // vec4
 	vec3 light_dir = normalize(vec3(vec4(uLightPos, 0.0)) - pre_pos);
