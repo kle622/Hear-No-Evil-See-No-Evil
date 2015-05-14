@@ -1,8 +1,10 @@
 #include "Player.h"
 #include "Bunny.h"
 #include "../Camera/Camera.h"
+#include "../MySound/MySound.h"
 #include "WinCondition.h"
 #include <algorithm>
+MySound* playrSoundObj = new MySound();
 
 Player::Player(Mesh *mesh,
     vec3 position, float rotation, vec3 scale, 
@@ -30,6 +32,7 @@ bool Player::collide(GameObject* object) {
             }
             if (dynamic_cast<WinCondition*>(object)) {
                 //do win stuff here
+                playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
                 printf("I WIN\n");
             }
             position = oldPosition;
@@ -67,6 +70,15 @@ void Player::accelerate() {
     velocity = std::max(MIN_VELOCITY, velocity);
     velocity += ACCELERATION;
     velocity = std::min(maxVelocity, velocity);
+    if (maxVelocity == WALK) {
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/footstepsWalk2.wav");
+    }
+    else if (maxVelocity == RUN) {
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
+    }
+    else if (maxVelocity == CROUCH) {
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/crouchWalk.wav");
+    }
 }
 
 void Player::decelerate() {

@@ -31,7 +31,9 @@ set(HEADERS
 
    DebugDraw/DebugDraw.h
    DebugDraw/DebugHandles.h
-   Sound/Sound.h
+
+   MySound/MySound.h
+   Textures/Textures.h
 )
 
 # List all .c / .cpp files here
@@ -65,5 +67,7 @@ set(SOURCES
 
    DebugDraw/DebugDraw.cpp
    DebugDraw/DebugHandles.cpp
-   Sound/Sound.cpp
+
+   MySound/MySound.cpp
+   Textures/Textures.h
 )

@@ -21,11 +21,11 @@ using namespace glm;
 class Player: public GameObject {
  protected:
   Mesh *mesh;
-  float maxVelocity;
   float standingScale;
 
   public:
   //members
+  float maxVelocity;
   bool crouch;
   float stamina = MAX_STAMINA;
   float crouchStamina = MAX_CROUCH_STAMINA;
