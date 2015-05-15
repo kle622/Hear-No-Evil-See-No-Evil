@@ -58,6 +58,9 @@ void Player::move(float time) {
             crouch = false;
     }
     else {
+        if (crouchStamina <= 0) {
+            maxVelocity = WALK;
+        }
         scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
         crouchStamina += 0.5f * time;
@@ -93,10 +96,5 @@ void Player::changeDirection(vec3 direction) {
 }
 
 void Player::SetMotion(float motion) {
-    if (motion == CROUCH && crouchStamina > 0.0f)
-        maxVelocity = motion;
-    else if (motion == RUN && stamina > 0.0f)
-        maxVelocity = motion;
-    else
-        maxVelocity = motion;
+    maxVelocity = motion;
 }
