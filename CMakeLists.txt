@@ -13,6 +13,23 @@ set(LIBS ${LIBS} ${IRRKLANG_LIBRARIES})
 # Source / header files
 include("sources.txt")
 
+# irrKlang
+find_library(IRRKLANG_LIBRARY
+    NO_DEFAULT_PATH
+    PATH_SUFFIXES
+    lib
+    NAMES
+    IrrKlang
+    irrKlang
+    irrklang
+    PATHS
+    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/bin/macosx-gcc
+    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/bin/linux-gcc-64
+    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/lib/Winx64-visualStudio
+    )
+
+set(LIBS ${LIBS} ${IRRKLANG_LIBRARY})
+
 # GLFW
 set(GLFW_DIR "${DEP_DIR}/glfw")
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")

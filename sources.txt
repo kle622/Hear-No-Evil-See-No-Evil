@@ -34,6 +34,9 @@ set(HEADERS
 
    MySound/MySound.h
    Textures/Textures.h
+
+   ../dependencies/irrKlang/include/irrKlang.h
+   ../dependencies/irrKlang/include/conio.h
 )
 
 # List all .c / .cpp files here
