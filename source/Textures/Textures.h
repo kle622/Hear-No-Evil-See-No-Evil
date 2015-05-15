@@ -44,7 +44,7 @@ public:
   Textures(Mesh* mesh, Handles* handles);
 
   GLvoid LoadTexture(char* image_file, int texID);
-  void Textures::drawTexture(int texId);
+  void drawTexture(int texId);
   //unsigned int getint(FILE *fp);
   //unsigned int getshort(FILE *fp);
   int ImageLoad(char *filename, Image *image);
