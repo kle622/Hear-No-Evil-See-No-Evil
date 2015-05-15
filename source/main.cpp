@@ -512,7 +512,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
 
 void beginPass1Draw() {
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBufObj);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
