@@ -4,38 +4,14 @@ project(Project)
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 
-#irrklang
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEP_DIR}/irrKlang/")
-#find_package(IrrKlang REQUIRED)
-#include_directories(${IRRKLANG_INCLUDE_DIRS})
-#set(LIBS ${LIBS} ${IRRKLANG_LIBRARIES})
+irrklang
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEP_DIR}/irrKlang/")
+find_package(IrrKlang REQUIRED)
+include_directories(${IRRKLANG_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${IRRKLANG_LIBRARIES})
 
 # Source / header files
 include("sources.txt")
-
-# irrKlang
-find_library(IRRKLANG_LIBRARY
-    NO_DEFAULT_PATH
-    PATH_SUFFIXES
-    lib
-    NAMES
-    IrrKlang
-    irrKlang
-    irrklang
-    PATHS
-    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/bin/macosx-gcc
-    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/bin/linux-gcc-64
-    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/lib/Winx64-visualStudio
-    )
-find_path(IRRKLANG_INCLUDE_DIR
-    NAMES
-    irrKlang.h
-    conio.h
-    PATHS
-    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/include
-    )
-include_directories(${IRRKLANG_INCLUDE_DIR})
-set(LIBS ${LIBS} ${IRRKLANG_LIBRARY})
 
 # GLFW
 set(GLFW_DIR "${DEP_DIR}/glfw")
