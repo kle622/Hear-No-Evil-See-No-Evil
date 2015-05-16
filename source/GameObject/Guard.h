@@ -29,7 +29,7 @@ public:
 	int originalMaterial;
 
 	//Constructor
-	Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
+	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
 		int scanRadius, int material, vector<PathNode> motionPath);
 
 	//Object methods

@@ -18,10 +18,6 @@ class Mesh {
   void loadShapes(const std::string &objFile);
     void drawObject(Handles *handles);
     float radius;
-  private:
-    void computeBound(void);
-    void resize_obj(void);
-    void sendNormals(void);
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::vector<float> norBuf;
@@ -31,8 +27,12 @@ class Mesh {
     GLuint norBufObj;
     GLuint indBufObj;
     GLuint texBufObj;
-    glm::vec3 center;
     int material;
+  private:
+    void computeBound(void);
+    void resize_obj(void);
+    void sendNormals(void);
+    glm::vec3 center;
 };
 
 #endif

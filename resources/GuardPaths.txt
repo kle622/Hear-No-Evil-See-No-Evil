@@ -8,15 +8,50 @@
 
 Guard 1:
 // line reserved for guard properties KEEP THIS HERE!
-Path: 5
--5 0 8 x 2 r
--6 0 7 y 0 x
-0 0 0 n 1.2 x
--6 0 -6 y 0 x
--5 0 -7 x 2.5 l
+Path: 4
+-7 0 32 x 1 r
+-24 0 34 y 1 x
+-40 0 27 n 1 x
+-52 0 39 x 1 l
 
 Guard 2:
 // line reserved for guard properties KEEP THIS HERE!
-Path: 2
-3 0 4 x 1 r
-3 0 -4 x 1.9 r
+Path: 4
+-11 0 50 x 1 r
+-26 0 51 y 1 x
+-36 0 52 n 1 x
+-51 0 47 x 1 l
+
+Guard 3:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 4
+-50 0 67 x 1 r
+-36 0 81 y 1 x
+-43 0 94 n 1 x
+-55 0 91 x 1 l
+
+Guard 4:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 4
+-30 0 94 x 1 r
+-35 0 81 y 1 x
+-27 0 71 n 1 x
+-13 0 67 x 1 l
+
+Guard 5:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 4
+-11 0 82 x 1 r
+-22 0 89 y 1 x
+-16 0 96 n 1 x
+-32 0 97 x 1 l
+
+Guard 6:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 4
+-8 0 22 x 1 r
+-12 0 27 y 1 x
+-23 0 24 n 1 x
+-34 0 37 x 1 l
+
+

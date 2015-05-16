@@ -111,7 +111,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
     if (NULL == dynamic_pointer_cast<Guard>(*iter) && NULL == dynamic_pointer_cast<Player>(*iter)) {
       // send bounding box to debug output
 #ifdef DEBUG
-      this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f), true);
+      this->debug->addBox((*iter)->position, (*iter)->dimensions, glm::vec3(1.0f, 0.64f, 0.0f), true, true);
 #endif
       // converting object bounding box to OBB
       OBB obb((*iter)->position, (*iter)->dimensions);

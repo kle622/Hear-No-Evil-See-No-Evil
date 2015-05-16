@@ -1,15 +1,17 @@
 #include "Player.h"
 #include "Bunny.h"
 #include "../Camera/Camera.h"
+#include "../MySound/MySound.h"
 #include "WinCondition.h"
 #include <algorithm>
+MySound* playrSoundObj = new MySound();
 
-Player::Player(Mesh *mesh, Handles *handles,
+Player::Player(Mesh *mesh,
     vec3 position, float rotation, vec3 scale, 
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
-        GameObject(mesh, handles, position, rotation, scale, 
-         direction, WALK, dimensions, scanRadius, material, false) {
+        GameObject(mesh, position, rotation, scale, 
+         direction, WALK, dimensions, scanRadius, material, true) {
     maxVelocity = WALK;
     crouch = false;
     standingScale = scale.y;
@@ -24,12 +26,13 @@ bool Player::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > 10.0f) {
+            if (object->pushable && this->velocity > WALK) {
                 object->velocity = this->velocity;
                 object->direction = this->direction;
             }
             if (dynamic_cast<WinCondition*>(object)) {
                 //do win stuff here
+                playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
                 printf("I WIN\n");
             }
             position = oldPosition;
@@ -49,17 +52,36 @@ void Player::move(float time) {
             scale.y -= 0.1f * (standingScale - CROUCH_SCALE);
             position.y -= 0.05 * standingScale;
         }
+        crouchStamina -= 1.0f * time;
+        crouchStamina = std::max(crouchStamina, 0.0f);
+        if (crouchStamina == 0.0f)
+            crouch = false;
     }
     else {
+        if (crouchStamina <= 0) {
+            maxVelocity = WALK;
+        }
         scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
+        crouchStamina += 0.5f * time;
+        crouchStamina = std::min(crouchStamina, MAX_CROUCH_STAMINA);
     }
+    printf("crouchStamina: %f\n", crouchStamina);
 }
 
 void Player::accelerate() {
     velocity = std::max(MIN_VELOCITY, velocity);
     velocity += ACCELERATION;
     velocity = std::min(maxVelocity, velocity);
+    if (maxVelocity == WALK) {
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/footstepsWalk2.wav");
+    }
+    else if (maxVelocity == RUN) {
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
+    }
+    else if (maxVelocity == CROUCH) {
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/crouchWalk.wav");
+    }
 }
 
 void Player::decelerate() {

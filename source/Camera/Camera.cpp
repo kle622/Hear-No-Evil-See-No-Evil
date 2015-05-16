@@ -75,7 +75,7 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   glm::vec4 farPlane = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
 
 #ifdef DEBUG
-  this->debug->addBox(left, right, bottom, top, nearPlane, farPlane, glm::vec3(0.99f, 0.85f, 0.55f), false);
+  this->debug->addBox(left, right, bottom, top, nearPlane, farPlane, glm::vec3(0.99f, 0.85f, 0.55f), false, false);
 
   /*std::cout << "left: <" << left.x << ", " << left.y << ", " << left.z << ", " << left.w << ">" << std::endl;
   std::cout << "right: <" << right.x << ", " << right.y << ", " << right.z << ", " << right.w << ">" << std::endl;

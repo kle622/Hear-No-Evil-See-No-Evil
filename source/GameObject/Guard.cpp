@@ -5,9 +5,9 @@
 #include "../glm/ext.hpp"
 #include "../glm/core/_swizzle_func.hpp"
 
-Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
+Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	int scanRadius, int material, vector<PathNode> motionPath) :
-	GameObject(mesh, handles,
+	GameObject(mesh,
 	motionPath[0].pos, 0, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
 	scanRadius, material, false) {
@@ -20,6 +20,7 @@ Guard::Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dime
 }
 
 void Guard::move(float time) {
+	oldPosition = position;
 	if (moving) { // moving between path nodes
 		//set movement direction
 		direction = normalize(motionPath[currentNode + pathDirection].pos - position);
@@ -62,14 +63,30 @@ void Guard::move(float time) {
 }
 
 bool Guard::collide(GameObject* object) {
-	// moved old code from here down to detect. Should improve performance drastically.
-	return false;
+    float thisRadius = dimensions.x + dimensions.y + dimensions.z;
+    float objectRadius = object->dimensions.x + object->dimensions.y + 
+        object->dimensions.z;
+
+    if (compareDistance(position, object->position, thisRadius + objectRadius)) {
+        if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
+            intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
+            intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
+            if (object->pushable) {
+                object->velocity = this->velocity;
+                object->direction = this->direction;
+            }
+            //position = oldPosition;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool Guard::detect(Player* player) {
 	// if object is within guard's cone of vision, return true
 	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)
-            && glm::distance(this->position, player->position) < 35) {
+            && glm::distance(this->position, player->position) < 35 && !player->crouch) {
 		material = 3;
 		//velocity = 0;
 		return true;

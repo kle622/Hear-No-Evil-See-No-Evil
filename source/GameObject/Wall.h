@@ -15,7 +15,7 @@ public:
   //Properties
 
   //Constructor
-  Wall(Mesh *mesh, Handles *handles,
+  Wall(Mesh *mesh,
     vec3 position, float rotation, vec3 scale,
     vec3 direction, float velocity, vec3 dimensions, 
     int scanRadius, int material);
