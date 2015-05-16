@@ -4,7 +4,7 @@ project(Project)
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 
-irrklang
+#irrklang
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEP_DIR}/irrKlang/")
 find_package(IrrKlang REQUIRED)
 include_directories(${IRRKLANG_INCLUDE_DIRS})
