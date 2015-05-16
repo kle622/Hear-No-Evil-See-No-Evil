@@ -12,8 +12,9 @@
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
-#include "conio.h"
-#include "irrKlang.h"
+#include "../../dependencies/irrKlang/include/conio.h"
+#include "../../dependencies/irrKlang/include/irrKlang.h"
+//#include "irrKlang.h"
 
 #if defined WIN32
 #include <windows.h>
