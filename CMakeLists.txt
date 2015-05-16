@@ -27,7 +27,14 @@ find_library(IRRKLANG_LIBRARY
     ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/bin/linux-gcc-64
     ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/lib/Winx64-visualStudio
     )
-
+find_path(IRRKLANG_INCLUDE_DIR
+    NAMES
+    irrKlang.h
+    conio.h
+    PATHS
+    ${PROJECT_SOURCE_DIR}/dependencies/irrKlang/include
+    )
+include_directories(${IRRKLANG_INCLUDE_DIR})
 set(LIBS ${LIBS} ${IRRKLANG_LIBRARY})
 
 # GLFW
