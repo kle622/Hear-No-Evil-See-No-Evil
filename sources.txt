@@ -24,6 +24,7 @@ set(HEADERS
    WorldGrid/WorldGrid.h
    
    Camera/Camera.h
+   Camera/DetectionCamera.h
    Camera/Camera3DPerson.h
 
    Path/Path.h
@@ -66,6 +67,7 @@ set(SOURCES
    WorldGrid/WorldGrid.cpp
    
    Camera/Camera.cpp
+   Camera/DetectionCamera.cpp
    Camera/Camera3DPerson.cpp
 
    DebugDraw/DebugDraw.cpp

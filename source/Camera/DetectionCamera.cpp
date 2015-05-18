@@ -4,7 +4,7 @@
 #define DEBUG
 
 DetectionCamera::DetectionCamera(WorldGrid *world, GameObject *viewer, GameObject *target,
-                                 float fov, float aspect, float _near, float _far) :
+                                 float fov, float aspect, float _near, float _far, DebugDraw *debug) :
                                  Camera(target->position, viewer->position + glm::vec3(0.0f, 2.0f, 0.0f),
                                  glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far, debug)
 {
@@ -44,15 +44,17 @@ float DetectionCamera::percentInView()
 
   // is it worth doing VFC to get shorter list for this collision? try both ways and benchmark
 #ifdef CULL_FIRST
-  std::vector<std::shared_ptr<GameObject>> objInView = this->getUnculled(worldgrid);
+  std::vector<std::shared_ptr<GameObject>> objInView = this->getUnculled(world);
 #else
-  std::vector<std::shared_ptr<GameObject>> objInView = worldgrid->list;
-  std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
+  std::vector<std::shared_ptr<GameObject>> objInView = world->list;
+  std::vector<std::shared_ptr<GameObject>> walls = world->wallList;
   objInView.insert(objInView.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
 #endif
   float incr = 1.0f / cornersInView.size();
   for (auto objIter = objInView.begin(); objIter != objInView.end(); ++objIter) {
-    if (objIter->get() != this->viewer) { // make sure not to block view with yourself!
+    // don't check collisions against guards and player
+    if (NULL == dynamic_pointer_cast<Guard>(*objIter) && NULL == dynamic_pointer_cast<Player>(*objIter)) {
+    //if (objIter->get() != this->viewer) { // make sure not to block view with yourself!
       for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
 #ifdef DEBUG
         this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 0.0f, 1.0f), false);

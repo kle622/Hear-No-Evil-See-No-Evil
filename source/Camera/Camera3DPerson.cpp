@@ -110,7 +110,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
 {
   float minLength = numeric_limits<double>::max();
   for (auto iter = objects.begin(); iter != objects.end(); ++iter) {
-    // don't check collisions against guards
+    // don't check collisions against guards and player
     if (NULL == dynamic_pointer_cast<Guard>(*iter) && NULL == dynamic_pointer_cast<Player>(*iter)) {
       // send bounding box to debug output
 #ifdef DEBUG

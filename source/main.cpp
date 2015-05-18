@@ -34,6 +34,7 @@
 #include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
+#include "Camera/DetectionCamera.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
@@ -58,6 +59,7 @@
 #define TOP_LEVEL 3.0f
 
 #define MAX_DETECT 400
+#define TEST_DETECT
 
 GLFWwindow* window;
 using namespace std;
@@ -97,6 +99,9 @@ Shape *ceiling;
 bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
+#ifdef TEST_DETECT
+vector<DetectionCamera*> guardCams;
+#endif
 MySound *soundObj;
 
 glm::vec3 g_light(0, 10, -5);
@@ -1058,6 +1063,16 @@ int main(int argc, char **argv)
       CAMERA_FAR,
       &debugDraw);
 
+#ifdef TEST_DETECT
+  vector<shared_ptr<GameObject>> objs = gameObjects.list;
+  for (auto obj = objs.begin(); obj != objs.end(); ++obj) {
+    if (NULL != dynamic_pointer_cast<Guard>(*obj)) {
+      guardCams.push_back(new DetectionCamera(&gameObjects, obj->get(), playerObject, CAMERA_FOV,
+                                              (float)g_width / (float)g_height, CAMERA_NEAR, CAMERA_FAR, &debugDraw));
+    }
+  }
+#endif
+
   double timeCounter = 0;
 
   do{
@@ -1067,6 +1082,12 @@ int main(int argc, char **argv)
     double currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
+#ifdef TEST_DETECT
+  for (auto cam = guardCams.begin(); cam != guardCams.end(); ++cam) {
+    (*cam)->update();
+    cout << (*cam)->percentInView() << endl;
+  }
+#endif
     camera3DPerson->update();
     beginPass1Draw();
     drawPass1(&gameObjects);
