@@ -29,6 +29,13 @@ class GameObject {
   //  Mesh *mesh;
   
  public:
+	 enum class ObjectType{
+		 PLAYER,
+		 GUARD,
+		 PUSHABLE,
+		 STATIC
+	 };
+
   //Properties
   vec3 position;
   vec3 oldPosition;
@@ -43,8 +50,7 @@ class GameObject {
   
   int material;
   
-  bool alive;
-  bool pushable;
+  ObjectType type;
 
   Mesh* mesh;
   
@@ -52,7 +58,7 @@ class GameObject {
   GameObject(Mesh *mesh, 
 	     vec3 position, float rotation, vec3 scale, 
 	     vec3 direction, float velocity, vec3 dimensions, 
-       int scanRadius, int material, bool pushable);
+       int scanRadius, int material, ObjectType type);
   
   //Object Methods
   virtual void move(float time);

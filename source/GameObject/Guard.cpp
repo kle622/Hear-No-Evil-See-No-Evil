@@ -10,7 +10,7 @@ Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	GameObject(mesh,
 	motionPath[0].pos, 0, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
-	scanRadius, material, false) {
+	scanRadius, material, GameObject::ObjectType::GUARD) {
 	this->motionPath = motionPath;
 	currentNode = 0;
 	pathDirection = sweepDirection = 1;
@@ -71,10 +71,10 @@ bool Guard::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable) {
+            /**if (object->pushable) {
                 object->velocity = this->velocity;
                 object->direction = this->direction;
-            }
+            }*/
             //position = oldPosition;
             return true;
         }

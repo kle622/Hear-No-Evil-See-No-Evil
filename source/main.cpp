@@ -686,17 +686,17 @@ void initObjects(WorldGrid* gameObjects) {
     for (j = 0; j < TEST_WORLD; j++) {
       switch(levelDesign[i][j]) {
         case 3: //barrels
-          gameObjects->add(shared_ptr<GameObject>(new GameObject(
-          &tripleBarrelMesh,
-          vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-          getRand(0, 360), 
-          vec3(2.5, 2.5, 2.5),
-          vec3(1.0, 0, 0),
-          0,
-          vec3(4.5, 4, 4.5),
-          1,
-          0,
-          false
+			gameObjects->add(shared_ptr<GameObject>(new GameObject(
+				&tripleBarrelMesh,
+				vec3(i - (TEST_WORLD / 2), 1, j - (TEST_WORLD / 2)),
+				getRand(0, 360),
+				vec3(2.5, 2.5, 2.5),
+				vec3(1.0, 0, 0),
+				0,
+				vec3(4.5, 4, 4.5),
+				1,
+				0,
+				GameObject::ObjectType::STATIC
           )));
           break;
         case 4: //stack of boxes
@@ -710,7 +710,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(3.0, 5, 3.0),
           1,
           7,
-          false
+		  GameObject::ObjectType::STATIC
           )));
           break;
         case 5: //table
@@ -724,7 +724,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(2.8, 1.5, 1.4),
           1,
           5,
-          true
+		  GameObject::ObjectType::PUSHABLE
           )));
           break;
         case 6: //chair
@@ -738,7 +738,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1.5, 2, 1.5),
           1,
           8,
-          true
+		  GameObject::ObjectType::PUSHABLE
           )));
           break;
         case 7: //cart
@@ -752,7 +752,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(2.2, 2, 1.2),
           1,
           0,
-          true
+		  GameObject::ObjectType::PUSHABLE
           )));
           break;
         case 8: //rafter
@@ -766,7 +766,7 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(44, 5.0, 1.0),
           1,
           6,
-          false
+          GameObject::ObjectType::STATIC
           )));
           break;
         case 9: //flag
@@ -1102,9 +1102,9 @@ int main(int argc, char **argv)
     drawGameObjects(&gameObjects, deltaTime);
     endDrawGL();
     if (debug || boxes) {
-#ifndef WIN32
+//#ifndef WIN32
       debugDraw.drawAll();
-#endif
+//#endif
       debugDraw.clear();
     }
 

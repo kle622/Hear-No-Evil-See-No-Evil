@@ -5,7 +5,7 @@
 GameObject::GameObject(Mesh *mesh,
 		       vec3 position, float rotation, vec3 scale, 
 		       vec3 direction, float velocity, vec3 dimensions,
-           int scanRadius, int material = 0, bool pushable = false) {
+           int scanRadius, int material, ObjectType type) {
   this->mesh = mesh;
   this->position = position;
   this->oldPosition = position;
@@ -16,8 +16,7 @@ GameObject::GameObject(Mesh *mesh,
   this->dimensions = dimensions;
   this->scanRadius = scanRadius;
   this->material = material;
-  this->alive = true;
-  this->pushable = pushable;
+  this->type = type;
 }
 
 /*void GameObject::draw() {
@@ -61,11 +60,49 @@ bool GameObject::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > WALK) {
-              object->velocity = this->velocity;
-              object->direction = this->direction;
+            
+			// Pushing Pushables
+			if (object->type == ObjectType::PUSHABLE &&
+					((type == ObjectType::PLAYER && velocity > WALK)
+						|| type != ObjectType::PLAYER)) {
+				object->direction = (object->position - position + direction) * 0.5f;
+				object->direction.y = 0.0f;
+				object->direction = normalize(object->direction);
+				object->velocity = velocity * dot(object->direction, direction);
             }
-            position = oldPosition;
+
+			// Smooth Sliding Collisions
+			vec3 dir = position - object->position; // w2p
+			dir.y = 0.0f;
+			dir = normalize(dir);
+
+			vec3 thisCorner = position;
+			thisCorner.x -= sign(dir.x) * dimensions.x / 2;
+			thisCorner.y = 0;
+			thisCorner.z -= sign(dir.z) * dimensions.z / 2;
+
+			vec3 posZnegX(-object->dimensions.x, 0, object->dimensions.z);
+			vec3 negZnegX(-object->dimensions.x, 0, -object->dimensions.z);
+
+			float cross1 = cross(posZnegX, dir).y;
+			float cross2 = cross(negZnegX, dir).y;
+
+			int signx = sign(dir.x);
+			int signz = sign(dir.z);
+
+			// Which axis can we not move on?
+			if (cross1 * cross2 < 0) {
+				// restrict x
+				printf("RESTRICT X!\n");
+				position.x = object->position.x + signx *
+					(object->dimensions.x + dimensions.x) / 2;
+			}
+			else {
+				// restrict z
+				printf("RESTRICT Z!\n");
+				position.z = object->position.z + signz *
+					(object->dimensions.z + dimensions.z) / 2;
+			}
             return true;
         }
     }
@@ -81,8 +118,3 @@ bool GameObject::collide(GameObject* object) {
     if (handle >= 0)
         glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
 	}*/
-
-
-
-
-

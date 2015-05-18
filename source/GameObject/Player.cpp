@@ -11,34 +11,17 @@ Player::Player(Mesh *mesh,
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
         GameObject(mesh, position, rotation, scale, 
-         direction, WALK, dimensions, scanRadius, material, true) {
+		direction, WALK, dimensions, scanRadius, material, GameObject::ObjectType::PLAYER) {
     maxVelocity = WALK;
     crouch = false;
     standingScale = scale.y;
 }
 
 bool Player::collide(GameObject* object) {
-    float thisRadius = dimensions.x + dimensions.y + dimensions.z;
-    float objectRadius = object->dimensions.x + object->dimensions.y + 
-        object->dimensions.z;
-
-    if (compareDistance(position, object->position, thisRadius + objectRadius)) {
-        if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
-            intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
-            intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > WALK) {
-                object->velocity = this->velocity;
-                object->direction = this->direction;
-            }
-            if (dynamic_cast<WinCondition*>(object)) {
-                //do win stuff here
-                playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
-                printf("I WIN\n");
-            }
-            position = oldPosition;
-            return true;
-        }
-    }
+	if (GameObject::collide(object)) {
+		// specific stuff
+		return true;
+	}
 
     return false;
 }
