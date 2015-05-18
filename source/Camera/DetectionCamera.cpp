@@ -61,9 +61,6 @@ float DetectionCamera::percentInView()
   objInView.insert(objInView.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
 #endif
   float incr = 1.0f / corners->size();
-#ifdef DEBUG
-  std::cout << "detection increment: " << incr << ", num corners: " << corners->size() << std::endl;
-#endif
   for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
     float rayDist = 0;
     bool cornerInView = true;

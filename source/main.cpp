@@ -1043,7 +1043,10 @@ int main(int argc, char **argv)
 #ifdef TEST_DETECT
   for (auto cam = guardCams.begin(); cam != guardCams.end(); ++cam) {
     (*cam)->update();
-    cout << (*cam)->percentInView() << endl;
+    float percent = (*cam)->percentInView();
+    if (percent > 0) {
+      cout << percent << endl;
+    }
   }
 #endif
     camera3DPerson->update();
