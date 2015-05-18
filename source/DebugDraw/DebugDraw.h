@@ -1,7 +1,7 @@
 #ifndef __DEBUG_DRAW_H
 #define __DEBUG_DRAW_H
 #include "DebugHandles.h"
-#include "../Library/OBB.h"
+#include "../Geometry/Geometry.h"
 #include <string>
 #include <cassert>
 #include <iostream>
@@ -71,9 +71,6 @@ class DebugDraw
     bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   private:
     DebugHandles handles;
-    glm::vec3 intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::vec4 plane3);
-    glm::vec3 getPlanePoint(glm::vec4 plane);
-    glm::vec4 normalizePlane(glm::vec4 plane);
     std::vector<float> posBuf;
     std::vector<float> colBuf;
     GLuint posBufObj;

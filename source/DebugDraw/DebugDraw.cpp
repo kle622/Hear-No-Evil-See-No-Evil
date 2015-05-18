@@ -194,49 +194,6 @@ void DebugDraw::addBox(glm::vec4 left, glm::vec4 right, glm::vec4 bottom, glm::v
                cross);
 }
 
-glm::vec4 DebugDraw::normalizePlane(glm::vec4 plane)
-{
-  glm::vec3 n = glm::vec3(plane);
-  float l = glm::length(n);
-  float d = plane.w / l;
-  n = glm::normalize(n);
-
-  return glm::vec4(n, d);
-}
-
-glm::vec3 DebugDraw::getPlanePoint(glm::vec4 plane)
-{
-  return -1.0f * plane.w * glm::vec3(plane.x, plane.y, plane.z);
-}
-
-// does not assume normalized planes
-// assumes planes are not parallel
-// book p. 783, equation 16.59
-glm::vec3 DebugDraw::intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::vec4 plane3)
-{
-  // normalize planes
-  glm::vec4 pl1 = this->normalizePlane(plane1);
-  glm::vec4 pl2 = this->normalizePlane(plane2);
-  glm::vec4 pl3 = this->normalizePlane(plane3);
-
-  // get point on each plane
-  glm::vec3 p1 = this->getPlanePoint(pl1);
-  glm::vec3 p2 = this->getPlanePoint(pl2);
-  glm::vec3 p3 = this->getPlanePoint(pl3);
-
-  // get plane normals
-  glm::vec3 n1 = glm::vec3(pl1);
-  glm::vec3 n2 = glm::vec3(pl2);
-  glm::vec3 n3 = glm::vec3(pl3);
-
-  float det = glm::dot(n1, glm::cross(n2, n3));
-  assert(det > EPS || det < -1.0f * EPS);
-
-  // MATH
-  glm::vec3 result = (glm::dot(p1, n1) * glm::cross(n2, n3) + glm::dot(p2, n2) * glm::cross(n3, n1) + glm::dot(p3, n3) * glm::cross(n1, n2)) / det;
-  return result;
-}
-
 void DebugDraw::clear()
 {
   this->posBuf.clear();
