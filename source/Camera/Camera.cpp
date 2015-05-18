@@ -55,28 +55,11 @@ glm::vec3 Camera::getUp()
 std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgrid)
 {
   // ----- View Frustum Culling -----
-  std::vector<glm::vec4> planes;
-  glm::mat4 VP = this->getProjection() * this->getView();
-  // the plane normals are not normalized, and point to the inside of the view frustum
-  // plane equations obtained from http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
-  // a plane is represented by a vec4 as <a, b, c, d>
-  glm::vec4 left = glm::vec4(VP[0][3] + VP[0][0], VP[1][3] + VP[1][0], VP[2][3] + VP [2][0], VP[3][3] + VP[3][0]);
-  glm::vec4 right = glm::vec4(VP[0][3] - VP[0][0], VP[1][3] - VP[1][0], VP[2][3] - VP [2][0], VP[3][3] - VP[3][0]);
-  glm::vec4 bottom = glm::vec4(VP[0][3] + VP[0][1], VP[1][3] + VP[1][1], VP[2][3] + VP [2][1], VP[3][3] + VP[3][1]);
-  glm::vec4 top = glm::vec4(VP[0][3] - VP[0][1], VP[1][3] - VP[1][1], VP[2][3] - VP [2][1], VP[3][3] - VP[3][1]);
-  glm::vec4 nearPlane = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
-  glm::vec4 farPlane = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
-
+  std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
+  
 #ifdef DEBUG
-  this->debug->addBox(left, right, bottom, top, nearPlane, farPlane, glm::vec3(0.99f, 0.85f, 0.55f), false, false);
+  this->debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.99f, 0.85f, 0.55f), false, false);
 #endif
-
-  planes.push_back(left); // left
-  planes.push_back(right); // right
-  planes.push_back(bottom); // bottom
-  planes.push_back(top); // top
-  planes.push_back(nearPlane); // near
-  planes.push_back(farPlane); // far
 
   std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
   std::vector<std::shared_ptr<GameObject>> unculled;
@@ -84,11 +67,8 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   allObjects.insert(allObjects.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
   for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
     OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
-#ifdef DEBUG
-    //this->debug->addOBB(*obb, glm::vec3(0.0f, 0.0f, 1.0f), true);
-#endif
     bool pass = true;
-    for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
+    for (auto planeIter = planes->begin(); pass && planeIter != planes->end(); ++planeIter) {
       pass = obbOutsidePlane(*obb, *planeIter);
     }
     if (pass) {
@@ -97,4 +77,61 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   }
   
   return unculled;
+}
+
+float Camera::percentInView(std::shared_ptr<GameObject> object, WorldGrid *worldgrid)
+{
+  float result = 0.0f;
+
+  OBB *targetBox = new OBB(object->position, object->dimensions);
+  std::vector<glm::vec3> *corners = targetBox->getCorners();
+  std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
+  std::vector<glm::vec3> cornersInView;
+  for (auto cornerItr = corners->begin(); cornerItr != corners->end(); ++cornerItr) {
+    bool insideFrustum = true;
+    for (auto planeItr = planes->begin(); insideFrustum && planeItr != planes->end(); ++planeItr) {
+      insideFrustum = pointOutsidePlane(*cornerItr, *planeItr);
+    }
+    if (insideFrustum) {
+      cornersInView.push_back(*cornerItr);
+    }
+  }
+
+  // don't bother doing VFC if player is outside of guard's view frustum
+  if (cornersInView.size() == 0) {
+    return result;
+  }
+
+  // is it worth doing VFC to get shorter list for this collision? try both ways and benchmark
+#ifdef CULL_FIRST
+  std::vector<std::shared_ptr<GameObject>> objInView = this->getUnculled(worldgrid);
+#else
+  std::vector<std::shared_ptr<GameObject>> objInView = worldgrid->list;
+  std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
+  objInView.insert(objInView.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
+#endif
+  float incr = 1.0f / cornersInView.size();
+  for (auto objIter = objInView.begin(); objIter != objInView.end(); ++objIter) {
+    for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
+#ifdef DEBUG
+      this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 0.0f, 1.0f), false);
+#endif
+      OBB *hitBox = new OBB((*objIter)->position, (*objIter)->dimensions);
+      float rayDist;
+      if (rayOBBIntersect(&rayDist, (*objIter)->position, *cornerItr - this->eye, *hitBox)) {
+        float lookDist = glm::distance(*cornerItr, this->eye);
+        if (lookDist > rayDist) {
+#ifdef DEBUG
+          this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
+#endif
+          result += incr;
+        }
+      }
+      else {
+        result += incr;
+      }
+    }
+  }
+
+  return result;
 }

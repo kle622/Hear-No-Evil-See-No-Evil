@@ -60,6 +60,7 @@ class Camera {
     // used for culling entire scene
     // returns list of objects that should be drawn
     std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid);
+    float percentInView(std::shared_ptr<GameObject> object, WorldGrid *worldgrid);
 };
 
 #endif

@@ -115,13 +115,6 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
 #endif
       // converting object bounding box to OBB
       OBB obb((*iter)->position, (*iter)->dimensions);
-      /*obb.center = (*iter)->position;
-      obb.axes[0] = glm::vec3(1.0f, 0.0f, 0.0f);
-      obb.axes[1] = glm::vec3(0.0f, 1.0f, 0.0f);
-      obb.axes[2] = glm::vec3(0.0f, 0.0f, 1.0f);
-      obb.halfLengths[0] = (*iter)->dimensions.x * 0.5;
-      obb.halfLengths[1] = (*iter)->dimensions.y * 0.5;
-      obb.halfLengths[2] = (*iter)->dimensions.z * 0.5;*/
 #ifdef DEBUG
       this->debug->addOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f), true);
 #endif

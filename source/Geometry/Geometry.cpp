@@ -1,11 +1,11 @@
 #include "Geometry.h"
 #define EPSILON 0.0001f
+#define DEBUG
 
 OBB::OBB()
 {
 }
 
-// constructs OBB from AABB
 OBB::OBB(glm::vec3 center, glm::vec3 dimensions)
 {
   this->center = center;
@@ -17,51 +17,55 @@ OBB::OBB(glm::vec3 center, glm::vec3 dimensions)
   this->halfLengths[2] = dimensions.z * 0.5;
 }
 
+std::vector<glm::vec3>* OBB::getCorners()
+{
+  std::vector<glm::vec3> *corners = new std::vector<glm::vec3>();
+
+  corners->push_back(center + axes[0] * halfLengths[0]  // x
+                               + axes[1] * halfLengths[1]  // y
+                               + axes[2] * halfLengths[2]); // z
+  corners->push_back(center + axes[0] * halfLengths[0]  // x
+                               + axes[1] * halfLengths[1]  // y
+                               - axes[2] * halfLengths[2]); // z
+  corners->push_back(center + axes[0] * halfLengths[0]  // x
+                               - axes[1] * halfLengths[1]  // y
+                               + axes[2] * halfLengths[2]); // z
+  corners->push_back(center + axes[0] * halfLengths[0]  // x
+                               - axes[1] * halfLengths[1]  // y
+                               - axes[2] * halfLengths[2]); // z
+  corners->push_back(center - axes[0] * halfLengths[0]  // x
+                               + axes[1] * halfLengths[1]  // y
+                               + axes[2] * halfLengths[2]); // z
+  corners->push_back(center - axes[0] * halfLengths[0]  // x
+                               + axes[1] * halfLengths[1]  // y
+                               - axes[2] * halfLengths[2]); // z
+  corners->push_back(center - axes[0] * halfLengths[0]  // x
+                               - axes[1] * halfLengths[1]  // y
+                               + axes[2] * halfLengths[2]); // z
+  corners->push_back(center - axes[0] * halfLengths[0]  // x
+                               - axes[1] * halfLengths[1]  // y
+                               - axes[2] * halfLengths[2]); // z
+}
+
+bool pointOutsidePlane(glm::vec3 point, glm::vec4 plane)
+{
+  return point.x * plane.x + point.y * plane.y + point.z * plane.z + plane.w >= 0;
+}
+
 bool obbOutsidePlane(OBB obb, glm::vec4 plane)
 {
-  bool result = false;
-  std::vector<glm::vec3> corners;
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-
-  for (auto cornerItr = corners.begin(); cornerItr != corners.end(); ++cornerItr) {
+  std::vector<glm::vec3> *corners = obb.getCorners();
+  
+  for (auto cornerItr = corners->begin(); cornerItr != corners->end(); ++cornerItr) {
     glm::vec3 corner = *cornerItr;
-    if (corner.x * plane.x + corner.y * plane.y + corner.z * plane.z + plane.w >= 0) {
-      result = true;
+    if (pointOutsidePlane(*cornerItr, plane)) {
+      return true;
     }
   }
 
-  return result;
+  return false;
 }
 
-/* uses Kay and Kajiya's slab method for ray/box intersection, found in text p.742
- *
- * assume value pointed to by dist is unusable if this method returns false
- *
- * dist is the distance from the ray origin to the intersection point
- */
 bool rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OBB obb)
 {
   *dist = 0;
@@ -115,9 +119,6 @@ glm::vec3 getPlanePoint(glm::vec4 plane)
   return -1.0f * plane.w * glm::vec3(plane.x, plane.y, plane.z);
 }
 
-// does not assume normalized planes
-// assumes planes are not parallel
-// book p. 783, equation 16.59
 glm::vec3 intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::vec4 plane3)
 {
   // normalize planes
@@ -146,4 +147,24 @@ glm::vec3 intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::vec4 plane3)
 double clamp(double x, double min, double max)
 {
   return x < min ? min : (x > max ? max : x);
+}
+
+std::vector<glm::vec4> *getViewFrustum(glm::mat4 VP)
+{
+  std::vector<glm::vec4> *planes = new std::vector<glm::vec4>();
+  glm::vec4 left = glm::vec4(VP[0][3] + VP[0][0], VP[1][3] + VP[1][0], VP[2][3] + VP [2][0], VP[3][3] + VP[3][0]);
+  glm::vec4 right = glm::vec4(VP[0][3] - VP[0][0], VP[1][3] - VP[1][0], VP[2][3] - VP [2][0], VP[3][3] - VP[3][0]);
+  glm::vec4 bottom = glm::vec4(VP[0][3] + VP[0][1], VP[1][3] + VP[1][1], VP[2][3] + VP [2][1], VP[3][3] + VP[3][1]);
+  glm::vec4 top = glm::vec4(VP[0][3] - VP[0][1], VP[1][3] - VP[1][1], VP[2][3] - VP [2][1], VP[3][3] - VP[3][1]);
+  glm::vec4 nearPlane = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
+  glm::vec4 farPlane = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
+
+  planes->push_back(left); // left
+  planes->push_back(right); // right
+  planes->push_back(bottom); // bottom
+  planes->push_back(top); // top
+  planes->push_back(nearPlane); // near
+  planes->push_back(farPlane); // far
+
+  return planes;
 }
