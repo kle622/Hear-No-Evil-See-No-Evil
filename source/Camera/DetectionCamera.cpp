@@ -3,6 +3,7 @@
 
 #define DEBUG
 #define VERT_OFFSET 0.8f
+#define CULL_FIRST
 
 DetectionCamera::DetectionCamera(WorldGrid *world, GameObject *viewer, GameObject *target,
     float fov, float aspect, float _near, float _far, DebugDraw *debug) :
@@ -29,7 +30,12 @@ float DetectionCamera::percentInView()
   std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
   std::vector<glm::vec3> cornersInView;
 #ifdef DEBUG
-  this->debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.99f, 0.85f, 0.55f), false, false);
+  // target box
+  this->debug->addBox(this->target->position, this->target->dimensions, glm::vec3(1.0f, 1.0f, 0.0f), false, true);
+  // viewer box
+  this->debug->addBox(this->viewer->position, this->viewer->dimensions, glm::vec3(0.0f, 1.0f, 1.0f), false, true);
+  // viewer frustum
+  this->debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.3f, 0.85f, 0.55f), false, false);
 #endif
   for (auto cornerItr = corners->begin(); cornerItr != corners->end(); ++cornerItr) {
     bool insideFrustum = true;
@@ -54,31 +60,38 @@ float DetectionCamera::percentInView()
   std::vector<std::shared_ptr<GameObject>> walls = world->wallList;
   objInView.insert(objInView.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
 #endif
-  float incr = 1.0f / cornersInView.size();
-  for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
+  float incr = 1.0f / corners->size();
 #ifdef DEBUG
-    this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 0.0f, 1.0f), false);
+  std::cout << "detection increment: " << incr << ", num corners: " << corners->size() << std::endl;
 #endif
-    bool cornerInView = true;
+  for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
     float rayDist;
+    bool cornerInView = true;
     for (auto objIter = objInView.begin(); cornerInView && objIter != objInView.end(); ++objIter) {
+      shared_ptr<GameObject> obj = *objIter;
       // TODO don't check collisions against viewer and target
       // doesn't work yet
       //if (NULL == dynamic_pointer_cast<Guard>(*objIter) && NULL == dynamic_pointer_cast<Player>(*objIter)) {
-      if ((this->viewer) != ((*objIter).get()) && (this->target) != ((*objIter).get())) {
+      //if ((this->viewer) != ((*objIter).get()) && (this->target) != ((*objIter).get())) {
       //if (true) {
-        OBB *hitBox = new OBB((*objIter)->position, (*objIter)->dimensions);
-        if (rayOBBIntersect(&rayDist, (*objIter)->position, *cornerItr - this->eye, *hitBox)) {
+      if (this->viewer != obj.get() && this->target != obj.get()) {
+        OBB *hitBox = new OBB(obj->position, obj->dimensions);
+        if (rayOBBIntersect(&rayDist, obj->position, *cornerItr - this->eye, *hitBox)) {
           float lookDist = glm::distance(*cornerItr, this->eye);
-          if (lookDist > rayDist) {
+          if (rayDist < lookDist) {
             cornerInView = false;
           }
         }
       }
     }
 #ifdef DEBUG
+    // ray from camera's eye to corner of box
+    this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 0.0f, 1.0f), false);
     if (!cornerInView) {
       this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
+    }
+    else {
+      this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 1.0f, 1.0f), true);
     }
 #endif
     if (cornerInView) {

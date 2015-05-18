@@ -81,7 +81,6 @@ Camera* debugCamera;
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
-Handles mainShader;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
 Mesh guardMesh;
@@ -100,6 +99,7 @@ bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
 #ifdef TEST_DETECT
+bool noAdd = true;
 vector<DetectionCamera*> guardCams;
 #endif
 MySound *soundObj;
@@ -454,67 +454,30 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-	  if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-    for (int j = 0; j < gameObjects->wallList.size(); j++) {
-      if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+      for (int j = 0; j < gameObjects->wallList.size(); j++) {
+        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
           soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-          }
+        }
       }
     }
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-		  if (guard->detect(playerObject)) {
+      if (guard->detect(playerObject)) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-			  cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
-			  if (detectCounter >= MAX_DETECT) {
-				  // YOU lose
+        cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
+        if (detectCounter >= MAX_DETECT) {
+          // YOU lose
           cout << "You lose! Not sneaky enough!" << endl;
           soundObj->playSndExit(soundObj->loseSnd);
-			  }
-		  }
-	  }
-
-	  //    for (int j = 0; j < proximity.size(); j++) {
-	  //        if (gameObjects->list[i] != proximity[j]) {
-	  //            if (gameObjects->list[i]->collide(proximity[j].get())) {
-	  //              //do some shit
-
-	  //              if (guardTalk->isFinished()) {
-	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
-	  //              }
-	  //              else if (guardTalk->getIsPaused()) {
-	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
-	  //                guardTalk->setIsPaused(false);
-	  //              }
-	  //            }
-	  //        }
-	  //    }
-	  //}
-	  /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
-		SetMaterial(gameObjects->wallList[i]->material);
-		gameObjects->wallList[i]->draw();
-		}*/
-
-  gameObjects->update();
+        }
+      }
+    }
+    gameObjects->update();
+  }
 }
-}
-
-/*void beginDrawGL() {
-  // Clear the screen
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  // Use our GLSL program
-  glUseProgram(mainShader.prog);
-  glUniform3f(mainShader.uLightPos, g_light.x, g_light.y, g_light.z);
-  glUniform3f(mainShader.uCamPos, camera3DPerson->eye.x,
-      camera3DPerson->eye.y, camera3DPerson->eye.z);
-  GLSL::enableVertexAttribArray(mainShader.aPosition);
-  GLSL::enableVertexAttribArray(mainShader.aNormal);
-}*/
 
 void beginPass1Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
@@ -839,6 +802,13 @@ void initGuards(WorldGrid* gameObjects) {
           guardPath
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
+#ifdef TEST_DETECT
+      if (noAdd) {
+        noAdd = false;
+        guardCams.push_back(new DetectionCamera(gameObjects, guardObject, playerObject, CAMERA_FOV,
+              (float)g_width / (float)g_height, CAMERA_NEAR, CAMERA_FAR, &debugDraw));
+      }
+#endif
     }
   }
 }
@@ -1017,8 +987,6 @@ int main(int argc, char **argv)
   initGL();
   assert(glGetError() == GL_NO_ERROR);
   debugDraw.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
-  //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
@@ -1062,16 +1030,6 @@ int main(int argc, char **argv)
       CAMERA_NEAR,
       CAMERA_FAR,
       &debugDraw);
-
-#ifdef TEST_DETECT
-  vector<shared_ptr<GameObject>> objs = gameObjects.list;
-  for (auto obj = objs.begin(); obj != objs.end(); ++obj) {
-    if (NULL != dynamic_pointer_cast<Guard>(*obj)) {
-      guardCams.push_back(new DetectionCamera(&gameObjects, obj->get(), playerObject, CAMERA_FOV,
-                                              (float)g_width / (float)g_height, CAMERA_NEAR, CAMERA_FAR, &debugDraw));
-    }
-  }
-#endif
 
   double timeCounter = 0;
 
