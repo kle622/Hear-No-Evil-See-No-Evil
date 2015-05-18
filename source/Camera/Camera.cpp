@@ -1,8 +1,7 @@
 #include "Camera.h"
 #define _USE_MATH_DEFINES
 
-//#define DEBUG
-#define EPSILON 6.0f
+#define DEBUG
 
 Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
     float fov, float aspect, float _near, float _far)
