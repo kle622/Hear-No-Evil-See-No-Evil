@@ -3,10 +3,9 @@
 
 #define DEBUG
 
-Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
+Camera::Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
     float fov, float aspect, float _near, float _far)
 {
-  this->handles = handles;
   this->lookat = lookat;
   this->eye = eye;
   this->up = up;
@@ -24,19 +23,6 @@ glm::mat4 Camera::getView()
 glm::mat4 Camera::getProjection()
 {
   return glm::perspective(this->fov, this->aspect, this->_near, this->_far);
-}
-
-void Camera::setView() {
-  glm::mat4 Cam = glm::lookAt(this->eye, this->lookat, this->up);
-
-  if (this->handles->uViewMatrix >= 0)
-    glUniformMatrix4fv(this->handles->uViewMatrix, 1, GL_FALSE, glm::value_ptr(Cam));
-}
-
-void Camera::setProjection() {
-  glm::mat4 Projection = glm::perspective(this->fov, this->aspect, this->_near, this->_far);
-  if (this->handles->uProjMatrix >= 0)
-    glUniformMatrix4fv(this->handles->uProjMatrix, 1, GL_FALSE, glm::value_ptr(Projection));
 }
 
 glm::vec3 Camera::getForward()

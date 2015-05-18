@@ -6,7 +6,7 @@
 //#define DEBUG
 
 // note: calling getEye() form constructor causes crash
-Camera3DPerson::Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far) : Camera(handles, focus->position, focus->position + glm::vec3(0.0f, 0.0f, zoom), glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far)
+Camera3DPerson::Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far) : Camera(focus->position, focus->position + glm::vec3(0.0f, 0.0f, zoom), glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far)
 {
   // when both angles are 0, the camera is directly behind the player, horizontal
   this->phi = 0;  // increase phi to look down
@@ -162,16 +162,4 @@ glm::mat4 Camera3DPerson::getView()
 glm::mat4 Camera3DPerson::getProjection()
 {
   return Camera::getProjection();
-}
-
-void Camera3DPerson::setView()
-{
-  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
-  this->eye = getEye();
-  Camera::setView();
-}
-
-void Camera3DPerson::setProjection()
-{
-  Camera::setProjection();
 }

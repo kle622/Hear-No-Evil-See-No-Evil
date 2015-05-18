@@ -31,7 +31,6 @@
 class Camera {
   public:
     //Properties
-    Handles *handles;
     glm::vec3 lookat;
     glm::vec3 eye;
     glm::vec3 up;
@@ -42,7 +41,7 @@ class Camera {
     DebugDraw *debug;
 
     //Constructor
-    Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
+    Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
 
     // these vectors are all normalized
     virtual glm::vec3 getForward();
@@ -52,10 +51,6 @@ class Camera {
     // gets view/proj matrices
     virtual glm::mat4 getView();
     virtual glm::mat4 getProjection();
-
-    // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
-    virtual void setView(); 
-    virtual void setProjection();
 
     // used for culling entire scene
     // returns list of objects that should be drawn
