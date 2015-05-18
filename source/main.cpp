@@ -1102,9 +1102,9 @@ int main(int argc, char **argv)
     drawGameObjects(&gameObjects, deltaTime);
     endDrawGL();
     if (debug || boxes) {
-#ifndef WIN32
+//#ifndef WIN32
       debugDraw.drawAll();
-#endif
+//#endif
       debugDraw.clear();
     }
 

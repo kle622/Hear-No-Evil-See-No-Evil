@@ -35,7 +35,7 @@ bool Player::collide(GameObject* object) {
                 playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
                 printf("I WIN\n");
             }
-            position = oldPosition;
+            position = oldPosition; // TODO implement a better system
             return true;
         }
     }

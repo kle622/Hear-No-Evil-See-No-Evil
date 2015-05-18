@@ -60,7 +60,7 @@ bool GameObject::collide(GameObject* object) {
               object->velocity = this->velocity;
               object->direction = this->direction;
             }
-            position = oldPosition;
+            position = oldPosition; // TODO implement a better system
             return true;
         }
     }
