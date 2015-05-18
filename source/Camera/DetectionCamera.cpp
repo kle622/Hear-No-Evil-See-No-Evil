@@ -65,32 +65,31 @@ float DetectionCamera::percentInView()
   std::cout << "detection increment: " << incr << ", num corners: " << corners->size() << std::endl;
 #endif
   for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
-    float rayDist;
+    float rayDist = 0;
     bool cornerInView = true;
     for (auto objIter = objInView.begin(); cornerInView && objIter != objInView.end(); ++objIter) {
       shared_ptr<GameObject> obj = *objIter;
-      // TODO don't check collisions against viewer and target
-      // doesn't work yet
-      //if (NULL == dynamic_pointer_cast<Guard>(*objIter) && NULL == dynamic_pointer_cast<Player>(*objIter)) {
-      //if ((this->viewer) != ((*objIter).get()) && (this->target) != ((*objIter).get())) {
-      //if (true) {
+      // don't check collisions against viewer and target
       if (this->viewer != obj.get() && this->target != obj.get()) {
         OBB *hitBox = new OBB(obj->position, obj->dimensions);
-        if (rayOBBIntersect(&rayDist, obj->position, *cornerItr - this->eye, *hitBox)) {
+#ifdef DEBUG
+        this->debug->addOBB(*hitBox, glm::vec3(1.0f, 1.0f, 1.0f), true, true);
+#endif
+        if (rayOBBIntersect(&rayDist, this->eye, *cornerItr - this->eye, *hitBox)) {
           float lookDist = glm::distance(*cornerItr, this->eye);
           if (rayDist < lookDist) {
             cornerInView = false;
+#ifdef DEBUG
+            this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
+#endif
           }
         }
       }
     }
 #ifdef DEBUG
     // ray from camera's eye to corner of box
-    this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 0.0f, 1.0f), false);
-    if (!cornerInView) {
-      this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
-    }
-    else {
+    this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * glm::distance(*cornerItr, this->eye), glm::vec3(0.0f, 0.0f, 1.0f), false);
+    if (cornerInView) {
       this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 1.0f, 1.0f), true);
     }
 #endif

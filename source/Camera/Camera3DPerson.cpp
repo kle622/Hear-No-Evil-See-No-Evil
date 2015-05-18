@@ -119,7 +119,7 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
       // converting object bounding box to OBB
       OBB obb((*iter)->position, (*iter)->dimensions);
 #ifdef DEBUG
-      this->debug->addOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f), true);
+      this->debug->addOBB(obb, glm::vec3(1.0f, 0.64f, 0.0f), true, true);
 #endif
       float result;
       if (rayOBBIntersect(&result, rayStart, rayDirection, obb)) {
