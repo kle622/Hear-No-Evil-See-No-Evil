@@ -7,7 +7,6 @@ set(HEADERS
    Library/TimeManager.h
    Library/InitObjects.h
    Library/GLError.h
-   Library/OBB.h
 
    GameObject/GameObject.h
    GameObject/Player.h
@@ -35,6 +34,8 @@ set(HEADERS
    MySound/MySound.h
    DetectionTracker/DetectionTracker.h
 
+   Geometry/Geometry.h
+
    ../dependencies/irrKlang/include/irrKlang.h
    ../dependencies/irrKlang/include/conio.h
 )
@@ -48,7 +49,6 @@ set(SOURCES
    Library/TimeManager.cpp
    Library/InitObjects.cpp
    Library/GLError.cpp
-   Library/OBB.cpp
 
    GameObject/GameObject.cpp
    GameObject/Player.cpp
@@ -70,6 +70,8 @@ set(SOURCES
 
    DebugDraw/DebugDraw.cpp
    DebugDraw/DebugHandles.cpp
+
+   Geometry/Geometry.cpp
 
    MySound/MySound.cpp
    DetectionTracker/DetectionTracker.cpp

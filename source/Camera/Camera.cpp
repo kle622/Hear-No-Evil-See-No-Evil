@@ -1,8 +1,7 @@
 #include "Camera.h"
 #define _USE_MATH_DEFINES
 
-//#define DEBUG
-#define EPSILON 6.0f
+#define DEBUG
 
 Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
     float fov, float aspect, float _near, float _far)
@@ -53,12 +52,6 @@ glm::vec3 Camera::getUp()
   return glm::normalize(this->up);
 }
 
-// TODO implement to mimic getUnculled for one object
-bool Camera::isCulled(shared_ptr<GameObject>)
-{
-  return false;
-}
-
 std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgrid)
 {
   // ----- View Frustum Culling -----
@@ -76,13 +69,6 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
 
 #ifdef DEBUG
   this->debug->addBox(left, right, bottom, top, nearPlane, farPlane, glm::vec3(0.99f, 0.85f, 0.55f), false, false);
-
-  /*std::cout << "left: <" << left.x << ", " << left.y << ", " << left.z << ", " << left.w << ">" << std::endl;
-  std::cout << "right: <" << right.x << ", " << right.y << ", " << right.z << ", " << right.w << ">" << std::endl;
-  std::cout << "bottom: <" << bottom.x << ", " << bottom.y << ", " << bottom.z << ", " << bottom.w << ">" << std::endl;
-  std::cout << "top: <" << top.x << ", " << top.y << ", " << top.z << ", " << top.w << ">" << std::endl;
-  std::cout << "near: <" << nearPlane.x << ", " << nearPlane.y << ", " << nearPlane.z << ", " << nearPlane.w << ">" << std::endl;
-  std::cout << "far: <" << farPlane.x << ", " << farPlane.y << ", " << farPlane.z << ", " << farPlane.w << ">" << std::endl;*/
 #endif
 
   planes.push_back(left); // left
@@ -93,9 +79,9 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   planes.push_back(farPlane); // far
 
   std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
+  std::vector<std::shared_ptr<GameObject>> unculled;
   std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
   allObjects.insert(allObjects.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
-  std::vector<std::shared_ptr<GameObject>> inVF;
   for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
     OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
 #ifdef DEBUG
@@ -106,110 +92,9 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
       pass = obbOutsidePlane(*obb, *planeIter);
     }
     if (pass) {
-      inVF.push_back(*objIter);
+      unculled.push_back(*objIter);
     }
   }
-
-  // ----- Wall VFC -----
-  /*std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
-  for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-    OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
-#ifdef DEBUG
-    //this->debug->addOBB(*obb, glm::vec3(0.0f, 0.0f, 1.0f), true);
-#endif
-    bool pass = true;
-    for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
-      pass = obbOutsidePlane(*obb, *planeIter);
-    }
-    if (pass) {
-      inVF.push_back(*objIter);
-    }
-  }*/
-
-  // ----- Occlusion Culling -----
-  std::vector<std::shared_ptr<GameObject>> unculled;
-  for (auto objIter = inVF.begin(); objIter != inVF.end(); ++objIter) {
-    unculled.push_back(*objIter); // TODO change this to actually be selective
-  }
-
+  
   return unculled;
-}
-
-/* p. 755-757
- * returns true if object is completely inside or intersects plane
- * returns false if object is completely outside plane
- *
- * inside is defined as positive, outside is defined as negative
- * plane is not assumed to be normalized
- * 
- * uses opposite corners of box, which is a limited approximation
- * the book is wrong and dumb
- */
-/*bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
-{
-  float nlength = glm::length(glm::vec3(plane.x, plane.y, plane.z));
-  glm::vec3 c = obb.center;
-  glm::vec3 n = glm::normalize(glm::vec3(plane.x, plane.y, plane.z));
-  float d = plane.w / nlength;
-  float e = obb.halfLengths[0] * glm::dot(n, obb.axes[0]) +
-            obb.halfLengths[1] * glm::dot(n, obb.axes[1]) +
-            obb.halfLengths[2] * glm::dot(n, obb.axes[2]);
-  float s = glm::dot(c, n) + d;
-  //this->debug->addLine(c, c + n * e, glm::vec3(0.0f, 0.0f, 0.0f), true);
-  //this->debug->addLine(c, c + n * s, glm::vec3(1.0f, 1.0f, 1.0f), false);
-  if (s - e > 0) {
-    return true;
-  }
-  else if (s + e < -1.0f * EPSILON) {
-    return false;
-  }
-  else {
-    return true;
-  }
-}*/
-
-/*
- * 
- */
-bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
-{
-  bool result = false;
-  std::vector<glm::vec3> corners;
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-
-  for (auto cornerItr = corners.begin(); cornerItr != corners.end(); ++cornerItr) {
-    glm::vec3 corner = *cornerItr;
-    if (corner.x * plane.x + corner.y * plane.y + corner.z * plane.z + plane.w >= 0) {
-      result = true;
-    }
-  }
-
-  return result;
-}
-
-double clamp(double x, double min, double max) {
-  return x < min ? min : (x > max ? max : x);
 }

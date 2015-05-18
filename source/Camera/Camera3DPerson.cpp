@@ -2,7 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#define M_PI 3.141592654
+#define PI 3.141592654
 //#define DEBUG
 
 // note: calling getEye() form constructor causes crash
@@ -46,7 +46,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   std::vector<glm::vec3> nearCorners;
   // get corners of near plane
   // http://gamedev.stackexchange.com/questions/19774/determine-corners-of-a-specific-plane-in-the-frustum
-  float nearHeight = 2 * tan(this->fov * M_PI / (2 * 180)) * this->_near;
+  float nearHeight = 2 * tan(this->fov * PI / (2 * 180)) * this->_near;
   float nearWidth = nearHeight * this->aspect;
   // place near center at focal point
   // TODO feel like this near plane calculation is off, look at fixing it
@@ -136,53 +136,6 @@ float Camera3DPerson::castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayDirectio
   this->debug->addLine(rayStart, rayStart + rayDirection * minLength, glm::vec3(1.0f, 0.0f, 0.0f), true);
 #endif
   return minLength;
-}
-
-/* uses Kay and Kajiya's slab method for ray/box intersection, found in text p.742
- *
- * assume value pointed to by dist is unusable if this method returns false
- *
- * dist is the distance from the ray origin to the intersection point
- */
-// TODO make it so this returns false if the intersect point is inside the box
-bool Camera3DPerson::rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OBB obb)
-{
-  *dist = 0;
-  float tmin = numeric_limits<double>::min();
-  float tmax = numeric_limits<double>::max();
-  glm::vec3 p = obb.center - rayOrigin;
-  for (int i = 0; i < 3; ++i) {
-    float e = glm::dot(obb.axes[i], p);
-    float f = glm::dot(obb.axes[i], rayDirection);
-    if (f > EPSILON || f < -1.0f * EPSILON) {
-      float t1 = (e + obb.halfLengths[i]) / f;
-      float t2 = (e - obb.halfLengths[i]) / f;
-      if (t1 > t2) {
-        // swap t1 and t2
-        float temp = t1;
-        t1 = t2;
-        t2 = temp;
-      }
-      tmin = fmax(tmin, t1);
-      tmax = fmin(tmax, t2);
-      if (tmin > tmax || tmax < 0) {
-        return false;
-      }
-    }
-    else if (-1.0f * e - obb.halfLengths[i] > 0 || obb.halfLengths[i] - e < 0)
-    {
-      return false;
-    }
-  }
-  if (tmin > 0) {
-    *dist = tmin;
-  }
-  else {
-    *dist = tmax;
-    return true;
-    //return true;
-  }
-  return true;
 }
 
 // positive step looks up
