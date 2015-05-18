@@ -11,9 +11,9 @@ void Mesh::loadShapes(const std::string &objFile) {
   //this->computeBound();
 }
 
-void Mesh::loadTextures(const std::string &filename) {
-  glGenTextures(1, &texBufObj);
-  glBindTexture(GL_TEXTURE_2D, texBufObj);
+void Mesh::loadTexture(const std::string &filename) {
+  glGenTextures(1, &texId);
+  glBindTexture(GL_TEXTURE_2D, texId);
   bmp = imageLoad(filename.c_str());
   glTexImage2D(GL_TEXTURE_2D, 0, 3, TEX_SIZE, TEX_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
  
@@ -244,7 +244,7 @@ static unsigned int getshort(FILE *fp){
 
 /*  quick and dirty bitmap loader...for 24 bit bitmaps with 1 plane only.  */
 
-char* imageLoad(const char* filename) {
+char* Mesh::imageLoad(const char* filename) {
   FILE *file;
   unsigned long size;                 /*  size of the image in bytes. */
   unsigned long i;                    /*  standard counter. */

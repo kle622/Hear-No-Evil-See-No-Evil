@@ -425,13 +425,26 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
-    if (drawList[i]->mesh->hasTexture) {
+    /*if (drawList[i]->mesh->hasTexture) {
       glUniform1i(pass2Handles.hasTex, 1);
     }
     else {
       glUniform1i(pass2Handles.hasTex, 0);
+    }*/
+    
+    if (dynamic_cast<Player *>(drawList[i].get())) {
+      glActiveTexture(GL_TEXTURE1);
+      glUniform1i(pass2Handles.hasTex, 1);
+      glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+      glUniform1i(pass2Handles.texture, 1);
     }
-
+    else {
+      glUniform1i(pass2Handles.hasTex, 0);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, shadowMap);
+      glUniform1i(pass2Handles.shadowMap, 0);
+    }
+    
     SetMaterial(drawList[i]->material);
     SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
     SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
@@ -540,12 +553,15 @@ void beginPass2Draw() {
 
   glUseProgram(pass2Handles.prog);
 
+  glEnable(GL_TEXTURE_2D);
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
   glUniform1i(pass2Handles.shadowMap, 0);
 
   glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
   glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z); 
+  glUniform1i(pass2Handles.hasTex, 0);
 
   //SetDepthMVP(false);
   if (debug) {
@@ -790,7 +806,7 @@ void initPlayer(WorldGrid* gameObjects) {
       vec3(1, 0, 0),
       vec3(1.0, 2.0, 1.0),
       1,
-      2
+      0
       );
 
   gameObjects->add(shared_ptr<GameObject>(playerObject));
@@ -1022,6 +1038,10 @@ int main(int argc, char **argv)
   winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
   playerMesh.hasTexture = true;
   playerMesh.loadTexture(resPath(sysPath("textures", "Player_texture.bmp")));
+  
+  printf("shadow map id: %d\n", shadowMap);
+  printf("player tex id: %d\n", playerMesh.texId);
+
 
   srand(time(NULL));
 
@@ -1053,6 +1073,9 @@ int main(int argc, char **argv)
       CAMERA_NEAR,
       CAMERA_FAR);
   double timeCounter = 0;
+
+  //  printf("shadow map id: %d\n", shadowMap);
+  //printf("player tex id: %d\n", playerMesh.texId);
 
   do{
     //timer stuff

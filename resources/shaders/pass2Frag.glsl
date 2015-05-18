@@ -61,10 +61,10 @@ void main() {
         visibility -= 0.2 * (1.0 - texture2D(shadowMap, ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0).z);*/
 	
 	if (hasTex == 1) {
-	   diffuse = texture2D(texture, texCoordOut);
-	}	
-
-	gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
-	//gl_FragColor = texture2D(shadowMap, ShadowCoord.xy);
-	//gl_FragColor = vec4(ShadowCoord.x, 0.0, ShadowCoord.z, 1.0);
+	   diffuse = vec3(texture2D(texture, texCoordOut));
+	   gl_FragColor = vec4(diffuse.x, diffuse.y, diffuse.z, 1.0);
+	}
+	else {	
+	     gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
+	}
 }

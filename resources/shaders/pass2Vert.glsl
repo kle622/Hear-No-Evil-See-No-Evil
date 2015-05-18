@@ -10,6 +10,7 @@ uniform vec3 UsColor;	// specular
 uniform float Ushine;
 uniform mat4 uDepthMVP;
 uniform vec2 texCoordIn;
+uniform int hasTex;
 
 varying vec3 vNormal;
 varying vec3 vPos;
@@ -31,5 +32,6 @@ void main() {
 	
 	ShadowCoord = uDepthMVP * vec4(aPosition, 1.0);
 	
-	texCoordOut = texCoordIn;
+	if (hasTex == 1) 
+	   texCoordOut = texCoordIn;
 }
