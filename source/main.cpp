@@ -76,7 +76,6 @@ float key_speed = 0.2f; // TODO get rid of these by implementing first-person ca
 float theta = 0.0f;
 float phi = 0.0f;
 Camera* debugCamera;
-Camera* guardTestCamera;
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
@@ -1052,14 +1051,6 @@ int main(int argc, char **argv)
   camera3DPerson->debug = &debugDraw;
   // debug camera
   debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      CAMERA_FOV,
-      (float)g_width / (float)g_height,
-      CAMERA_NEAR,
-      CAMERA_FAR);
-
-  guardTestCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
       CAMERA_FOV,
