@@ -14,6 +14,8 @@ set(HEADERS
    GameObject/Wall.h
    GameObject/Mesh.h
    GameObject/Handles.h	
+   GameObject/ShadowMapPass1Handles.h
+   GameObject/ShadowMapPass2Handles.h
    GameObject/Shape.h
    GameObject/Guard.h
    GameObject/WinCondition.h
@@ -29,7 +31,12 @@ set(HEADERS
 
    DebugDraw/DebugDraw.h
    DebugDraw/DebugHandles.h
+
+   MySound/MySound.h
    Textures/Textures.h
+
+   ../dependencies/irrKlang/include/irrKlang.h
+   ../dependencies/irrKlang/include/conio.h
 )
 
 # List all .c / .cpp files here
@@ -48,6 +55,8 @@ set(SOURCES
    GameObject/Wall.cpp	
    GameObject/Mesh.cpp
    GameObject/Handles.cpp	
+   GameObject/Pass1Handles.cpp
+   GameObject/Pass2Handles.cpp
    GameObject/Shape.cpp
    GameObject/Guard.cpp
    GameObject/WinCondition.cpp
@@ -61,5 +70,7 @@ set(SOURCES
 
    DebugDraw/DebugDraw.cpp
    DebugDraw/DebugHandles.cpp
-   Textures/Textures.cpp
+
+   MySound/MySound.cpp
+   Textures/Textures.h
 )

@@ -1,12 +1,12 @@
 #include "GameObject.h"
+#include "Player.h"
 #define DECELERATION 0.45f
 
-GameObject::GameObject(Mesh *mesh, Handles *handles,
+GameObject::GameObject(Mesh *mesh,
 		       vec3 position, float rotation, vec3 scale, 
 		       vec3 direction, float velocity, vec3 dimensions,
            int scanRadius, int material = 0, bool pushable = false) {
   this->mesh = mesh;
-  this->handles = handles;
   this->position = position;
   this->oldPosition = position;
   this->rotation = rotation;
@@ -20,10 +20,10 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
   this->pushable = pushable;
 }
 
-void GameObject::draw() {
-  SetModel(handles->uModelMatrix, this->position, this->rotation, this->scale);
+/*void GameObject::draw() {
+  //SetModel(handles->uModelMatrix, this->position, this->rotation, this->scale);
   this->mesh->drawObject(this->handles);
-}
+}*/
 
 void GameObject::move(float time) {
     oldPosition = position;
@@ -31,7 +31,11 @@ void GameObject::move(float time) {
     if (velocity > 0) {
       velocity -= DECELERATION;
     }
+#ifdef WIN32
     velocity = max(velocity, 0.0f);
+#else
+    velocity = std::max(velocity, 0.0f);
+#endif
 }
 
 bool compareDistance(vec3 first, vec3 second, float max) {
@@ -57,7 +61,7 @@ bool GameObject::collide(GameObject* object) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > 10.0f) {
+            if (object->pushable && this->velocity > WALK) {
               object->velocity = this->velocity;
               object->direction = this->direction;
             }
@@ -69,14 +73,14 @@ bool GameObject::collide(GameObject* object) {
     return false;
 }
 
-void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
+/*void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
     glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
     glm::mat4 com = Trans*RotateY*Sc;
     if (handle >= 0)
         glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
-}
+	}*/
 
 
 

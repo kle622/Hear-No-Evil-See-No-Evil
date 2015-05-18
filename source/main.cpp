@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
+//#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -13,6 +14,7 @@
 #include "glm/gtc/matrix_transform.hpp" //perspective, txrans etc
 #include "glm/gtc/type_ptr.hpp" //value_ptr
 #include <memory>
+//#include ""
 
 #include "Library/TimeManager.h"
 #include "Library/InitObjects.h"
@@ -26,37 +28,19 @@
 #include "GameObject/Shape.h"
 #include "GameObject/Wall.h"
 #include "GameObject/Handles.h"
+#include "GameObject/ShadowMapPass1Handles.h"
+#include "GameObject/ShadowMapPass2Handles.h"
 #include "GameObject/Mesh.h"
 #include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
+#include "MySound/MySound.h"
 #include "Textures/Textures.h"
 
-// Stuff for 3D sound in windows
-#if defined WIN32
-#include <windows.h>
-#include <conio.h>
-inline void sleepSomeTime() { Sleep(100); }
-#pragma comment(lib, "../dependencies/irrKlang/lib/Winx64-visualStudio/irrKlang.lib") // link with irrKlang.dll
-#else
-#include "../dependencies/irrKlang/examples/common/conio.h"
-//#pragma comment(lib, "../dependencies/irrKlang/lib/irrKlang.lib") // link with irrKlang.dll
-#endif
-//#if defined __APPLE__ && __MACH__
-//#include "..dependencies/irrKlang/examples/common/conio.h"
-//#endif
-#include "../dependencies/irrKlang/include/irrKlang.h"
-using namespace irrklang;
-/// Init irrKlang sound library, start the sound engine with default parameters
-ISoundEngine* engine;
-ISound* noseSnd;
-ISound* guardTalk;
-ISound* backGroundSnd;
-ISound* footSndPlayr;
-ISound* loseSnd; 
-
+//#include "GuardPath/PathNode.h"
+//#define DEBUG
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -73,13 +57,11 @@ ISound* loseSnd;
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 100
+#define MAX_DETECT 400
 
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
-
-//#pragma comment(lib, "../dependencies/irrKlang/lib/Win32-visualStudio/irrKlang.lib") // link with irrKlang.dll
 
 vector<tinyobj::shape_t> player;
 vector<tinyobj::shape_t> guard;
@@ -98,6 +80,8 @@ Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
 Handles mainShader;
+Pass1Handles pass1Handles;
+Pass2Handles pass2Handles;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
@@ -107,20 +91,20 @@ Mesh tableMesh;
 Mesh chairMesh;
 Mesh cartMesh;
 Mesh rafterMesh;
-Mesh textureMesh;
 Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
+MySound *soundObj;
 
-Textures* cubeTexture;
-
-glm::vec3 g_light(0, 100, 0);
+glm::vec3 g_light(0, 10, -5);
 
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
+GLuint frameBufObj = 0;
+GLuint shadowMap = 0;
 
 double deltaTime;
 
@@ -152,60 +136,145 @@ int printOglError(const char *file, int line) {
   return retCode;
 }
 
+/* helper function to make sure your matrix handle is correct */
+inline void safe_glUniformMatrix4fv(const GLint handle, const GLfloat data[]) {
+  if (handle >= 0)
+    glUniformMatrix4fv(handle, 1, GL_FALSE, data);
+}
+
 void SetMaterial(int i) {
   switch (i) {
   case 0: // guards
-    glUniform3f(mainShader.uMatAmb, 0.05f, 0.025f, 0.025f);
-    glUniform3f(mainShader.uMatDif, 0.9f, 0.1f, 0.05f);
-    glUniform3f(mainShader.uMatSpec, 0.8f, 0.2f, 0.2f);
-    glUniform1f(mainShader.uMatShine, 100.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.025f, 0.025f);
+    glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
+    glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
+    glUniform1f(pass2Handles.uMatShine, 100.0f);
     break;
   case 1: // floor
-    glUniform3f(mainShader.uMatAmb, 0.13f, 0.13f, 0.14f);
-    glUniform3f(mainShader.uMatDif, 0.3f, 0.3f, 0.4f);
-    glUniform3f(mainShader.uMatSpec, 0.3f, 0.3f, 0.4f);
-    glUniform1f(mainShader.uMatShine, 150.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
+    glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
+    glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
+    glUniform1f(pass2Handles.uMatShine, 150.0f);
     break;
   case 2: // player
-    glUniform3f(mainShader.uMatAmb, 0.3f, 0.3f, 0.3f);
-    glUniform3f(mainShader.uMatDif, 0.9f, 0.9f, 0.9f);
-    glUniform3f(mainShader.uMatSpec, 0.0f, 0.0f, 0.0f);
-    glUniform1f(mainShader.uMatShine, 150.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
+    glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
+    glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 150.0f);
     break;
   case 3: // guard detect
-    glUniform3f(mainShader.uMatAmb, 0.06f, 0.09f, 0.06f);
-    glUniform3f(mainShader.uMatDif, 0.2f, 0.80f, 0.1f);
-    glUniform3f(mainShader.uMatSpec, 0.8f, 1.0f, 0.8f);
-    glUniform1f(mainShader.uMatShine, 4.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
+    glUniform3f(pass2Handles.uMatDif, 0.2f, 0.80f, 0.1f);
+    glUniform3f(pass2Handles.uMatSpec, 0.8f, 1.0f, 0.8f);
+    glUniform1f(pass2Handles.uMatShine, 4.0f);
     break;
   case 4: //big wall color
-    glUniform3f(mainShader.uMatAmb, 0.2f, 0.1f, 0.0f);
-    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
-    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
-    glUniform1f(mainShader.uMatShine, 10.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.1f, 0.0f);
+    glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
   case 5: // ceiling
-    glUniform3f(mainShader.uMatAmb, 0.1f, 0.1f, 0.1f);
-    glUniform3f(mainShader.uMatDif, 0.0f, 0.0f, 0.00f);
-    glUniform3f(mainShader.uMatSpec, 1.0f, 1.0f, 1.0f);
-    glUniform1f(mainShader.uMatShine, 100.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.1f, 0.1f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.0f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 1.0f, 1.0f, 1.0f);
+    glUniform1f(pass2Handles.uMatShine, 100.0f);
     break;
   case 6: //short wall color
-    glUniform3f(mainShader.uMatAmb, 0.2f, 0.2f, 0.2f);
-    glUniform3f(mainShader.uMatDif, 0.08f, 0.0f, 0.00f);
-    glUniform3f(mainShader.uMatSpec, 0.08f, 0.0f, 0.0f);
-    glUniform1f(mainShader.uMatShine, 10.0f);
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
+    glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 7: //box stack
+    glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 8: //chairs
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
+    glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
   }
 }
 
+void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
+  glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
+  glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
+  glm::mat4 com = Trans*RotateY*Sc;
+  if (handle >= 0)
+    glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
+}
+
+void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale) {
+
+  glm::vec3 lightInv = g_light;
+  glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
+  glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
+  glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) * 
+    glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
+  //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
+  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
+
+  glm::mat4 biasMatrix(
+		       0.5, 0.0, 0.0, 0.0,
+		       0.0, 0.5, 0.0, 0.0,
+		       0.0, 0.0, 0.5, 0.0,
+		       0.5, 0.5, 0.5, 1.0
+		       );
+
+  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+
+  
+  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) : 
+    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+
+  //cerr << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+
+}
+
+void initFramebuffer() {
+  glGenFramebuffersEXT(1, &frameBufObj);
+  assert(frameBufObj > 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  assert(glGetError() == GL_NO_ERROR);
+
+  glGenTextures(1, &shadowMap);
+  assert(shadowMap > 0);
+  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+  glDrawBuffer(GL_NONE);
+  glReadBuffer(GL_NONE);
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+
+  //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    //cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+  //}
+
+  // Unbind the arrays                                                                                              
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  assert(glGetError() == GL_NO_ERROR);
+}
+
 void initGL() {
   // Set the background color
-  glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
   initVertexObject(&posBufObjG, &norBufObjG);
+  initFramebuffer();
 }
 
 void getWindowinput(GLFWwindow* window, double deltaTime) {
@@ -230,15 +299,8 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += -velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       leftD = true;
-       if (footSndPlayr->isFinished()) {
-         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    }
-       else if (footSndPlayr->getIsPaused()) {
-         footSndPlayr->setIsPaused(false);
-       }
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime, 
@@ -247,15 +309,8 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       rightD = true;
-       if (footSndPlayr->isFinished()) {
-         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-    }
-       else if (footSndPlayr->getIsPaused()) {
-         footSndPlayr->setIsPaused(false);
-       }
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -264,15 +319,8 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       upD = true;
-       if (footSndPlayr->isFinished()) {
-         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-     }
-       else if (footSndPlayr->getIsPaused()) {
-         footSndPlayr->setIsPaused(false);
-       }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
       vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -281,15 +329,8 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
       direction += -velocity;
       glm::vec3 forward = camera3DPerson->getForward();
       playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-      //camera3DPerson->setView();
       accelerate = true;
       downD = true;
-       if (footSndPlayr->isFinished()) {
-         footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, false, true);
-     }
-       else if (footSndPlayr->getIsPaused()) {
-         footSndPlayr->setIsPaused(false);
-       }
     }
 
     if (accelerate) {
@@ -353,23 +394,50 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
   }
 }
 
+void drawPass1(WorldGrid* gameObjects) {
+  Guard *guard;
+  // draw
+  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //SetDepthMVP(true, ground->position, ground->rotation, ground->scale);
+  //pass1Handles.draw(ground);
+  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
+  drawList.insert(drawList.end(), walls.begin(), walls.end());
+  for (int i = 0; i < drawList.size(); i++) {
+    SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+    pass1Handles.draw(drawList[i].get());
+    //drawList[i]->draw();
+  }
+
+  gameObjects->update();
+}
+
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   SetMaterial(ground->material);
-  ground->draw();
+  SetDepthMVP(false, ground->position, ground->rotation, ground->scale);
+  SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
+  pass2Handles.draw(ground);
+  //ground->draw();
   SetMaterial(ceiling->material);
-  ceiling->draw();
+  SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale);
+  SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
+  pass2Handles.draw(ceiling);
+  //ceiling->draw();
   Guard *guard;
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
     SetMaterial(drawList[i]->material);
-    drawList[i]->draw();
+    SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+    SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+    pass2Handles.draw(drawList[i].get());
+    //drawList[i]->draw();
   }
 
   // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
     gameObjects->list[i]->move(time);
-    vector<shared_ptr<GameObject>> proximity =
+    vector<shared_ptr<GameObject>> proximity = 
       gameObjects->getCloseObjects(gameObjects->list[i]);
 
     //all objects
@@ -377,62 +445,60 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       if (gameObjects->list[i].get() != proximity[j].get()) {
         if (gameObjects->list[i]->collide(proximity[j].get())) {
           //do some stuff
-        }
+        } 
       }
     }
 
-    //players
-    if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-      engine->setListenerPosition(vec3df(gameObjects->list[i].get()->position.x, gameObjects->list[i].get()->position.y, gameObjects->list[i].get()->position.z),
-        vec3df(gameObjects->list[i].get()->direction.x, gameObjects->list[i].get()->direction.y, gameObjects->list[i].get()->direction.z));
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-          // Example of event based sound, just for fun
-          if (noseSnd->isFinished()) {
-            noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, false, true);
+	  if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+    for (int j = 0; j < gameObjects->wallList.size(); j++) {
+      if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
           }
-          else if (noseSnd->getIsPaused()) {
-            noseSnd->setIsPaused(false);
-          }
-        }
       }
     }
+
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-      /*if (guardTalk->isFinished()) {
-        guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
-          vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
-      }
-      else if (guardTalk->getIsPaused()) {
-        guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav",
-          vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
-        guardTalk->setIsPaused(false);
-      }*/
-      if (guard->detect(playerObject)) {
-        cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
-        if (detectCounter >= MAX_DETECT) {
-          // TODO lose
-          #ifndef DEBUG
-            cout << "You lose! Not sneaky enough!" << endl;
-            if (loseSnd->getIsPaused()) {
-              backGroundSnd->setIsPaused(true);
-              loseSnd->setIsPaused(false);
-              //Sleep(10);
-              
-            }
-            else if (loseSnd->isFinished()) {
-              exit(0);
-            }
-          #endif
-        }
-      }
-    }
-    gameObjects->update();
-  }
-  cubeTexture->drawTexture(1);
+		  if (guard->detect(playerObject)) {
+        soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
+			  cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
+			  if (detectCounter >= MAX_DETECT) {
+				  // YOU lose
+          cout << "You lose! Not sneaky enough!" << endl;
+          soundObj->playSndExit(soundObj->loseSnd);
+			  }
+		  }
+	  }
+
+	  //    for (int j = 0; j < proximity.size(); j++) {
+	  //        if (gameObjects->list[i] != proximity[j]) {
+	  //            if (gameObjects->list[i]->collide(proximity[j].get())) {
+	  //              //do some shit
+
+	  //              if (guardTalk->isFinished()) {
+	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
+	  //              }
+	  //              else if (guardTalk->getIsPaused()) {
+	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
+	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
+	  //                guardTalk->setIsPaused(false);
+	  //              }
+	  //            }
+	  //        }
+	  //    }
+	  //}
+	  /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
+		SetMaterial(gameObjects->wallList[i]->material);
+		gameObjects->wallList[i]->draw();
+		}*/
+
+  gameObjects->update();
+}
 }
 
-void beginDrawGL() {
+/*void beginDrawGL() {
   // Clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -443,12 +509,72 @@ void beginDrawGL() {
       camera3DPerson->eye.y, camera3DPerson->eye.z);
   GLSL::enableVertexAttribArray(mainShader.aPosition);
   GLSL::enableVertexAttribArray(mainShader.aNormal);
+}*/
+
+
+
+void beginPass1Draw() {
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  glEnable(GL_DEPTH_TEST);
+  glCullFace(GL_FRONT);
+  glDrawBuffer(GL_NONE);
+  //cerr << "BeginPass1Draw error: " << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+
+  glUseProgram(pass1Handles.prog);
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+}
+
+void endPass1Draw() {
+  GLSL::disableVertexAttribArray(pass1Handles.aPosition);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+}
+
+void beginPass2Draw() {
+  //Second Pass                                                                                                     
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  //glViewport(0, 0, g_width, g_height);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);                                                                                        
+  glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);                                                                                            
+
+  glUseProgram(pass2Handles.prog);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glUniform1i(pass2Handles.shadowMap, 0);
+
+  glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
+  glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z); 
+
+  //SetDepthMVP(false);
+  if (debug) {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
+  }
+  else {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
+  }
+  checkGLError();
 }
 
 void endDrawGL() {
-  GLSL::disableVertexAttribArray(mainShader.aPosition);
-  GLSL::disableVertexAttribArray(mainShader.aNormal);
+  
+  GLSL::disableVertexAttribArray(pass2Handles.aPosition);
+  GLSL::disableVertexAttribArray(pass2Handles.aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   glUseProgram(0);
   checkGLError();
@@ -488,9 +614,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   if (key == GLFW_KEY_LEFT_SHIFT) {
     if (action == GLFW_PRESS && !playerObject->crouch) {
       playerObject->SetMotion(RUN);
+      //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
+      //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
     else if (action == GLFW_RELEASE) {
       playerObject->SetMotion(WALK);
+      //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
   }
   if (key == GLFW_KEY_LEFT_CONTROL) {
@@ -561,7 +690,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 3: //barrels
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tripleBarrelMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
           getRand(0, 360), 
           vec3(2.5, 2.5, 2.5),
@@ -576,7 +704,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 4: //stack of boxes
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &boxStackMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
           getRand(0, 360), 
           vec3(4, 2, 4),
@@ -584,14 +711,13 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(3.0, 5, 3.0),
           1,
-          0,
+          7,
           false
           )));
           break;
         case 5: //table
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tableMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
           0, 
           vec3(1.5, 1, 1.5),
@@ -599,14 +725,13 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(2.8, 1.5, 1.4),
           1,
-          0,
+          5,
           true
           )));
           break;
         case 6: //chair
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &chairMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
           getRand(0, 360), 
           vec3(1, 1, 1),
@@ -614,14 +739,13 @@ void initObjects(WorldGrid* gameObjects) {
           0,
           vec3(1.5, 2, 1.5),
           1,
-          0,
+          8,
           true
           )));
           break;
         case 7: //cart
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &cartMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
           getRand(0, 360), 
           vec3(1, 1, 1),
@@ -636,7 +760,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 8: //rafter
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &rafterMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
           90, 
           vec3(24, 15, 24),
@@ -651,7 +774,6 @@ void initObjects(WorldGrid* gameObjects) {
         case 9: //flag
           gameObjects->add(shared_ptr<GameObject>(new WinCondition(
           &winMesh,
-          &mainShader,
           vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
           0, 
           vec3(4, 6, 4),
@@ -672,7 +794,6 @@ void initObjects(WorldGrid* gameObjects) {
 void initPlayer(WorldGrid* gameObjects) {
   playerObject = new Player(
       &playerMesh,
-      &mainShader,
       vec3(0, 0, 0),
       20,
       vec3(1.0, 1.0, 1.0), //scale
@@ -707,7 +828,6 @@ void initGuards(WorldGrid* gameObjects) {
 
       Guard* guardObject = new Guard(
           &guardMesh,
-          &mainShader,
           vec3(1, 1, 1),
           GUARD_SPEED,
           vec3(1.0, 2.0, 1.0),
@@ -722,7 +842,6 @@ void initGuards(WorldGrid* gameObjects) {
 
 void initGround() {
   ground = new Shape(
-      &mainShader, //model handle
       vec3(0), //position
       0, //rotation
       vec3(5, 1, 5), //scale
@@ -737,7 +856,6 @@ void initGround() {
 
 void initCeiling() {
   ceiling = new Shape(
-      &mainShader, //model handle
       vec3(0, 20, 0), //position
       0, //rotation
       vec3(5, 1, 5), //scale
@@ -820,7 +938,6 @@ void initWalls(WorldGrid* gameObjects) {
         if (shortWall) {
           gameObjects->add(shared_ptr<GameObject>(new Wall(
             &cubeMesh,
-            &mainShader,
             vec3(center.x, 0, center.y),      //position
             0,            //rotation
             vec3(dims.x / 2, 1, dims.y / 2),    //scale
@@ -835,7 +952,6 @@ void initWalls(WorldGrid* gameObjects) {
         else {
 				gameObjects->add(shared_ptr<GameObject>(new Wall(
 					&cubeMesh,
-					&mainShader,
 					vec3(center.x, 9, center.y),      //position
 					0,            //rotation
 					vec3(dims.x / 2, 10, dims.y / 2),    //scale
@@ -855,21 +971,8 @@ void initWalls(WorldGrid* gameObjects) {
 
 int main(int argc, char **argv)
 {
-     // irrKlang init
-     engine = createIrrKlangDevice();
-     if (!engine) {
-       return 0; // error starting up the engine
-     }
-     // Play something on loop for background music
-     backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
-     backGroundSnd->setVolume(.2);
-     backGroundSnd->setIsPaused(false);
-     noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
-     footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
-     guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
-     guardTalk->setVolume(1);
-     loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
-     //engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
+  // Sound Object
+  soundObj = new MySound();
 
   // Initialise GLFW
   if (!glfwInit()) {
@@ -892,6 +995,7 @@ int main(int argc, char **argv)
     return -1;
   }
 
+
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
   glfwSetCursorPosCallback(window, cursor_pos_callback);
@@ -908,9 +1012,13 @@ int main(int argc, char **argv)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   initGL();
-  debugDraw.handles.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
+  assert(glGetError() == GL_NO_ERROR);
+  debugDraw.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
+  //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
   //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
+  pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
+  pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+  assert(glGetError() == GL_NO_ERROR);
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
@@ -939,12 +1047,12 @@ int main(int argc, char **argv)
   initCeiling();
       
     //initialize the camera
-  camera3DPerson = new Camera3DPerson(&mainShader, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+  camera3DPerson = new Camera3DPerson(&pass2Handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR, CAMERA_FAR);
   camera3DPerson->debug = &debugDraw;
   // debug camera
-  debugCamera = new Camera(&mainShader,
+  debugCamera = new Camera(&pass2Handles,
       glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
@@ -954,11 +1062,6 @@ int main(int argc, char **argv)
       CAMERA_FAR);
   double timeCounter = 0;
 
-  // Textures load
-  cubeTexture = new Textures(&cubeMesh, &mainShader);
-  cubeTexture->LoadTexture((char *)"../resources/Textures/sunset.bmp", 0);
-  //texture = textureObj->LoadTexture("../resources/Textures/sunset.bmp");
-
   do{
     //timer stuff
     TimeManager::Instance().CalculateFrameRate(true);
@@ -966,17 +1069,12 @@ int main(int argc, char **argv)
     double currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
-    beginDrawGL();
+    beginPass1Draw();
+    drawPass1(&gameObjects);
+    endPass1Draw();
+    beginPass2Draw();
     // make sure these lines are in this order
     getWindowinput(window, deltaTime);
-    if (!debug) {
-      camera3DPerson->setProjection();
-      camera3DPerson->setView();
-    }
-    else {
-      debugCamera->setProjection();
-      debugCamera->setView();
-    }
 
     // draw debug
     if (debug || boxes) {
@@ -993,19 +1091,22 @@ int main(int argc, char **argv)
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
       for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
 
       vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
       for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false);
+        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
     }
-
+    //    pass2Handles.uProjMatrix = camera3DPerson->getProjection();
+    //pass2Handles.uViewMatrix = camera3DPerson->getView();
     drawGameObjects(&gameObjects, deltaTime);
     endDrawGL();
     if (debug || boxes) {
+#ifndef WIN32
       debugDraw.drawAll();
+#endif
       debugDraw.clear();
     }
 
@@ -1015,10 +1116,10 @@ int main(int argc, char **argv)
       && glfwWindowShouldClose(window) == 0);
 
   glfwTerminate();
-     backGroundSnd->drop();
-     noseSnd->drop();
-     footSndPlayr->drop();
-     guardTalk->drop();
-     engine->drop();
+    // backGroundSnd->drop();
+    // noseSnd->drop();
+    // footSndPlayr->drop();
+    // guardTalk->drop();
+    // engine->drop();
   return 0;
 }
