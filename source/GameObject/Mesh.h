@@ -17,6 +17,7 @@ class Mesh {
     // e.g. "cube.obj"
   void loadShapes(const std::string &objFile);
     void drawObject(Handles *handles);
+    void loadTexture(const std::string &filename);
     float radius;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -28,6 +29,8 @@ class Mesh {
     GLuint indBufObj;
     GLuint texBufObj;
     int material;
+    char* bmp;
+    GLfloat* uvs;
   private:
     void computeBound(void);
     void resize_obj(void);

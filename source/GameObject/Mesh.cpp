@@ -11,6 +11,18 @@ void Mesh::loadShapes(const std::string &objFile) {
   //this->computeBound();
 }
 
+void Mesh::loadTextures(const std::string &filename) {
+  glGenTextures(1, &texBufObj);
+  glBindTexture(GL_TEXTURE_2D, texBufObj);
+  bmp = imageLoad(filename.c_str());
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, TEX_SIZE, TEX_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+ 
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
 void Mesh::computeBound() {
   glm::vec3 result = glm::vec3(0, 0, 0);
   float minX, minY, minZ;

@@ -425,6 +425,13 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   // draw
   vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
+    if (drawList[i]->mesh->hasTexture) {
+      glUniform1i(pass2Handles.hasTex, 1);
+    }
+    else {
+      glUniform1i(pass2Handles.hasTex, 0);
+    }
+
     SetMaterial(drawList[i]->material);
     SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
     SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
@@ -495,21 +502,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	  gameObjects->update();
   }
 }
-
-/*void beginDrawGL() {
-  // Clear the screen
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  // Use our GLSL program
-  glUseProgram(mainShader.prog);
-  glUniform3f(mainShader.uLightPos, g_light.x, g_light.y, g_light.z);
-  glUniform3f(mainShader.uCamPos, camera3DPerson->eye.x,
-      camera3DPerson->eye.y, camera3DPerson->eye.z);
-  GLSL::enableVertexAttribArray(mainShader.aPosition);
-  GLSL::enableVertexAttribArray(mainShader.aNormal);
-}*/
-
-
 
 void beginPass1Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
@@ -1028,6 +1020,8 @@ int main(int argc, char **argv)
   cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
   winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
+  playerMesh.hasTexture = true;
+  playerMesh.loadTexture(resPath(sysPath("textures", "Player_texture.bmp")));
 
   srand(time(NULL));
 
