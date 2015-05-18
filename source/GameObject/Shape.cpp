@@ -1,10 +1,9 @@
 #include "Shape.h"
 
-Shape::Shape(Handles *handles, vec3 position, float rotation, 
+Shape::Shape(vec3 position, float rotation, 
     vec3 scale, vec3 direction, float velocity, int indices, 
    GLuint posBuffer, GLuint norBuffer,int material = 0) {
   
-  this->handles = handles;
   this->position = position;
   this->rotation = rotation;
   this->scale = scale;
@@ -16,7 +15,7 @@ Shape::Shape(Handles *handles, vec3 position, float rotation,
   this->material = material;
 }
 
-void Shape::draw() {
+/*void Shape::draw() {
     glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
     glVertexAttribPointer(handles->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ARRAY_BUFFER, norBuffer);
@@ -33,5 +32,5 @@ void Shape::SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
   glm::mat4 com = Trans*RotateY*Sc;
   if (handle >= 0)
     glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
-}
+    }*/
 

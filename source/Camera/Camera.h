@@ -11,11 +11,17 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cassert>
+#include <memory>
 #include <cmath>
 #include <vector>
 #include <time.h>
+#include <stdlib.h>
 #include "../Library/GLSL.h"
+#include "../Library/OBB.h"
+#include "../GameObject/GameObject.h"
 #include "../GameObject/Handles.h"
+#include "../WorldGrid/WorldGrid.h"
+#include "../DebugDraw/DebugDraw.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
@@ -33,18 +39,33 @@ class Camera {
     float aspect;
     float _near;
     float _far;
+    DebugDraw *debug;
 
     //Constructor
     Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
 
-    // these vectors are all normalized and don't represent the eye-lookat separation
+    // these vectors are all normalized
     virtual glm::vec3 getForward();
     virtual glm::vec3 getStrafe();
     virtual glm::vec3 getUp();
 
-    //Object Methods
-    virtual void setView();
+    // gets view/proj matrices
+    virtual glm::mat4 getView();
+    virtual glm::mat4 getProjection();
+
+    // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
+    virtual void setView(); 
     virtual void setProjection();
+
+    // use to check a specific object (i.e. player)
+    bool isCulled(std::shared_ptr<GameObject>);
+
+    // used for culling entire scene
+    // returns list of objects that should be drawn
+    std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid);
+
+  private:
+    bool obbOutsidePlane(OBB obb, glm::vec4 plane);
 };
 
 double clamp(double x, double min, double max);

@@ -6,9 +6,10 @@
 #include "Player.h"
 #include "Mesh.h"
 #include "Handles.h"
+#include "../GuardPath/PathNode.h"
 #include "../glm/glm.hpp"
 
-#define GUARD_SPIN_SPEED 15.0f
+#define GUARD_SPIN_SPEED 75.0f
 #define GUARD_VISION_RANGE 0.2
 
 using namespace std;
@@ -19,16 +20,17 @@ protected:
 
 public:
 	//Properties
-	std::vector<vec3> motionPath;
+	std::vector<PathNode> motionPath;
 	int pathDirection;
 	bool moving;
 	int currentNode;
-	int endpointDirection; // 1 = clockwise, -1 = ccw
 	int sweepDirection; // 1 = clockwise, -1 = ccw
+	float waitTime;
+	int originalMaterial;
 
 	//Constructor
-	Guard(Mesh *mesh, Handles *handles, vec3 scale, float velocity, vec3 dimensions,
-		int material, int scanRadius, vector<vec3> motionPath);
+	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
+		int scanRadius, int material, vector<PathNode> motionPath);
 
 	//Object methods
 	void move(float time);

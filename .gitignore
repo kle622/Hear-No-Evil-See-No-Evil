@@ -4,3 +4,6 @@ CMakeFiles
 CMakeCache.txt
 *.orig
 *~
+
+*.mtl
+*.trace

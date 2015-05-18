@@ -10,7 +10,7 @@ Bunny::Bunny(GLint modelHandle,
     GameObject(modelHandle, position, rotation, scale, 
     direction, velocity, dimensions, 
     scanRadius, indices, posBuffer, norBuffer,
-    indBuffer, posHandle, norHandle, material) {
+    indBuffer, posHandle, norHandle, material, false) {
 
 }
 

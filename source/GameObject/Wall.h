@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Handles.h"
+#include "../WorldGrid/WorldGrid.h"
 
 using namespace glm;
 
@@ -14,7 +15,7 @@ public:
   //Properties
 
   //Constructor
-  Wall(Mesh *mesh, Handles *handles,
+  Wall(Mesh *mesh,
     vec3 position, float rotation, vec3 scale,
     vec3 direction, float velocity, vec3 dimensions, 
     int scanRadius, int material);
@@ -22,6 +23,7 @@ public:
   //Object methods
   void move(float time);
   bool collide(GameObject* object);
+  //void initWalls(WorldGrid* gameObjects);
 };
 
 #endif

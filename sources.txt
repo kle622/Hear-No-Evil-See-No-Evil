@@ -7,14 +7,20 @@ set(HEADERS
    Library/TimeManager.h
    Library/InitObjects.h
    Library/GLError.h
+   Library/OBB.h
 
    GameObject/GameObject.h
    GameObject/Player.h
    GameObject/Wall.h
    GameObject/Mesh.h
    GameObject/Handles.h	
+   GameObject/ShadowMapPass1Handles.h
+   GameObject/ShadowMapPass2Handles.h
    GameObject/Shape.h
    GameObject/Guard.h
+   GameObject/WinCondition.h
+
+   GuardPath/PathNode.h
 
    WorldGrid/WorldGrid.h
    
@@ -22,6 +28,15 @@ set(HEADERS
    Camera/Camera3DPerson.h
 
    Path/Path.h
+
+   DebugDraw/DebugDraw.h
+   DebugDraw/DebugHandles.h
+
+   MySound/MySound.h
+   Textures/Textures.h
+
+   ../dependencies/irrKlang/include/irrKlang.h
+   ../dependencies/irrKlang/include/conio.h
 )
 
 # List all .c / .cpp files here
@@ -33,17 +48,29 @@ set(SOURCES
    Library/TimeManager.cpp
    Library/InitObjects.cpp
    Library/GLError.cpp
+   Library/OBB.cpp
 
    GameObject/GameObject.cpp
    GameObject/Player.cpp
    GameObject/Wall.cpp	
    GameObject/Mesh.cpp
    GameObject/Handles.cpp	
+   GameObject/Pass1Handles.cpp
+   GameObject/Pass2Handles.cpp
    GameObject/Shape.cpp
    GameObject/Guard.cpp
+   GameObject/WinCondition.cpp
+
+   GuardPath/PathNode.cpp
 
    WorldGrid/WorldGrid.cpp
    
    Camera/Camera.cpp
    Camera/Camera3DPerson.cpp
+
+   DebugDraw/DebugDraw.cpp
+   DebugDraw/DebugHandles.cpp
+
+   MySound/MySound.cpp
+   Textures/Textures.h
 )

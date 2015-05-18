@@ -13,7 +13,6 @@
 #include <time.h>
 #include "Mesh.h"
 #include "Handles.h"
-#include "../Camera/Camera.h"
 #include "../Library/GLSL.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
@@ -27,12 +26,12 @@ class GameObject {
   //Properties
   //GLint modelHandle;
   //int indices;
-  Mesh *mesh;
-  Handles *handles;
+  //  Mesh *mesh;
   
  public:
   //Properties
   vec3 position;
+  vec3 oldPosition;
   float rotation;
   vec3 scale;
   
@@ -45,21 +44,22 @@ class GameObject {
   int material;
   
   bool alive;
+  bool pushable;
+
+  Mesh* mesh;
   
   //Constructor
-  GameObject(Mesh *mesh, Handles *handles, 
+  GameObject(Mesh *mesh, 
 	     vec3 position, float rotation, vec3 scale, 
 	     vec3 direction, float velocity, vec3 dimensions, 
-       int material, int scanRadius);
+       int scanRadius, int material, bool pushable);
   
   //Object Methods
-  virtual void draw();
   virtual void move(float time);
   virtual bool collide(GameObject* object);
   //virtual int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
-void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);
 bool intersect(float point1, float point2, float dim1, float dim2);
 bool compareDistance(vec3 first, vec3 second, float max);
 #endif

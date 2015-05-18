@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#define DEBUG
 
 void Mesh::loadShapes(const std::string &objFile) {
   std::string err = tinyobj::LoadObj(this->shapes, this->materials, objFile.c_str());
@@ -7,7 +8,7 @@ void Mesh::loadShapes(const std::string &objFile) {
   }
   this->resize_obj();
   this->sendNormals();
-  this->computeBound();
+  //this->computeBound();
 }
 
 void Mesh::computeBound() {
@@ -85,6 +86,15 @@ void Mesh::resize_obj() {
   scaleZ = 2.0/ maxExtent;
   shiftZ = minZ + (zExtent)/2.0;
 
+#ifdef DEBUG
+  std::cout << "min x: " << (minX - shiftX) * scaleX << std::endl;
+  std::cout << "max x: " << (maxX - shiftX) * scaleX << std::endl;
+  std::cout << "min y: " << (minY - shiftY) * scaleY << std::endl;
+  std::cout << "max y: " << (maxY - shiftY) * scaleY << std::endl;
+  std::cout << "min z: " << (minZ - shiftZ) * scaleZ << std::endl;
+  std::cout << "max z: " << (maxZ - shiftZ) * scaleZ << std::endl;
+#endif
+
   //Go through all verticies shift and scale them
   for (size_t i = 0; i < this->shapes.size(); i++) {
     for (size_t v = 0; v < this->shapes[i].mesh.positions.size() / 3; v++) {
@@ -109,6 +119,12 @@ void Mesh::sendNormals() {
     glBindBuffer(GL_ARRAY_BUFFER, this->posBufObj);
     glBufferData(GL_ARRAY_BUFFER, posBuf.size()*sizeof(float), &posBuf[0], GL_STATIC_DRAW);
 
+	// Send the normal array to the GPU
+	const std::vector<float> &norBuf = this->shapes[s].mesh.normals;
+	glGenBuffers(1, &this->norBufObj);
+	glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
+	glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+	/**
     // compute the normals per vertex
     int idx1, idx2, idx3;
     glm::vec3 v1, v2, v3;
@@ -144,7 +160,7 @@ void Mesh::sendNormals() {
     glGenBuffers(1, &this->norBufObj);
     glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
     glBufferData(GL_ARRAY_BUFFER, this->norBuf.size()*sizeof(float), &this->norBuf[0], GL_STATIC_DRAW);
-
+	*/
     // Send the index array to the GPU
     const std::vector<unsigned int> &indBuf = this->shapes[s].mesh.indices;
     glGenBuffers(1, &this->indBufObj);

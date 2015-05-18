@@ -2,6 +2,8 @@
 #define WORLDGRID_H_
 
 #include "../GameObject/GameObject.h"
+#include "../GameObject/Wall.h"
+
 #include <cmath>
 #include <vector>
 #include <memory>
@@ -14,6 +16,7 @@ class WorldGrid {
 		int width;
 		int height;
 		vector<shared_ptr<GameObject>> list; //store list of all game objects so we don't have to iterate the grid
+		vector<shared_ptr<GameObject>> wallList;
 		vector<vector<vector<shared_ptr<GameObject>>>> grid;
 
 		//Constructor

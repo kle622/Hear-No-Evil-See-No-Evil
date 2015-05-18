@@ -1,12 +1,14 @@
 #include "GameObject.h"
+#include "Player.h"
+#define DECELERATION 0.45f
 
-GameObject::GameObject(Mesh *mesh, Handles *handles,
+GameObject::GameObject(Mesh *mesh,
 		       vec3 position, float rotation, vec3 scale, 
 		       vec3 direction, float velocity, vec3 dimensions,
-           int scanRadius, int material = 0) {
+           int scanRadius, int material = 0, bool pushable = false) {
   this->mesh = mesh;
-  this->handles = handles;
   this->position = position;
+  this->oldPosition = position;
   this->rotation = rotation;
   this->scale = scale;
   this->direction = normalize(direction);
@@ -15,16 +17,25 @@ GameObject::GameObject(Mesh *mesh, Handles *handles,
   this->scanRadius = scanRadius;
   this->material = material;
   this->alive = true;
+  this->pushable = pushable;
 }
 
-void GameObject::draw() {
-  SetModel(handles->uModelMatrix, this->position, this->rotation, this->scale);
+/*void GameObject::draw() {
+  //SetModel(handles->uModelMatrix, this->position, this->rotation, this->scale);
   this->mesh->drawObject(this->handles);
-}
+}*/
 
 void GameObject::move(float time) {
-    vec3 oldPosition = position;
+    oldPosition = position;
     position += normalize(direction) * velocity * time;
+    if (velocity > 0) {
+      velocity -= DECELERATION;
+    }
+#ifdef WIN32
+    velocity = max(velocity, 0.0f);
+#else
+    velocity = std::max(velocity, 0.0f);
+#endif
 }
 
 bool compareDistance(vec3 first, vec3 second, float max) {
@@ -42,18 +53,34 @@ bool intersect(float point1, float point2, float dim1, float dim2) {
 }
 
 bool GameObject::collide(GameObject* object) {
-    //WRITE YOUR OWN DAMN COLLIDE
+    float thisRadius = dimensions.x + dimensions.y + dimensions.z;
+    float objectRadius = object->dimensions.x + object->dimensions.y + 
+        object->dimensions.z;
+
+    if (compareDistance(position, object->position, thisRadius + objectRadius)) {
+        if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
+            intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
+            intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
+            if (object->pushable && this->velocity > WALK) {
+              object->velocity = this->velocity;
+              object->direction = this->direction;
+            }
+            position = oldPosition;
+            return true;
+        }
+    }
+
     return false;
 }
 
-void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
+/*void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
     glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
     glm::mat4 com = Trans*RotateY*Sc;
     if (handle >= 0)
         glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
-}
+	}*/
 
 
 
