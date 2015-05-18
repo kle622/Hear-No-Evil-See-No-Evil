@@ -33,7 +33,7 @@ set(HEADERS
    DebugDraw/DebugHandles.h
 
    MySound/MySound.h
-   Textures/Textures.h
+   DetectionTracker/DetectionTracker.h
 
    ../dependencies/irrKlang/include/irrKlang.h
    ../dependencies/irrKlang/include/conio.h
@@ -72,5 +72,5 @@ set(SOURCES
    DebugDraw/DebugHandles.cpp
 
    MySound/MySound.cpp
-   Textures/Textures.h
+   DetectionTracker/DetectionTracker.cpp
 )

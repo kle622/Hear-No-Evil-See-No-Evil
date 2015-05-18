@@ -511,8 +511,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   GLSL::enableVertexAttribArray(mainShader.aNormal);
 }*/
 
-
-
 void beginPass1Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -1104,9 +1102,9 @@ int main(int argc, char **argv)
     drawGameObjects(&gameObjects, deltaTime);
     endDrawGL();
     if (debug || boxes) {
-//#ifndef WIN32
+#ifndef WIN32
       debugDraw.drawAll();
-//#endif
+#endif
       debugDraw.clear();
     }
 
@@ -1116,10 +1114,6 @@ int main(int argc, char **argv)
       && glfwWindowShouldClose(window) == 0);
 
   glfwTerminate();
-    // backGroundSnd->drop();
-    // noseSnd->drop();
-    // footSndPlayr->drop();
-    // guardTalk->drop();
-    // engine->drop();
+  soundObj->cleanUpSound();
   return 0;
 }
