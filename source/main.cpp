@@ -1047,8 +1047,7 @@ int main(int argc, char **argv)
     //initialize the camera
   camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
-      CAMERA_NEAR, CAMERA_FAR);
-  camera3DPerson->debug = &debugDraw;
+      CAMERA_NEAR, CAMERA_FAR, &debugDraw);
   // debug camera
   debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
@@ -1056,7 +1055,8 @@ int main(int argc, char **argv)
       CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
-      CAMERA_FAR);
+      CAMERA_FAR,
+      &debugDraw);
 
   double timeCounter = 0;
 
@@ -1067,11 +1067,11 @@ int main(int argc, char **argv)
     double currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
+    camera3DPerson->update();
     beginPass1Draw();
     drawPass1(&gameObjects);
     endPass1Draw();
     beginPass2Draw();
-    // make sure these lines are in this order
     getWindowinput(window, deltaTime);
 
     // draw debug

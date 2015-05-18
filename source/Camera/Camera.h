@@ -41,7 +41,7 @@ class Camera {
     DebugDraw *debug;
 
     //Constructor
-    Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far);
+    Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up, float fov, float aspect, float _near, float _far, DebugDraw *debug);
 
     // these vectors are all normalized
     virtual glm::vec3 getForward();
@@ -55,7 +55,6 @@ class Camera {
     // used for culling entire scene
     // returns list of objects that should be drawn
     std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid);
-    float percentInView(std::shared_ptr<GameObject> object, WorldGrid *worldgrid);
 };
 
 #endif

@@ -30,13 +30,12 @@ class Camera3DPerson: public Camera
     float upperBound;
     GameObject *focus;
     WorldGrid *world;
-    Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
+    Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far, DebugDraw *debug);
     void moveVert(float step);
     void moveHoriz(float step);
 
-    // gets view/proj matrices
-    virtual glm::mat4 getView();
-    virtual glm::mat4 getProjection();
+    // for performance reasons, call this only once per draw loop (once all positions are finalized)
+    void update();
 };
 
 #endif

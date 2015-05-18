@@ -4,7 +4,7 @@
 #define DEBUG
 
 Camera::Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
-    float fov, float aspect, float _near, float _far)
+    float fov, float aspect, float _near, float _far, DebugDraw *debug)
 {
   this->lookat = lookat;
   this->eye = eye;
@@ -13,6 +13,7 @@ Camera::Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
   this->aspect = aspect;
   this->_near= _near;
   this->_far = _far;
+  this->debug = debug;
 }
 
 glm::mat4 Camera::getView()
@@ -63,61 +64,4 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   }
   
   return unculled;
-}
-
-float Camera::percentInView(std::shared_ptr<GameObject> object, WorldGrid *worldgrid)
-{
-  float result = 0.0f;
-
-  OBB *targetBox = new OBB(object->position, object->dimensions);
-  std::vector<glm::vec3> *corners = targetBox->getCorners();
-  std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
-  std::vector<glm::vec3> cornersInView;
-  for (auto cornerItr = corners->begin(); cornerItr != corners->end(); ++cornerItr) {
-    bool insideFrustum = true;
-    for (auto planeItr = planes->begin(); insideFrustum && planeItr != planes->end(); ++planeItr) {
-      insideFrustum = pointOutsidePlane(*cornerItr, *planeItr);
-    }
-    if (insideFrustum) {
-      cornersInView.push_back(*cornerItr);
-    }
-  }
-
-  // don't bother doing VFC if player is outside of guard's view frustum
-  if (cornersInView.size() == 0) {
-    return result;
-  }
-
-  // is it worth doing VFC to get shorter list for this collision? try both ways and benchmark
-#ifdef CULL_FIRST
-  std::vector<std::shared_ptr<GameObject>> objInView = this->getUnculled(worldgrid);
-#else
-  std::vector<std::shared_ptr<GameObject>> objInView = worldgrid->list;
-  std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
-  objInView.insert(objInView.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
-#endif
-  float incr = 1.0f / cornersInView.size();
-  for (auto objIter = objInView.begin(); objIter != objInView.end(); ++objIter) {
-    for (auto cornerItr = cornersInView.begin(); cornerItr != cornersInView.end(); ++cornerItr) {
-#ifdef DEBUG
-      this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 0.0f, 1.0f), false);
-#endif
-      OBB *hitBox = new OBB((*objIter)->position, (*objIter)->dimensions);
-      float rayDist;
-      if (rayOBBIntersect(&rayDist, (*objIter)->position, *cornerItr - this->eye, *hitBox)) {
-        float lookDist = glm::distance(*cornerItr, this->eye);
-        if (lookDist > rayDist) {
-#ifdef DEBUG
-          this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
-#endif
-          result += incr;
-        }
-      }
-      else {
-        result += incr;
-      }
-    }
-  }
-
-  return result;
 }
