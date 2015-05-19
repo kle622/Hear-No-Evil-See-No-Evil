@@ -781,7 +781,7 @@ void initPlayer(WorldGrid* gameObjects) {
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
-      vec3(1.0, 2.0, 1.0),
+      vec3(0.75, 2.0, 0.75), // dimensions
       1,
       2
       );
@@ -926,7 +926,7 @@ void initWalls(WorldGrid* gameObjects) {
             vec3(dims.x / 2, 1, dims.y / 2),    //scale
             vec3(1, 0, 0),  //direction
             0,
-            vec3(dims.x, 1, dims.y),     //dimensions
+            vec3(dims.x, 2, dims.y),     //dimensions
             0,            //scanRadius
             6             //material
             )));
