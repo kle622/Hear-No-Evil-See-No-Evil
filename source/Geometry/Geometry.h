@@ -35,6 +35,8 @@ std::vector<glm::vec4> *getViewFrustum(glm::mat4 VP);
  *
  * assume value pointed to by dist is unusable if this method returns false
  *
+ * assume rayDirection is normalized
+ *
  * dist is the distance from the ray origin to the intersection point
  */
 bool rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OBB obb);

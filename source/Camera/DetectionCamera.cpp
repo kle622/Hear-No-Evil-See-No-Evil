@@ -69,14 +69,12 @@ float DetectionCamera::percentInView()
       // don't check collisions against viewer and target
       if (this->viewer != obj.get() && this->target != obj.get()) {
         OBB *hitBox = new OBB(obj->position, obj->dimensions);
-#ifdef DEBUG
-        this->debug->addOBB(*hitBox, glm::vec3(1.0f, 1.0f, 1.0f), true, true);
-#endif
-        if (rayOBBIntersect(&rayDist, this->eye, *cornerItr - this->eye, *hitBox)) {
+        if (rayOBBIntersect(&rayDist, this->eye, glm::normalize(*cornerItr - this->eye), *hitBox)) {
           float lookDist = glm::distance(*cornerItr, this->eye);
           if (rayDist < lookDist) {
             cornerInView = false;
 #ifdef DEBUG
+            this->debug->addOBB(*hitBox, glm::vec3(1.0f, 1.0f, 1.0f), true, true);
             this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
 #endif
           }
