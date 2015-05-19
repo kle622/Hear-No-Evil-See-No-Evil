@@ -62,6 +62,7 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   shadowMap = GLSL::getUniformLocation(this->prog, "shadowMap");
   texture = GLSL::getUniformLocation(this->prog, "texture");
   hasTex = GLSL::getUniformLocation(this->prog, "hasTex");
+  texCoord = GLSL::getUniformLocation(this->prog, "texCoordIn");
   
 }
 

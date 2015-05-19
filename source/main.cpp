@@ -245,7 +245,7 @@ void initFramebuffer() {
   glGenTextures(1, &shadowMap);
   assert(shadowMap > 0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1080, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, g_width, g_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -433,16 +433,18 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }*/
     
     if (dynamic_cast<Player *>(drawList[i].get())) {
-      glActiveTexture(GL_TEXTURE1);
+      //glActiveTexture(GL_TEXTURE1);
       glUniform1i(pass2Handles.hasTex, 1);
-      glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-      glUniform1i(pass2Handles.texture, 1);
+      glUniform2f(pass2Handles.texCoord, drawList[i]->mesh->uvs[0], drawList[i]->mesh->uvs[1]);
+      //glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+      // glUniform1i(pass2Handles.texture, 1);
     }
     else {
       glUniform1i(pass2Handles.hasTex, 0);
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, shadowMap);
-      glUniform1i(pass2Handles.shadowMap, 0);
+      //glBindTexture(GL_TEXTURE_2D, 0);
+      //glActiveTexture(GL_TEXTURE0);
+      //glUniform1i(pass2Handles.shadowMap, 0);
+      // glBindTexture(GL_TEXTURE_2D, shadowMap);
     }
     
     SetMaterial(drawList[i]->material);
@@ -558,6 +560,10 @@ void beginPass2Draw() {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, shadowMap);
   glUniform1i(pass2Handles.shadowMap, 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, playerMesh.texId);
+  glUniform1i(pass2Handles.texture, 1);
 
   glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
   glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z); 
