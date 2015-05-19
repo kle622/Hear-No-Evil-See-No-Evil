@@ -39,6 +39,8 @@
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
+#include "DetectionTracker/DetectionTracker.h"
+#include "GameObject/VisualMeter.h"
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -99,6 +101,7 @@ bool boxes = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
+DetectionTracker *detecTrack;
 
 glm::vec3 g_light(0, 10, -5);
 
@@ -452,6 +455,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+      detecTrack->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
       for (int j = 0; j < gameObjects->wallList.size(); j++) {
         if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
           soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
@@ -462,7 +467,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+      detecTrack->updateVisDetect(detectPercent, playerObject);
+      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
       if (detectPercent > 0) {
+        detecTrack->detecDanger = true;
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
         detectCounter += detectPercent;
         cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
@@ -472,6 +480,16 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
           soundObj->playSndExit(soundObj->loseSnd);
         }
       }
+    }
+
+    // Dirty little visual rep of detection
+    if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
+      if (detecTrack->totalDetLvl < 3) {
+        gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
+      }
+      gameObjects->list[i].get()->position = 
+        vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
+      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
     }
     gameObjects->update();
   }
@@ -933,6 +951,20 @@ void initWalls(WorldGrid* gameObjects) {
 	}
 }
 
+void initDetectionTracker(WorldGrid* gameObjects) {
+  gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
+    &cubeMesh,
+    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
+    0,                //rotation
+    vec3(0.2, 0, 0.2),    //scale
+    vec3(1, 0, 0),    //direction
+    0,
+    vec3(0, 0, 0),     //dimensions
+    0,                 //scanRadius
+    0                  //material
+    )));
+}
+
 int main(int argc, char **argv)
 {
   // Sound Object
@@ -1002,6 +1034,7 @@ int main(int argc, char **argv)
   //First item is always the player, followed by numGuards guards,
   //	followed by however many walls we need. -JB
   WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
+  detecTrack = new DetectionTracker();
 
   initPlayer(&gameObjects);
   initGuards(&gameObjects);
@@ -1009,6 +1042,7 @@ int main(int argc, char **argv)
   initWalls(&gameObjects);
   initGround();
   initCeiling();
+  initDetectionTracker(&gameObjects);
       
     //initialize the camera
   camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
