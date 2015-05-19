@@ -15,7 +15,8 @@ varying vec4 ShadowCoord;
 // CHECKPOINT!!!!!!!!!
 void main() {
      float visibility = 1.0;
-     float bias = 0.005;
+     float bias = 0.005 * tan(acos(dot(vNormal, vLight)));
+     bias = clamp(bias, 0.0, 0.01);
 
 	vec3 diffuse = UdColor * dot(vNormal, vLight);
 	diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
