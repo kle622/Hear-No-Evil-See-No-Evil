@@ -137,7 +137,7 @@ glm::vec3 intersectPlanes(glm::vec4 plane1, glm::vec4 plane2, glm::vec4 plane3)
   glm::vec3 n3 = glm::vec3(pl3);
 
   float det = glm::dot(n1, glm::cross(n2, n3));
-  assert(det > EPSILON || det < -1.0f * EPSILON);
+  //assert(det > EPSILON || det < -1.0f * EPSILON);
 
   // MATH
   glm::vec3 result = (glm::dot(p1, n1) * glm::cross(n2, n3) + glm::dot(p2, n2) * glm::cross(n3, n1) + glm::dot(p3, n3) * glm::cross(n1, n2)) / det;
