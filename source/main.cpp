@@ -489,6 +489,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
       gameObjects->list[i].get()->position = 
         vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
+      gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
       printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
     }
     gameObjects->update();
