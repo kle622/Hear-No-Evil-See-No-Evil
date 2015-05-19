@@ -594,26 +594,27 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   }
 
   if (key == GLFW_KEY_LEFT_SHIFT) {
-    if (action == GLFW_PRESS && !playerObject->crouch) {
+    if (action == GLFW_PRESS) {
       playerObject->SetMotion(RUN);
+      playerObject->crouch = false;
       //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
       //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
     else if (action == GLFW_RELEASE) {
       playerObject->SetMotion(WALK);
+      playerObject->crouch = false;
       //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
   }
-  if (key == GLFW_KEY_LEFT_CONTROL) {
-    if (action == GLFW_PRESS) {
-      playerObject->SetMotion(CROUCH);
-      playerObject->crouch = true;
-    }
-    else if (action == GLFW_RELEASE) {
+  if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
+    if (playerObject->crouch) {
       playerObject->SetMotion(WALK);
       playerObject->crouch = false;
     }
-
+    else {
+      playerObject->SetMotion(CROUCH);
+      playerObject->crouch = true;
+    }
   }
 }
 
