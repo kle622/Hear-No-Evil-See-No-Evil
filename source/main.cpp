@@ -96,7 +96,7 @@ Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
-DebugDraw debugDraw;
+DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
 
@@ -977,7 +977,9 @@ int main(int argc, char **argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   initGL();
   assert(glGetError() == GL_NO_ERROR);
-  debugDraw.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
+
+  debugDraw = new DebugDraw();
+  debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
@@ -1011,7 +1013,7 @@ int main(int argc, char **argv)
     //initialize the camera
   camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
-      CAMERA_NEAR, CAMERA_FAR, &debugDraw);
+      CAMERA_NEAR, CAMERA_FAR, debugDraw);
   // debug camera
   debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
@@ -1020,12 +1022,12 @@ int main(int argc, char **argv)
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
       CAMERA_FAR,
-      &debugDraw);
+      debugDraw);
   detectCam = new DetectionCamera(CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
       CAMERA_FAR,
-      &debugDraw);
+      debugDraw);
 
   double timeCounter = 0;
 
@@ -1042,39 +1044,37 @@ int main(int argc, char **argv)
     endPass1Draw();
     beginPass2Draw();
     getWindowinput(window, deltaTime);
+    drawGameObjects(&gameObjects, deltaTime);
+    endDrawGL();
 
     // draw debug
     if (debug || boxes) {
       if (debug) {
         camera3DPerson->getView();
         camera3DPerson->getProjection();
-        debugDraw.view = debugCamera->getView();
-        debugDraw.projection = debugCamera->getProjection();
+        debugDraw->view = debugCamera->getView();
+        debugDraw->projection = debugCamera->getProjection();
       }
       else {
-        debugDraw.view = camera3DPerson->getView();
-        debugDraw.projection = camera3DPerson->getProjection();
+        debugDraw->view = camera3DPerson->getView();
+        debugDraw->projection = camera3DPerson->getProjection();
       }
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
       for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
 
       vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
       for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
     }
-    //    pass2Handles.uProjMatrix = camera3DPerson->getProjection();
-    //pass2Handles.uViewMatrix = camera3DPerson->getView();
-    drawGameObjects(&gameObjects, deltaTime);
-    endDrawGL();
     if (debug || boxes) {
 #ifndef WIN32
-      debugDraw.drawAll();
+      debugDraw->drawAll();
 #endif
-      debugDraw.clear();
+      debugDraw->clear();
     }
 
     glfwSwapBuffers(window);

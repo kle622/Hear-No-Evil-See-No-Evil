@@ -21,6 +21,8 @@ float DetectionCamera::percentInView(WorldGrid *world, GameObject *viewer, GameO
 {
   float result = 0.0f;
 
+  update(viewer);
+
   OBB *targetBox = new OBB(target->position, target->dimensions);
   std::vector<glm::vec3> *corners = targetBox->getCorners();
   std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
