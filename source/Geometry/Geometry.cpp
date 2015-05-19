@@ -45,6 +45,8 @@ std::vector<glm::vec3>* OBB::getCorners()
   corners->push_back(center - axes[0] * halfLengths[0]  // x
                                - axes[1] * halfLengths[1]  // y
                                - axes[2] * halfLengths[2]); // z
+
+  return corners;
 }
 
 bool pointOutsidePlane(glm::vec3 point, glm::vec4 plane)
