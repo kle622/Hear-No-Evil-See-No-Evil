@@ -18,7 +18,8 @@ varying vec2 texCoordOut;
 // CHECKPOINT!!!!!!!!!
 void main() {
      float visibility = 1.0;
-     float bias = 0.005;
+     float bias = 0.005 * tan(acos(dot(vNormal, vLight)));
+     bias = clamp(bias, 0.0, 0.01);
 
 	vec3 diffuse = UdColor * dot(vNormal, vLight);
 	diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
@@ -30,19 +31,19 @@ void main() {
 	vec3 ambient = UaColor * 0.3;
 
 	if (texture2D(shadowMap, ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0).z  <  ShadowCoord.z-bias) {
-	   visibility -= 0.2;
+	   visibility -= 0.05;
 	}
 	
 	if (texture2D(shadowMap, ShadowCoord.xy + vec2( 0.94558609, -0.76890725)  / 700.0).z  <  ShadowCoord.z-bias) {
-           visibility -= 0.2;
+           visibility -= 0.05;
         }
 
 	if (texture2D(shadowMap, ShadowCoord.xy + vec2( -0.094184101, -0.9293887)  / 700.0).z  <  ShadowCoord.z-bias) {
-           visibility -= 0.2;
+           visibility -= 0.05;
 	}
 
 	if (texture2D(shadowMap, ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0).z  <  ShadowCoord.z-bias) {
-           visibility -= 0.2;
+           visibility -= 0.05;
     	}
 	
 

@@ -15,6 +15,9 @@ varying vec3 vPos;
 varying vec3 vLight;
 varying vec3 vCol;
 // CHECKPOINT!!!!!!!!!
+attribute vec2 aTexCoord;
+varying vec2 vTexCoord;
+
 void main()
 {
 	vec3 pre_pos = vec3(uModelMatrix * vec4(aPosition, 1.0));
@@ -25,4 +28,6 @@ void main()
 	vNormal = normal_fin; // normalized
 	vLight = light_dir;	// normalized
 	vPos = pre_pos;
+
+	//vTexCoord = aTexCoord;
 }

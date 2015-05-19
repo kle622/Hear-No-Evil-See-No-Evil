@@ -34,6 +34,7 @@
 #include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
+#include "Camera/DetectionCamera.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
@@ -71,7 +72,7 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
-unsigned int detectCounter = 0;
+float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
@@ -79,7 +80,6 @@ Camera* debugCamera;
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
-Handles mainShader;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
 Mesh guardMesh;
@@ -96,7 +96,8 @@ Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
-DebugDraw debugDraw;
+DebugDraw *debugDraw;
+DetectionCamera *detectCam;
 MySound *soundObj;
 
 glm::vec3 g_light(0, 10, -5);
@@ -107,6 +108,8 @@ GLuint frameBufObj = 0;
 GLuint shadowMap = 0;
 
 double deltaTime;
+
+GLuint texture;
 
 float getRand(double M, double N)
 {
@@ -456,65 +459,43 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
   // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
-	  gameObjects->list[i]->move(time);
-	  vector<shared_ptr<GameObject>> proximity =
-		  gameObjects->getCloseObjects(gameObjects->list[i]);
+    gameObjects->list[i]->move(time);
+    vector<shared_ptr<GameObject>> proximity = 
+      gameObjects->getCloseObjects(gameObjects->list[i]);
 
-	  //all objects
-	  for (int j = 0; j < proximity.size(); j++) {
-		  if (gameObjects->list[i].get() != proximity[j].get()) {
-			  if (gameObjects->list[i]->collide(proximity[j].get())) {
-				  //do some stuff
-			  }
-		  }
-	  }
+    //all objects
+    for (int j = 0; j < proximity.size(); j++) {
+      if (gameObjects->list[i].get() != proximity[j].get()) {
+        if (gameObjects->list[i]->collide(proximity[j].get())) {
+          //do some stuff
+        } 
+      }
+    }
 
-	  if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-		  for (int j = 0; j < gameObjects->wallList.size(); j++) {
-			  if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+      for (int j = 0; j < gameObjects->wallList.size(); j++) {
+        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
           soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-			  }
-		  }
-		}
+        }
+      }
+    }
 
-	  //guards
-	  if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-		  if (guard->detect(playerObject)) {
+    //guards
+    if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+      float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+      if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-			  cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
-			  if (detectCounter >= MAX_DETECT) {
-				  // YOU lose
+        detectCounter += detectPercent;
+        cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
+        if (detectCounter >= MAX_DETECT) {
+          // YOU lose
           cout << "You lose! Not sneaky enough!" << endl;
           soundObj->playSndExit(soundObj->loseSnd);
-			  }
-		  }
-	  }
-
-	  //    for (int j = 0; j < proximity.size(); j++) {
-	  //        if (gameObjects->list[i] != proximity[j]) {
-	  //            if (gameObjects->list[i]->collide(proximity[j].get())) {
-	  //              //do some shit
-
-	  //              if (guardTalk->isFinished()) {
-	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
-	  //              }
-	  //              else if (guardTalk->getIsPaused()) {
-	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
-	  //                guardTalk->setIsPaused(false);
-	  //              }
-	  //            }
-	  //        }
-	  //    }
-	  //}
-	  /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
-		SetMaterial(gameObjects->wallList[i]->material);
-		gameObjects->wallList[i]->draw();
-		}*/
-
-	  gameObjects->update();
+        }
+      }
+    }
+    gameObjects->update();
   }
 }
 
@@ -1006,7 +987,7 @@ int main(int argc, char **argv)
     glfwTerminate();
     return -1;
   }
-  
+
 
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
@@ -1025,9 +1006,9 @@ int main(int argc, char **argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   initGL();
   assert(glGetError() == GL_NO_ERROR);
-  debugDraw.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
-  //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
+
+  debugDraw = new DebugDraw();
+  debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
@@ -1065,19 +1046,24 @@ int main(int argc, char **argv)
   initCeiling();
       
     //initialize the camera
-  camera3DPerson = new Camera3DPerson(&pass2Handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+  camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
-      CAMERA_NEAR, CAMERA_FAR);
-  camera3DPerson->debug = &debugDraw;
+      CAMERA_NEAR, CAMERA_FAR, debugDraw);
   // debug camera
-  debugCamera = new Camera(&pass2Handles,
-      glm::vec3(0.0f, 0.0f, 1.0f),
+  debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
       CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
-      CAMERA_FAR);
+      CAMERA_FAR,
+      debugDraw);
+  detectCam = new DetectionCamera(CAMERA_FOV,
+      (float)g_width / (float)g_height,
+      CAMERA_NEAR,
+      CAMERA_FAR,
+      debugDraw);
+
   double timeCounter = 0;
 
   //  printf("shadow map id: %d\n", shadowMap);
@@ -1090,45 +1076,43 @@ int main(int argc, char **argv)
     double currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
+    camera3DPerson->update();
     beginPass1Draw();
     drawPass1(&gameObjects);
     endPass1Draw();
     beginPass2Draw();
-    // make sure these lines are in this order
     getWindowinput(window, deltaTime);
+    drawGameObjects(&gameObjects, deltaTime);
+    endDrawGL();
 
     // draw debug
     if (debug || boxes) {
       if (debug) {
         camera3DPerson->getView();
         camera3DPerson->getProjection();
-        debugDraw.view = debugCamera->getView();
-        debugDraw.projection = debugCamera->getProjection();
+        debugDraw->view = debugCamera->getView();
+        debugDraw->projection = debugCamera->getProjection();
       }
       else {
-        debugDraw.view = camera3DPerson->getView();
-        debugDraw.projection = camera3DPerson->getProjection();
+        debugDraw->view = camera3DPerson->getView();
+        debugDraw->projection = camera3DPerson->getProjection();
       }
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
       for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
 
       vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
       for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
     }
-    //    pass2Handles.uProjMatrix = camera3DPerson->getProjection();
-    //pass2Handles.uViewMatrix = camera3DPerson->getView();
-    drawGameObjects(&gameObjects, deltaTime);
-    endDrawGL();
     if (debug || boxes) {
-//#ifndef WIN32
-      debugDraw.drawAll();
-//#endif
-      debugDraw.clear();
+#ifndef WIN32
+      debugDraw->drawAll();
+#endif
+      debugDraw->clear();
     }
 
     glfwSwapBuffers(window);

@@ -1,13 +1,11 @@
 #include "Camera.h"
 #define _USE_MATH_DEFINES
 
-//#define DEBUG
-#define EPSILON 6.0f
+#define DEBUG
 
-Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
-    float fov, float aspect, float _near, float _far)
+Camera::Camera(glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
+    float fov, float aspect, float _near, float _far, DebugDraw *debug)
 {
-  this->handles = handles;
   this->lookat = lookat;
   this->eye = eye;
   this->up = up;
@@ -15,6 +13,7 @@ Camera::Camera(Handles *handles, glm::vec3 lookat, glm::vec3 eye, glm::vec3 up,
   this->aspect = aspect;
   this->_near= _near;
   this->_far = _far;
+  this->debug = debug;
 }
 
 glm::mat4 Camera::getView()
@@ -25,19 +24,6 @@ glm::mat4 Camera::getView()
 glm::mat4 Camera::getProjection()
 {
   return glm::perspective(this->fov, this->aspect, this->_near, this->_far);
-}
-
-void Camera::setView() {
-  glm::mat4 Cam = glm::lookAt(this->eye, this->lookat, this->up);
-
-  if (this->handles->uViewMatrix >= 0)
-    glUniformMatrix4fv(this->handles->uViewMatrix, 1, GL_FALSE, glm::value_ptr(Cam));
-}
-
-void Camera::setProjection() {
-  glm::mat4 Projection = glm::perspective(this->fov, this->aspect, this->_near, this->_far);
-  if (this->handles->uProjMatrix >= 0)
-    glUniformMatrix4fv(this->handles->uProjMatrix, 1, GL_FALSE, glm::value_ptr(Projection));
 }
 
 glm::vec3 Camera::getForward()
@@ -53,163 +39,31 @@ glm::vec3 Camera::getUp()
   return glm::normalize(this->up);
 }
 
-// TODO implement to mimic getUnculled for one object
-bool Camera::isCulled(shared_ptr<GameObject>)
-{
-  return false;
-}
-
 std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgrid)
 {
   // ----- View Frustum Culling -----
-  std::vector<glm::vec4> planes;
-  glm::mat4 VP = this->getProjection() * this->getView();
-  // the plane normals are not normalized, and point to the inside of the view frustum
-  // plane equations obtained from http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
-  // a plane is represented by a vec4 as <a, b, c, d>
-  glm::vec4 left = glm::vec4(VP[0][3] + VP[0][0], VP[1][3] + VP[1][0], VP[2][3] + VP [2][0], VP[3][3] + VP[3][0]);
-  glm::vec4 right = glm::vec4(VP[0][3] - VP[0][0], VP[1][3] - VP[1][0], VP[2][3] - VP [2][0], VP[3][3] - VP[3][0]);
-  glm::vec4 bottom = glm::vec4(VP[0][3] + VP[0][1], VP[1][3] + VP[1][1], VP[2][3] + VP [2][1], VP[3][3] + VP[3][1]);
-  glm::vec4 top = glm::vec4(VP[0][3] - VP[0][1], VP[1][3] - VP[1][1], VP[2][3] - VP [2][1], VP[3][3] - VP[3][1]);
-  glm::vec4 nearPlane = glm::vec4(VP[0][3] + VP[0][2], VP[1][3] + VP[1][2], VP[2][3] + VP [2][2], VP[3][3] + VP[3][2]);
-  glm::vec4 farPlane = glm::vec4(VP[0][3] - VP[0][2], VP[1][3] - VP[1][2], VP[2][3] - VP [2][2], VP[3][3] - VP[3][2]);
-
+  std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
+  
 #ifdef DEBUG
-  this->debug->addBox(left, right, bottom, top, nearPlane, farPlane, glm::vec3(0.99f, 0.85f, 0.55f), false, false);
-
-  /*std::cout << "left: <" << left.x << ", " << left.y << ", " << left.z << ", " << left.w << ">" << std::endl;
-  std::cout << "right: <" << right.x << ", " << right.y << ", " << right.z << ", " << right.w << ">" << std::endl;
-  std::cout << "bottom: <" << bottom.x << ", " << bottom.y << ", " << bottom.z << ", " << bottom.w << ">" << std::endl;
-  std::cout << "top: <" << top.x << ", " << top.y << ", " << top.z << ", " << top.w << ">" << std::endl;
-  std::cout << "near: <" << nearPlane.x << ", " << nearPlane.y << ", " << nearPlane.z << ", " << nearPlane.w << ">" << std::endl;
-  std::cout << "far: <" << farPlane.x << ", " << farPlane.y << ", " << farPlane.z << ", " << farPlane.w << ">" << std::endl;*/
+  if (NULL != debug) {
+    debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.99f, 0.85f, 0.55f), false, false);
+  }
 #endif
-
-  planes.push_back(left); // left
-  planes.push_back(right); // right
-  planes.push_back(bottom); // bottom
-  planes.push_back(top); // top
-  planes.push_back(nearPlane); // near
-  planes.push_back(farPlane); // far
 
   std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;
+  std::vector<std::shared_ptr<GameObject>> unculled;
   std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
   allObjects.insert(allObjects.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
-  std::vector<std::shared_ptr<GameObject>> inVF;
   for (auto objIter = allObjects.begin(); objIter != allObjects.end(); ++objIter) {
     OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
-#ifdef DEBUG
-    //this->debug->addOBB(*obb, glm::vec3(0.0f, 0.0f, 1.0f), true);
-#endif
     bool pass = true;
-    for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
+    for (auto planeIter = planes->begin(); pass && planeIter != planes->end(); ++planeIter) {
       pass = obbOutsidePlane(*obb, *planeIter);
     }
     if (pass) {
-      inVF.push_back(*objIter);
+      unculled.push_back(*objIter);
     }
   }
-
-  // ----- Wall VFC -----
-  /*std::vector<std::shared_ptr<GameObject>> walls = worldgrid->wallList;
-  for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-    OBB *obb = new OBB((*objIter)->position, (*objIter)->dimensions);
-#ifdef DEBUG
-    //this->debug->addOBB(*obb, glm::vec3(0.0f, 0.0f, 1.0f), true);
-#endif
-    bool pass = true;
-    for (auto planeIter = planes.begin(); pass && planeIter != planes.end(); ++planeIter) {
-      pass = obbOutsidePlane(*obb, *planeIter);
-    }
-    if (pass) {
-      inVF.push_back(*objIter);
-    }
-  }*/
-
-  // ----- Occlusion Culling -----
-  std::vector<std::shared_ptr<GameObject>> unculled;
-  for (auto objIter = inVF.begin(); objIter != inVF.end(); ++objIter) {
-    unculled.push_back(*objIter); // TODO change this to actually be selective
-  }
-
+  
   return unculled;
-}
-
-/* p. 755-757
- * returns true if object is completely inside or intersects plane
- * returns false if object is completely outside plane
- *
- * inside is defined as positive, outside is defined as negative
- * plane is not assumed to be normalized
- * 
- * uses opposite corners of box, which is a limited approximation
- * the book is wrong and dumb
- */
-/*bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
-{
-  float nlength = glm::length(glm::vec3(plane.x, plane.y, plane.z));
-  glm::vec3 c = obb.center;
-  glm::vec3 n = glm::normalize(glm::vec3(plane.x, plane.y, plane.z));
-  float d = plane.w / nlength;
-  float e = obb.halfLengths[0] * glm::dot(n, obb.axes[0]) +
-            obb.halfLengths[1] * glm::dot(n, obb.axes[1]) +
-            obb.halfLengths[2] * glm::dot(n, obb.axes[2]);
-  float s = glm::dot(c, n) + d;
-  //this->debug->addLine(c, c + n * e, glm::vec3(0.0f, 0.0f, 0.0f), true);
-  //this->debug->addLine(c, c + n * s, glm::vec3(1.0f, 1.0f, 1.0f), false);
-  if (s - e > 0) {
-    return true;
-  }
-  else if (s + e < -1.0f * EPSILON) {
-    return false;
-  }
-  else {
-    return true;
-  }
-}*/
-
-/*
- * 
- */
-bool Camera::obbOutsidePlane(OBB obb, glm::vec4 plane)
-{
-  bool result = false;
-  std::vector<glm::vec3> corners;
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center + obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               + obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               + obb.axes[2] * obb.halfLengths[2]); // z
-  corners.push_back(obb.center - obb.axes[0] * obb.halfLengths[0]  // x
-                               - obb.axes[1] * obb.halfLengths[1]  // y
-                               - obb.axes[2] * obb.halfLengths[2]); // z
-
-  for (auto cornerItr = corners.begin(); cornerItr != corners.end(); ++cornerItr) {
-    glm::vec3 corner = *cornerItr;
-    if (corner.x * plane.x + corner.y * plane.y + corner.z * plane.z + plane.w >= 0) {
-      result = true;
-    }
-  }
-
-  return result;
-}
-
-double clamp(double x, double min, double max) {
-  return x < min ? min : (x > max ? max : x);
 }

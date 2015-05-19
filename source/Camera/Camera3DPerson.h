@@ -23,7 +23,6 @@ class Camera3DPerson: public Camera
     glm::vec3 getEye();
     glm::vec3 setZoom(glm::vec3 outDir);
     float castRayOnObjects(glm::vec3 rayStart, glm::vec3 rayEnd, std::vector<shared_ptr<GameObject>> objects);
-    bool rayOBBIntersect(float *dist, glm::vec3 rayOrigin, glm::vec3 rayDirection, OBB obb);
   public:
     float zoom;
     float minZoom;
@@ -31,17 +30,12 @@ class Camera3DPerson: public Camera
     float upperBound;
     GameObject *focus;
     WorldGrid *world;
-    Camera3DPerson(Handles *handles, WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far);
+    Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far, DebugDraw *debug);
     void moveVert(float step);
     void moveHoriz(float step);
 
-    // gets view/proj matrices
-    virtual glm::mat4 getView();
-    virtual glm::mat4 getProjection();
-
-    // sends view/proj matrices to GPU according to 'handles' (probably should be removed)
-    virtual void setView();
-    virtual void setProjection();
+    // for performance reasons, call this only once per draw loop (once all positions are finalized)
+    void update();
 };
 
 #endif
