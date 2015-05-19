@@ -7,6 +7,7 @@
 #include "Mesh.h"
 #include "Handles.h"
 #include "../GuardPath/PathNode.h"
+#include "../Camera/DetectionCamera.h"
 #include "../glm/glm.hpp"
 
 #define GUARD_SPIN_SPEED 75.0f
@@ -35,7 +36,7 @@ public:
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
-	bool detect(Player* player);
+	float detect(WorldGrid *world, Player* player, DetectionCamera *cam);
 };
 
 #endif

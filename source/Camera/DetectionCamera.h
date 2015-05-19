@@ -2,7 +2,7 @@
 #define __DETECTION_CAMERA_H_
 
 #include "Camera.h"
-#include "../GameObject/Guard.h"
+//#include "../GameObject/Guard.h"
 #include "../GameObject/Player.h"
 
 /*
@@ -17,11 +17,11 @@ class DetectionCamera: public Camera {
     GameObject *target;
 
     //Constructor
-    DetectionCamera(WorldGrid *world, GameObject *viewer, GameObject *target, float fov, float aspect, float _near, float _far, DebugDraw *debug);
+    DetectionCamera(float fov, float aspect, float _near, float _far, DebugDraw *debug);
 
-    float percentInView();
+    float percentInView(WorldGrid *world, GameObject *viewer, GameObject *target);
     // for performance reasons, call this only once per draw loop (once all positions are finalized)
-    void update();
+    void update(GameObject *viewer);
 };
 
 #endif

@@ -5,23 +5,19 @@
 #define VERT_OFFSET 0.8f
 #define CULL_FIRST
 
-DetectionCamera::DetectionCamera(WorldGrid *world, GameObject *viewer, GameObject *target,
-    float fov, float aspect, float _near, float _far, DebugDraw *debug) :
-  Camera(target->position, viewer->position + glm::vec3(0.0f, VERT_OFFSET, 0.0f),
+DetectionCamera::DetectionCamera(float fov, float aspect, float _near, float _far, DebugDraw *debug) :
+  Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f), fov, aspect, _near, _far, debug)
 {
-  this->world = world;
-  this->viewer = viewer;
-  this->target = target;
 }
 
-void DetectionCamera::update()
+void DetectionCamera::update(GameObject *viewer)
 {
-  this->eye = this->viewer->position + glm::vec3(0.0f, VERT_OFFSET, 0.0f);
-  this->lookat = this->viewer->position + this->viewer->direction + glm::vec3(0.0f, VERT_OFFSET, 0.0f);
+  this->eye = viewer->position + glm::vec3(0.0f, VERT_OFFSET, 0.0f);
+  this->lookat = viewer->position + viewer->direction + glm::vec3(0.0f, VERT_OFFSET, 0.0f);
 }
 
-float DetectionCamera::percentInView()
+float DetectionCamera::percentInView(WorldGrid *world, GameObject *viewer, GameObject *target)
 {
   float result = 0.0f;
 
@@ -30,12 +26,14 @@ float DetectionCamera::percentInView()
   std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
   std::vector<glm::vec3> cornersInView;
 #ifdef DEBUG
-  // target box
-  this->debug->addBox(this->target->position, this->target->dimensions, glm::vec3(1.0f, 1.0f, 0.0f), false, true);
-  // viewer box
-  this->debug->addBox(this->viewer->position, this->viewer->dimensions, glm::vec3(0.0f, 1.0f, 1.0f), false, true);
-  // viewer frustum
-  this->debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.3f, 0.85f, 0.55f), false, false);
+  if (NULL != debug) {
+    // target box
+    debug->addBox(target->position, target->dimensions, glm::vec3(1.0f, 1.0f, 0.0f), false, true);
+    // viewer box
+    debug->addBox(viewer->position, viewer->dimensions, glm::vec3(0.0f, 1.0f, 1.0f), false, true);
+    // viewer frustum
+    debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.3f, 0.85f, 0.55f), false, false);
+  }
 #endif
   for (auto cornerItr = corners->begin(); cornerItr != corners->end(); ++cornerItr) {
     bool insideFrustum = true;
@@ -67,15 +65,17 @@ float DetectionCamera::percentInView()
     for (auto objIter = objInView.begin(); cornerInView && objIter != objInView.end(); ++objIter) {
       shared_ptr<GameObject> obj = *objIter;
       // don't check collisions against viewer and target
-      if (this->viewer != obj.get() && this->target != obj.get()) {
+      if (viewer != obj.get() && target != obj.get()) {
         OBB *hitBox = new OBB(obj->position, obj->dimensions);
         if (rayOBBIntersect(&rayDist, this->eye, glm::normalize(*cornerItr - this->eye), *hitBox)) {
           float lookDist = glm::distance(*cornerItr, this->eye);
           if (rayDist < lookDist) {
             cornerInView = false;
 #ifdef DEBUG
-            this->debug->addOBB(*hitBox, glm::vec3(1.0f, 1.0f, 1.0f), true, true);
-            this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
+            if (NULL != debug) {
+              debug->addOBB(*hitBox, glm::vec3(1.0f, 1.0f, 1.0f), true, true);
+              debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * rayDist, glm::vec3(1.0f, 0.0f, 0.0f), true);
+            }
 #endif
           }
         }
@@ -83,9 +83,11 @@ float DetectionCamera::percentInView()
     }
 #ifdef DEBUG
     // ray from camera's eye to corner of box
-    this->debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * glm::distance(*cornerItr, this->eye), glm::vec3(0.0f, 0.0f, 1.0f), false);
-    if (cornerInView) {
-      this->debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 1.0f, 1.0f), true);
+    if (NULL != debug) {
+      debug->addLine(this->eye, this->eye + glm::normalize(*cornerItr - this->eye) * glm::distance(*cornerItr, this->eye), glm::vec3(0.0f, 0.0f, 1.0f), false);
+      if (cornerInView) {
+        debug->addLine(this->eye, *cornerItr, glm::vec3(0.0f, 1.0f, 1.0f), true);
+      }
     }
 #endif
     if (cornerInView) {

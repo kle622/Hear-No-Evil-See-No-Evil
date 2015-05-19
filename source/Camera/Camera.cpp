@@ -45,7 +45,9 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   std::vector<glm::vec4> *planes = getViewFrustum(getProjection() * getView());
   
 #ifdef DEBUG
-  this->debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.99f, 0.85f, 0.55f), false, false);
+  if (NULL != debug) {
+    debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.99f, 0.85f, 0.55f), false, false);
+  }
 #endif
 
   std::vector<std::shared_ptr<GameObject>> allObjects = worldgrid->list;

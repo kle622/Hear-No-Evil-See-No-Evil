@@ -59,7 +59,6 @@
 #define TOP_LEVEL 3.0f
 
 #define MAX_DETECT 400
-#define TEST_DETECT
 
 GLFWwindow* window;
 using namespace std;
@@ -73,7 +72,7 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
-unsigned int detectCounter = 0;
+float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
@@ -98,10 +97,7 @@ Shape *ceiling;
 bool debug = false;
 bool boxes = false;
 DebugDraw debugDraw;
-#ifdef TEST_DETECT
-bool noAdd = true;
-vector<DetectionCamera*> guardCams;
-#endif
+DetectionCamera *detectCam;
 MySound *soundObj;
 
 glm::vec3 g_light(0, 10, -5);
@@ -465,9 +461,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-      if (guard->detect(playerObject)) {
+      float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+      if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-        cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
+        detectCounter += detectPercent;
+        cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
         if (detectCounter >= MAX_DETECT) {
           // YOU lose
           cout << "You lose! Not sneaky enough!" << endl;
@@ -802,13 +800,6 @@ void initGuards(WorldGrid* gameObjects) {
           guardPath
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
-#ifdef TEST_DETECT
-      if (noAdd) {
-        noAdd = false;
-        guardCams.push_back(new DetectionCamera(gameObjects, guardObject, playerObject, CAMERA_FOV,
-              (float)g_width / (float)g_height, CAMERA_NEAR, CAMERA_FAR, &debugDraw));
-      }
-#endif
     }
   }
 }
@@ -1030,6 +1021,11 @@ int main(int argc, char **argv)
       CAMERA_NEAR,
       CAMERA_FAR,
       &debugDraw);
+  detectCam = new DetectionCamera(CAMERA_FOV,
+      (float)g_width / (float)g_height,
+      CAMERA_NEAR,
+      CAMERA_FAR,
+      &debugDraw);
 
   double timeCounter = 0;
 
@@ -1040,15 +1036,6 @@ int main(int argc, char **argv)
     double currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
-#ifdef TEST_DETECT
-  for (auto cam = guardCams.begin(); cam != guardCams.end(); ++cam) {
-    (*cam)->update();
-    float percent = (*cam)->percentInView();
-    if (percent > 0) {
-      cout << percent << endl;
-    }
-  }
-#endif
     camera3DPerson->update();
     beginPass1Draw();
     drawPass1(&gameObjects);

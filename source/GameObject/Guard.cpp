@@ -83,17 +83,17 @@ bool Guard::collide(GameObject* object) {
     return false;
 }
 
-bool Guard::detect(Player* player) {
-	// if object is within guard's cone of vision, return true
-	if (dot(normalize(player->position - position), direction) > (1 - GUARD_VISION_RANGE)
-            && glm::distance(this->position, player->position) < 35 && !player->crouch) {
-		material = 3;
-		//velocity = 0;
-		return true;
-	}
-	else {
-		material = originalMaterial;
-		return false;
-	}
-	return false;
+float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam) {
+  float viewPercent;
+  cam->update(this);
+  viewPercent = cam->percentInView(world, this, player);
+  // if object is within guard's cone of vision, return true
+  if (viewPercent > 0) {
+    material = 3;
+    //velocity = 0;
+  }
+  else {
+    material = originalMaterial;
+  }
+  return viewPercent;
 }
