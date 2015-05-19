@@ -28,9 +28,9 @@ float DetectionCamera::percentInView(WorldGrid *world, GameObject *viewer, GameO
 #ifdef DEBUG
   if (NULL != debug) {
     // target box
-    debug->addBox(target->position, target->dimensions, glm::vec3(1.0f, 1.0f, 0.0f), false, true);
+    //debug->addBox(target->position, target->dimensions, glm::vec3(1.0f, 1.0f, 0.0f), false, true);
     // viewer box
-    debug->addBox(viewer->position, viewer->dimensions, glm::vec3(0.0f, 1.0f, 1.0f), false, true);
+    //debug->addBox(viewer->position, viewer->dimensions, glm::vec3(0.0f, 1.0f, 1.0f), false, true);
     // viewer frustum
     debug->addBox(planes->at(0), planes->at(1), planes->at(2), planes->at(3), planes->at(4), planes->at(5), glm::vec3(0.3f, 0.85f, 0.55f), false, false);
   }
