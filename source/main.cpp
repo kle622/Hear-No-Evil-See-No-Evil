@@ -113,7 +113,8 @@ GLuint shadowMap = 0;
 double deltaTime = 0;
 double timeCounter = 0;
 double currentTime = 0;
-double camMoveRate = 450;
+double camSpeed = 450;
+double debugCamSpeed = 550;
 
 GLuint texture;
 
@@ -633,7 +634,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   if (!debug) {
     // TODO time-based animation
     // define max camera movement rate; this can be a global setting to be changed by keypress
-    float maxMove = camMoveRate * deltaTime;
+    float maxMove = camSpeed * deltaTime;
     if (dx > 0) {
       dx = dx < maxMove ? dx : maxMove;
     }
@@ -653,6 +654,20 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
     // TODO implement first person camera class 
     double max_vert_angle = 85;
     double cursor_speed = 0.3;
+    float maxMove = debugCamSpeed * deltaTime;
+
+    if (dx > 0) {
+      dx = dx < maxMove ? dx : maxMove;
+    }
+    else {
+      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+    }
+    if (dy > 0) {
+      dy = dy < maxMove ? dy : maxMove;
+    }
+    else {
+      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+    }
 
     theta -= dx * cursor_speed;
     // note that ypos is measured from the top of the screen, so
