@@ -95,7 +95,7 @@ void main() {
 
 	float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness); 
 	
-	gl_FragColor = vec4(max(dot(vNormal, vLight), 0) * ((specular * rs) + diffuse), 1.0);
+	gl_FragColor = vec4(max(dot(vNormal, vLight), 0) * ((specular * rs) + diffuse + ambient), 1.0);
 
 	
 	//////////////
