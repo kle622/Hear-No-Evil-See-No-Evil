@@ -28,11 +28,12 @@ class Mesh {
     GLuint indBufObj;
     GLuint texBufObj;
     int material;
+    glm::vec3 center;
+    glm::vec3 dimensions;
   private:
-    void computeBound(void);
+    //void computeBound(void);
     void resize_obj(void);
     void sendNormals(void);
-    glm::vec3 center;
 };
 
 #endif

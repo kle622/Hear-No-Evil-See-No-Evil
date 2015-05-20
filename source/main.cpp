@@ -676,10 +676,10 @@ void initObjects(WorldGrid* gameObjects) {
           &tripleBarrelMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
           getRand(0, 360), 
-          vec3(2.5, 2.5, 2.5),
+          vec3(2.5, 2.5, 2.5),  // scale
           vec3(1.0, 0, 0),
           0,
-          vec3(4.5, 4, 4.5),
+          vec3(4.5, 4, 4.5),    // dimensions
           1,
           0,
           false
@@ -690,10 +690,11 @@ void initObjects(WorldGrid* gameObjects) {
           &boxStackMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
           getRand(0, 360), 
-          vec3(4, 2, 4),
+          vec3(4, 2, 4),      // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(3.0, 5, 3.0),
+          vec3(boxStackMesh.dimensions.x * 4, boxStackMesh.dimensions.y * 2, boxStackMesh.dimensions.z * 4),  // dimensions
+          //vec3(3.0, 5, 3.0),  // dimensions
           1,
           7,
           false
@@ -704,10 +705,11 @@ void initObjects(WorldGrid* gameObjects) {
           &tableMesh,
           vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
           0, 
-          vec3(1.5, 1, 1.5),
+          vec3(1.5, 1, 1.5),    // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(2.8, 1.5, 1.4),
+          vec3(tableMesh.dimensions.x * 1.5, tableMesh.dimensions.y * 1, tableMesh.dimensions.z * 1.5),  // dimensions
+          //vec3(2.8, 1.5, 1.4),  // dimensions
           1,
           5,
           true
@@ -718,10 +720,11 @@ void initObjects(WorldGrid* gameObjects) {
           &chairMesh,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
           getRand(0, 360), 
-          vec3(1, 1, 1),
+          vec3(1, 1, 1),        // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(1.5, 2, 1.5),
+          //vec3(1.5, 2, 1.5),
+          vec3(chairMesh.dimensions.x * 1, chairMesh.dimensions.y * 1, chairMesh.dimensions.z * 1),  // dimensions
           1,
           8,
           true
@@ -735,7 +738,8 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1, 1, 1),
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(2.2, 2, 1.2),
+          //vec3(2.2, 2, 1.2),
+          vec3(cartMesh.dimensions.x * 1, cartMesh.dimensions.y * 1, cartMesh.dimensions.z * 1),  // dimensions
           1,
           0,
           true
@@ -749,7 +753,8 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(24, 15, 24),
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(44, 5.0, 1.0),
+          //vec3(44, 5.0, 1.0),
+          vec3(rafterMesh.dimensions.x * 24, rafterMesh.dimensions.y * 15, rafterMesh.dimensions.z * 24),  // dimensions
           1,
           6,
           false
@@ -782,7 +787,7 @@ void initPlayer(WorldGrid* gameObjects) {
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
-      vec3(0.75, 2.0, 0.75), // dimensions
+      playerMesh.dimensions, // dimensions
       1,
       2
       );
@@ -814,7 +819,8 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(1, 1, 1),
           GUARD_SPEED,
-          vec3(1.0, 2.0, 1.0),
+          guardMesh.dimensions,
+          //vec3(1.0, 2.0, 1.0),
           1,
           0,
           guardPath
@@ -927,7 +933,8 @@ void initWalls(WorldGrid* gameObjects) {
             vec3(dims.x / 2, 1, dims.y / 2),    //scale
             vec3(1, 0, 0),  //direction
             0,
-            vec3(dims.x, 2, dims.y),     //dimensions
+            vec3(dims.x * cubeMesh.dimensions.x * 0.5, cubeMesh.dimensions.y, dims.y * cubeMesh.dimensions.z * 0.5),       // dimensions
+            //vec3(dims.x, 2, dims.y),     //dimensions
             0,            //scanRadius
             6             //material
             )));
@@ -1018,15 +1025,25 @@ int main(int argc, char **argv)
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
 
+  std::cout << "loading guard mesh..." << std::endl;
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  std::cout << "loading player mesh..." << std::endl;
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  std::cout << "loading cube mesh..." << std::endl;
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+  std::cout << "loading tripleBarrel mesh..." << std::endl;
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
+  std::cout << "loading boxStack mesh..." << std::endl;
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
+  std::cout << "loading table mesh..." << std::endl;
   tableMesh.loadShapes(resPath(sysPath("models", "table.obj")));
+  std::cout << "loading chair mesh..." << std::endl;
   chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
+  std::cout << "loading cart mesh..." << std::endl;
   cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
+  std::cout << "loading rafter mesh..." << std::endl;
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
+  std::cout << "loading flag mesh..." << std::endl;
   winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
 
   srand(time(NULL));
