@@ -114,7 +114,6 @@ double deltaTime = 0;
 double timeCounter = 0;
 double currentTime = 0;
 double camSpeed = 450;
-double debugCamSpeed = 550;
 
 GLuint texture;
 
@@ -357,6 +356,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
   }
   else {
+    playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
     glm::vec3 view = -1.0f * debugCamera->getForward();
     glm::vec3 up = debugCamera->getUp();
     glm::vec3 strafe = debugCamera->getStrafe();
@@ -399,6 +399,14 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
     debugCamera->eye += move;
     debugCamera->lookat += move;
+  }
+
+  // change mouse sensitivity
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    camSpeed *= 1.01;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    camSpeed *= 0.99;
   }
 }
 
@@ -654,7 +662,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
     // TODO implement first person camera class 
     double max_vert_angle = 85;
     double cursor_speed = 0.3;
-    float maxMove = debugCamSpeed * deltaTime;
+    float maxMove = camSpeed * deltaTime;
 
     if (dx > 0) {
       dx = dx < maxMove ? dx : maxMove;
