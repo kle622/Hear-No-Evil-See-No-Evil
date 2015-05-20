@@ -110,7 +110,10 @@ GLuint norBufObjG = 0;
 GLuint frameBufObj = 0;
 GLuint shadowMap = 0;
 
-double deltaTime;
+double deltaTime = 0;
+double timeCounter = 0;
+double currentTime = 0;
+double camMoveRate = 450;
 
 GLuint texture;
 
@@ -628,6 +631,21 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   double dy = ypos - y_center;
 
   if (!debug) {
+    // TODO time-based animation
+    // define max camera movement rate; this can be a global setting to be changed by keypress
+    float maxMove = camMoveRate * deltaTime;
+    if (dx > 0) {
+      dx = dx < maxMove ? dx : maxMove;
+    }
+    else {
+      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+    }
+    if (dy > 0) {
+      dy = dy < maxMove ? dy : maxMove;
+    }
+    else {
+      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+    }
     camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
     camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
   }
@@ -693,8 +711,8 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(4, 2, 4),      // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(boxStackMesh.dimensions.x * 4, boxStackMesh.dimensions.y * 2, boxStackMesh.dimensions.z * 4),  // dimensions
-          //vec3(3.0, 5, 3.0),  // dimensions
+          //vec3(boxStackMesh.dimensions.x * 4, boxStackMesh.dimensions.y * 2, boxStackMesh.dimensions.z * 4),  // dimensions
+          vec3(3.0, 5, 3.0),  // dimensions
           1,
           7,
           false
@@ -738,8 +756,8 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1, 1, 1),
           vec3(1.0, 0.0, 0.0),
           0,
-          //vec3(2.2, 2, 1.2),
-          vec3(cartMesh.dimensions.x * 1, cartMesh.dimensions.y * 1, cartMesh.dimensions.z * 1),  // dimensions
+          vec3(2.2, 2, 1.2),
+          //vec3(cartMesh.dimensions.x * 1, cartMesh.dimensions.y * 1, cartMesh.dimensions.z * 1),  // dimensions
           1,
           0,
           true
@@ -753,8 +771,8 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(24, 15, 24),
           vec3(1.0, 0.0, 0.0),
           0,
-          //vec3(44, 5.0, 1.0),
-          vec3(rafterMesh.dimensions.x * 24, rafterMesh.dimensions.y * 15, rafterMesh.dimensions.z * 24),  // dimensions
+          vec3(44, 5.0, 1.0),
+          //vec3(rafterMesh.dimensions.x * 24, rafterMesh.dimensions.y * 15, rafterMesh.dimensions.z * 24),  // dimensions
           1,
           6,
           false
@@ -1082,13 +1100,12 @@ int main(int argc, char **argv)
       CAMERA_FAR,
       debugDraw);
 
-  double timeCounter = 0;
 
   do{
     //timer stuff
     TimeManager::Instance().CalculateFrameRate(true);
     deltaTime = TimeManager::Instance().DeltaTime;
-    double currentTime = TimeManager::Instance().CurrentTime;
+    currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
     camera3DPerson->update();
