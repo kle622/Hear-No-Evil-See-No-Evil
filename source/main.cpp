@@ -153,54 +153,72 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
     glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
     glUniform1f(pass2Handles.uMatShine, 100.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
     break;
   case 1: // floor
     glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
     glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
     glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
     glUniform1f(pass2Handles.uMatShine, 150.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
     break;
   case 2: // player
     glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
     glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
     glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 150.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
     break;
   case 3: // guard detect
     glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
     glUniform3f(pass2Handles.uMatDif, 0.2f, 0.80f, 0.1f);
     glUniform3f(pass2Handles.uMatSpec, 0.8f, 1.0f, 0.8f);
     glUniform1f(pass2Handles.uMatShine, 4.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.5);
+    glUniform1f(pass2Handles.uFresReflectance, 0.5);
     break;
   case 4: //big wall color
     glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.1f, 0.0f);
     glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 1);
+    glUniform1f(pass2Handles.uFresReflectance, .3);
     break;
   case 5: // ceiling
     glUniform3f(pass2Handles.uMatAmb, 0.1f, 0.1f, 0.1f);
     glUniform3f(pass2Handles.uMatDif, 0.0f, 0.0f, 0.00f);
     glUniform3f(pass2Handles.uMatSpec, 1.0f, 1.0f, 1.0f);
     glUniform1f(pass2Handles.uMatShine, 100.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
     break;
   case 6: //short wall color
     glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
     glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.5);
+    glUniform1f(pass2Handles.uFresReflectance, 0.5);
     break;
   case 7: //box stack
     glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
     glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
     break;
   case 8: //chairs
     glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
     glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.1);
+    glUniform1f(pass2Handles.uFresReflectance, 0.5);
     break;
   }
 }
