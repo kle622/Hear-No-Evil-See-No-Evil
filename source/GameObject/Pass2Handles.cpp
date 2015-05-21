@@ -60,6 +60,9 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   uMatSpec = GLSL::getUniformLocation(this->prog, "UsColor");
   uMatShine = GLSL::getUniformLocation(this->prog, "Ushine");
   shadowMap = GLSL::getUniformLocation(this->prog, "shadowMap");
+  texture = GLSL::getUniformLocation(this->prog, "texture");
+  hasTex = GLSL::getUniformLocation(this->prog, "hasTex");
+  aTexCoord = GLSL::getAttribLocation(this->prog, "texCoordIn");
   
 }
 
@@ -72,6 +75,12 @@ void Pass2Handles::draw(GameObject* obj) {
   GLSL::enableVertexAttribArray(this->aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->norBufObj);
   glVertexAttribPointer(this->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  if(obj->mesh->hasTexture) {
+    GLSL::enableVertexAttribArray(this->aTexCoord);
+    glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->texBufObj);
+    glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  }
 
   for (int s = 0; s < obj->mesh->shapes.size(); ++s) {
     int nIndices = (int)obj->mesh->shapes[s].mesh.indices.size();
@@ -94,7 +103,17 @@ void Pass2Handles::draw(Shape* obj) {
   GLSL::enableVertexAttribArray(this->aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, obj->norBuffer);
   glVertexAttribPointer(this->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  
+  if (obj->texBuffer > 0) {
+  
+    GLSL::enableVertexAttribArray(this->aTexCoord);
+    glBindBuffer(GL_ARRAY_BUFFER, obj->texBuffer);
+    glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->idxBuffer);
+  }
 
+  printf("about to draw in pass2handles\n");
   glDrawArrays(GL_TRIANGLES, 0, obj->indices);
 
   /*  GLSL::disableVertexAttribArray(this->aPosition);

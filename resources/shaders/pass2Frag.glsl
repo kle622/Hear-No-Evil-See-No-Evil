@@ -5,17 +5,21 @@ uniform float Ushine;
 uniform vec3 uLightPos;
 uniform vec3 uCamPos;
 uniform sampler2D shadowMap;
+uniform sampler2D texture;
+uniform int hasTex;
 
 varying vec3 vNormal;
 varying vec3 vPos;
 varying vec3 vCol;
 varying vec3 vLight;
 varying vec4 ShadowCoord;
+varying vec2 texCoordOut;
 
 // CHECKPOINT!!!!!!!!!
 void main() {
      float visibility = 1.0;
-     float bias = 0.005;
+     float bias = 0.005 * tan(acos(dot(vNormal, vLight)));
+     bias = clamp(bias, 0.0, 0.01);
 
 	vec3 diffuse = UdColor * dot(vNormal, vLight);
 	diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
@@ -57,7 +61,13 @@ void main() {
         visibility -= 0.2 * (1.0 - texture2D(shadowMap, ShadowCoord.xy +  vec2( -0.094184101, -0.9293887)  / 700.0).z);
         visibility -= 0.2 * (1.0 - texture2D(shadowMap, ShadowCoord.xy + vec2( 0.34495938, 0.29387760) / 700.0).z);*/
 	
-	gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
-	//gl_FragColor = texture2D(shadowMap, ShadowCoord.xy);
-	//gl_FragColor = vec4(ShadowCoord.x, 0.0, ShadowCoord.z, 1.0);
+	if (hasTex == 1) {
+	   diffuse = vec3(texture2D(texture, texCoordOut));
+	   //diffuse = vec3(0.0, 1.0, 0.0);
+	   //gl_FragColor = texture2D(texture, texCoordOut);
+	   gl_FragColor = vec4(visibility * (diffuse + ambient), 1.0);
+	}
+	else {	
+	     gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
+	}
 }

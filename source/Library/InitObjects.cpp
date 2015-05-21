@@ -71,16 +71,36 @@ void initModelObject(std::vector<tinyobj::shape_t>& shape, GLuint* posBuffer,
     assert(glGetError() == GL_NO_ERROR);
 }
 
-void initVertexObject(GLuint* posBuffer, GLuint* norBuffer, GLfloat* vertexData, 
-    GLfloat* normalData, int numVertices) {
-    glGenBuffers(1, posBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, *posBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) * numVertices * 3, vertexData, GL_STATIC_DRAW);
+void initVertexObject(GLuint* posBuffer, GLuint* norBuffer, GLuint* idxBuffer, GLuint* texBuffer, GLfloat* vertexData, 
+		      GLfloat* normalData, int numVertices) {
+  glGenBuffers(1, posBuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, *posBuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) * numVertices * 3, vertexData, GL_STATIC_DRAW);
 
-    glGenBuffers(1, norBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, *norBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(normalData) * numVertices * 3, normalData, GL_STATIC_DRAW);
+  glGenBuffers(1, norBuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, *norBuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(normalData) * numVertices * 3, normalData, GL_STATIC_DRAW);
+
+  unsigned short idx[] = {0, 1, 2, 1, 2, 3};
+
+  static GLfloat groundTex[] = {
+    0, 0,
+    0, 100,
+    100, 100,
+    0, 100, 
+    100, 100, 
+    100, 0
+  };
+
+  glGenBuffers(1, texBuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, *texBuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(groundTex), groundTex, GL_STATIC_DRAW);
+
+  glGenBuffers(1, idxBuffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *idxBuffer);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(idx), idx, GL_STATIC_DRAW);
 }
+
 
 void resize_obj(std::vector<tinyobj::shape_t> &shapes){
     //Given a vector of shapes which has already been read from an obj file
