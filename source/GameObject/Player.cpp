@@ -17,8 +17,8 @@ Player::Player(Mesh *mesh,
     standingScale = scale.y;
 }
 
-bool Player::collide(GameObject* object) {
-	if (GameObject::collide(object)) {
+bool Player::collide(GameObject* object, DebugDraw *ddraw) {
+	if (GameObject::collide(object, ddraw)) {
 		// specific stuff
 		return true;
 	}

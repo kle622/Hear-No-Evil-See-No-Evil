@@ -57,7 +57,7 @@
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 400
+#define MAX_DETECT 4000
 
 GLFWwindow* window;
 using namespace std;
@@ -149,7 +149,7 @@ void SetMaterial(int i) {
     glUniform1f(pass2Handles.uMatShine, 100.0f);
     break;
   case 1: // floor
-    glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
     glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
     glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
     glUniform1f(pass2Handles.uMatShine, 150.0f);
@@ -439,21 +439,22 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 		  gameObjects->getCloseObjects(gameObjects->list[i]);
 
 	  //all objects
-	  for (int j = 0; j < proximity.size(); j++) {
-		  if (gameObjects->list[i].get() != proximity[j].get()) {
-			  if (gameObjects->list[i]->collide(proximity[j].get())) {
-				  //do some stuff
-			  }
-		  }
-	  }
+		for (int j = 0; j < proximity.size(); j++) {
+			if (gameObjects->list[i].get() != proximity[j].get()) {
+				if (gameObjects->list[i]->collide(proximity[j].get(), &debugDraw)) {
+					//do some stuff
+				}
+			}
+		}
 
-	  if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-		  for (int j = 0; j < gameObjects->wallList.size(); j++) {
-			  if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-			  }
-		  }
+		if (gameObjects->list[i].get()->type == GameObject::ObjectType::PUSHABLE ||
+			gameObjects->list[i].get()->type == GameObject::ObjectType::PLAYER) {
+			soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+			for (int j = 0; j < gameObjects->wallList.size(); j++) {
+				if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), &debugDraw)) {
+					soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+				}
+			}
 		}
 
 	  //guards
@@ -508,8 +509,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   GLSL::enableVertexAttribArray(mainShader.aPosition);
   GLSL::enableVertexAttribArray(mainShader.aNormal);
 }*/
-
-
 
 void beginPass1Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);

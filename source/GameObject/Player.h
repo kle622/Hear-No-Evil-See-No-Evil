@@ -41,7 +41,7 @@ class Player: public GameObject {
   void accelerate();
   void decelerate();
   void changeDirection(vec3 direction);
-  bool collide(GameObject* object);
+  bool collide(GameObject* object, DebugDraw *ddraw);
   void move(float time);
   void SetMotion(float motion);
 };

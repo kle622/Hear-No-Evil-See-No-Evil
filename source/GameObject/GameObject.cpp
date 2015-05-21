@@ -51,7 +51,7 @@ bool intersect(float point1, float point2, float dim1, float dim2) {
     return abs(point2 - point1) < ((dim1 + dim2) / 2);
 }
 
-bool GameObject::collide(GameObject* object) {
+bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
     float thisRadius = dimensions.x + dimensions.y + dimensions.z;
     float objectRadius = object->dimensions.x + object->dimensions.y + 
         object->dimensions.z;
@@ -62,46 +62,66 @@ bool GameObject::collide(GameObject* object) {
             intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
             
 			// Pushing Pushables
-			if (object->type == ObjectType::PUSHABLE &&
-					((type == ObjectType::PLAYER && velocity > WALK)
-						|| type != ObjectType::PLAYER)) {
-				object->direction = (object->position - position + direction) * 0.5f;
+			if (object->type == ObjectType::PUSHABLE && type >= ObjectType::PUSHABLE && velocity > WALK) {
+				// average movement direction with vector to pushable object
+				//object->direction = (object->position - oldPosition + direction) * 0.5f;
+				object->direction = direction;
 				object->direction.y = 0.0f;
 				object->direction = normalize(object->direction);
-				object->velocity = velocity * dot(object->direction, direction);
+				// set the object's velocity so it keeps up with the player
+				object->velocity = velocity;
+				//object->velocity = hypot(velocity, velocity * cross(object->direction, direction).y / dot(object->direction, direction));
+				//object->velocity = velocity * (1 + cross(object->direction, direction).y / dot(object->direction, direction));
+				ddraw->addLine(oldPosition, oldPosition + direction * velocity, vec3(1, 1, 1), true);
+				ddraw->addLine(object->position, object->position + object->direction * object->velocity, vec3(1, 1, 1), true);
             }
 
-			// Smooth Sliding Collisions
-			vec3 dir = position - object->position; // w2p
-			dir.y = 0.0f;
-			dir = normalize(dir);
+			
+				// Smooth Sliding Collisions
+				// other to this vector
+				vec3 dir = oldPosition - object->position;
+				dir.y = 0.0f;
+				dir = normalize(dir);
 
-			vec3 thisCorner = position;
-			thisCorner.x -= sign(dir.x) * dimensions.x / 2;
-			thisCorner.y = 0;
-			thisCorner.z -= sign(dir.z) * dimensions.z / 2;
+				// corner of this object "closest" to the other object
+				vec3 thisCorner = oldPosition;
+				thisCorner.x -= sign(dir.x) * dimensions.x / 2;
+				thisCorner.y = 0;
+				thisCorner.z -= sign(dir.z) * dimensions.z / 2;
+				ddraw->addLine(thisCorner, thisCorner + vec3(0, -10, 0), vec3(1, 1, 1), true);
 
-			vec3 posZnegX(-object->dimensions.x, 0, object->dimensions.z);
-			vec3 negZnegX(-object->dimensions.x, 0, -object->dimensions.z);
+				dir = thisCorner - object->position;
+				dir.y = 0.0f;
 
-			float cross1 = cross(posZnegX, dir).y;
-			float cross2 = cross(negZnegX, dir).y;
+				// vectors to corners of this object
+				vec3 posZnegX(-object->dimensions.x, 0, object->dimensions.z);
+				vec3 negZnegX(-object->dimensions.x, 0, -object->dimensions.z);
+				// corner vectors (green)
+				ddraw->addLine(object->position, object->position + posZnegX, vec3(0.2, 1, 0.2), true);
+				ddraw->addLine(object->position, object->position + negZnegX, vec3(0.2, 1, 0.2), true);
 
-			int signx = sign(dir.x);
-			int signz = sign(dir.z);
+				float cross1 = cross(posZnegX, dir).y;
+				float cross2 = cross(negZnegX, dir).y;
+				// cross vectors (red/blue)
+				ddraw->addLine(object->position + vec3(0, 1, 0), object->position + cross(posZnegX, dir) + vec3(0, 1, 0), vec3(cross(posZnegX, dir).y * 10000, 0, -cross(posZnegX, dir).y * 10000), true);
+				ddraw->addLine(object->position + vec3(0.2, 1, 0.2), object->position + cross(negZnegX, dir) + vec3(0.2, 1, 0.2), vec3(cross(negZnegX, dir).y * 10000, 0, -cross(negZnegX, dir).y * 10000), true);
+			if (type >= object->type) {
+				int signx = sign(dir.x);
+				int signz = sign(dir.z);
 
-			// Which axis can we not move on?
-			if (cross1 * cross2 < 0) {
-				// restrict x
-				printf("RESTRICT X!\n");
-				position.x = object->position.x + signx *
-					(object->dimensions.x + dimensions.x) / 2;
-			}
-			else {
-				// restrict z
-				printf("RESTRICT Z!\n");
-				position.z = object->position.z + signz *
-					(object->dimensions.z + dimensions.z) / 2;
+				// Which axis can we not move on?
+				if (cross1 * cross2 < 0) {
+					// restrict x
+					printf("RESTRICT X!\n");
+					position.x = object->position.x + signx *
+						(object->dimensions.x + dimensions.x) / 2;
+				}
+				else {
+					// restrict z
+					printf("RESTRICT Z!\n");
+					position.z = object->position.z + signz *
+						(object->dimensions.z + dimensions.z) / 2;
+				}
 			}
             return true;
         }

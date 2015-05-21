@@ -17,6 +17,7 @@
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp" //perspective, trans etc
 #include "../glm/gtc/type_ptr.hpp" //value_ptr
+#include "../DebugDraw/DebugDraw.h"
 
 using namespace glm;
 using namespace std;
@@ -30,10 +31,10 @@ class GameObject {
   
  public:
 	 enum class ObjectType{
-		 PLAYER,
-		 GUARD,
+		 STATIC,
 		 PUSHABLE,
-		 STATIC
+		 GUARD,
+		 PLAYER
 	 };
 
   //Properties
@@ -62,7 +63,7 @@ class GameObject {
   
   //Object Methods
   virtual void move(float time);
-  virtual bool collide(GameObject* object);
+  virtual bool collide(GameObject* object, DebugDraw *ddraw);
   //virtual int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 
