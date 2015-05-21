@@ -1,6 +1,7 @@
 #ifndef __MESH_H
 #define __MESH_H
 #define TEX_SIZE 1024
+#define MIPMAP_SIZE 512
 
 #include <iostream>
 #include "Handles.h"
@@ -19,7 +20,7 @@ class Mesh {
   void loadShapes(const std::string &objFile);
   void drawObject(Handles *handles);
   void loadTexture(const std::string &filename);
-  char* imageLoad(const char* filename);
+  void loadMipmapTexture(const std::string &filename);
   float radius;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
@@ -34,6 +35,7 @@ class Mesh {
   char* bmp;
   GLfloat* uvs;
   GLuint texId = 0;
+  int num_mipmaps = 5;
   bool hasTexture = false;
  private:
   void computeBound(void);
@@ -41,5 +43,6 @@ class Mesh {
   void sendBufs(void);
   glm::vec3 center;
 };
+char* imageLoad(const char* filename);
 
 #endif

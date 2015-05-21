@@ -24,6 +24,21 @@ void Mesh::loadTexture(const std::string &filename) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
+void Mesh::loadMipmapTexture(const std::string &filename) {
+  bmp = imageLoad(filename.c_str());
+  glGenTextures(1, &texId);
+  glBindTexture(GL_TEXTURE_2D, texId);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, MIPMAP_SIZE, MIPMAP_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  printf("after glgeneratemipmap call \n");
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  printf("after glTexParameter calls\n");
+}
+
 void Mesh::computeBound() {
   glm::vec3 result = glm::vec3(0, 0, 0);
   float minX, minY, minZ;
@@ -251,7 +266,7 @@ static unsigned int getshort(FILE *fp){
 
 /*  quick and dirty bitmap loader...for 24 bit bitmaps with 1 plane only.  */
 
-char* Mesh::imageLoad(const char* filename) {
+char* imageLoad(const char* filename) {
   FILE *file;
   unsigned long size;                 /*  size of the image in bytes. */
   unsigned long i;                    /*  standard counter. */
