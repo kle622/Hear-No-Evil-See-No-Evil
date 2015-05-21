@@ -39,9 +39,6 @@
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
-#include "ft2build.h"
-#include FT_FREETYPE_H
-
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
