@@ -63,7 +63,9 @@
 
 #define MAX_DETECT 400
 
-// blur stuff
+#define BLUR
+
+#ifdef BLUR
 GLuint blurBufferObj = 0;
 GLuint renderedTexture;
 GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -80,7 +82,7 @@ GLuint quad_vertexbuffer;
 GLuint quad_programID;
 GLuint texID;
 GLuint timeID;
-// end blur stuff
+#endif
 
 GLFWwindow* window;
 using namespace std;
@@ -295,6 +297,7 @@ void initFramebuffer() {
   assert(glGetError() == GL_NO_ERROR);
 }
 
+#ifdef BLUR
 // segfault in here, i'm going to bed
 void initBlur() 
 {
@@ -333,7 +336,7 @@ void drawBlur()
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, renderedTexture);
-  glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+  //glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
   // send appropriate values
   glUniform1i(kawaseHandles.uBloomMap, 0);
@@ -348,6 +351,7 @@ void drawBlur()
 
   glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data));
 }
+#endif
 
 void initGL() {
   // Set the background color
@@ -357,7 +361,9 @@ void initGL() {
   glPointSize(18);
   initVertexObject(&posBufObjG, &norBufObjG);
   initFramebuffer();
+#ifdef BLUR
   initBlur();
+#endif
 }
 
 void getWindowinput(GLFWwindow* window, double deltaTime) {
@@ -505,6 +511,9 @@ void drawPass1(WorldGrid* gameObjects) {
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
+#ifdef BLUR
+  glBindFramebuffer(GL_FRAMEBUFFER, blurBufferObj);
+#endif
   SetMaterial(ground->material);
   SetDepthMVP(false, ground->position, ground->rotation, ground->scale);
   SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
