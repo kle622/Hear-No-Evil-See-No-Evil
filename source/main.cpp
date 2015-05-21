@@ -564,6 +564,38 @@ void beginPass2Draw() {
   checkGLError();
 }
 
+void beginPass3Draw() {
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  glEnable(GL_DEPTH_TEST);
+  glCullFace(GL_FRONT);
+  glDrawBuffer(GL_NONE);
+  //cerr << "BeginPass1Draw error: " << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+
+  glUseProgram(pass1Handles.prog);
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+}
+
+void drawPass3() 
+{
+  beginPass3Draw();
+  endPass3Draw();
+}
+
+void endPass3Draw() {
+  GLSL::disableVertexAttribArray(pass1Handles.aPosition);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+}
+
 void endDrawGL() {
   
   GLSL::disableVertexAttribArray(pass2Handles.aPosition);
