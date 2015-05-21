@@ -285,7 +285,7 @@ void initFramebuffer() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
@@ -452,19 +452,7 @@ void drawPass1(WorldGrid* gameObjects) {
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
-    
-    /*SetMaterial(ground->material);
-     //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-     SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
-     SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
-     pass2Handles.draw(ground);
-     //ground->draw();
-     SetMaterial(ceiling->material);
-     SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-     SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
-     //SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
-     pass2Handles.draw(ceiling);*/
-    
+
     //for (int l = 0; l < lights.size(); l++) {
     //glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
         
@@ -500,22 +488,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	    glUniform1i(pass2Handles.hasTex, 0);
 	    SetMaterial(drawList[i]->material);
 	  }
-          
-	  /*if (dynamic_cast<Player *>(drawList[i].get())) {
-                //glActiveTexture(GL_TEXTURE1);
-                glUniform1i(pass2Handles.hasTex, 1);
-                //glUniform2f(pass2Handles.texCoord, drawList[i]->mesh->uvs[0]);
-                glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-                // glUniform1i(pass2Handles.texture, 1);
-            }
-            else {
-                glUniform1i(pass2Handles.hasTex, 0);
-                //glBindTexture(GL_TEXTURE_2D, 0);
-                //glActiveTexture(GL_TEXTURE0);
-                //glUniform1i(pass2Handles.shadowMap, 0);
-                // glBindTexture(GL_TEXTURE_2D, shadowMap);
-		}*/
-            
+   
 	  // SetMaterial(drawList[i]->material);
             SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
             //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
@@ -932,7 +905,7 @@ void initGround() {
                        1 //material
                        );
     // printf("loading concrete.bmp for ground\n");
-    ground->loadMipmapTexture(resPath(sysPath("textures", "concrete.bmp")));
+    ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")));
 }
 
 void initCeiling() {
@@ -1107,7 +1080,7 @@ int main(int argc, char **argv)
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
     tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
     boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
-    tableMesh.loadShapes(resPath(sysPath("models", "table.obj")));
+    //tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
     cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
@@ -1115,8 +1088,11 @@ int main(int argc, char **argv)
     playerMesh.hasTexture = true;
     playerMesh.loadTexture(resPath(sysPath("textures", "player_texture.bmp")));
     printf("Loading cube mesh wall.bmp\n");
+    cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
     cubeMesh.hasTexture = true;
+    //tableMesh.hasTexture = true;
+    //tableMesh.loadTexture(resPath(sysPath("textures", "desk.bmp")));
     //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
     printf("shadow map id: %d\n", shadowMap);
     printf("player tex id: %d\n", playerMesh.texId);

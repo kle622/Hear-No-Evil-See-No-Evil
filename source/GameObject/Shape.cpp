@@ -60,7 +60,7 @@ void Shape::loadMipmapTexture(const std::string &filename) {
   glGenTextures(1, &texId);
   glBindTexture(GL_TEXTURE_2D, texId);
   printf("before gltexImage2D call\n");
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, MIP_MAP_SIZE, MIP_MAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, MIP_MAP_SIZE, MIP_MAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
   printf("after gltexImage2D call\n");
   //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
   glGenerateMipmap(GL_TEXTURE_2D);
