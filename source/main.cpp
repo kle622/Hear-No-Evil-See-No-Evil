@@ -285,7 +285,6 @@ void initFramebuffer() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glGenerateMipmap(GL_TEXTURE_2D);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
@@ -1078,9 +1077,9 @@ int main(int argc, char **argv)
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
-    tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
-    boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
-    //tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
+    tripleBarrelMesh.loadShapes(resPath(sysPath("models", "barrel.obj")));
+    boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
+    tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
     cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
@@ -1091,9 +1090,13 @@ int main(int argc, char **argv)
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
     cubeMesh.hasTexture = true;
-    //tableMesh.hasTexture = true;
-    //tableMesh.loadTexture(resPath(sysPath("textures", "desk.bmp")));
+    tableMesh.hasTexture = true;
+    tableMesh.loadTexture(resPath(sysPath("textures", "desk.bmp")));
+    tripleBarrelMesh.hasTexture = true;
+    tripleBarrelMesh.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
     //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
+    boxStackMesh.hasTexture = true;
+    boxStackMesh.loadTexture(resPath(sysPath("textures", "crate.bmp")));
     printf("shadow map id: %d\n", shadowMap);
     printf("player tex id: %d\n", playerMesh.texId);
     
