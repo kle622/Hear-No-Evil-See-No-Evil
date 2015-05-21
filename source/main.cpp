@@ -39,6 +39,9 @@
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
+#include "ft2build.h"
+#include FT_FREETYPE_H
+
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -68,6 +71,25 @@ vector<tinyobj::shape_t> player;
 vector<tinyobj::shape_t> guard;
 vector<tinyobj::material_t> materials;
 vector<tinyobj::shape_t> wall;
+
+float G_edge = 30;
+GLfloat planeVertices[] = {
+    -G_edge, -1.0f, -G_edge,
+    -G_edge, -1.0f, G_edge,
+    G_edge, -1.0f, -G_edge,
+    -G_edge, -1.0f, G_edge,
+    G_edge, -1.0f, -G_edge,
+    G_edge, -1.0f, G_edge,
+};
+
+GLfloat planeNormals[] = {
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+};
 
 int g_width;
 int g_height;
@@ -274,7 +296,7 @@ void initGL() {
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
-  initVertexObject(&posBufObjG, &norBufObjG);
+  initVertexObject(&posBufObjG, &norBufObjG, planeVertices, planeNormals, 6);
   initFramebuffer();
 }
 
@@ -475,6 +497,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
     gameObjects->update();
   }
+
+  //do 2d stuff
+  glDisable(GL_DEPTH_TEST);
+  mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
+
+  glEnable(GL_DEPTH_TEST);
 }
 
 void beginPass1Draw() {

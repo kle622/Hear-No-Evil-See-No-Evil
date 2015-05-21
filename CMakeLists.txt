@@ -4,6 +4,12 @@ project(Project)
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 
+#freetype
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEP_DIR}/freetype-2.4.0/")
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${FREETYPE_LIBRARIES})
+
 #irrklang
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEP_DIR}/irrKlang/")
 find_package(IrrKlang REQUIRED)

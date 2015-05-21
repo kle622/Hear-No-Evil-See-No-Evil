@@ -21,7 +21,8 @@ using namespace glm;
 void initModelObject(std::vector<tinyobj::shape_t>& shape, GLuint* posBuffer,
     GLuint* norBuffer, GLuint* indBuffer);
 
-void initVertexObject(GLuint* posBuffer, GLuint* norBuffer);
+void initVertexObject(GLuint* posBuffer, GLuint* norBuffer, GLfloat* vertexData, 
+    GLfloat* normalData, int numVertices);
 
 void resize_obj(std::vector<tinyobj::shape_t> &shapes);
 

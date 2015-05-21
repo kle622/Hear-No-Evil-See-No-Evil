@@ -71,34 +71,15 @@ void initModelObject(std::vector<tinyobj::shape_t>& shape, GLuint* posBuffer,
     assert(glGetError() == GL_NO_ERROR);
 }
 
-void initVertexObject(GLuint* posBuffer, GLuint* norBuffer) {
-
-    float G_edge = 30;
-    GLfloat g_backgnd_data[] = {
-        -G_edge, -1.0f, -G_edge,
-        -G_edge, -1.0f, G_edge,
-        G_edge, -1.0f, -G_edge,
-        -G_edge, -1.0f, G_edge,
-        G_edge, -1.0f, -G_edge,
-        G_edge, -1.0f, G_edge,
-    };
-
-    GLfloat nor_Buf_G[] = {
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-    };
-
+void initVertexObject(GLuint* posBuffer, GLuint* norBuffer, GLfloat* vertexData, 
+    GLfloat* normalData, int numVertices) {
     glGenBuffers(1, posBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, *posBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_backgnd_data), g_backgnd_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) * numVertices * 3, vertexData, GL_STATIC_DRAW);
 
     glGenBuffers(1, norBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, *norBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(nor_Buf_G), nor_Buf_G, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(normalData) * numVertices * 3, normalData, GL_STATIC_DRAW);
 }
 
 void resize_obj(std::vector<tinyobj::shape_t> &shapes){
