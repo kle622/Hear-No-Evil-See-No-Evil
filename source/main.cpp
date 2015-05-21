@@ -438,14 +438,14 @@ void drawPass1(WorldGrid* gameObjects) {
     vector<shared_ptr<GameObject>> drawList = gameObjects->list;
     vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
     drawList.insert(drawList.end(), walls.begin(), walls.end());
-    for (int l = 0; l < lights.size(); l++) {
+    //for (int l = 0; l < lights.size(); l++) {
         for (int i = 0; i < drawList.size(); i++) {
-            // SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-            SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
+            SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
+            //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
             pass1Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
-    }
+	// }
     
     gameObjects->update();
 }
@@ -465,23 +465,23 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
      //SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
      pass2Handles.draw(ceiling);*/
     
-    for (int l = 0; l < lights.size(); l++) {
-        glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
+    //for (int l = 0; l < lights.size(); l++) {
+    //glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
         
 	glUniform1i(pass2Handles.hasTex, 1);
         glBindTexture(GL_TEXTURE_2D, ground->texId);
         glUniform1i(pass2Handles.texture, 1);
         SetMaterial(0);
-        //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-        SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
+        SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
+        //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
         SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
         pass2Handles.draw(ground);
         //ground->draw();
        
 	glUniform1i(pass2Handles.hasTex, 0);
         SetMaterial(ceiling->material);
-	//SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-        SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
+	SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
+        //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
         SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
         pass2Handles.draw(ceiling);
         //ceiling->draw();
@@ -517,13 +517,13 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 		}*/
             
 	  // SetMaterial(drawList[i]->material);
-            //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-            SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
+            SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
+            //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
             SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
             pass2Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
-    }
+	// }
     
     // collide
     for (int i = 0; i < gameObjects->list.size(); i++) {
@@ -615,7 +615,7 @@ void beginPass2Draw() {
     // glUniform1i(pass2Handles.texture, 1);
     
     
-    //  glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
+    glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
     glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
     glUniform1i(pass2Handles.hasTex, 0);
     
