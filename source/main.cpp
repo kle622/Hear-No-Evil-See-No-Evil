@@ -316,7 +316,6 @@ void initBlur()
 
   glGenVertexArrays(1, &quad_VertexArrayID);
 
-
   glGenBuffers(1, &quad_vertexbuffer);
   // Set the list of draw buffers.
   glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
