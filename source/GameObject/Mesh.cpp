@@ -1,5 +1,5 @@
 #include "Mesh.h"
-#define DEBUG
+//#define DEBUG
 
 void Mesh::loadShapes(const std::string &objFile) {
   std::string err = tinyobj::LoadObj(this->shapes, this->materials, objFile.c_str());

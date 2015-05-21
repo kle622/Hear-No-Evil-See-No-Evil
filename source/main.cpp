@@ -30,6 +30,7 @@
 #include "GameObject/Handles.h"
 #include "GameObject/ShadowMapPass1Handles.h"
 #include "GameObject/ShadowMapPass2Handles.h"
+#include "Bloom/KawaseHandles.h"
 #include "GameObject/Mesh.h"
 #include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
@@ -62,6 +63,25 @@
 
 #define MAX_DETECT 400
 
+// blur stuff
+GLuint blurBufferObj = 0;
+GLuint renderedTexture;
+GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+GLuint quad_VertexArrayID;
+static const GLfloat g_quad_vertex_buffer_data[] = {
+    -1.0f, -1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,
+};
+GLuint quad_vertexbuffer;
+GLuint quad_programID;
+GLuint texID;
+GLuint timeID;
+// end blur stuff
+
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
@@ -84,6 +104,7 @@ Player* playerObject;
 vec3 oldPosition;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
+KawaseHandles kawaseHandles;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
@@ -274,6 +295,61 @@ void initFramebuffer() {
   assert(glGetError() == GL_NO_ERROR);
 }
 
+// segfault in here, i'm going to bed
+void initBlur() 
+{
+  // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+  glGenFramebuffersEXT(1, &blurBufferObj);
+  glBindFramebuffer(GL_FRAMEBUFFER, blurBufferObj);
+
+  // The texture we're going to render to
+  glGenTextures(1, &renderedTexture);
+  // "Bind" the newly created texture : all future texture functions will modify this texture
+  glBindTexture(GL_TEXTURE_2D, renderedTexture);
+  // Give an empty image to OpenGL ( the last "0" )
+  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, 1024, 768, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+  // Poor filtering. Needed !
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // Set "renderedTexture" as our colour attachement #0
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+  glGenVertexArrays(1, &quad_VertexArrayID);
+
+
+  glGenBuffers(1, &quad_vertexbuffer);
+  // Set the list of draw buffers.
+  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+  glBindVertexArray(quad_VertexArrayID);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+
+  // Create and compile our GLSL program from the shaders
+  kawaseHandles.installShaders(resPath(sysPath("shaders", "KawaseVert.glsl")), resPath(sysPath("shaders", "KawaseFrag.glsl")));
+}
+
+void drawBlur()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, renderedTexture);
+  glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+  // send appropriate values
+  glUniform1i(kawaseHandles.uBloomMap, 0);
+  glUniform1i(kawaseHandles.uKernelSize, 2);
+  glUniform2f(kawaseHandles.uWindowSize, 1024.0f, 768.0f);
+  safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
+
+  // draw shape
+  GLSL::enableVertexAttribArray(kawaseHandles.aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glVertexAttribPointer(kawaseHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data));
+}
+
 void initGL() {
   // Set the background color
   glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
@@ -282,6 +358,7 @@ void initGL() {
   glPointSize(18);
   initVertexObject(&posBufObjG, &norBufObjG);
   initFramebuffer();
+  initBlur();
 }
 
 void getWindowinput(GLFWwindow* window, double deltaTime) {
@@ -564,37 +641,7 @@ void beginPass2Draw() {
   checkGLError();
 }
 
-void beginPass3Draw() {
-  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
-  //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
-  glEnable(GL_DEPTH_TEST);
-  glCullFace(GL_FRONT);
-  glDrawBuffer(GL_NONE);
-  //cerr << "BeginPass1Draw error: " << glGetError() << endl;
-  assert(glGetError() == GL_NO_ERROR);
-  //cerr << glGetError() << endl;
 
-  glUseProgram(pass1Handles.prog);
-  assert(glGetError() == GL_NO_ERROR);
-  //cerr << glGetError() << endl;
-  assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
-}
-
-void drawPass3() 
-{
-  beginPass3Draw();
-  endPass3Draw();
-}
-
-void endPass3Draw() {
-  GLSL::disableVertexAttribArray(pass1Handles.aPosition);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-}
 
 void endDrawGL() {
   

@@ -38,6 +38,8 @@ set(HEADERS
 
    Geometry/Geometry.h
 
+   Bloom/KawaseHandles.h
+
    ../dependencies/irrKlang/include/irrKlang.h
    ../dependencies/irrKlang/include/conio.h
 )
@@ -76,6 +78,8 @@ set(SOURCES
    DebugDraw/DebugHandles.cpp
 
    Geometry/Geometry.cpp
+
+   Bloom/KawaseHandles.cpp
 
    MySound/MySound.cpp
    DetectionTracker/DetectionTracker.cpp
