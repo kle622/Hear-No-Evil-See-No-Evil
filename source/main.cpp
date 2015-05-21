@@ -298,12 +298,11 @@ void initFramebuffer() {
 }
 
 #ifdef BLUR
-// segfault in here, i'm going to bed
 void initBlur() 
 {
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
   glGenFramebuffersEXT(1, &blurBufferObj);
-  glBindFramebuffer(GL_FRAMEBUFFER, blurBufferObj);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
 
   // The texture we're going to render to
   glGenTextures(1, &renderedTexture);
@@ -315,7 +314,7 @@ void initBlur()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+  glFramebufferTextureEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);  // segfaults on this line
 
   glGenVertexArrays(1, &quad_VertexArrayID);
 
