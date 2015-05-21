@@ -153,8 +153,8 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
     glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
     glUniform1f(pass2Handles.uMatShine, 100.0f);
-    glUniform1f(pass2Handles.uMatRoughness, 0.8);
-    glUniform1f(pass2Handles.uFresReflectance, 2);
+    glUniform1f(pass2Handles.uMatRoughness, 1);
+    glUniform1f(pass2Handles.uFresReflectance, .1);
     break;
   case 1: // floor
     glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
@@ -169,8 +169,8 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
     glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
     glUniform1f(pass2Handles.uMatShine, 150.0f);
-    glUniform1f(pass2Handles.uMatRoughness, 0.8);
-    glUniform1f(pass2Handles.uFresReflectance, 2);
+    glUniform1f(pass2Handles.uMatRoughness, 1);
+    glUniform1f(pass2Handles.uFresReflectance, .3);
     break;
   case 3: // guard detect
     glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
@@ -218,7 +218,7 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     glUniform1f(pass2Handles.uMatRoughness, 0.1);
-    glUniform1f(pass2Handles.uFresReflectance, 0.5);
+    glUniform1f(pass2Handles.uFresReflectance, 1);
     break;
   }
 }

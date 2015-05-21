@@ -44,10 +44,9 @@ void DetectionTracker::updateSndDetect(Player *player) {
       this->detecDanger == false;
     }
   }
-  
 
   if (player->velocity <= 0.0 && this->totalDetLvl > 0) {
-    this->totalDetLvl -= .05;
+    this->totalDetLvl -= .02;
     this->totalDetLvl = clamp(this->totalDetLvl);
   }
   else if (player->velocity > 0.0){
