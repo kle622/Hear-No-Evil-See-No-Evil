@@ -1,6 +1,7 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 #define MIP_MAP_SIZE 512
+#define BMP_SIZE 1024
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +46,7 @@ class Shape {
         vec3 scale, vec3 direction, float velocity, int indices,
         GLuint posBuffer, GLuint norBuffer, int material);
 
+  void loadTexture(const std::string &filename);
   void loadMipmapTexture(const std::string &filename);
   //Object methods
   //void draw();

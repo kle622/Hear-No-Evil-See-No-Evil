@@ -73,3 +73,15 @@ void Shape::loadMipmapTexture(const std::string &filename) {
   printf("after glTexParameter calls\n");
   
 }
+
+void Shape::loadTexture(const std::string &filename) {
+  glGenTextures(1, &texId);
+  glBindTexture(GL_TEXTURE_2D, texId);
+  bmp = imageLoad(filename.c_str());
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, BMP_SIZE, BMP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+ 
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
