@@ -1,7 +1,7 @@
 #include "Hud.h"
 
 Hud::Hud() {
-	initVertexObjects(&dialogueBuf, &norBuf, detectionBarVertices, normals, 6);
+	initVertexObject(&dialogueBuf, &norBuf, detectionBarVertices, normals, 6);
 
 	this->dialogue = shared_ptr<Shape>(
 		new Shape(
@@ -14,9 +14,7 @@ Hud::Hud() {
 		      posBufObjG, 
 		      norBufObjG,
 		      1 //material
-		      );
-		}
-	);
+		      ));
 }
 
 void Hud::updateStaminaHud(float stamina){
@@ -28,5 +26,6 @@ void Hud::updateDetectionHud(float detection) {
 }
 
 void Hud::updateDialogueHud(int texture) {
+
 	
 }

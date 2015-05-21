@@ -39,6 +39,7 @@
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
+#include "HUD/Hud.h"
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG

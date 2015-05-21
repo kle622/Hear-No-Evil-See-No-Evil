@@ -39,6 +39,8 @@ set(HEADERS
 
    ../dependencies/irrKlang/include/irrKlang.h
    ../dependencies/irrKlang/include/conio.h
+
+   HUD/Hud.h
 )
 
 # List all .c / .cpp files here
@@ -77,4 +79,5 @@ set(SOURCES
 
    MySound/MySound.cpp
    DetectionTracker/DetectionTracker.cpp
+   HUD/Hud.cpp
 )

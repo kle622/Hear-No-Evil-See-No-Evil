@@ -5,7 +5,6 @@
 #include "../GameObject/Shape.h"
 #include "../Library/InitObjects.h"
 
-
 #include <cmath>
 #include <vector>
 #include <memory>
@@ -43,6 +42,8 @@ class Hud {
 		shared_ptr<Shape> dialogue;
 
 		GLuint norBuf;
+    GLuint posBufObjG;
+    GLuint norBufObjG;
 
 		void updateStaminaHud(float stamina);
 		void updateDetectionHud(float detection);
