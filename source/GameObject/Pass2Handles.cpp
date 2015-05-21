@@ -62,7 +62,7 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   shadowMap = GLSL::getUniformLocation(this->prog, "shadowMap");
   texture = GLSL::getUniformLocation(this->prog, "texture");
   hasTex = GLSL::getUniformLocation(this->prog, "hasTex");
-  texCoord = GLSL::getUniformLocation(this->prog, "texCoordIn");
+  aTexCoord = GLSL::getAttribLocation(this->prog, "texCoordIn");
   
 }
 
@@ -75,6 +75,12 @@ void Pass2Handles::draw(GameObject* obj) {
   GLSL::enableVertexAttribArray(this->aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->norBufObj);
   glVertexAttribPointer(this->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  if(dynamic_cast<Player *>(obj)) {
+    GLSL::enableVertexAttribArray(this->aTexCoord);
+    glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->texBufObj);
+    glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  }
 
   for (int s = 0; s < obj->mesh->shapes.size(); ++s) {
     int nIndices = (int)obj->mesh->shapes[s].mesh.indices.size();

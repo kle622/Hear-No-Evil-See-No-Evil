@@ -100,8 +100,8 @@ DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
 
-glm::vec3 g_light(0, 10, -5);
-
+std::vector<glm::vec3> lights;
+glm::vec3 g_light(0.0, 15.0, -8.0);
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 GLuint frameBufObj = 0;
@@ -110,6 +110,16 @@ GLuint shadowMap = 0;
 double deltaTime;
 
 GLuint texture;
+
+void initLights() {
+  glm::vec3 light1(20.0, 30.0, -10.0);
+  glm::vec3 light2(-20.0, 10.0, -5.0);
+  glm::vec3 light3(5.0, 15.0, 0.0);
+
+  lights.push_back(light1);
+  lights.push_back(light2);
+  lights.push_back(light3);
+}
 
 float getRand(double M, double N)
 {
@@ -211,9 +221,10 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
 }
 
-void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale) {
-
+void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, glm::vec3 g_light) {
+  //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
   glm::vec3 lightInv = g_light;
+  //  glm::mat4 depthProjMatrix = glm::perspective();
   glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
   glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
   glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) * 
@@ -253,6 +264,7 @@ void initFramebuffer() {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glGenerateMipmap(GL_TEXTURE_2D); 
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
@@ -276,6 +288,7 @@ void initGL() {
   glPointSize(18);
   initVertexObject(&posBufObjG, &norBufObjG);
   initFramebuffer();
+  //initLights();
 }
 
 void getWindowinput(GLFWwindow* window, double deltaTime) {
@@ -404,59 +417,83 @@ void drawPass1(WorldGrid* gameObjects) {
   vector<shared_ptr<GameObject>> drawList = gameObjects->list;
   vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
   drawList.insert(drawList.end(), walls.begin(), walls.end());
-  for (int i = 0; i < drawList.size(); i++) {
-    SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-    pass1Handles.draw(drawList[i].get());
-    //drawList[i]->draw();
+  for (int l = 0; l < lights.size(); l++) {
+    for (int i = 0; i < drawList.size(); i++) {
+      // SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
+      SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
+      pass1Handles.draw(drawList[i].get());
+      //drawList[i]->draw();
+    }
   }
 
   gameObjects->update();
 }
-
+//PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
-  SetMaterial(ground->material);
-  SetDepthMVP(false, ground->position, ground->rotation, ground->scale);
+  Guard *guard;
+
+  /*SetMaterial(ground->material);
+  //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);                                         
+  SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
   SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
   pass2Handles.draw(ground);
-  //ground->draw();
+  //ground->draw();                                                                                                         
   SetMaterial(ceiling->material);
-  SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale);
-  SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
-  pass2Handles.draw(ceiling);
-  //ceiling->draw();
-  Guard *guard;
-  // draw
-  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
-  for (int i = 0; i < drawList.size(); i++) {
-    /*if (drawList[i]->mesh->hasTexture) {
-      glUniform1i(pass2Handles.hasTex, 1);
-    }
-    else {
-      glUniform1i(pass2Handles.hasTex, 0);
-    }*/
-    
-    if (dynamic_cast<Player *>(drawList[i].get())) {
-      //glActiveTexture(GL_TEXTURE1);
-      glUniform1i(pass2Handles.hasTex, 1);
-      glUniform2f(pass2Handles.texCoord, drawList[i]->mesh->uvs[0], drawList[i]->mesh->uvs[1]);
-      //glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-      // glUniform1i(pass2Handles.texture, 1);
-    }
-    else {
-      glUniform1i(pass2Handles.hasTex, 0);
-      //glBindTexture(GL_TEXTURE_2D, 0);
-      //glActiveTexture(GL_TEXTURE0);
-      //glUniform1i(pass2Handles.shadowMap, 0);
-      // glBindTexture(GL_TEXTURE_2D, shadowMap);
-    }
-    
-    SetMaterial(drawList[i]->material);
-    SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-    SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-    pass2Handles.draw(drawList[i].get());
-    //drawList[i]->draw();
-  }
+  SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
+  SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
+  //SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);                              
+  pass2Handles.draw(ceiling);*/
 
+  for (int l = 0; l < lights.size(); l++) {
+    glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
+
+    SetMaterial(ground->material);
+    //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
+    SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
+    SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
+    pass2Handles.draw(ground);
+    //ground->draw();
+    SetMaterial(ceiling->material);
+    //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
+    SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
+    SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
+    pass2Handles.draw(ceiling);
+    //ceiling->draw();
+    //Guard *guard;
+    // draw
+    vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+    for (int i = 0; i < drawList.size(); i++) {
+      /*if (drawList[i]->mesh->hasTexture) {
+	glUniform1i(pass2Handles.hasTex, 1);
+	}
+	else {
+	glUniform1i(pass2Handles.hasTex, 0);
+	}*/
+      
+      if (dynamic_cast<Player *>(drawList[i].get())) {
+	//glActiveTexture(GL_TEXTURE1);
+	glUniform1i(pass2Handles.hasTex, 1);
+	//glUniform2f(pass2Handles.texCoord, drawList[i]->mesh->uvs[0]);
+	//glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+	// glUniform1i(pass2Handles.texture, 1);
+      }
+      else {
+	glUniform1i(pass2Handles.hasTex, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glUniform1i(pass2Handles.shadowMap, 0);
+	// glBindTexture(GL_TEXTURE_2D, shadowMap);
+      }
+      
+      SetMaterial(drawList[i]->material);
+      //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
+      SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
+      SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+      pass2Handles.draw(drawList[i].get());
+      //drawList[i]->draw();
+    }
+   }
+  
   // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
     gameObjects->list[i]->move(time);
@@ -546,7 +583,7 @@ void beginPass2Draw() {
   glBindTexture(GL_TEXTURE_2D, playerMesh.texId);
   glUniform1i(pass2Handles.texture, 1);
 
-  glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
+  //  glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
   glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z); 
   glUniform1i(pass2Handles.hasTex, 0);
 
@@ -566,6 +603,7 @@ void endDrawGL() {
   
   GLSL::disableVertexAttribArray(pass2Handles.aPosition);
   GLSL::disableVertexAttribArray(pass2Handles.aNormal);
+  GLSL::disableVertexAttribArray(pass2Handles.aTexCoord);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -679,8 +717,10 @@ void initObjects(WorldGrid* gameObjects) {
   //////////// Create the wall objects
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
-      switch(levelDesign[i][j]) {
-        case 3: //barrels
+      char design = '0' + levelDesign[i][j];
+      switch(design) {
+        case '3': //barrels
+	  //printf("case 3\n");
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tripleBarrelMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
@@ -694,7 +734,8 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
-        case 4: //stack of boxes
+        case '4': //stack of boxes
+	  //printf("case 4\n");
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &boxStackMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
@@ -708,7 +749,8 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
-        case 5: //table
+        case '5': //table
+	  //printf("case 5\n");
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tableMesh,
           vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
@@ -722,7 +764,8 @@ void initObjects(WorldGrid* gameObjects) {
           true
           )));
           break;
-        case 6: //chair
+        case '6': //chair
+	  //printf("case 6\n");
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &chairMesh,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
@@ -736,7 +779,8 @@ void initObjects(WorldGrid* gameObjects) {
           true
           )));
           break;
-        case 7: //cart
+        case '7': //cart
+	  //printf("case 7\n");
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &cartMesh,
           vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
@@ -750,7 +794,8 @@ void initObjects(WorldGrid* gameObjects) {
           true
           )));
           break;
-        case 8: //rafter
+        case '8': //rafter
+	  //printf("case 8\n");
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &rafterMesh,
           vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
@@ -764,7 +809,8 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
-        case 9: //flag
+        case '9': //flag
+	  //printf("case 9\n");
           gameObjects->add(shared_ptr<GameObject>(new WinCondition(
           &winMesh,
           vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
@@ -777,8 +823,14 @@ void initObjects(WorldGrid* gameObjects) {
           3
           )));
           break;
-        default:
-          break;
+      case 'L': 
+	//glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
+	printf("case 'L'\n");
+	printf("light position %d %lf %d\n", i - (TEST_WORLD / 2), (float)15.0, j - (TEST_WORLD / 2));
+	lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
+	break;
+      default:
+	break;
       }
     }
   }
@@ -1024,7 +1076,7 @@ int main(int argc, char **argv)
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
   winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
   playerMesh.hasTexture = true;
-  playerMesh.loadTexture(resPath(sysPath("textures", "Player_texture.bmp")));
+  playerMesh.loadTexture(resPath(sysPath("textures", "player_texture.bmp")));
   
   printf("shadow map id: %d\n", shadowMap);
   printf("player tex id: %d\n", playerMesh.texId);

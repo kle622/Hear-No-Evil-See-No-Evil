@@ -6,8 +6,9 @@ void Mesh::loadShapes(const std::string &objFile) {
   if(!err.empty()) {
     std::cerr << err << std::endl;
   }
+  printf("texCoords size: %d\n", this->shapes[0].mesh.texcoords.size());
   this->resize_obj();
-  this->sendNormals();
+  this->sendBufs();
   //this->computeBound();
 }
 
@@ -123,7 +124,7 @@ void Mesh::resize_obj() {
   }
 }
 
-void Mesh::sendNormals() {
+void Mesh::sendBufs() {
   for (int s = 0; s < this->shapes.size(); ++s) {
     // Send the position array to the GPU
     const std::vector<float> &posBuf = this->shapes[s].mesh.positions;
@@ -136,6 +137,12 @@ void Mesh::sendNormals() {
 	glGenBuffers(1, &this->norBufObj);
 	glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
 	glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+
+	//send the texture array to the GPU
+	const std::vector<float> &texBuf = this->shapes[s].mesh.texcoords;
+	glGenBuffers(1, &this->texBufObj);
+	glBindBuffer(GL_ARRAY_BUFFER, this->texBufObj);
+	glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
 	/**
     // compute the normals per vertex
     int idx1, idx2, idx3;

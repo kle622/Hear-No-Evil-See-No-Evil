@@ -38,7 +38,7 @@ class Mesh {
  private:
   void computeBound(void);
   void resize_obj(void);
-  void sendNormals(void);
+  void sendBufs(void);
   glm::vec3 center;
 };
 

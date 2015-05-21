@@ -1,5 +1,6 @@
 attribute vec3 aPosition;
 attribute vec3 aNormal;
+attribute vec2 texCoordIn;
 uniform mat4 uProjMatrix; // perspective
 uniform mat4 uViewMatrix; // camera
 uniform mat4 uModelMatrix; // global (except camera)
@@ -9,7 +10,6 @@ uniform vec3 UdColor;	// diffuse
 uniform vec3 UsColor;	// specular
 uniform float Ushine;
 uniform mat4 uDepthMVP;
-uniform vec2 texCoordIn;
 uniform int hasTex;
 
 varying vec3 vNormal;
