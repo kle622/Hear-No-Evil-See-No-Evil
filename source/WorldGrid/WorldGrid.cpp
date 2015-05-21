@@ -15,7 +15,15 @@ void WorldGrid::add(shared_ptr<GameObject> gameObject) {
 		int x = (floor(gameObject.get()->position.x) + (width / 2)) / CELL_SIZE;
 		int z = (floor(gameObject.get()->position.z) + (height / 2)) / CELL_SIZE;
 
-		wallList.push_back(gameObject);
+		list.push_back(gameObject);
+
+		int xDim = ceil(gameObject->scale.x / CELL_SIZE);
+		int zDim = ceil(gameObject->scale.z / CELL_SIZE);
+		for (int i = -xDim; i < xDim; i++) {
+			for (int j = -zDim; j < zDim; j++) {
+				grid[x+i][z+j].push_back(gameObject);
+			}
+		}
 	}
 	else {
 		int x = (floor(gameObject.get()->position.x) + (width / 2)) / CELL_SIZE;

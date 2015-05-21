@@ -651,7 +651,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 }
 
 void initObjects(WorldGrid* gameObjects) {
-  int levelDesign[TEST_WORLD][TEST_WORLD];
+  char levelDesign[TEST_WORLD][TEST_WORLD];
 
   char ch;
   fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
@@ -662,7 +662,7 @@ void initObjects(WorldGrid* gameObjects) {
       i++;
     }
     else {
-      levelDesign[i][j] = ch - '0';
+      levelDesign[i][j] = ch;
       j++;
     }
   }
@@ -671,7 +671,7 @@ void initObjects(WorldGrid* gameObjects) {
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
       switch(levelDesign[i][j]) {
-        case 3: //barrels
+        case '3': //barrels
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tripleBarrelMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
@@ -685,7 +685,7 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
-        case 4: //stack of boxes
+        case '4': //stack of boxes
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &boxStackMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
@@ -699,7 +699,7 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
-        case 5: //table
+        case '5': //table
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tableMesh,
           vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
@@ -713,7 +713,7 @@ void initObjects(WorldGrid* gameObjects) {
           true
           )));
           break;
-        case 6: //chair
+        case '6': //chair
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &chairMesh,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
@@ -727,7 +727,7 @@ void initObjects(WorldGrid* gameObjects) {
           true
           )));
           break;
-        case 7: //cart
+        case '7': //cart
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &cartMesh,
           vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
@@ -741,7 +741,7 @@ void initObjects(WorldGrid* gameObjects) {
           true
           )));
           break;
-        case 8: //rafter
+        case '8': //rafter
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &rafterMesh,
           vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
@@ -755,7 +755,7 @@ void initObjects(WorldGrid* gameObjects) {
           false
           )));
           break;
-        case 9: //flag
+        case '9': //flag
           gameObjects->add(shared_ptr<GameObject>(new WinCondition(
           &winMesh,
           vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
