@@ -24,7 +24,7 @@ void Mesh::loadTexture(const std::string &filename) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
-void Mesh::loadMipmapTexture(const std::string &filename) {
+/*void Mesh::loadMipmapTexture(const std::string &filename) {
   bmp = imageLoad(filename.c_str());
   glGenTextures(1, &texId);
   glBindTexture(GL_TEXTURE_2D, texId);
@@ -37,6 +37,26 @@ void Mesh::loadMipmapTexture(const std::string &filename) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   printf("after glTexParameter calls\n");
+}*/
+
+void Mesh::loadMipmapTexture(const std::string &filename) {
+    bmp = imageLoad(filename.c_str());
+    //printf("loaded file in mip map texture function\n");
+    glGenTextures(1, &texId);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    //printf("before gltexImage2D call\n");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, MIPMAP_SIZE, MIPMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+    // printf("after gltexImage2D call\n");
+    //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // printf("after glgeneratemipmap call\n");
+    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    printf("after glTexParameter calls\n");
+    
 }
 
 void Mesh::computeBound() {

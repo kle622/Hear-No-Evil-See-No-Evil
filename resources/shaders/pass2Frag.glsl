@@ -65,8 +65,9 @@ void main() {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
 	   //diffuse = vec3(0.0, 1.0, 0.0);
 	   //gl_FragColor = texture2D(texture, texCoordOut);
+	   gl_FragColor = vec4(visibility * (diffuse + ambient), 1.0);
 	}
-//	else {	
-	     gl_FragColor = vec4(visibility * (diffuse + specular + UaColor), 1.0);
-//	}
+	else {	
+	     gl_FragColor = vec4(visibility * (diffuse + specular + ambient), 1.0);
+	}
 }

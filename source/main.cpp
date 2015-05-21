@@ -468,10 +468,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     for (int l = 0; l < lights.size(); l++) {
         glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
         
-        glUniform1i(pass2Handles.hasTex, 1);
+	glUniform1i(pass2Handles.hasTex, 1);
         glBindTexture(GL_TEXTURE_2D, ground->texId);
         glUniform1i(pass2Handles.texture, 1);
-        SetMaterial(ground->material);
+        SetMaterial(0);
         //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
         SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
         SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
@@ -493,9 +493,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	    glUniform1i(pass2Handles.hasTex, 1);
 	    printf("bound texture for game object\n");
 	    glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+	    glUniform1i(pass2Handles.texture, 1);
+	    SetMaterial(0);
 	  }
 	  else {
 	    glUniform1i(pass2Handles.hasTex, 0);
+	    SetMaterial(drawList[i]->material);
 	  }
           
 	  /*if (dynamic_cast<Player *>(drawList[i].get())) {
@@ -513,7 +516,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                 // glBindTexture(GL_TEXTURE_2D, shadowMap);
 		}*/
             
-            SetMaterial(drawList[i]->material);
+	  // SetMaterial(drawList[i]->material);
             //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
             SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
             SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
@@ -928,7 +931,7 @@ void initGround() {
                        texBufObjG,
                        1 //material
                        );
-    
+    // printf("loading concrete.bmp for ground\n");
     ground->loadMipmapTexture(resPath(sysPath("textures", "concrete.bmp")));
 }
 
@@ -1111,8 +1114,10 @@ int main(int argc, char **argv)
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
     playerMesh.hasTexture = true;
     playerMesh.loadTexture(resPath(sysPath("textures", "player_texture.bmp")));
+    printf("Loading cube mesh wall.bmp\n");
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
     cubeMesh.hasTexture = true;
+    //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
     printf("shadow map id: %d\n", shadowMap);
     printf("player tex id: %d\n", playerMesh.texId);
     
