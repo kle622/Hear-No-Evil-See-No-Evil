@@ -18,3 +18,15 @@ Hud::Hud() {
 		}
 	);
 }
+
+void Hud::updateStaminaHud(float stamina){
+
+}
+
+void Hud::updateDetectionHud(float detection) {
+
+}
+
+void Hud::updateDialogueHud(int texture) {
+	
+}
