@@ -49,14 +49,16 @@ void WorldGrid::update() {
 		for (int j = 0; j < grid[i].size(); j++) {
 			for (int k = 0; k < grid[i][j].size(); k++) {
 				shared_ptr<GameObject> temp = grid[i][j][k];
-				int x = (floor(temp.get()->position.x) + (width / 2)) / CELL_SIZE;
-				int z = (floor(temp.get()->position.z) + (height / 2)) / CELL_SIZE;
+				if (!dynamic_cast<Wall*>(temp.get())) {
+					int x = (floor(temp.get()->position.x) + (width / 2)) / CELL_SIZE;
+					int z = (floor(temp.get()->position.z) + (height / 2)) / CELL_SIZE;
 
-				if ((x != i || z != j) &&
-					((x >= 0) && (x <= width-1) &&
-					(z >= 0) && (z <= height-1))) {
-					grid[i][j].erase(grid[i][j].begin() + k);
-					grid[x][z].push_back(temp);
+					if ((x != i || z != j) &&
+						((x >= 0) && (x <= width-1) &&
+						(z >= 0) && (z <= height-1))) {
+						grid[i][j].erase(grid[i][j].begin() + k);
+						grid[x][z].push_back(temp);
+					}
 				}
 			}
 		}
