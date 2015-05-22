@@ -71,12 +71,12 @@ GLuint renderedTexture;
 GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 GLuint quad_VertexArrayID;
 static const GLfloat g_quad_vertex_buffer_data[] = {
-    -1.0f, -1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-    1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,
 };
 GLuint quad_vertexbuffer;
 #endif
@@ -116,6 +116,7 @@ Mesh rafterMesh;
 Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
+Shape *textureScreen;
 bool debug = false;
 bool boxes = false;
 DebugDraw *debugDraw;
@@ -298,7 +299,7 @@ void initFramebuffer() {
 void initBlur() 
 {
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-  glGenFramebuffersEXT(1, &blurBufferObj);
+  /*glGenFramebuffersEXT(1, &blurBufferObj);
   glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
 
   // The texture we're going to render to
@@ -313,25 +314,43 @@ void initBlur()
   // Set "renderedTexture" as our colour attachement #0
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);  // segfaults on this line
 
-  //glGenVertexArrays(1, &quad_VertexArrayID);
+  // Set the list of draw buffers.
+  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers*/
+  textureScreen = new Shape(
+      vec3(0), //position
+      0, //rotation
+      vec3(5, 1, 5), //scale
+      vec3(1, 0, 0), //direction
+      0, //velocity
+      6, //indices
+      posBufObjG, 
+      norBufObjG,
+      1 //material
+      );
+
+  glGenVertexArrays(1, &quad_VertexArrayID);
+  assert(quad_VertexArrayID > 0);
+  glBindVertexArray(quad_VertexArrayID);
 
   glGenBuffers(1, &quad_vertexbuffer);
-  // Set the list of draw buffers.
-  //glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-
-  //glBindVertexArray(quad_VertexArrayID);
+  assert(quad_vertexbuffer > 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_vertexbuffer);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
 
   // Create and compile our GLSL program from the shaders
-  kawaseHandles.installShaders(resPath(sysPath("shaders", "KawaseVert.glsl")), resPath(sysPath("shaders", "KawaseFrag.glsl")));
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {                                                        
+    cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;                                               
+  }       
 }
 
 void drawBlur()
 {
   glUseProgram(kawaseHandles.prog);
-  glClear(GL_DEPTH_BUFFER_BIT);
-  glDrawBuffer(GL_COLOR_ATTACHMENT0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  //glClear(GL_DEPTH_BUFFER_BIT);
+  glCullFace(GL_BACK);
+  glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+  /*glDrawBuffer(GL_COLOR_ATTACHMENT0);
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
@@ -342,15 +361,17 @@ void drawBlur()
   glUniform1i(kawaseHandles.uBloomMap, renderedTexture);
   glUniform1i(kawaseHandles.uKernelSize, 2);
   glUniform2f(kawaseHandles.uWindowSize, 1024.0f, 768.0f);
-  safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
+  safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));*/
 
   // draw shape
+  kawaseHandles.draw(textureScreen);
   GLSL::enableVertexAttribArray(kawaseHandles.aPosition);
+  glBindVertexArray(quad_VertexArrayID);
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glVertexAttribPointer(kawaseHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 18);
-  //glDrawArrays(GL_TRIANGLES, 0, 18);
+  //glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 18);
+  glDrawArrays(GL_TRIANGLES, 0, 18);
 
   checkGLError();
 }
@@ -587,7 +608,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       gameObjects->list[i].get()->position = 
         vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
       gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
-      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
+      //printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
     }
     gameObjects->update();
   }
@@ -622,7 +643,8 @@ void endPass1Draw() {
 void beginPass2Draw() {
   //Second Pass                                                                                                     
 #ifdef BLUR
-  glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 #else
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 #endif
@@ -630,7 +652,8 @@ void beginPass2Draw() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);                                                                                        
 #ifdef BLUR
-  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+  //glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+  glDrawBuffer(GL_BACK);
 #else
   glDrawBuffer(GL_BACK);
 #endif
@@ -1159,27 +1182,18 @@ int main(int argc, char **argv)
   debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+  kawaseHandles.installShaders(resPath(sysPath("shaders", "KawaseVert.glsl")), resPath(sysPath("shaders", "KawaseFrag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
 
-  std::cout << "loading guard mesh..." << std::endl;
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
-  std::cout << "loading player mesh..." << std::endl;
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
-  std::cout << "loading cube mesh..." << std::endl;
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
-  std::cout << "loading tripleBarrel mesh..." << std::endl;
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
-  std::cout << "loading boxStack mesh..." << std::endl;
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
-  std::cout << "loading table mesh..." << std::endl;
   tableMesh.loadShapes(resPath(sysPath("models", "table.obj")));
-  std::cout << "loading chair mesh..." << std::endl;
   chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
-  std::cout << "loading cart mesh..." << std::endl;
   cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
-  std::cout << "loading rafter mesh..." << std::endl;
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
-  std::cout << "loading flag mesh..." << std::endl;
   winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
 
   srand(time(NULL));

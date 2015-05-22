@@ -47,12 +47,14 @@ bool KawaseHandles::installShaders(const std::string &vShaderName, const std::st
     return false;
   }
 
+  aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
   uMVP = GLSL::getUniformLocation(this->prog, "uMVP");
   uBloomMap = GLSL::getUniformLocation(this->prog, "uBloomMap");
   uKernelSize = GLSL::getUniformLocation(this->prog, "uKernelSize");
   uWindowSize = GLSL::getUniformLocation(this->prog, "uWindowSize");
 
-  aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
+  assert(glGetError() == GL_NO_ERROR);
+  return true;
 }
 
 
