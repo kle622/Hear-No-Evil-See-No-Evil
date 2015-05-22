@@ -334,8 +334,8 @@ void initBlur()
 
   glGenBuffers(1, &quad_vertexbuffer);
   assert(quad_vertexbuffer > 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_vertexbuffer);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
 
   // Create and compile our GLSL program from the shaders
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {                                                        
