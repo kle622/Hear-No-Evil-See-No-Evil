@@ -85,7 +85,7 @@ Pass2Handles pass2Handles;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
-Mesh tripleBarrelMesh;
+Mesh barrel;
 Mesh boxStackMesh;
 Mesh tableMesh;
 Mesh chairMesh;
@@ -726,13 +726,13 @@ void initObjects(WorldGrid* gameObjects) {
                 case '3': //barrels
                     //printf("case 3\n");
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &tripleBarrelMesh,
-                                                                           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                                                                           &barrel,
+                                                                           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
                                                                            getRand(0, 360),
-                                                                           vec3(2.5, 2.5, 2.5),
+                                                                           vec3(1, 1, 1),
                                                                            vec3(1.0, 0, 0),
                                                                            0,
-                                                                           vec3(4.5, 4, 4.5),
+                                                                           vec3(1.5, 2, 1.5),
                                                                            1,
                                                                            0,
                                                                            false
@@ -744,10 +744,10 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &boxStackMesh,
                                                                            vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                                                                            getRand(0, 360),
-                                                                           vec3(4, 2, 4),
+                                                                           vec3(3.5, 2, 3.5),
                                                                            vec3(1.0, 0.0, 0.0),
                                                                            0,
-                                                                           vec3(3.0, 5, 3.0),
+                                                                           vec3(4.0, 5, 4.0),
                                                                            1,
                                                                            7,
                                                                            false
@@ -759,7 +759,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &tableMesh,
                                                                            vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
                                                                            0,
-                                                                           vec3(1.5, 1, 1.5),
+                                                                           vec3(1.5, 2, 1.5),
                                                                            vec3(1.0, 0.0, 0.0),
                                                                            0,
                                                                            vec3(2.8, 1.5, 1.4),
@@ -774,8 +774,8 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &chairMesh,
                                                                            vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
                                                                            getRand(0, 360),
-                                                                           vec3(1, 1, 1),
-                                                                           vec3(1.0, 0.0, 0.0),
+                                                                           vec3(0.75, 0.75, 0.75),
+                                                                           vec3(1.0, -0.25, 0.0),
                                                                            0,
                                                                            vec3(1.5, 2, 1.5),
                                                                            1,
@@ -1077,10 +1077,12 @@ int main(int argc, char **argv)
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
-    tripleBarrelMesh.loadShapes(resPath(sysPath("models", "barrel.obj")));
+    barrel.loadShapes(resPath(sysPath("models", "barrel.obj")));
     boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
     tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
+    chairMesh.hasTexture = true;
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
+    chairMesh.loadTexture(resPath(sysPath("textures", "chair.bmp")));
     cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
@@ -1092,8 +1094,8 @@ int main(int argc, char **argv)
     cubeMesh.hasTexture = true;
     tableMesh.hasTexture = true;
     tableMesh.loadTexture(resPath(sysPath("textures", "desk.bmp")));
-    tripleBarrelMesh.hasTexture = true;
-    tripleBarrelMesh.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
+    barrel.hasTexture = true;
+    barrel.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
     //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
     boxStackMesh.hasTexture = true;
     boxStackMesh.loadTexture(resPath(sysPath("textures", "crate.bmp")));
