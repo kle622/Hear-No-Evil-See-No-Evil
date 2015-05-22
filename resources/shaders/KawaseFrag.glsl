@@ -9,9 +9,10 @@ void main()
 {
   int ksm = uKernelSize - 1;
   vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+  color = vec4(0.0f, 1.0f, 0.0f, 1.0f);
   
   // upper right
-  color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) +
+  /*color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) +
   vec2(uKernelSize, uKernelSize), vec2(0.0f, 0.0f), uWindowSize));
   color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) +
   vec2(uKernelSize, ksm), vec2(0.0f, 0.0f), uWindowSize));
@@ -47,7 +48,7 @@ void main()
   color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) + vec2(-1
   * ksm, -1 * uKernelSize), vec2(0.0f, 0.0f), uWindowSize));
   color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) + vec2(-1
-  * ksm, -1 * ksm), vec2(0.0f, 0.0f), uWindowSize));
+  * ksm, -1 * ksm), vec2(0.0f, 0.0f), uWindowSize));*/
 
   gl_FragColor = color;
 }

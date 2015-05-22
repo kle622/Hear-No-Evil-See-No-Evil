@@ -71,17 +71,14 @@ GLuint renderedTexture;
 GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 GLuint quad_VertexArrayID;
 static const GLfloat g_quad_vertex_buffer_data[] = {
-    -1.0f, -1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
-    -1.0f,  1.0f, 0.0f,
-    -1.0f,  1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
-    1.0f,  1.0f, 0.0f,
+    -1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f,  1.0f, -1.0f,
 };
 GLuint quad_vertexbuffer;
-GLuint quad_programID;
-GLuint texID;
-GLuint timeID;
 #endif
 
 GLFWwindow* window;
@@ -311,20 +308,20 @@ void initBlur()
   // Give an empty image to OpenGL ( the last "0" )
   glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, 1024, 768, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
   // Poor filtering. Needed !
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTextureEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);  // segfaults on this line
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);  // segfaults on this line
 
-  glGenVertexArrays(1, &quad_VertexArrayID);
+  //glGenVertexArrays(1, &quad_VertexArrayID);
 
   glGenBuffers(1, &quad_vertexbuffer);
   // Set the list of draw buffers.
-  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+  //glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
 
-  glBindVertexArray(quad_VertexArrayID);
-  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+  //glBindVertexArray(quad_VertexArrayID);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_vertexbuffer);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
 
   // Create and compile our GLSL program from the shaders
   kawaseHandles.installShaders(resPath(sysPath("shaders", "KawaseVert.glsl")), resPath(sysPath("shaders", "KawaseFrag.glsl")));
@@ -332,13 +329,17 @@ void initBlur()
 
 void drawBlur()
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glUseProgram(kawaseHandles.prog);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  glDrawBuffer(GL_COLOR_ATTACHMENT0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, renderedTexture);
   //glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
   // send appropriate values
-  glUniform1i(kawaseHandles.uBloomMap, 0);
+  glUniform1i(kawaseHandles.uBloomMap, renderedTexture);
   glUniform1i(kawaseHandles.uKernelSize, 2);
   glUniform2f(kawaseHandles.uWindowSize, 1024.0f, 768.0f);
   safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
@@ -348,7 +349,10 @@ void drawBlur()
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glVertexAttribPointer(kawaseHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data));
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 18);
+  //glDrawArrays(GL_TRIANGLES, 0, 18);
+
+  checkGLError();
 }
 #endif
 
@@ -510,9 +514,6 @@ void drawPass1(WorldGrid* gameObjects) {
 }
 
 void drawGameObjects(WorldGrid* gameObjects, float time) {
-#ifdef BLUR
-  glBindFramebuffer(GL_FRAMEBUFFER, blurBufferObj);
-#endif
   SetMaterial(ground->material);
   SetDepthMVP(false, ground->position, ground->rotation, ground->scale);
   SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
@@ -620,11 +621,19 @@ void endPass1Draw() {
 
 void beginPass2Draw() {
   //Second Pass                                                                                                     
+#ifdef BLUR
+  glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
+#else
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+#endif
   //glViewport(0, 0, g_width, g_height);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);                                                                                        
+#ifdef BLUR
+  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+#else
   glDrawBuffer(GL_BACK);
+#endif
   glCullFace(GL_BACK);                                                                                            
 
   glUseProgram(pass2Handles.prog);
@@ -1224,6 +1233,9 @@ int main(int argc, char **argv)
     beginPass2Draw();
     getWindowinput(window, deltaTime);
     drawGameObjects(&gameObjects, deltaTime);
+#ifdef BLUR
+    drawBlur();
+#endif
     endDrawGL();
 
     // draw debug
