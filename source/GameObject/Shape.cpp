@@ -60,7 +60,7 @@ void Shape::loadMipmapTexture(const std::string &filename) {
   glGenTextures(1, &texId);
   glBindTexture(GL_TEXTURE_2D, texId);
   printf("before gltexImage2D call\n");
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, MIP_MAP_SIZE, MIP_MAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, MIP_MAP_SIZE, MIP_MAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
   printf("after gltexImage2D call\n");
   //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
   glGenerateMipmap(GL_TEXTURE_2D);
@@ -72,4 +72,16 @@ void Shape::loadMipmapTexture(const std::string &filename) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   printf("after glTexParameter calls\n");
   
+}
+
+void Shape::loadTexture(const std::string &filename) {
+  glGenTextures(1, &texId);
+  glBindTexture(GL_TEXTURE_2D, texId);
+  bmp = imageLoad(filename.c_str());
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, BMP_SIZE, BMP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+ 
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }

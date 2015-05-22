@@ -20,6 +20,7 @@ class Mesh {
   void loadShapes(const std::string &objFile);
   void drawObject(Handles *handles);
   void loadTexture(const std::string &filename);
+  void sendWallTexBuf();
   void loadMipmapTexture(const std::string &filename);
   float radius;
   std::vector<tinyobj::shape_t> shapes;

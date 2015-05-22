@@ -45,7 +45,7 @@ void Mesh::loadMipmapTexture(const std::string &filename) {
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_2D, texId);
     //printf("before gltexImage2D call\n");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, MIPMAP_SIZE, MIPMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, MIPMAP_SIZE, MIPMAP_SIZE, 0, GL_BGR, GL_UNSIGNED_BYTE, bmp);
     // printf("after gltexImage2D call\n");
     //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -156,6 +156,18 @@ void Mesh::resize_obj() {
       assert(this->shapes[i].mesh.positions[3*v+2] >= -1.0 - epsilon);
       assert(this->shapes[i].mesh.positions[3*v+2] <= 1.0 + epsilon);
     }
+  }
+}
+
+void Mesh::sendWallTexBuf() {
+  for (int s = 0; s < this->shapes.size(); ++s) {
+    for (int i = 0; i < this->shapes[s].mesh.texcoords.size(); i++) {
+      this->shapes[s].mesh.texcoords[i] *= 10;
+    }
+    const std::vector<float> &texBuf = this->shapes[s].mesh.texcoords;
+    glGenBuffers(1, &this->texBufObj);
+    glBindBuffer(GL_ARRAY_BUFFER, this->texBufObj);
+    glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
   }
 }
 
