@@ -89,7 +89,6 @@ Mesh barrel;
 Mesh boxStackMesh;
 Mesh tableMesh;
 Mesh chairMesh;
-Mesh cartMesh;
 Mesh rafterMesh;
 Mesh winMesh;
 Shape *ground;
@@ -783,20 +782,8 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            true
                                                                            )));
                     break;
-                case '7': //cart
-                    //printf("case 7\n");
-                    gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &cartMesh,
-                                                                           vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
-                                                                           getRand(0, 360),
-                                                                           vec3(1, 1, 1),
-                                                                           vec3(1.0, 0.0, 0.0),
-                                                                           0,
-                                                                           vec3(2.2, 2, 1.2),
-                                                                           1,
-                                                                           0,
-                                                                           true
-                                                                           )));
+                case '7': 
+                    //add an object here!
                     break;
                 case '8': //rafter
                     //printf("case 8\n");
@@ -1083,7 +1070,6 @@ int main(int argc, char **argv)
     chairMesh.hasTexture = true;
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
     chairMesh.loadTexture(resPath(sysPath("textures", "chair.bmp")));
-    cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
     playerMesh.hasTexture = true;
