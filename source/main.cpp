@@ -89,6 +89,25 @@ GLfloat planeNormals[] = {
     0.0f, 1.0f, 0.0f,
 };
 
+GLfloat detectionBarVertices[] = {
+  -1.0f, 0.0f, -1.0f,
+  -1.0f, 0.0f, -0.5f,
+  1.0f, 0.0f, -1.0f,
+
+  -1.0f, 0.0f, -0.5f,
+  1.0f, 0.0f, -1.0f,
+  1.0f, 0.0f, -0.5f,
+};
+
+GLfloat normals[] = {
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+};
+
 int g_width;
 int g_height;
 
@@ -114,11 +133,13 @@ Mesh rafterMesh;
 Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
+Shape *detection;
 bool debug = false;
 bool boxes = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
+Hud *HUD;
 
 std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -8.0);
@@ -132,25 +153,6 @@ GLuint shadowMap = 0;
 double deltaTime;
 
 GLuint texture;
-
-float G_edge = 30;
-GLfloat planeVertices[] = {
-    -G_edge, -1.0f, -G_edge,
-    -G_edge, -1.0f, G_edge,
-    G_edge, -1.0f, -G_edge,
-    -G_edge, -1.0f, G_edge,
-    G_edge, -1.0f, -G_edge,
-    G_edge, -1.0f, G_edge,
-};
-
-GLfloat planeNormals[] = {
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-};
 
 void initLights() {
     glm::vec3 light1(20.0, 30.0, -10.0);
@@ -327,7 +329,7 @@ void initGL() {
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
-    initVertexObject(&posBufObjG, &norBufObjG, &idxBufObjG, &texBufObjG, planeVertices, planeNormals, G_edge);
+  initVertexObject(&posBufObjG, &norBufObjG, &idxBufObjG, &texBufObjG, planeVertices, planeNormals, G_edge);
   initFramebuffer();
     //initLights();
 }
@@ -587,10 +589,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   }
 
   //do 2d stuff
-  glDisable(GL_DEPTH_TEST);
-  mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
+  //glDisable(GL_DEPTH_TEST);
+  //mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
 
-  glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_DEPTH_TEST);
 }
 
 void beginPass1Draw() {
@@ -953,8 +955,8 @@ void initGround() {
       6, //indices
       posBufObjG, 
       norBufObjG,
-                       idxBufObjG,
-                       texBufObjG,
+      idxBufObjG,
+      texBufObjG,
       1 //material
       );
     // printf("loading concrete.bmp for ground\n");
@@ -973,6 +975,39 @@ void initCeiling() {
       norBufObjG,
       5 //material
       );
+}
+
+void initHUD() {
+  HUD = new Hud();
+  //HUD->detection = shared_ptr<Shape>(
+  //  	new Shape(
+  //  	      vec3(0), //position
+  //  	      0, //rotation
+  //  	      vec3(1, 1, 1), //scale
+  //  	      vec3(1, 0, 0), //direction
+  //  	      0, //velocity
+  //  	      6, //indices
+  //  	      posBufObjG, 
+  //  	      norBufObjG,
+  //          idxBufObjG,
+  //          texBufObjG,
+  //  	      1 //material
+  //  	      ));
+  detection = new Shape(
+      	      vec3(0), //position
+      	      0, //rotation
+      	      vec3(1, 1, 1), //scale
+      	      vec3(1, 0, 0), //direction
+      	      0, //velocity
+      	      6, //indices
+      	      posBufObjG, 
+      	      norBufObjG,
+              idxBufObjG,
+              texBufObjG,
+      	      1 //material
+      	      );
+  //HUD->detection->loadMipmapTexture(resPath(sysPath("textures", "HUDTest.bmp")));
+  detection->loadMipmapTexture(resPath(sysPath("textures", "HUDTest.bmp")));
 }
 
 void initWalls(WorldGrid* gameObjects) {

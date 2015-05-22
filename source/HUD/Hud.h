@@ -9,24 +9,26 @@
 #include <vector>
 #include <memory>
 
-GLfloat detectionBarVertices[] = {
-    -1.0f, 0.0f, -1.0f,
-    -1.0f, 0.0f, -0.5f,
-    1.0f, 0.0f, -1.0f,
+using namespace glm;
 
-    -1.0f, 0.0f, -0.5f,
-    1.0f, 0.0f, -1.0f,
-    1.0f, 0.0f, -0.5f,
-};
-
-GLfloat normals[] = {
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-};
+//GLfloat detectionBarVertices[] = {
+//    -1.0f, 0.0f, -1.0f,
+//    -1.0f, 0.0f, -0.5f,
+//    1.0f, 0.0f, -1.0f,
+//
+//    -1.0f, 0.0f, -0.5f,
+//    1.0f, 0.0f, -1.0f,
+//    1.0f, 0.0f, -0.5f,
+//};
+//
+//GLfloat normals[] = {
+//    0.0f, 1.0f, 0.0f,
+//    0.0f, 1.0f, 0.0f,
+//    0.0f, 1.0f, 0.0f,
+//    0.0f, 1.0f, 0.0f,
+//    0.0f, 1.0f, 0.0f,
+//    0.0f, 1.0f, 0.0f,
+//};
 
 using namespace std;
 
@@ -41,9 +43,13 @@ class Hud {
 		GLuint dialogueBuf;
 		shared_ptr<Shape> dialogue;
 
+    Hud();
+
 		GLuint norBuf;
     GLuint posBufObjG;
     GLuint norBufObjG;
+    GLuint idxBufObjG;
+    GLuint texBufObjG;
 
 		void updateStaminaHud(float stamina);
 		void updateDetectionHud(float detection);
