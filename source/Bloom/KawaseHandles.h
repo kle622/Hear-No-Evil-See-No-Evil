@@ -13,6 +13,7 @@ class KawaseHandles {
   public:
     GLuint prog;
     GLuint aPosition;
+    GLuint aUV;
     GLuint uMVP;
     GLuint uBloomMap;
     GLuint uKernelSize;

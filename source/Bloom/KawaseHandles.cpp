@@ -48,6 +48,7 @@ bool KawaseHandles::installShaders(const std::string &vShaderName, const std::st
   }
 
   aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
+  aUV = GLSL::getAttribLocation(this->prog, "aUV");
   uMVP = GLSL::getUniformLocation(this->prog, "uMVP");
   uBloomMap = GLSL::getUniformLocation(this->prog, "uBloomMap");
   uKernelSize = GLSL::getUniformLocation(this->prog, "uKernelSize");

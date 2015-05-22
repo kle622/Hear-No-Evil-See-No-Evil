@@ -4,6 +4,7 @@ uniform sampler2D uBloomMap;
 uniform int uKernelSize;
 // window size (for edge cases)
 uniform vec2 uWindowSize;
+varying vec2 vUV;
 
 void main()
 {
@@ -11,8 +12,7 @@ void main()
   //vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
   
   // upper right
-  /*color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) +
-  vec2(uKernelSize, uKernelSize), vec2(0.0f, 0.0f), uWindowSize));
+  color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) + vec2(uKernelSize, uKernelSize), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
   color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) +
   vec2(uKernelSize, ksm), vec2(0.0f, 0.0f), uWindowSize));
   color += 0.0625f * texture2D(uBloomMap, clamp(vec2(gl_FragCoord) + vec2(ksm,
@@ -50,5 +50,6 @@ void main()
   * ksm, -1 * ksm), vec2(0.0f, 0.0f), uWindowSize));
 
   gl_FragColor = color;*/
-  gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+  //gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+  gl_FragColor = texture2D(uBloomMap, vUV);
 }

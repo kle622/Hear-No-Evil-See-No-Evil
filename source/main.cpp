@@ -78,7 +78,16 @@ static const GLfloat g_quad_vertex_buffer_data[] = {
     1.0f, -1.0f, 0.0f,
     1.0f,  1.0f, 0.0f,
 };
+static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+};
 GLuint quad_vertexbuffer;
+GLuint quad_uvbuffer;
 #endif
 
 GLFWwindow* window;
@@ -299,7 +308,7 @@ void initFramebuffer() {
 void initBlur() 
 {
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-  /*glGenFramebuffersEXT(1, &blurBufferObj);
+  glGenFramebuffersEXT(1, &blurBufferObj);
   glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
 
   // The texture we're going to render to
@@ -315,7 +324,7 @@ void initBlur()
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);  // segfaults on this line
 
   // Set the list of draw buffers.
-  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers*/
+  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
   textureScreen = new Shape(
       vec3(0), //position
       0, //rotation
@@ -337,6 +346,11 @@ void initBlur()
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
 
+  glGenBuffers(1, &quad_uvbuffer);
+  assert(quad_uvbuffer > 0);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_uv_buffer_data) * sizeof(GLfloat), &g_quad_uv_buffer_data[0], GL_STATIC_DRAW);
+
   // Create and compile our GLSL program from the shaders
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {                                                        
     cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;                                               
@@ -345,13 +359,21 @@ void initBlur()
 
 void drawBlur()
 {
-  glUseProgram(kawaseHandles.prog);
+  //Second Pass                                                                                                     
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-  //glClear(GL_DEPTH_BUFFER_BIT);
+  //glViewport(0, 0, g_width, g_height);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);                                                                                        
+  glDrawBuffer(GL_BACK);
   glCullFace(GL_BACK);
-  glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-  /*glDrawBuffer(GL_COLOR_ATTACHMENT0);
-  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+  glUseProgram(kawaseHandles.prog);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  //glClear(GL_DEPTH_BUFFER_BIT);
+  //glDrawBuffer(GL_BACK);
+  //glCullFace(GL_BACK);
+  //glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+  //glDrawBuffer(GL_COLOR_ATTACHMENT0);
   glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, renderedTexture);
@@ -360,8 +382,8 @@ void drawBlur()
   // send appropriate values
   glUniform1i(kawaseHandles.uBloomMap, renderedTexture);
   glUniform1i(kawaseHandles.uKernelSize, 2);
-  glUniform2f(kawaseHandles.uWindowSize, 1024.0f, 768.0f);
-  safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));*/
+  glUniform2f(kawaseHandles.uWindowSize, g_width, g_height);
+  safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
 
   // draw shape
   kawaseHandles.draw(textureScreen);
@@ -369,6 +391,12 @@ void drawBlur()
   glBindVertexArray(quad_VertexArrayID);
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glVertexAttribPointer(kawaseHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  GLSL::enableVertexAttribArray(kawaseHandles.aUV);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
+  glVertexAttribPointer(kawaseHandles.aUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  checkGLError();
+  checkGLError();
 
   //glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 18);
   glDrawArrays(GL_TRIANGLES, 0, 18);
@@ -641,23 +669,24 @@ void endPass1Draw() {
 }
 
 void beginPass2Draw() {
-  //Second Pass                                                                                                     
 #ifdef BLUR
-  //glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
-  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+  glCullFace(GL_FRONT);
+  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
 #else
+  //Second Pass                                                                                                     
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-#endif
   //glViewport(0, 0, g_width, g_height);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);                                                                                        
-#ifdef BLUR
-  //glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
   glDrawBuffer(GL_BACK);
-#else
-  glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);
 #endif
-  glCullFace(GL_BACK);                                                                                            
 
   glUseProgram(pass2Handles.prog);
 
