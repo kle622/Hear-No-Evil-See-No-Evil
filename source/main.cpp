@@ -100,7 +100,10 @@ DetectionCamera *detectCam;
 MySound *soundObj;
 
 std::vector<glm::vec3> lights;
-glm::vec3 g_light(0.0, 15.0, -8.0);
+glm::vec3 g_light(0.0, 15.0, -2.0);
+glm::vec3 coneDir(0.0, 15.0, 0.0);
+float coneAngle = 75;
+float attenuation = 0.5f;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 GLuint idxBufObjG = 0;
@@ -243,31 +246,32 @@ void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
 
 void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, glm::vec3 g_light) {
     //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
-    glm::vec3 lightInv = g_light;
-    //  glm::mat4 depthProjMatrix = glm::perspective();
-    glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
-    glm::mat4 depthViewMatrix = glm::lookAt(lightInv, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
-    glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) *
+  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
+  //  glm::mat4 depthProjMatrix = glm::perspective();
+  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 25.0f);
+  //   glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
+  glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) *
     glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
-    //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
-    glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
-    
-    glm::mat4 biasMatrix(
-                         0.5, 0.0, 0.0, 0.0,
-                         0.0, 0.5, 0.0, 0.0,
-                         0.0, 0.0, 0.5, 0.0,
-                         0.5, 0.5, 0.5, 1.0
-                         );
-    
-    glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
-    
-    
-    pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
+  //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
+  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
+  
+  glm::mat4 biasMatrix(
+		       0.5, 0.0, 0.0, 0.0,
+		       0.0, 0.5, 0.0, 0.0,
+		       0.0, 0.0, 0.5, 0.0,
+		       0.5, 0.5, 0.5, 1.0
+		       );
+  
+  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+  
+  
+  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
     safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
-    
-    //cerr << glGetError() << endl;
-    assert(glGetError() == GL_NO_ERROR);
-    
+  
+  //cerr << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  
 }
 
 void initFramebuffer() {
@@ -451,52 +455,54 @@ void drawPass1(WorldGrid* gameObjects) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
 
-    //for (int l = 0; l < lights.size(); l++) {
-    //glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
-        
-	glUniform1i(pass2Handles.hasTex, 1);
-        glBindTexture(GL_TEXTURE_2D, ground->texId);
-        glUniform1i(pass2Handles.texture, 1);
-        SetMaterial(0);
-        SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-        //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
-        SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
-        pass2Handles.draw(ground);
-        //ground->draw();
-       
-	glUniform1i(pass2Handles.hasTex, 0);
-        SetMaterial(ceiling->material);
-	SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-        //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
-        SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
-        pass2Handles.draw(ceiling);
-        //ceiling->draw();
-        //Guard *guard;
-        // draw
-        vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
-        for (int i = 0; i < drawList.size(); i++) {
-	  if (drawList[i]->mesh->hasTexture) {
-	    glUniform1i(pass2Handles.hasTex, 1);
-	    printf("bound texture for game object\n");
-	    glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-	    glUniform1i(pass2Handles.texture, 1);
-	    SetMaterial(0);
-	  }
-	  else {
-	    glUniform1i(pass2Handles.hasTex, 0);
-	    SetMaterial(drawList[i]->material);
-	  }
-   
-	  // SetMaterial(drawList[i]->material);
-            SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-            //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
-            SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-            pass2Handles.draw(drawList[i].get());
-            //drawList[i]->draw();
-        }
-	// }
-    
-    // collide
+    for (int l = 0; l < lights.size(); l++) {
+      glm::vec3 cone = glm::vec3(lights.at(l).x, lights.at(l).y, 0.0);
+      glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
+      glUniform3f(pass2Handles.uConeDirection, cone.x, cone.y, cone.z);
+      
+      glUniform1i(pass2Handles.hasTex, 1);
+      glBindTexture(GL_TEXTURE_2D, ground->texId);
+      glUniform1i(pass2Handles.texture, 1);
+      SetMaterial(0);
+      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
+      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
+      SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
+      pass2Handles.draw(ground);
+      //ground->draw();
+      
+      glUniform1i(pass2Handles.hasTex, 0);
+      SetMaterial(ceiling->material);
+      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
+      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
+      SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
+      pass2Handles.draw(ceiling);
+      //ceiling->draw();
+      //Guard *guard;
+      // draw
+      vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+      for (int i = 0; i < drawList.size(); i++) {
+	if (drawList[i]->mesh->hasTexture) {
+	  glUniform1i(pass2Handles.hasTex, 1);
+	  printf("bound texture for game object\n");
+	  glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+	  glUniform1i(pass2Handles.texture, 1);
+	  SetMaterial(0);
+	}
+	else {
+	  glUniform1i(pass2Handles.hasTex, 0);
+	  SetMaterial(drawList[i]->material);
+	}
+	
+	// SetMaterial(drawList[i]->material);
+	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
+	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
+	SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+	pass2Handles.draw(drawList[i].get());
+	//drawList[i]->draw();
+      }
+    }
+      
+      // collide
     for (int i = 0; i < gameObjects->list.size(); i++) {
         gameObjects->list[i]->move(time);
         vector<shared_ptr<GameObject>> proximity =
@@ -586,7 +592,10 @@ void beginPass2Draw() {
     // glUniform1i(pass2Handles.texture, 1);
     
     
-    glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
+    //glUniform3f(pass2Handles.uLightPos, g_light.x, g_light.y, g_light.z);
+    //glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
+    glUniform1f(pass2Handles.uConeAngle, coneAngle);
+    glUniform1f(pass2Handles.uAttenuation, attenuation);
     glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
     glUniform1i(pass2Handles.hasTex, 0);
     
