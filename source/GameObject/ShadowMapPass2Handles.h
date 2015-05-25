@@ -7,7 +7,7 @@
 
 class Pass2Handles  : public Handles {
  public:
-  GLuint shadowMap, uDepthMVP, hasTex, texture, aTexCoord;
+  GLuint shadowMap, uDepthMVP, hasTex, texture, aTexCoord, uConeDirection, uConeAngle, uAttenuation;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(GameObject* obj);
   void draw(Shape* obj);
