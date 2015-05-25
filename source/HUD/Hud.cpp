@@ -31,10 +31,10 @@ Hud::Hud() {
 		      vec3(1, 0, 0), //direction
 		      0, //velocity
 		      6, //indices
-		      posBufObjG, 
-		      norBufObjG,
-          idxBufObjG,
-          texBufObjG,
+		      this->posBufObjG, 
+		      this->norBufObjG,
+          this->idxBufObjG,
+          this->texBufObjG,
 		      1 //material
 		      ));
   //this->dialogue->loadMipmapTexture(resPath(sysPath("textures", "concrete.bmp")));

@@ -462,20 +462,20 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       glUniform3f(pass2Handles.uLightPos, lights.at(l).x, lights.at(l).y, lights.at(l).z);
       glUniform3f(pass2Handles.uConeDirection, cone.x, cone.y, cone.z);
         
-	glUniform1i(pass2Handles.hasTex, 1);
+	    glUniform1i(pass2Handles.hasTex, 1);
         glBindTexture(GL_TEXTURE_2D, ground->texId);
         glUniform1i(pass2Handles.texture, 1);
         SetMaterial(0);
-      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
+        //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
+        SetDepthMVP(false, ground->position, ground->rotation, ground->scale, lights.at(l));
         SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
         pass2Handles.draw(ground);
         //ground->draw();
        
-	glUniform1i(pass2Handles.hasTex, 0);
+	    glUniform1i(pass2Handles.hasTex, 0);
         SetMaterial(ceiling->material);
-      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
+        //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
+        SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, lights.at(l));
         SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
         pass2Handles.draw(ceiling);
         //ceiling->draw();
@@ -483,27 +483,24 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         // draw
         vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
         for (int i = 0; i < drawList.size(); i++) {
-	  if (drawList[i]->mesh->hasTexture) {
-	    glUniform1i(pass2Handles.hasTex, 1);
-	    printf("bound texture for game object\n");
-	    glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-	    glUniform1i(pass2Handles.texture, 1);
-	    SetMaterial(0);
-	  }
-	  else {
-	    glUniform1i(pass2Handles.hasTex, 0);
-	    SetMaterial(drawList[i]->material);
-	  }
-   
-	  // SetMaterial(drawList[i]->material);
-	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
-            SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-            pass2Handles.draw(drawList[i].get());
-            //drawList[i]->draw();
+	        if (drawList[i]->mesh->hasTexture) {
+	          glUniform1i(pass2Handles.hasTex, 1);
+	          printf("bound texture for game object\n");
+	          glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+	          glUniform1i(pass2Handles.texture, 1);
+	          SetMaterial(0);
+	        }
+	        else {
+	          glUniform1i(pass2Handles.hasTex, 0);
+	          SetMaterial(drawList[i]->material);
+	        }
+	        SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, lights.at(l));
+                  SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+                  pass2Handles.draw(drawList[i].get());
+                  //drawList[i]->draw();
         }
     }
-    
+
     // collide
     for (int i = 0; i < gameObjects->list.size(); i++) {
         gameObjects->list[i]->move(time);
@@ -545,19 +542,21 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         gameObjects->update();
     }
 
-  //do 2d stuff
-  glDisable(GL_DEPTH_TEST);
-  mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
-  glUniform1i(pass2Handles.hasTex, 1);
-  glBindTextureEXT(GL_TEXTURE_2D, HUD->detection.get()->texId);
-  glUniform1i(pass2Handles.texture, 1);
-  //SetMaterial(0);
-  SetDepthMVP(false, HUD->detection.get()->position, HUD->detection.get()->rotation, HUD->detection.get()->scale, g_light);
-  SetModel(pass2Handles.uModelMatrix, HUD->detection.get()->position, 0.0f, HUD->detection.get()->scale);
-  glUniformMatrix4fv(pass2Handles.uModelMatrix, 1, GL_FALSE, glm::value_ptr(gui));
-  pass2Handles.draw(HUD->detection.get());
+    //do 2d stuff
+    //glDisable(GL_DEPTH_TEST);
 
-  glEnable(GL_DEPTH_TEST);
+    //mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
+    //glUniform1i(pass2Handles.hasTex, 1);
+    //glBindTextureEXT(GL_TEXTURE_2D, HUD->detection.get()->texId);
+    //glUniform1i(pass2Handles.texture, 1);
+    ///*SetMaterial(0);
+    //SetDepthMVP(false, vec3(0), HUD->detection.get()->rotation, HUD->detection.get()->scale, g_light);
+    //SetModel(pass2Handles.uModelMatrix, HUD->detection.get()->position, 0.0f, HUD->detection.get()->scale); */
+    //glUniformMatrix4fv(pass2Handles.uModelMatrix, 1, GL_FALSE, glm::value_ptr(gui));
+    //pass2Handles.draw(HUD->detection.get());
+
+    //glEnable(GL_DEPTH_TEST);
+
 }
 
 void beginPass1Draw() {
