@@ -133,7 +133,6 @@ Mesh rafterMesh;
 Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
-Shape *detection;
 bool debug = false;
 bool boxes = false;
 DebugDraw *debugDraw;
@@ -561,10 +560,18 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
 
   //do 2d stuff
-  //glDisable(GL_DEPTH_TEST);
-  //mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
+  glDisable(GL_DEPTH_TEST);
+  mat4 gui = mat4(1.0f) * glm::ortho(0.0f, (float)g_width, (float)g_height, 0.0f);
+  glUniform1i(pass2Handles.hasTex, 1);
+  glBindTextureEXT(GL_TEXTURE_2D, HUD->detection.get()->texId);
+  glUniform1i(pass2Handles.texture, 1);
+  //SetMaterial(0);
+  //SetDepthMVP(false, HUD->detection.get()->position, HUD->detection.get()->rotation, HUD->detection.get()->scale, g_light);
+  //SetModel(pass2Handles.uModelMatrix, HUD->detection.get()->position, 0.0f, HUD->detection.get()->scale);
+  glUniformMatrix4fv(pass2Handles.uModelMatrix, 1, GL_FALSE, glm::value_ptr(gui));
+  pass2Handles.draw(HUD->detection.get());
 
-  //glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 }
 
 void beginPass1Draw() {
@@ -951,35 +958,21 @@ void initCeiling() {
 
 void initHUD() {
   HUD = new Hud();
-  //HUD->detection = shared_ptr<Shape>(
-  //  	new Shape(
-  //  	      vec3(0), //position
-  //  	      0, //rotation
-  //  	      vec3(1, 1, 1), //scale
-  //  	      vec3(1, 0, 0), //direction
-  //  	      0, //velocity
-  //  	      6, //indices
-  //  	      posBufObjG, 
-  //  	      norBufObjG,
-  //          idxBufObjG,
-  //          texBufObjG,
-  //  	      1 //material
-  //  	      ));
-  detection = new Shape(
-      	      vec3(0), //position
-      	      0, //rotation
-      	      vec3(1, 1, 1), //scale
-      	      vec3(1, 0, 0), //direction
-      	      0, //velocity
-      	      6, //indices
-      	      posBufObjG, 
-      	      norBufObjG,
-              idxBufObjG,
-              texBufObjG,
-      	      1 //material
-      	      );
-  //HUD->detection->loadMipmapTexture(resPath(sysPath("textures", "HUDTest.bmp")));
-  detection->loadMipmapTexture(resPath(sysPath("textures", "HUDTest.bmp")));
+  HUD->detection = shared_ptr<Shape>(
+    	new Shape(
+    	      vec3(0), //position
+    	      0, //rotation
+    	      vec3(1, 1, 1), //scale
+    	      vec3(1, 0, 0), //direction
+    	      0, //velocity
+    	      6, //indices
+    	      posBufObjG, 
+    	      norBufObjG,
+            idxBufObjG,
+            texBufObjG,
+    	      1 //material
+    	      ));
+  HUD->detection.get()->loadMipmapTexture(resPath(sysPath("textures", "HUDTest.bmp")));
 }
 
 void initWalls(WorldGrid* gameObjects) {
