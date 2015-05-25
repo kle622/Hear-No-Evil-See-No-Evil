@@ -552,8 +552,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glBindTextureEXT(GL_TEXTURE_2D, HUD->detection.get()->texId);
   glUniform1i(pass2Handles.texture, 1);
   //SetMaterial(0);
-  //SetDepthMVP(false, HUD->detection.get()->position, HUD->detection.get()->rotation, HUD->detection.get()->scale, g_light);
-  //SetModel(pass2Handles.uModelMatrix, HUD->detection.get()->position, 0.0f, HUD->detection.get()->scale);
+  SetDepthMVP(false, HUD->detection.get()->position, HUD->detection.get()->rotation, HUD->detection.get()->scale, g_light);
+  SetModel(pass2Handles.uModelMatrix, HUD->detection.get()->position, 0.0f, HUD->detection.get()->scale);
   glUniformMatrix4fv(pass2Handles.uModelMatrix, 1, GL_FALSE, glm::value_ptr(gui));
   pass2Handles.draw(HUD->detection.get());
 
@@ -935,21 +935,7 @@ void initCeiling() {
 
 void initHUD() {
   HUD = new Hud();
-  HUD->detection = shared_ptr<Shape>(
-    	new Shape(
-    	      vec3(0), //position
-    	      0, //rotation
-    	      vec3(1, 1, 1), //scale
-    	      vec3(1, 0, 0), //direction
-    	      0, //velocity
-    	      6, //indices
-    	      posBufObjG, 
-    	      norBufObjG,
-            idxBufObjG,
-            texBufObjG,
-    	      1 //material
-    	      ));
-  HUD->detection.get()->loadMipmapTexture(resPath(sysPath("textures", "HUDTest.bmp")));
+  HUD->detection.get()->loadTexture(resPath(sysPath("textures", "HUDTest.bmp")));
 }
 
 void initWalls(WorldGrid* gameObjects) {
@@ -1147,6 +1133,7 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
+    initHUD();
     
     //initialize the camera
     camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,

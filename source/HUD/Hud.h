@@ -10,26 +10,6 @@
 #include <memory>
 
 using namespace glm;
-
-//GLfloat detectionBarVertices[] = {
-//    -1.0f, 0.0f, -1.0f,
-//    -1.0f, 0.0f, -0.5f,
-//    1.0f, 0.0f, -1.0f,
-//
-//    -1.0f, 0.0f, -0.5f,
-//    1.0f, 0.0f, -1.0f,
-//    1.0f, 0.0f, -0.5f,
-//};
-//
-//GLfloat normals[] = {
-//    0.0f, 1.0f, 0.0f,
-//    0.0f, 1.0f, 0.0f,
-//    0.0f, 1.0f, 0.0f,
-//    0.0f, 1.0f, 0.0f,
-//    0.0f, 1.0f, 0.0f,
-//    0.0f, 1.0f, 0.0f,
-//};
-
 using namespace std;
 
 class Hud {

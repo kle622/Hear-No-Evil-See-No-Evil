@@ -1,24 +1,43 @@
 #include "Hud.h"
 
+GLfloat detectionBarVertices[] = {
+    -1.0f, 0.0f, -1.0f,
+    -1.0f, 0.0f, -0.5f,
+    1.0f, 0.0f, -1.0f,
+
+    -1.0f, 0.0f, -0.5f,
+    1.0f, 0.0f, -1.0f,
+    1.0f, 0.0f, -0.5f,
+};
+
+GLfloat normals[] = {
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+};
+
 Hud::Hud() {
-  //initVertexObject(&dialogueBuf, &norBuf, &idxBufObjG, &texBufObjG, detectionBarVertices, normals, 6);
 
-	//this->dialogue = shared_ptr<Shape>(
-	//	new Shape(
-	//	      vec3(0), //position
-	//	      0, //rotation
-	//	      vec3(1, 1, 1), //scale
-	//	      vec3(1, 0, 0), //direction
-	//	      0, //velocity
-	//	      6, //indices
-	//	      posBufObjG, 
-	//	      norBufObjG,
- //         idxBufObjG,
- //         texBufObjG,
-	//	      1 //material
-	//	      ));
+  initVertexObject(&this->dialogueBuf, &this->norBuf, &this->idxBufObjG, &this->texBufObjG, detectionBarVertices, normals, 6);
+
+	this->detection = shared_ptr<Shape>(
+		new Shape(
+		      vec3(0), //position
+		      0, //rotation
+		      vec3(1, 1, 1), //scale
+		      vec3(1, 0, 0), //direction
+		      0, //velocity
+		      6, //indices
+		      posBufObjG, 
+		      norBufObjG,
+          idxBufObjG,
+          texBufObjG,
+		      1 //material
+		      ));
   //this->dialogue->loadMipmapTexture(resPath(sysPath("textures", "concrete.bmp")));
-
 }
 
 void Hud::updateStaminaHud(float stamina){
