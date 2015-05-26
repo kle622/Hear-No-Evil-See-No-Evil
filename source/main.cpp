@@ -1039,7 +1039,7 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     
     // Open a window and create its OpenGL context
-    g_width = 1080;
+    g_width = 1280;
     g_height = 720;
     window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
     if (window == NULL) {
@@ -1152,9 +1152,8 @@ int main(int argc, char **argv)
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
 
-        static float f = 0.0f;
         ImGui::Begin("abc");
-        ImGui::SetWindowPos(ImVec2(200, 1000));
+        ImGui::SetWindowPos(ImVec2(200, 500));
         ImGui::SetWindowSize(ImVec2(500, 300));
         ImGui::SetWindowFontScale(3.0);
         ImGui::Text("a\nb\nc");
