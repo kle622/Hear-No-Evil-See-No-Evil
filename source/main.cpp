@@ -40,6 +40,9 @@
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
 
+#include "HUD/imgui.h"
+#include "HUD/imgui_impl_glfw.h"
+
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
 
@@ -1136,6 +1139,8 @@ int main(int argc, char **argv)
     
     //  printf("shadow map id: %d\n", shadowMap);
     //printf("player tex id: %d\n", playerMesh.texId);
+
+    ImVec4 clear_color = ImColor(114, 144, 154);
     
     do{
         //timer stuff
@@ -1143,6 +1148,11 @@ int main(int argc, char **argv)
         deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
+
+        ImGui::NewFrame();
+        ImGui::Begin("Testing");
+        ImGui::Text("Hello");
+        ImGui::End();
         
         camera3DPerson->update();
         beginPass1Draw();
@@ -1182,7 +1192,7 @@ int main(int argc, char **argv)
 #endif
             debugDraw->clear();
         }
-        
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
