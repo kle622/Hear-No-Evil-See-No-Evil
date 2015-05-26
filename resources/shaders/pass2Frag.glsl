@@ -113,18 +113,16 @@ void main() {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
 	   //diffuse = vec3(0.0, 1.0, 0.0);
 	   //gl_FragColor = texture2D(texture, texCoordOut);
-	   gl_FragColor = vec4((att * visibility * diffuse) + ambient, 1.0);
+	   color += ((att * visibility * diffuse) + ambient, 1.0);
 	   //gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	}
 	else {	
-	     	//color = vec3(1.0, 0.0, 0.0);
-	        //gl_FragColor = vec4(att * ((diffuse + specular)) + ambient, 1.0);
+	    /color = vec3(1.0, 0.0, 0.0);
+	    //gl_FragColor = vec4(att * ((diffuse + specular)) + ambient, 1.0);
 		color += (ambient + att * (diffuse + specular));
-	}
-     	 
-	   gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
-	}
+		//gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
+	} 
 
-      //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
       gl_FragColor = vec4(color, 1.0);
 }
