@@ -480,9 +480,9 @@ void SetLightUniform(Light light, int ndx) {
   ///Array of handles
   stream << "allLights[" << ndx << "]." << "position";
   checkGLError();
-  printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
+  //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
   pass2Handles.uAllLightsPosition[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
-  printf("handle allLights: %d\n", pass2Handles.uAllLights);
+  //printf("handle allLights: %d\n", pass2Handles.uAllLights);
   checkGLError();
   glUniform3f(pass2Handles.uAllLightsPosition[ndx], light.position.x, light.position.y, light.position.z);
   checkGLError();
@@ -582,7 +582,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       for (int i = 0; i < drawList.size(); i++) {
 	if (drawList[i]->mesh->hasTexture) {
 	  glUniform1i(pass2Handles.hasTex, 1);
-	  printf("bound texture for game object\n");
+	  //printf("bound texture for game object\n");
 	  glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
 	  glUniform1i(pass2Handles.texture, 1);
 	  SetMaterial(0);
@@ -865,12 +865,12 @@ void initObjects(WorldGrid* gameObjects) {
                     break;
 	    case 'L': {
                     //glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
-                    printf("case 'L'\n");
-                    printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
+                    //printf("case 'L'\n");
+                    //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
 		    Light spotLight;
 		    spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
-		    printf("i: %d, j: %d\n", i, j);
-		    printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
+		    //printf("i: %d, j: %d\n", i, j);
+		    //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
 		    spotLight.intensities = glm::vec3(1, 1, 1);
 		    spotLight.attenuation = 0.1f;
 		    spotLight.coneAngle = 50.0f;
@@ -1233,9 +1233,9 @@ int main(int argc, char **argv)
             }
         }
         if (debug || boxes) {
-#ifndef WIN32
+//#ifndef WIN32
             debugDraw->drawAll();
-#endif
+//#endif
             debugDraw->clear();
         }
         
