@@ -1038,7 +1038,7 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     
     // Open a window and create its OpenGL context
-    g_width = 1280;
+    g_width = 1080;
     g_height = 720;
     window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
     if (window == NULL) {
@@ -1139,17 +1139,8 @@ int main(int argc, char **argv)
     //  printf("shadow map id: %d\n", shadowMap);
     //printf("player tex id: %d\n", playerMesh.texId);
 
-    //GLFWmonitor *monitor;
-
-    //glfwGetVideoMode(monitor);
-
-    //(*monitor)
-
     //Get primary monitor information
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    //Center the program to the screen
-    //Window window("Game Engine", 800, 600);
-    //glfwSetWindowPos(window.getWindow(), windowPosX, windowPosY);
 
     ImGui_ImplGlfw_Init(window, false);
     ImVec4 clear_color = ImColor(114, 144, 154);
@@ -1164,9 +1155,9 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
 
         ImGui::Begin("abc");
-        ImGui::SetWindowPos(ImVec2(mode->width * 0.5, mode->height* 0.5));
-        ImGui::SetWindowSize(ImVec2(500, 300));
-        ImGui::SetWindowFontScale(3.0);
+        //ImGui::SetWindowPos(ImVec2(mode->width * 0.5, mode->height* 0.5));
+        //ImGui::SetWindowSize(ImVec2(500, 300));
+        //ImGui::SetWindowFontScale(3.0);
         ImGui::Text("a\nb\nc");
         ImGui::End();
 
