@@ -1153,10 +1153,11 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
 
         static float f = 0.0f;
-        ImGui::Begin("My window");
+        ImGui::Begin("abc");
         ImGui::SetWindowPos(ImVec2(200, 1000));
         ImGui::SetWindowSize(ImVec2(500, 300));
-        ImGui::Text("deltaTime: %f\n", timeCounter);
+        ImGui::SetWindowFontScale(3.0);
+        ImGui::Text("a\nb\nc");
         ImGui::End();
 
         camera3DPerson->update();

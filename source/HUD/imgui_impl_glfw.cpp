@@ -42,7 +42,7 @@ static void ImGui_ImplGlfw_RenderDrawLists(ImDrawList** const cmd_lists, int cmd
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
+    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
 
     // Setup orthographic projection matrix
     const float width = ImGui::GetIO().DisplaySize.x;
@@ -179,7 +179,7 @@ bool    ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks)
     g_Window = window;
 
     ImGuiIO& io = ImGui::GetIO();
-    ImGui::PushFont(io.Fonts->AddFontFromFileTTF("arialuni.ttf", 13.0f));
+    //ImGui::PushFont(io.Fonts->AddFontFromFileTTF("arialuni.ttf", 13.0f));
 
     io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
     io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
