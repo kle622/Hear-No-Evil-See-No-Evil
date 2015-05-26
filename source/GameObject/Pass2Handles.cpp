@@ -63,9 +63,12 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   texture = GLSL::getUniformLocation(this->prog, "texture");
   hasTex = GLSL::getUniformLocation(this->prog, "hasTex");
   aTexCoord = GLSL::getAttribLocation(this->prog, "texCoordIn");
-  uConeDirection = GLSL::getUniformLocation(this->prog, "coneDirection");
-  uConeAngle = GLSL::getUniformLocation(this->prog, "coneAngle");
-  uAttenuation = GLSL::getUniformLocation(this->prog, "attenuation");
+  uNumLights = GLSL::getUniformLocation(this->prog, "numLights");
+  //uConeDirection = GLSL::getUniformLocation(this->prog, "coneDirection");
+  //uConeAngle = GLSL::getUniformLocation(this->prog, "coneAngle");
+  //uAttenuation = GLSL::getUniformLocation(this->prog, "attenuation");
+
+  return true;
 }
 
 
