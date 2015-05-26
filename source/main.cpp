@@ -900,7 +900,7 @@ void initPlayer(WorldGrid* gameObjects) {
     
     gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
-#define GUARD_Y_SHIFT 0.5
+#define GUARD_Y_SHIFT 0.8f
 void initGuards(WorldGrid* gameObjects) {
     vector<PathNode> guardPath;
     FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
