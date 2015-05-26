@@ -481,34 +481,22 @@ void SetLightUniform(Light light, int ndx) {
   stream << "allLights[" << ndx << "]." << "position";
   checkGLError();
   printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
-  pass2Handles.uAllLights = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
+  pass2Handles.uAllLightsPosition[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
   printf("handle allLights: %d\n", pass2Handles.uAllLights);
   checkGLError();
-  glUniform3f(pass2Handles.uAllLights, light.position.x, light.position.y, light.position.z);
-  checkGLError();
-  stream.str("");
-  stream.clear();
-  stream << "allLights[" << ndx << "]." << "intensities";
-  pass2Handles.uAllLights = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
-  glUniform3f(pass2Handles.uAllLights, light.intensities.x, light.intensities.y, light.intensities.z);
-  checkGLError();
-  stream.str("");
-  stream.clear();
-  stream << "allLights[" << ndx << "]." << "attenuation";
-  pass2Handles.uAllLights = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
-  glUniform1f(pass2Handles.uAllLights, light.attenuation);
+  glUniform3f(pass2Handles.uAllLightsPosition[ndx], light.position.x, light.position.y, light.position.z);
   checkGLError();
   stream.str("");
   stream.clear();
   stream << "allLights[" << ndx << "]." << "coneAngle";
-  pass2Handles.uAllLights = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
-  glUniform1f(pass2Handles.uAllLights, light.coneAngle);
+  pass2Handles.uAllLightsConeAngle[ndx] = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
+  glUniform1f(pass2Handles.uAllLightsConeAngle[ndx], light.coneAngle);
   checkGLError();
   stream.str("");
   stream.clear();
   stream << "allLights[" << ndx << "]." << "coneDirection";
-  pass2Handles.uAllLights = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
-  glUniform3f(pass2Handles.uAllLights, light.coneDirection.x, light.coneDirection.y, light.coneDirection.z);
+  pass2Handles.uAllLightsConeDirection[ndx] = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
+  glUniform3f(pass2Handles.uAllLightsConeDirection[ndx], light.coneDirection.x, light.coneDirection.y, light.coneDirection.z);
   checkGLError();
 }
 
@@ -531,32 +519,13 @@ void beginPass2Draw() {
     glActiveTexture(GL_TEXTURE1);
     //glBindTexture(GL_TEXTURE_2D, playerMesh.texId);
     // glUniform1i(pass2Handles.texture, 1);
-    
        
-    /*glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
-    glUniform3f(pass2Handles.uConeDirection, gLights.at(0).coneDirection.x, gLights.at(0).coneDirection.y, gLights.at(0).coneDirection.z);
-    glUniform1f(pass2Handles.uAttenuation, gLights.at(0).attenuation);
-    glUniform1f(pass2Handles.uConeAngle, gLights.at(0).coneAngle);
-
-    pass2Handles.uLightPos = GLSL::getUniformLocation(pass2Handles.prog, "uLightPos2");
-    pass2Handles.uConeDirection = GLSL::getUniformLocation(pass2Handles.prog, "uConeDirection2");
-    pass2Handles.uConeAngle = GLSL::getUniformLocation(pass2Handles.prog, "uConeAngle2");
-    pass2Handles.uAttenuation = GLSL::getUniformLocation(pass2Handles.prog, "uAttenuation2");
-    
-    
-    glUniform3f(pass2Handles.uLightPos, gLights.at(1).position.x, gLights.at(1).position.y, gLights.at(1).position.z);
-    glUniform3f(pass2Handles.uConeDirection, gLights.at(1).coneDirection.x, gLights.at(1).coneDirection.y, gLights.at(1).coneDirection.z);
-    glUniform1f(pass2Handles.uAttenuation, gLights.at(1).attenuation);
-    glUniform1f(pass2Handles.uConeAngle, gLights.at(1).coneAngle);
-*/
     glUniform1i(pass2Handles.uNumLights, (int)gLights.size());
     for (int i = 0; i < gLights.size(); i++) {
       SetLightUniform(gLights[i], i);
     }
 
     checkGLError();
-    //glUniform1f(pass2Handles.uConeAngle, coneAngle);
-    //glUniform1f(pass2Handles.uAttenuation, attenuation);
     glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
     glUniform1i(pass2Handles.hasTex, 0);
     
@@ -954,9 +923,9 @@ void initGuards(WorldGrid* gameObjects) {
             
             Guard* guardObject = new Guard(
                                            &guardMesh,
-                                           vec3(1, 1, 1),
+                                           vec3(2.5, 2.5, 2.5),
                                            GUARD_SPEED,
-                                           vec3(1.0, 2.0, 1.0),
+                                           vec3(2.5, 2.5, 2.5),
                                            1,
                                            0,
                                            guardPath
@@ -1166,7 +1135,7 @@ int main(int argc, char **argv)
     playerMesh.loadTexture(resPath(sysPath("textures", "player_texture.bmp")));
     printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
-    cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
+    cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
     cubeMesh.hasTexture = true;
     tableMesh.hasTexture = true;
     tableMesh.loadTexture(resPath(sysPath("textures", "desk.bmp")));
@@ -1176,7 +1145,7 @@ int main(int argc, char **argv)
     boxStackMesh.hasTexture = true;
     boxStackMesh.loadTexture(resPath(sysPath("textures", "crate.bmp")));
     guardMesh.hasTexture = true;
-    guardMesh.loadTexture(resPath(sysPath("textures", "guard.bmp")));
+    guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), 1024);
     printf("shadow map id: %d\n", shadowMap);
     printf("player tex id: %d\n", playerMesh.texId);
     
