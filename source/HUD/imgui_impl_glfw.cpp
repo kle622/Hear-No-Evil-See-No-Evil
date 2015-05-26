@@ -3,6 +3,7 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
+#include <stdio.h>
 
 // GLFW
 #include <GLFW/glfw3.h>
@@ -41,7 +42,7 @@ static void ImGui_ImplGlfw_RenderDrawLists(ImDrawList** const cmd_lists, int cmd
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
+    glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
 
     // Setup orthographic projection matrix
     const float width = ImGui::GetIO().DisplaySize.x;
@@ -178,6 +179,8 @@ bool    ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks)
     g_Window = window;
 
     ImGuiIO& io = ImGui::GetIO();
+    ImGui::PushFont(io.Fonts->AddFontFromFileTTF("arialuni.ttf", 13.0f));
+
     io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
     io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
     io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
@@ -234,37 +237,8 @@ void ImGui_ImplGlfw_NewFrame()
     glfwGetFramebufferSize(g_Window, &display_w, &display_h);
     io.DisplaySize = ImVec2((float)display_w, (float)display_h);
 
-    // Setup time step
-    double current_time =  glfwGetTime();
-    io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
-    g_Time = current_time;
-
-    // Setup inputs
-    // (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-    if (glfwGetWindowAttrib(g_Window, GLFW_FOCUSED))
-    {
-    	double mouse_x, mouse_y;
-    	glfwGetCursorPos(g_Window, &mouse_x, &mouse_y);
-    	mouse_x *= (float)display_w / w;                        // Convert mouse coordinates to pixels
-    	mouse_y *= (float)display_h / h;
-    	io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
-    }
-    else
-    {
-    	io.MousePos = ImVec2(-1,-1);
-    }
-   
-    for (int i = 0; i < 3; i++)
-    {
-        io.MouseDown[i] = g_MousePressed[i] || glfwGetMouseButton(g_Window, i) != 0;    // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-        g_MousePressed[i] = false;
-    }
-
-    io.MouseWheel = g_MouseWheel;
-    g_MouseWheel = 0.0f;
-
     // Hide OS mouse cursor if ImGui is drawing it
-    glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
+    //glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 
     // Start the frame
     ImGui::NewFrame();
