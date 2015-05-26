@@ -39,13 +39,13 @@ void Mesh::loadTexture(const std::string &filename) {
   printf("after glTexParameter calls\n");
 }*/
 
-void Mesh::loadMipmapTexture(const std::string &filename) {
+void Mesh::loadMipmapTexture(const std::string &filename, int size) {
     bmp = imageLoad(filename.c_str());
     //printf("loaded file in mip map texture function\n");
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_2D, texId);
     //printf("before gltexImage2D call\n");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, MIPMAP_SIZE, MIPMAP_SIZE, 0, GL_BGR, GL_UNSIGNED_BYTE, bmp);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
     // printf("after gltexImage2D call\n");
     //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
     glGenerateMipmap(GL_TEXTURE_2D);

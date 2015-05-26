@@ -1,5 +1,5 @@
 #define MAX_LIGHTS 2
-
+uniform mat4 uModelMatrix;
 uniform vec3 UaColor;	// ambient
 uniform vec3 UdColor;	// diffuse
 uniform vec3 UsColor;	// specular
@@ -13,8 +13,6 @@ uniform int numLights;
 
 uniform struct Light {
    vec3 position;
-   vec3 intensities;
-   float attenuation;
    float coneAngle;
    vec3 coneDirection;
 } allLights[MAX_LIGHTS];
