@@ -1164,6 +1164,7 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
 
         ImGui::Begin("abc");
+        ImGui::SetWindowFontScale(3.5f);
         ImGui::Text("a\nb\nc");
         ImGui::End();
 
