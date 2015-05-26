@@ -35,6 +35,9 @@ bool Player::collide(GameObject* object) {
                 playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
                 printf("I WIN\n");
             }
+            else if (dynamic_cast<Wall*>(object)) {
+                playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+            }
             position = oldPosition; // TODO implement a better system
             return true;
         }

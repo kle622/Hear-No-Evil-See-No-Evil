@@ -524,7 +524,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
                 if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-                    soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
                 }
             }
         }
