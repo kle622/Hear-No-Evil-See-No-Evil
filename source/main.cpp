@@ -1155,9 +1155,6 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
 
         ImGui::Begin("abc");
-        //ImGui::SetWindowPos(ImVec2(mode->width * 0.5, mode->height* 0.5));
-        //ImGui::SetWindowSize(ImVec2(500, 300));
-        //ImGui::SetWindowFontScale(3.0);
         ImGui::Text("a\nb\nc");
         ImGui::End();
 
