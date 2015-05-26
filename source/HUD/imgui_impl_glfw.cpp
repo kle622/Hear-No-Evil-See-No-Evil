@@ -226,7 +226,7 @@ void ImGui_ImplGlfw_NewFrame()
         ImGui_ImplGlfw_CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("Karla-Regular.ttf", 13.0);
+    //io.Fonts->AddFontFromFileTTF("Karla-Regular.ttf", 13.0);
     // Setup display size (every frame to accommodate for window resizing)
     int w, h;
     int display_w, display_h;
