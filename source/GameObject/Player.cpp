@@ -66,7 +66,7 @@ void Player::move(float time) {
         crouchStamina += 0.5f * time;
         crouchStamina = std::min(crouchStamina, MAX_CROUCH_STAMINA);
     }
-    printf("crouchStamina: %f\n", crouchStamina);
+    //printf("crouchStamina: %f\n", crouchStamina);
 }
 
 void Player::accelerate() {

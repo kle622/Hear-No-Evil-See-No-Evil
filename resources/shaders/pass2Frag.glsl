@@ -1,4 +1,4 @@
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 3
 uniform mat4 uModelMatrix;
 uniform vec3 UaColor;	// ambient
 uniform vec3 UdColor;	// diffuse
@@ -15,7 +15,7 @@ uniform vec3 allLights[MAX_LIGHTS];
 
 varying vec3 vNormal;
 varying vec3 vCol;
-varying vec3 vLight[MAX_LIGHTS];
+varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
@@ -28,23 +28,23 @@ void main() {
      vec3 ambient = UaColor * 0.2;
      
    for (int i = 0; i < numLights; i++) {
-
      vec3 lightPos = allLights[i];
-     vec3 surfacePos = vLight[i];
+     vec3 surfacePos = vPos;
+     vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
-     vec3 spotDir = normalize(-coneDirection);
+     vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      
-     if (lightToSurfaceAngle < coneAngle) {
+     if (lightToSurfaceAngle > coneAngle) {
      	att = 0.2;
      }
 	   vec3 diffuse = UdColor * dot(vNormal, surfaceToLight);
 	   diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
 	   diffuse.y = diffuse.y < 0.0 ? 0.0: diffuse.y;
 	   diffuse.z = diffuse.z < 0.0 ? 0.0: diffuse.z;
-	   float temp = dot(vNormal, normalize(normalize(uCamPos - surfacePos) + surfaceToLight));
+	   float temp = dot(surfaceToCamera, reflect(-surfaceToLight, vNormal));
 	   temp = temp < 0.0 ? 0.0: temp;
 	   vec3 specular = UsColor * pow(temp, Ushine); // n=1
 

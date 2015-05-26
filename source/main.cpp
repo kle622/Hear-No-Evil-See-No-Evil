@@ -114,7 +114,7 @@ MySound *soundObj;
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
 glm::vec3 coneDir(0.0, 15.0, 0.0);
-float coneAngle = 75;
+float coneAngle = 50;
 float attenuation = 0.1f;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -467,7 +467,7 @@ void drawPass1(WorldGrid* gameObjects) {
         for (int i = 0; i < drawList.size(); i++) {
 	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
 	  SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-            pass1Handles.draw(drawList[i].get());
+	  pass1Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
 	// }
@@ -554,7 +554,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       for (int i = 0; i < drawList.size(); i++) {
 	if (drawList[i]->mesh->hasTexture) {
 	  glUniform1i(pass2Handles.hasTex, 1);
-	  printf("bound texture for game object\n");
+	  //printf("bound texture for game object\n");
 	  glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
 	  glUniform1i(pass2Handles.texture, 1);
 	  SetMaterial(0);
@@ -837,12 +837,12 @@ void initObjects(WorldGrid* gameObjects) {
                     break;
 	    case 'L': {
                     //glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
-                    printf("case 'L'\n");
-                    printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
+                    //printf("case 'L'\n");
+                    //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
 		    Light spotLight;
 		    spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
-		    printf("i: %d, j: %d\n", i, j);
-		    printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
+		    //printf("i: %d, j: %d\n", i, j);
+		    //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
 		    spotLight.intensities = glm::vec3(1, 1, 1);
 		    spotLight.attenuation = 0.1f;
 		    spotLight.coneAngle = 50.0f;
@@ -872,7 +872,7 @@ void initPlayer(WorldGrid* gameObjects) {
     
     gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
-
+#define GUARD_Y_SHIFT 0.8f
 void initGuards(WorldGrid* gameObjects) {
     vector<PathNode> guardPath;
     FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
@@ -889,6 +889,7 @@ void initGuards(WorldGrid* gameObjects) {
             
             for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
                 fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
+				y += GUARD_Y_SHIFT;
                 printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
                 guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
             }
