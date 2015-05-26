@@ -1,6 +1,6 @@
 #ifndef __PASS2__HANDLES__
 #define __PASS2__HANDLES__
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 3
 #include "GameObject.h"
 #include "Shape.h"
 #include "Player.h"
@@ -9,7 +9,7 @@ class Pass2Handles  : public Handles {
  public:
   GLuint shadowMap, uDepthMVP, hasTex, texture, aTexCoord, uNumLights, uAllLightsPosition[MAX_LIGHTS], 
     uAllLightsAttenuation[MAX_LIGHTS], uAllLightsConeDirection[MAX_LIGHTS],
-    uAllLightsConeAngle[MAX_LIGHTS], uConeDirection, uConeAngle, uAttenuation, uAllLights;
+    uAllLightsConeAngle[MAX_LIGHTS], uConeDirection, uConeAngle, uAttenuation, uAllLights[MAX_LIGHTS];
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(GameObject* obj);
   void draw(Shape* obj);

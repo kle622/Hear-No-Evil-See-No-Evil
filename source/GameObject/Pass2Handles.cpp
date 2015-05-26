@@ -53,7 +53,7 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   uProjMatrix = GLSL::getUniformLocation(this->prog, "uProjMatrix");
   uViewMatrix = GLSL::getUniformLocation(this->prog, "uViewMatrix");
   uModelMatrix = GLSL::getUniformLocation(this->prog, "uModelMatrix");
-  uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
+  //uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
   uCamPos = GLSL::getUniformLocation(this->prog, "uCamPos");
   uMatAmb = GLSL::getUniformLocation(this->prog, "UaColor");
   uMatDif = GLSL::getUniformLocation(this->prog, "UdColor");
@@ -64,8 +64,8 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   hasTex = GLSL::getUniformLocation(this->prog, "hasTex");
   aTexCoord = GLSL::getAttribLocation(this->prog, "texCoordIn");
   uNumLights = GLSL::getUniformLocation(this->prog, "numLights");
-  //uConeDirection = GLSL::getUniformLocation(this->prog, "coneDirection");
-  //uConeAngle = GLSL::getUniformLocation(this->prog, "coneAngle");
+  uConeDirection = GLSL::getUniformLocation(this->prog, "coneDirection");
+  uConeAngle = GLSL::getUniformLocation(this->prog, "coneAngle");
   //uAttenuation = GLSL::getUniformLocation(this->prog, "attenuation");
 
   return true;

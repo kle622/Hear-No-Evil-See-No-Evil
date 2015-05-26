@@ -8,19 +8,14 @@ uniform vec3 uCamPos;
 uniform sampler2D shadowMap;
 uniform sampler2D texture;
 uniform int hasTex;
-uniform vec3 uLightPos;
 uniform int numLights;
-
-uniform struct Light {
-   vec3 position;
-   float coneAngle;
-   vec3 coneDirection;
-} allLights[MAX_LIGHTS];
+uniform float coneAngle;
+uniform vec3 coneDirection;
+uniform vec3 allLights[MAX_LIGHTS];
 
 varying vec3 vNormal;
-varying vec3 vPos;
 varying vec3 vCol;
-varying vec3 vLight;
+varying vec3 vLight[MAX_LIGHTS];
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
@@ -28,28 +23,28 @@ varying vec2 texCoordOut;
 void main() {
      
      vec3 color = vec3(0.0, 0.0, 0.0);
-     //vec3 light = vec3(100.0, 150.0, -10.0);
      float visibility = 1.0;
-     float bias = 0.005 * tan(acos(dot(vNormal, vLight)));
-     bias = clamp(bias, 0.0, 0.01);
      float att = 1.0;
      vec3 ambient = UaColor * 0.2;
      
    for (int i = 0; i < numLights; i++) {
 
-     Light light = allLights[i];
-     vec3 surfaceToLight = normalize(light.position - vPos);     
-     vec3 spotDir = normalize(-light.coneDirection);
+     vec3 lightPos = allLights[i];
+     vec3 surfacePos = vLight[i];
+     vec3 surfaceToLight = normalize(lightPos - surfacePos);     
+     float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
+     bias = clamp(bias, 0.0, 0.01);
+     vec3 spotDir = normalize(-coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      
-     if (lightToSurfaceAngle > light.coneAngle) {
+     if (lightToSurfaceAngle < coneAngle) {
      	att = 0.2;
      }
-	   vec3 diffuse = UdColor * dot(vNormal, vLight);
+	   vec3 diffuse = UdColor * dot(vNormal, surfaceToLight);
 	   diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
 	   diffuse.y = diffuse.y < 0.0 ? 0.0: diffuse.y;
 	   diffuse.z = diffuse.z < 0.0 ? 0.0: diffuse.z;
-	   float temp = dot(vNormal, normalize(normalize(uCamPos - vec3(vPos)) + vLight));
+	   float temp = dot(vNormal, normalize(normalize(uCamPos - surfacePos) + surfaceToLight));
 	   temp = temp < 0.0 ? 0.0: temp;
 	   vec3 specular = UsColor * pow(temp, Ushine); // n=1
 

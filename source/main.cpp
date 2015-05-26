@@ -43,7 +43,7 @@
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 3
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -272,8 +272,8 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light
     safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
   
   //cerr << glGetError() << endl;
-  assert(glGetError() == GL_NO_ERROR);
-  
+  //  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
 }
 
 void initFramebuffer() {
@@ -478,32 +478,17 @@ void drawPass1(WorldGrid* gameObjects) {
 void SetLightUniform(Light light, int ndx) {
   ostringstream stream;
   ///Array of handles
-  stream << "allLights[" << ndx << "]." << "position";
+  stream << "allLights[" << ndx << "]";
   checkGLError();
   printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
-  pass2Handles.uAllLightsPosition[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
-  printf("handle allLights: %d\n", pass2Handles.uAllLights);
-  checkGLError();
-  glUniform3f(pass2Handles.uAllLightsPosition[ndx], light.position.x, light.position.y, light.position.z);
-  checkGLError();
-  stream.str("");
-  stream.clear();
-  stream << "allLights[" << ndx << "]." << "coneAngle";
-  pass2Handles.uAllLightsConeAngle[ndx] = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
-  glUniform1f(pass2Handles.uAllLightsConeAngle[ndx], light.coneAngle);
-  checkGLError();
-  stream.str("");
-  stream.clear();
-  stream << "allLights[" << ndx << "]." << "coneDirection";
-  pass2Handles.uAllLightsConeDirection[ndx] = GLSL::getUniformLocation(pass2Handles.prog,stream.str().c_str());
-  glUniform3f(pass2Handles.uAllLightsConeDirection[ndx], light.coneDirection.x, light.coneDirection.y, light.coneDirection.z);
+  pass2Handles.uAllLights[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
+  printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
   checkGLError();
 }
 
 void beginPass2Draw() {
     //Second Pass
     glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-    //glViewport(0, 0, g_width, g_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glDrawBuffer(GL_BACK);
@@ -517,8 +502,6 @@ void beginPass2Draw() {
     glBindTexture(GL_TEXTURE_2D, shadowMap);
     glUniform1i(pass2Handles.shadowMap, 0);
     glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, playerMesh.texId);
-    // glUniform1i(pass2Handles.texture, 1);
        
     glUniform1i(pass2Handles.uNumLights, (int)gLights.size());
     for (int i = 0; i < gLights.size(); i++) {
@@ -526,10 +509,11 @@ void beginPass2Draw() {
     }
 
     checkGLError();
+    glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
+    glUniform1f(pass2Handles.uConeAngle, coneAngle);
     glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
     glUniform1i(pass2Handles.hasTex, 0);
     
-    //SetDepthMVP(false);
     if (debug) {
         safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
         safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
@@ -547,24 +531,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
 
     for (int l = 0; l < gLights.size(); l++) {
-      glUniform3f(pass2Handles.uLightPos, gLights.at(l).position.x, gLights.at(l).position.y, gLights.at(l).position.z);
-     /*glBindTexture(GL_TEXTURE_2D, shadowMap[l]);
-     ostringstream stream;
-     stream << "shadowMap[" << l << "]";
-     string s = stream.str();
-     pass2Handles.shadowMap = GLSL::getUniformLocation(pass2Handles.prog, s.c_str());
-     glUniform1i(pass2Handles.shadowMap, 0);*/
-     
-    //glm::vec3 cone = glm::vec3(0.0, lights.at(l).y, 0.0);
-      //glUniform3f(pass2Handles.uLightPos, gLights.at(l).position.x, gLights.at(l).position.y, gLights.at(l).position.z);
-      //glUniform3f(pass2Handles.uConeDirection, cone.x, cone.y, cone.z);
-
       glUniform1i(pass2Handles.hasTex, 1);
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);
       SetMaterial(0);
       //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(0));
+      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(l));
       SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
       pass2Handles.draw(ground);
       //ground->draw();
@@ -572,7 +544,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       glUniform1i(pass2Handles.hasTex, 0);
       SetMaterial(ceiling->material);
       // SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(0));
+      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(l));
       SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
       pass2Handles.draw(ceiling);
       //ceiling->draw();
@@ -594,7 +566,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	
 	// SetMaterial(drawList[i]->material);
 	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
+	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(l));
 	SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
 	pass2Handles.draw(drawList[i].get());
 	//drawList[i]->draw();
