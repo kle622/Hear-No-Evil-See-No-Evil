@@ -524,7 +524,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
                 if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-                    soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
                 }
             }
         }
@@ -1164,7 +1163,6 @@ int main(int argc, char **argv)
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
 
-        static float f = 0.0f;
         ImGui::Begin("abc");
         ImGui::SetWindowPos(ImVec2(mode->width * 0.5, mode->height* 0.5));
         ImGui::SetWindowSize(ImVec2(500, 300));
