@@ -931,7 +931,7 @@ void initPlayer(WorldGrid* gameObjects) {
     
     gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
-
+#define GUARD_Y_SHIFT 0.5
 void initGuards(WorldGrid* gameObjects) {
     vector<PathNode> guardPath;
     FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
@@ -948,6 +948,7 @@ void initGuards(WorldGrid* gameObjects) {
             
             for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
                 fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
+				y += GUARD_Y_SHIFT;
                 printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
                 guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
             }
