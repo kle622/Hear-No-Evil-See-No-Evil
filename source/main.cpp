@@ -1140,20 +1140,22 @@ int main(int argc, char **argv)
     //  printf("shadow map id: %d\n", shadowMap);
     //printf("player tex id: %d\n", playerMesh.texId);
 
+    ImGui_ImplGlfw_Init(window, false);
     ImVec4 clear_color = ImColor(114, 144, 154);
     
     do{
+        ImGui_ImplGlfw_NewFrame();
+
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
 
-        ImGui::NewFrame();
-        ImGui::Begin("Testing");
-        ImGui::Text("Hello");
+        ImGui::Begin("My window");
+        ImGui::Text("8=========================D");
         ImGui::End();
-        
+
         camera3DPerson->update();
         beginPass1Draw();
         drawPass1(&gameObjects);
@@ -1193,6 +1195,7 @@ int main(int argc, char **argv)
             debugDraw->clear();
         }
 
+        ImGui::Render();
         glfwSwapBuffers(window);
         glfwPollEvents();
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
