@@ -84,14 +84,27 @@ void main() {
 	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( 0.34495938, 0.29387760, 0.0) / 700.0).z  <  ShadowCoord.z-bias) {
            visibility -= 0.1;
     	}
-	
+
+	   ///////////// Cook stuff
+	   vec3 viewDir = normalize(uCamPos - vec3(vPos));
+
+	   /*float geometricAtten = min(1, (2 * dot(vNormal, halfDir) * (vNormal, viewDir))/dot(viewDir, halfDir), (2 * dot(vNormal, halfDir) * (vNormal, viewDir))/dot(viewDir, halfDir));
+	   float roughness = (1/(uMatRoughness * pow(dot(vNormal, halfDir), 4)) * exp( (pow(dot(vNormal, halfDir), 2) - 1) / (pow(uMatRoughness,2) * pow(dot(vNormal, halfDir), 2)) );
+	   float fresnel = uFresReflectance + pow(1-dot(halfDir, viewDir) , 5) * (1-uFresReflectance);
+	   float Rs = (fresnel * roughness * geometricAtten)/(dot(vNormal, viewDir) * dot(vNormal, vLight));*/
+
+	   float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness); 
+	   /////////////////////////
+
+
 	if (hasTex == 1) {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
 	   //diffuse = vec3(0.0, 1.0, 0.0);
 	   //gl_FragColor = texture2D(texture, texCoordOut);
 	   gl_FragColor = vec4((att * visibility * diffuse) + ambient, 1.0);
+	   //gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	}
 	else {	
-	        gl_FragColor = vec4(att * (visibility * (diffuse + specular)) + ambient, 1.0);
+	   gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	}
 }

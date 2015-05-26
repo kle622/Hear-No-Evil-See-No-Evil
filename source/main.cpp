@@ -1058,7 +1058,7 @@ void initWalls(WorldGrid* gameObjects) {
 
 void initDetectionTracker(WorldGrid* gameObjects) {
   gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
-    &cubeMesh,
+    &chairMesh,
     vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
     0,                //rotation
     vec3(0.2, 0, 0.2),    //scale
@@ -1066,7 +1066,7 @@ void initDetectionTracker(WorldGrid* gameObjects) {
     0,
     vec3(0, 0, 0),     //dimensions
     0,                 //scanRadius
-    0                  //material
+    3                 //material
     )));
 }
 
