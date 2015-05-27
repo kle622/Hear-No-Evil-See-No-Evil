@@ -1214,8 +1214,8 @@ int main(int argc, char **argv)
 #ifndef WIN32
             debugDraw->drawAll();
 #endif
-            debugDraw->clear();
         }
+        debugDraw->clear();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
