@@ -66,8 +66,10 @@
 #define BLUR
 
 #ifdef BLUR
+float kawaseKernel = 2.0f;
 GLuint blurBufferObj = 0;
 GLuint renderedTexture;
+GLuint depthrenderbuffer;
 GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 GLuint quad_VertexArrayID;
 static const GLfloat g_quad_vertex_buffer_data[] = {
@@ -78,6 +80,14 @@ static const GLfloat g_quad_vertex_buffer_data[] = {
     1.0f, -1.0f, 0.0f,
     1.0f,  1.0f, 0.0f,
 };
+/*static const GLfloat g_quad_vertex_buffer_data[] = {
+    -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    0.5f,  0.5f, 0.0f,
+};*/
 static const GLfloat g_quad_uv_buffer_data[] = {
     0.0f, 0.0f,
     1.0f, 0.0f,
@@ -86,6 +96,22 @@ static const GLfloat g_quad_uv_buffer_data[] = {
     1.0f, 0.0f,
     1.0f, 1.0f,
 };
+/*static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    0.5f, 0.0f,
+    0.0f, 0.5f,
+    0.0f, 0.5f,
+    0.5f, 0.0f,
+    0.5f, 0.5f,
+};*/
+/*static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    2.0f, 0.0f,
+    0.0f, 2.0f,
+    0.0f, 2.0f,
+    2.0f, 0.0f,
+    2.0f, 2.0f,
+};*/
 GLuint quad_vertexbuffer;
 GLuint quad_uvbuffer;
 #endif
@@ -125,7 +151,6 @@ Mesh rafterMesh;
 Mesh winMesh;
 Shape *ground;
 Shape *ceiling;
-Shape *textureScreen;
 bool debug = false;
 bool boxes = false;
 DebugDraw *debugDraw;
@@ -323,21 +348,16 @@ void initBlur()
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);  // segfaults on this line
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);
+
+  // The depth buffer
+  glGenRenderbuffers(1, &depthrenderbuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
   // Set the list of draw buffers.
   glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-  textureScreen = new Shape(
-      vec3(0), //position
-      0, //rotation
-      vec3(5, 1, 5), //scale
-      vec3(1, 0, 0), //direction
-      0, //velocity
-      6, //indices
-      posBufObjG, 
-      norBufObjG,
-      1 //material
-      );
 
   glGenVertexArrays(1, &quad_VertexArrayID);
   assert(quad_VertexArrayID > 0);
@@ -361,47 +381,44 @@ void initBlur()
 
 void drawBlur()
 {
-  //Second Pass                                                                                                     
+  glUseProgram(kawaseHandles.prog);
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   //glViewport(0, 0, g_width, g_height);
+  //glClear(GL_COLOR_BUFFER_BIT);
+  //glClear(GL_DEPTH_BUFFER_BIT);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);                                                                                        
+  //glEnable(GL_DEPTH_TEST);
   glDrawBuffer(GL_BACK);
   glCullFace(GL_BACK);
 
-  glUseProgram(kawaseHandles.prog);
-  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-  //glClear(GL_DEPTH_BUFFER_BIT);
-  //glDrawBuffer(GL_BACK);
-  //glCullFace(GL_BACK);
-  //glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-  //glDrawBuffer(GL_COLOR_ATTACHMENT0);
   glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, renderedTexture);
-  //glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+  checkGLError();
 
   // send appropriate values
-  glUniform1i(kawaseHandles.uBloomMap, renderedTexture);
-  glUniform1i(kawaseHandles.uKernelSize, 2);
+  glUniform1i(kawaseHandles.uBloomMap, 0);  // send the number of the active texture
+  glUniform1f(kawaseHandles.uKernelSize, kawaseKernel);
   glUniform2f(kawaseHandles.uWindowSize, g_width, g_height);
   safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
+  checkGLError();
 
   // draw shape
-  kawaseHandles.draw(textureScreen);
   GLSL::enableVertexAttribArray(kawaseHandles.aPosition);
   glBindVertexArray(quad_VertexArrayID);
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glVertexAttribPointer(kawaseHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  checkGLError();
 
   GLSL::enableVertexAttribArray(kawaseHandles.aUV);
+  checkGLError();
   glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
+  checkGLError();
   glVertexAttribPointer(kawaseHandles.aUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
   checkGLError();
-  checkGLError();
 
-  //glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 18);
-  glDrawArrays(GL_TRIANGLES, 0, 18);
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 3 * 6);
+  //glDrawArrays(GL_TRIANGLES, 0, 18);
 
   checkGLError();
 }
@@ -675,8 +692,9 @@ void beginPass2Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
-  glCullFace(GL_FRONT);
   glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+  //glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);
 
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
@@ -732,6 +750,34 @@ void window_size_callback(GLFWwindow* window, int w, int h){
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+#ifdef BLUR
+  if (action == GLFW_PRESS) {
+    if (key == GLFW_KEY_0) {
+      kawaseKernel = 0.0f;
+    }
+    else if (key == GLFW_KEY_1) {
+      kawaseKernel = 1.0f;
+    }
+    else if (key == GLFW_KEY_2) {
+      kawaseKernel = 2.0f;
+    }
+    else if (key == GLFW_KEY_3) {
+      kawaseKernel = 3.0f;
+    }
+    else if (key == GLFW_KEY_4) {
+      kawaseKernel = 4.0f;
+    }
+    else if (key == GLFW_KEY_5) {
+      kawaseKernel = 5.0f;
+    }
+    else if (key == GLFW_KEY_6) {
+      kawaseKernel = 6.0f;
+    }
+    else if (key == GLFW_KEY_7) {
+      kawaseKernel = 7.0f;
+    }
+  }
+#endif
   if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     debug = !debug;
   }
