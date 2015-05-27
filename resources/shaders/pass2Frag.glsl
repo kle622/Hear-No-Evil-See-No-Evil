@@ -66,6 +66,7 @@ void main() {
      float visibility = 1.0;
      float att = 1.0;
      vec3 ambient = UaColor * 0.2;
+	 float clrBleedVal = 0.3;
 
    for (int i = 0; i < numLights; i++) {
      vec3 lightPos = allLights[i];
@@ -108,37 +109,58 @@ void main() {
 	   ///////////// Cook stuff
 	   //vec3 viewDir = normalize(uCamPos - vec3(vPos));
 	   //float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness); 
+	   //gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
+
 	   /////////////////////////
 
+	
+    float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
+    float avgSpecular = (specular.r + specular.b + specular.g)/3.0;
 
 	if (hasTex == 1) {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
-	   //diffuse = vec3(0.0, 1.0, 0.0);
-	   //gl_FragColor = texture2D(texture, texCoordOut);
+	  /* float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
+	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
+					   (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
+					   (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
+
+	   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+					   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+					   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal))); */
 	   color += (ambient + att * (diffuse));
-	   //gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	}
 	else {	
-	    //color = vec3(1.0, 0.0, 0.0);
-	    //gl_FragColor = vec4(att * ((diffuse + specular)) + ambient, 1.0);
-		color += (ambient + att * (diffuse + specular));
-		//gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
+	   /*float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
+	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
+					   (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
+					   (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
+
+	   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+					   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+					   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
+
+	   specular = vec3((specular.r + ((avgSpecular - specular.r) * clrBleedVal)), 
+					   (specular.g + ((avgSpecular - specular.g) * clrBleedVal)), 
+					   (specular.b + ((avgSpecular - specular.b) * clrBleedVal)));*/
+					   
+	   color += (ambient + att * (diffuse + specular));
 	} 
 	}
 
-	  float avgColor = (color.r + color.b + color.g)/3.0;
-	  vec3 grayEx = vec3(0.0, 0.0, 0.0);
+	  //float avgColor = (color.r + color.b + color.g)/3.0;
+	  //vec3 grayEx = vec3(0.0, 0.0, 0.0);
 	  /*if(detectionLevel > 0) {
 	     grayEx.r = avgColor;
 		 grayEx.g = avgColor;
 		 grayEx.b = avgColor;
 	  }
-	  else {*/
-		 grayEx.r = (color.r + ((avgColor - color.r) * detectionLevel));
-		 grayEx.g = (color.g + ((avgColor - color.g) * detectionLevel));
-		 grayEx.b = (color.b + ((avgColor - color.b) * detectionLevel));
-	  //}
+	  else {	  
+	  grayEx.r = (color.r + ((avgColor - color.r) * .7));
+	  grayEx.g = (color.g + ((avgColor - color.g) * .7));
+	  grayEx.b = (color.b + ((avgColor - color.b) * .7));
+	  }
+	  */
 
 
-      gl_FragColor = vec4(grayEx, 1.0);
+      gl_FragColor = vec4(color, 1.0);
 }
