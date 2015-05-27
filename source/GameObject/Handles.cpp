@@ -66,6 +66,7 @@ bool Handles::installShaders(const std::string &vShaderName, const std::string &
   this->h_uTexUnit = GLSL::getUniformLocation(this->prog, "uTexUnit");
   this->uMatRoughness = GLSL::getUniformLocation(this->prog, "uRoughValue");
   this->uFresReflectance = GLSL::getUniformLocation(this->prog, "uFresReflectance");
+  this->uDetectionLevel = GLSL::getUniformLocation(this->prog, "detectionLevel");
 
   assert(glGetError() == GL_NO_ERROR);
   return true;

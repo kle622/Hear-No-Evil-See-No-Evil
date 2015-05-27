@@ -8,8 +8,8 @@ DetectionTracker::DetectionTracker() {
 }
 
 float clamp(float val) {
-  if (val < 0)
-    val = .01;
+  if (val > 1)
+    val = 1.0;
 
   return val;
 }
@@ -26,11 +26,11 @@ float clamp(float val) {
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   // Note detecDanger 
   if (detecDanger == true) {
-    this->totalDetLvl += 1*detecPercent*.001;
+    this->totalDetLvl += 1*detecPercent *.001;
     this->previousPlyrPos = player->position;
   }
   else if(this->totalDetLvl > 0) {
-    this->totalDetLvl -= .005;
+    //this->totalDetLvl -= .005;
     this->totalDetLvl = clamp(this->totalDetLvl);    
   }
 }
@@ -46,7 +46,7 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
 
   if (player->velocity <= 0.0 && this->totalDetLvl > 0) {
-    this->totalDetLvl -= .02;
+    //this->totalDetLvl -= .02;
     this->totalDetLvl = clamp(this->totalDetLvl);
   }
   else if (player->velocity > 0.0){

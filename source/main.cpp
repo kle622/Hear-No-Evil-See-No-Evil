@@ -455,7 +455,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
 }
 
-
 void beginPass1Draw() {
     glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
     //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -501,9 +500,9 @@ void SetLightUniform(Light light, int ndx) {
   ///Array of handles
   stream << "allLights[" << ndx << "]." << "position";
   checkGLError();
-  printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
+  //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
   pass2Handles.uAllLightsPosition[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
-  printf("handle allLights: %d\n", pass2Handles.uAllLights);
+  //printf("handle allLights: %d\n", pass2Handles.uAllLights);
   checkGLError();
   glUniform3f(pass2Handles.uAllLightsPosition[ndx], light.position.x, light.position.y, light.position.z);
   checkGLError();
@@ -576,7 +575,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
      pass2Handles.shadowMap = GLSL::getUniformLocation(pass2Handles.prog, s.c_str());
      glUniform1i(pass2Handles.shadowMap, 0);*/
       
-    //glm::vec3 cone = glm::vec3(0.0, lights.at(l).y, 0.0);
+      //glm::vec3 cone = glm::vec3(0.0, lights.at(l).y, 0.0);
       //glUniform3f(pass2Handles.uLightPos, gLights.at(l).position.x, gLights.at(l).position.y, gLights.at(l).position.z);
       //glUniform3f(pass2Handles.uConeDirection, cone.x, cone.y, cone.z);
 
@@ -601,24 +600,24 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       // draw
       vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
       for (int i = 0; i < drawList.size(); i++) {
-	if (drawList[i]->mesh->hasTexture) {
-	  glUniform1i(pass2Handles.hasTex, 1);
-	  printf("bound texture for game object\n");
-	  glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-	  glUniform1i(pass2Handles.texture, 1);
-	  SetMaterial(0);
-	}
-	else {
-	  glUniform1i(pass2Handles.hasTex, 0);
-	  SetMaterial(drawList[i]->material);
-	}
+	      if (drawList[i]->mesh->hasTexture) {
+	        glUniform1i(pass2Handles.hasTex, 1);
+	        //printf("bound texture for game object\n");
+	        glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
+	        glUniform1i(pass2Handles.texture, 1);
+	        SetMaterial(0);
+	      }
+	      else {
+	        glUniform1i(pass2Handles.hasTex, 0);
+	        SetMaterial(drawList[i]->material);
+	      }
 	
-	// SetMaterial(drawList[i]->material);
-	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-	SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-	pass2Handles.draw(drawList[i].get());
-	//drawList[i]->draw();
+	      // SetMaterial(drawList[i]->material);
+	      //SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
+	      SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
+	      SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+	      pass2Handles.draw(drawList[i].get());
+	      //drawList[i]->draw();
       }
     }
       
@@ -639,8 +638,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         
         if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-      detecTrack->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
+            detecTrack->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+            //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
                 if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
                     soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
@@ -651,33 +650,35 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         //guards
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
-      detecTrack->updateVisDetect(detectPercent, playerObject);
-      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
+            detecTrack->updateVisDetect(detectPercent, playerObject);
+            //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
             if (detectPercent > 0) {
-        detecTrack->detecDanger = true;
+                detecTrack->detecDanger = true;
                 soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
                 detectCounter += detectPercent;
-                cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
+                //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
                 if (detectCounter >= MAX_DETECT) {
                     // YOU lose
-                    cout << "You lose! Not sneaky enough!" << endl;
+                    //cout << "You lose! Not sneaky enough!" << endl;
                     soundObj->playSndExit(soundObj->loseSnd);
                 }
-      }
-    }
+            }
+        }
 
     // Dirty little visual rep of detection
-    if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
-      if (detecTrack->totalDetLvl < 3) {
-        gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
-            }
-      gameObjects->list[i].get()->position = 
-        vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
-      gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
-      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
-        }
+    //if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
+     // if (detecTrack->totalDetLvl < 3) {
+     //   gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
+     //       }
+     // gameObjects->list[i].get()->position = 
+     //   vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
+     // gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
+     // //
+     //}
+        printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
         gameObjects->update();
     }
+    glUniform1f(pass2Handles.uDetectionLevel, detecTrack->totalDetLvl);
 }
 
 
@@ -903,12 +904,12 @@ void initObjects(WorldGrid* gameObjects) {
                     break;
 	    case 'L': {
                     //glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
-                    printf("case 'L'\n");
-                    printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
+                    //printf("case 'L'\n");
+                    //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
 		    Light spotLight;
 		    spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
-		    printf("i: %d, j: %d\n", i, j);
-		    printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
+		    //printf("i: %d, j: %d\n", i, j);
+		  //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
 		    spotLight.intensities = glm::vec3(1, 1, 1);
 		    spotLight.attenuation = 0.1f;
 		    spotLight.coneAngle = 50.0f;
@@ -1100,7 +1101,7 @@ void initWalls(WorldGrid* gameObjects) {
                                                                      )));
                 }
                 testWallCount++;
-                printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+                //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
             }
         }
     }
@@ -1184,7 +1185,7 @@ int main(int argc, char **argv)
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
     playerMesh.hasTexture = true;
     playerMesh.loadTexture(resPath(sysPath("textures", "player_texture.bmp")));
-    printf("Loading cube mesh wall.bmp\n");
+    //printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
     cubeMesh.hasTexture = true;
@@ -1197,8 +1198,8 @@ int main(int argc, char **argv)
     boxStackMesh.loadTexture(resPath(sysPath("textures", "crate.bmp")));
     guardMesh.hasTexture = true;
     guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), 1024);
-    printf("shadow map id: %d\n", shadowMap);
-    printf("player tex id: %d\n", playerMesh.texId);
+    //printf("shadow map id: %d\n", shadowMap);
+    //printf("player tex id: %d\n", playerMesh.texId);
     
     
     srand(time(NULL));
@@ -1208,7 +1209,7 @@ int main(int argc, char **argv)
     //First item is always the player, followed by numGuards guards,
     //	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
-  detecTrack = new DetectionTracker();
+    detecTrack = new DetectionTracker();
     
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
@@ -1216,7 +1217,7 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
-  initDetectionTracker(&gameObjects);
+  //initDetectionTracker(&gameObjects);
     
     initFramebuffer();
    

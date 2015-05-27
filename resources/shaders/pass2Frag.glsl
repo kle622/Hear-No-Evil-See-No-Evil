@@ -21,6 +21,9 @@ uniform struct Light {
 uniform float uMatRoughness;
 uniform float uFresReflectance;
 
+// Amount to color drain
+uniform float detectionLevel;
+
 varying vec3 vNormal;
 varying vec3 vPos;
 varying vec3 vCol;
@@ -51,9 +54,19 @@ float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float 
   return min(1.0, _fresnel * geometric * roughness / (NdotV + 1.0e-7));
 }
 
+/*vec3 drainColor(vec3 color) {
+	  vec3 newColor = (0.0, 0.0, 0.0);
+      float avgColor = (color.r + color.b + color.g)/3.0;
+	  newColor.r = color.r + ((avgColor - color.r) * detectionLevel)/256.0;
+	  newColor.g = color.g + ((avgColor - color.g) * detectionLevel)/256.0;
+	  newColor.b = color.b + ((avgColor - color.b) * detectionLevel)/256.0;
+	  //red = red1 + ((red2 - red1) * stage / 256)
+
+	  return newColor;
+} */
+
 // CHECKPOINT!!!!!!!!!
-void main() {
-     
+void main() {   
      vec3 color = vec3(0.0, 0.0, 0.0);
      //vec3 light = vec3(100.0, 150.0, -10.0);
      float visibility = 1.0;
@@ -113,16 +126,22 @@ void main() {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
 	   //diffuse = vec3(0.0, 1.0, 0.0);
 	   //gl_FragColor = texture2D(texture, texCoordOut);
-	   color += ((att * visibility * diffuse) + ambient, 1.0);
+	   color += (ambient + att * (diffuse));
 	   //gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	}
 	else {	
-	    /color = vec3(1.0, 0.0, 0.0);
+	    //color = vec3(1.0, 0.0, 0.0);
 	    //gl_FragColor = vec4(att * ((diffuse + specular)) + ambient, 1.0);
 		color += (ambient + att * (diffuse + specular));
 		//gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	} 
+	}
+      //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	  //color = drainColor(color);
+	  float avgColor = (color.r + color.b + color.g)/3.0;
+	  color.r = (color.r + ((avgColor - color.r) * detectionLevel));
+	  color.g = (color.g + ((avgColor - color.g) * detectionLevel));
+	  color.b = (color.b + ((avgColor - color.b) * detectionLevel));
 
-      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
       gl_FragColor = vec4(color, 1.0);
 }
