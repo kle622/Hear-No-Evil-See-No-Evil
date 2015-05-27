@@ -12,6 +12,7 @@ uniform int numLights;
 uniform float coneAngle;
 uniform vec3 coneDirection;
 uniform vec3 allLights[MAX_LIGHTS];
+uniform vec3 uLightPos;
 
 varying vec3 vNormal;
 varying vec3 vCol;
@@ -24,10 +25,10 @@ void main() {
      
      vec3 color = vec3(0.0, 0.0, 0.0);
      float visibility = 1.0;
-     float att = 1.0;
      vec3 ambient = UaColor * 0.2;
      
    for (int i = 0; i < numLights; i++) {
+     float att = 1.0;
      vec3 lightPos = allLights[i];
      vec3 surfacePos = vPos;
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
@@ -83,5 +84,5 @@ void main() {
     }
 
       //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-      gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, 1.0);
 }

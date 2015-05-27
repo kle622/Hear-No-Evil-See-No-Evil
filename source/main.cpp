@@ -113,8 +113,8 @@ MySound *soundObj;
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
-glm::vec3 coneDir(0.0, 15.0, 0.0);
-float coneAngle = 50;
+glm::vec3 coneDir(0.0, -0.5, 0.0);
+float coneAngle = 20;
 float attenuation = 0.1f;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -484,6 +484,7 @@ void SetLightUniform(Light light, int ndx) {
   pass2Handles.uAllLights[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
   printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
   checkGLError();
+  glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
 }
 
 void beginPass2Draw() {
@@ -509,6 +510,7 @@ void beginPass2Draw() {
     }
 
     checkGLError();
+    //glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
     glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
     glUniform1f(pass2Handles.uConeAngle, coneAngle);
     glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
