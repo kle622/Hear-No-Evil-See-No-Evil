@@ -751,7 +751,7 @@ void window_size_callback(GLFWwindow* window, int w, int h){
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 #ifdef BLUR
-  if (action == GLFW_PRESS) {
+  if (action == GLFW_PRESS || action == GLFW_REPEAT) {
     if (key == GLFW_KEY_1) {
       kawaseKernel -= 1.0f;
     }
