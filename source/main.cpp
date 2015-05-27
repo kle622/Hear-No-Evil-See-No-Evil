@@ -31,6 +31,8 @@
 #include "GameObject/ShadowMapPass1Handles.h"
 #include "GameObject/ShadowMapPass2Handles.h"
 #include "Bloom/KawaseHandles.h"
+#include "Bloom/SimpleHandles.h"
+#include "Bloom/AlphaHandles.h"
 #include "GameObject/Mesh.h"
 #include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
@@ -139,7 +141,10 @@ vec3 oldPosition;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
 KawaseHandles kawaseHandles;
+SimpleHandles simpleHandles;
+AlphaHandles alphaHandles;
 Mesh guardMesh;
+Mesh coneMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
 Mesh tripleBarrelMesh;
@@ -381,13 +386,36 @@ void initBlur()
 
 void drawBlur()
 {
+  // render cone to texture without clearing depth buffer
+  glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+  glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+  //glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);
+
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+
+  glUseProgram(simpleHandles.prog);
+  if (debug) {
+    safe_glUniformMatrix4fv(simpleHandles.uMVP, glm::value_ptr(debugCamera->getProjection() * debugCamera->getView()));
+  }
+  else {
+    safe_glUniformMatrix4fv(simpleHandles.uMVP, glm::value_ptr(camera3DPerson->getProjection() * camera3DPerson->getView()));
+  }
+  glUniform4f(simpleHandles.uColor, 0.988f, 0.812f, 0.227f, 1.0f);
+  simpleHandles.draw(&coneMesh);
+
+  // use rendered cone in kawase pass, render to another texture (may repeat as necessary)
+  // TODO use cone geometry for all rendering, not the "draw on texture plane" method being currently used
   glUseProgram(kawaseHandles.prog);
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   //glViewport(0, 0, g_width, g_height);
   //glClear(GL_COLOR_BUFFER_BIT);
   //glClear(GL_DEPTH_BUFFER_BIT);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
   glDrawBuffer(GL_BACK);
   glCullFace(GL_BACK);
 
@@ -400,11 +428,17 @@ void drawBlur()
   glUniform1i(kawaseHandles.uTexture, 0);  // send the number of the active texture
   glUniform1f(kawaseHandles.uKernelSize, kawaseKernel);
   glUniform2f(kawaseHandles.uWindowSize, g_width, g_height);
-  safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
+  if (debug) {
+    safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(debugCamera->getProjection() * debugCamera->getView()));
+  }
+  else {
+    safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(camera3DPerson->getProjection() * camera3DPerson->getView()));
+  }
   checkGLError();
 
   // draw shape
-  GLSL::enableVertexAttribArray(kawaseHandles.aPosition);
+  kawaseHandles.draw(&coneMesh);
+  /*GLSL::enableVertexAttribArray(kawaseHandles.aPosition);
   glBindVertexArray(quad_VertexArrayID);
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glVertexAttribPointer(kawaseHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -418,9 +452,10 @@ void drawBlur()
   checkGLError();
 
   glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 3 * 6);
-  //glDrawArrays(GL_TRIANGLES, 0, 18);
+  checkGLError();*/
 
-  checkGLError();
+  // finally, render that texture to screen with reduced alpha values
+
 }
 #endif
 
@@ -689,7 +724,7 @@ void endPass1Draw() {
 
 void beginPass2Draw() {
 #ifdef BLUR
-  glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
+  /*glBindFramebufferEXT(GL_FRAMEBUFFER, blurBufferObj);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
@@ -697,7 +732,7 @@ void beginPass2Draw() {
   glCullFace(GL_BACK);
 
   assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
+  checkGLError();*/
 #else
   //Second Pass                                                                                                     
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
@@ -728,8 +763,6 @@ void beginPass2Draw() {
   }
   checkGLError();
 }
-
-
 
 void endDrawGL() {
   
@@ -1241,10 +1274,15 @@ int main(int argc, char **argv)
   debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+#ifdef BLUR
   kawaseHandles.installShaders(resPath(sysPath("shaders", "kawaseVert.glsl")), resPath(sysPath("shaders", "kawaseFrag.glsl")));
+  simpleHandles.installShaders(resPath(sysPath("shaders", "simpleVert.glsl")), resPath(sysPath("shaders", "simpleFrag.glsl")));
+  alphaHandles.installShaders(resPath(sysPath("shaders", "alphaVert.glsl")), resPath(sysPath("shaders", "alphaFrag.glsl")));
+#endif
   assert(glGetError() == GL_NO_ERROR);
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  coneMesh.loadShapes(resPath(sysPath("models", "cone.obj")));
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));

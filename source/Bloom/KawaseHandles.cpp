@@ -57,3 +57,24 @@ bool KawaseHandles::installShaders(const std::string &vShaderName, const std::st
   assert(glGetError() == GL_NO_ERROR);
   return true;
 }
+
+void KawaseHandles::draw(Mesh* obj) {
+  GLSL::enableVertexAttribArray(this->aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, obj->posBufObj);
+  glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  
+  for (int s = 0; s < obj->shapes.size(); ++s) {
+    int nIndices = (int)obj->shapes[s].mesh.indices.size();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->indBufObj);
+    
+    glDrawElements(GL_TRIANGLES, nIndices, GL_UNSIGNED_INT, 0);
+  }
+}
+
+void KawaseHandles::draw(Shape* obj) {
+  GLSL::enableVertexAttribArray(this->aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, obj->posBuffer);
+  glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glDrawArrays(GL_TRIANGLES, 0, obj->indices);
+}

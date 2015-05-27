@@ -17,6 +17,8 @@ class AlphaHandles {
     GLuint uMVP;
     GLuint uTexture;
     bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
+    void draw(Mesh* obj);
+    void draw(Shape* obj);
 };
 
 #endif
