@@ -14,16 +14,16 @@ void main()
   float yinv = 1.0f / uWindowSize.y;
   
   // upper right
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(uKernelSize * xinv, uKernelSize * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(uKernelSize * xinv, ksm * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(ksm * xinv, uKernelSize * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(ksm * xinv, ksm * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(uKernelSize * xinv, uKernelSize * yinv));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(uKernelSize * xinv, ksm * yinv));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(ksm * xinv, uKernelSize * yinv));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(ksm * xinv, ksm * yinv));
   
   // upper left
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(uKernelSize * xinv * -1.0f, uKernelSize * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(uKernelSize * xinv * -1.0f, ksm * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(ksm * xinv * -1.0f, uKernelSize * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
-  color += 0.0625f * texture2D(uTexture, clamp(vUV + vec2(ksm * xinv * -1.0f, ksm * yinv), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f)));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(uKernelSize * xinv * -1.0f, uKernelSize * yinv));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(uKernelSize * xinv * -1.0f, ksm * yinv));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(ksm * xinv * -1.0f, uKernelSize * yinv));
+  color += 0.0625f * texture2D(uTexture, vUV + vec2(ksm * xinv * -1.0f, ksm * yinv));
   
   // lower right
   color += 0.0625f * texture2D(uTexture, vUV + vec2(uKernelSize * xinv, uKernelSize * yinv * -1.0f));

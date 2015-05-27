@@ -1,5 +1,5 @@
-#ifndef __KAWASE_HANDLES
-#define __KAWASE_HANDLES
+#ifndef __ALPHA_HANDLES
+#define __ALPHA_HANDLES
 
 #include "../glm/glm.hpp"
 #include "../glm/gtc/type_ptr.hpp"
@@ -9,15 +9,13 @@
 #include "../GameObject/Shape.h"
 #include <string>
 
-class KawaseHandles {
+class AlphaHandles {
   public:
     GLuint prog;
     GLuint aPosition;
     GLuint aUV;
     GLuint uMVP;
     GLuint uTexture;
-    GLuint uKernelSize;
-    GLuint uWindowSize;
     bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
 };
 

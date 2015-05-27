@@ -1,6 +1,6 @@
-#include "KawaseHandles.h"
+#include "AlphaHandles.h"
 
-bool KawaseHandles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
+bool AlphaHandles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
   GLint rc;
 
   // Create shader handles
@@ -51,8 +51,6 @@ bool KawaseHandles::installShaders(const std::string &vShaderName, const std::st
   aUV = GLSL::getAttribLocation(this->prog, "aUV");
   uMVP = GLSL::getUniformLocation(this->prog, "uMVP");
   uTexture = GLSL::getUniformLocation(this->prog, "uTexture");
-  uKernelSize = GLSL::getUniformLocation(this->prog, "uKernelSize");
-  uWindowSize = GLSL::getUniformLocation(this->prog, "uWindowSize");
 
   assert(glGetError() == GL_NO_ERROR);
   return true;
