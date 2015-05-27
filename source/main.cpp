@@ -1120,7 +1120,7 @@ int main(int argc, char **argv)
   detectCam = new DetectionCamera(CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
-      CAMERA_FAR,
+      CAMERA_FAR * 0.4,
       debugDraw);
 
 
