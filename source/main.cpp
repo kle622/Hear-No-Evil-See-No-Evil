@@ -45,7 +45,7 @@
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
-#define MAX_LIGHTS 3
+#define MAX_LIGHTS 10
 
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
@@ -63,6 +63,7 @@
 #define TOP_LEVEL 3.0f
 
 #define MAX_DETECT 400
+#define TEX_SIZE 1024
 
 GLFWwindow* window;
 using namespace std;
@@ -116,8 +117,8 @@ DetectionTracker *detecTrack;
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
-glm::vec3 coneDir(0.0, 15.0, 0.0);
-float coneAngle = 50;
+glm::vec3 coneDir(0.0, -0.5, 0.0);
+float coneAngle = 20;
 float attenuation = 0.1f;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -272,7 +273,7 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light
     //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
   glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
   //  glm::mat4 depthProjMatrix = glm::perspective();
-  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 25.0f);
+  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
   //   glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
   glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - lightInv, glm::vec3(0, 1, 0));
   glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) *
@@ -298,6 +299,7 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light
 }
 
 void initFramebuffer() {
+  //for (int i = 0; i < gLights.size(); i++) {
     glGenFramebuffersEXT(1, &frameBufObj);
     assert(frameBufObj > 0);
     glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
@@ -483,14 +485,14 @@ void drawPass1(WorldGrid* gameObjects) {
     vector<shared_ptr<GameObject>> drawList = gameObjects->list;
     vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
     drawList.insert(drawList.end(), walls.begin(), walls.end());
-    // for (int l = 0; l < gLights.size(); l++) {
+    //  for (int l = 0; l < gLights.size(); l++) {
         for (int i = 0; i < drawList.size(); i++) {
 	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
 	  SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-            pass1Handles.draw(drawList[i].get());
+	  pass1Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
-	// }
+	//}
     
     gameObjects->update();
 }
@@ -504,6 +506,7 @@ void SetLightUniform(Light light, int ndx) {
   pass2Handles.uAllLightsPosition[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
   //printf("handle allLights: %d\n", pass2Handles.uAllLights);
   checkGLError();
+  glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
 }
 
 void beginPass2Draw() {
@@ -529,6 +532,7 @@ void beginPass2Draw() {
     }
 
     checkGLError();
+    //glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
     glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
     glUniform1f(pass2Handles.uConeAngle, coneAngle);
     glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
@@ -550,24 +554,21 @@ void beginPass2Draw() {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
 
-    for (int l = 0; l < gLights.size(); l++) {
-      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
-      glUniform1f(pass2Handles.uDetectionLevel, detecTrack->totalDetLvl);
-
+    //    for (int l = 0; l < gLights.size(); l++) {
       glUniform1i(pass2Handles.hasTex, 1);
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);
       SetMaterial(0);
       //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(l));
+      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(0));
       SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
       pass2Handles.draw(ground);
       //ground->draw();
       
       glUniform1i(pass2Handles.hasTex, 0);
       SetMaterial(ceiling->material);
-      // SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(l));
+      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
+      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(0));
       SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
       pass2Handles.draw(ceiling);
       //ceiling->draw();
@@ -589,12 +590,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	
 	// SetMaterial(drawList[i]->material);
 	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(l));
+	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
 	SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
 	pass2Handles.draw(drawList[i].get());
 	//drawList[i]->draw();
       }
-   }
+      //}
       
       // collide
     for (int i = 0; i < gameObjects->list.size(); i++) {
@@ -1154,7 +1155,7 @@ int main(int argc, char **argv)
     tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
     chairMesh.hasTexture = true;
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
-    chairMesh.loadTexture(resPath(sysPath("textures", "chair.bmp")));
+    chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
     playerMesh.hasTexture = true;
@@ -1164,12 +1165,12 @@ int main(int argc, char **argv)
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
     cubeMesh.hasTexture = true;
     tableMesh.hasTexture = true;
-    tableMesh.loadTexture(resPath(sysPath("textures", "desk.bmp")));
+    tableMesh.loadMipmapTexture(resPath(sysPath("textures", "desk.bmp")), TEX_SIZE);
     barrel.hasTexture = true;
     barrel.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
     //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
     boxStackMesh.hasTexture = true;
-    boxStackMesh.loadTexture(resPath(sysPath("textures", "crate.bmp")));
+    boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
     guardMesh.hasTexture = true;
     guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), 1024);
     //printf("shadow map id: %d\n", shadowMap);
@@ -1228,6 +1229,7 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
         
         camera3DPerson->update();
+	//for (int i = 0; i < gLights.size(); i++) {
         beginPass1Draw();
         drawPass1(&gameObjects);
         endPass1Draw();
@@ -1235,6 +1237,7 @@ int main(int argc, char **argv)
         getWindowinput(window, deltaTime);
         drawGameObjects(&gameObjects, deltaTime);
         endDrawGL();
+	  //}
         
         // draw debug
         if (debug || boxes) {
@@ -1263,8 +1266,8 @@ int main(int argc, char **argv)
 #ifndef WIN32
             debugDraw->drawAll();
 #endif
-            debugDraw->clear();
         }
+            debugDraw->clear();
         
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -1,4 +1,4 @@
-#define MAX_LIGHTS 3
+#define MAX_LIGHTS 10
 uniform mat4 uModelMatrix;
 uniform vec3 UaColor;	// ambient
 uniform vec3 UdColor;	// diffuse
@@ -12,6 +12,7 @@ uniform int numLights;
 uniform float coneAngle;
 uniform vec3 coneDirection;
 uniform vec3 allLights[MAX_LIGHTS];
+uniform vec3 uLightPos;
 
 // Cook Stuff
 uniform float uMatRoughness;
@@ -61,14 +62,16 @@ float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float 
 } */
 
 // CHECKPOINT!!!!!!!!!
-void main() {   
+void main() {
      vec3 color = vec3(0.0, 0.0, 0.0);
      float visibility = 1.0;
      float att = 1.0;
-     vec3 ambient = UaColor * 0.2;
 	 float clrBleedVal = 0.3;
-
+     vec3 ambient = UaColor * 0.05;
+     
    for (int i = 0; i < numLights; i++) {
+     float visibility = 1.0;
+     float att = 1.0;
      vec3 lightPos = allLights[i];
      vec3 surfacePos = vPos;
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
@@ -90,19 +93,19 @@ void main() {
 	   vec3 specular = UsColor * pow(temp, Ushine); // n=1
 
 	
-	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( -0.94201624, -0.39906216, 0.0) / 700.0).z  <  ShadowCoord.z-bias) {
+	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( -0.94201624, -0.39906216, 0.0) / 700.0).z / ShadowCoord.w <  (ShadowCoord.z-bias) / ShadowCoord.w) {
 	   visibility -= 0.1;
 	}
 	
-	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( 0.94558609, -0.76890725, 0.0)  / 700.0).z  <  ShadowCoord.z-bias) {
+	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( 0.94558609, -0.76890725, 0.0)  / 700.0).z / ShadowCoord.w <  (ShadowCoord.z-bias) / ShadowCoord.w) {
            visibility -= 0.1;
         }
 
-	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( -0.094184101, -0.9293887, 0.0)  / 700.0).z  <  ShadowCoord.z-bias) {
+	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( -0.094184101, -0.9293887, 0.0)  / 700.0).z / ShadowCoord.w <  (ShadowCoord.z-bias) / ShadowCoord.w) {
            visibility -= 0.1;
 	}
 
-	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( 0.34495938, 0.29387760, 0.0) / 700.0).z  <  ShadowCoord.z-bias) {
+	if (texture2DProj(shadowMap, ShadowCoord.xyz + vec3( 0.34495938, 0.29387760, 0.0) / 700.0).z / ShadowCoord.w  <  (ShadowCoord.z-bias) / ShadowCoord.w) {
            visibility -= 0.1;
     	}
 	
@@ -119,48 +122,20 @@ void main() {
 
 	if (hasTex == 1) {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
-	  /* float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
-	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
-					   (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
-					   (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
-
-	   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
-					   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
-					   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal))); */
-	   color += (ambient + att * (diffuse));
+	   //diffuse = vec3(0.0, 1.0, 0.0);
+	   //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	  // gl_FragColor = texture2D(texture, texCoordOut);
+	   //gl_FragColor = vec4((att * diffuse) + ambient, 1.0);
+	  color += (ambient + visibility * att * diffuse);
+	  //color = vec3(0.0, 1.0, 0.0);
 	}
 	else {	
-	   /*float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
-	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
-					   (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
-					   (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
-
-	   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
-					   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
-					   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
-
-	   specular = vec3((specular.r + ((avgSpecular - specular.r) * clrBleedVal)), 
-					   (specular.g + ((avgSpecular - specular.g) * clrBleedVal)), 
-					   (specular.b + ((avgSpecular - specular.b) * clrBleedVal)));*/
-					   
-	   color += (ambient + att * (diffuse + specular));
-	} 
+	     	//color = vec3(1.0, 0.0, 0.0);
+	        //gl_FragColor = vec4(att *((diffuse + specular)) + ambient, 1.0);
+		color += (ambient + att * visibility * (diffuse + specular));
 	}
-
-	  //float avgColor = (color.r + color.b + color.g)/3.0;
-	  //vec3 grayEx = vec3(0.0, 0.0, 0.0);
-	  /*if(detectionLevel > 0) {
-	     grayEx.r = avgColor;
-		 grayEx.g = avgColor;
-		 grayEx.b = avgColor;
-	  }
-	  else {	  
-	  grayEx.r = (color.r + ((avgColor - color.r) * .7));
-	  grayEx.g = (color.g + ((avgColor - color.g) * .7));
-	  grayEx.b = (color.b + ((avgColor - color.b) * .7));
-	  }
-	  */
-
+     	 
+    }
 
       gl_FragColor = vec4(color, 1.0);
 }
