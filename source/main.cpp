@@ -353,7 +353,7 @@ void initBlur()
   // The depth buffer
   glGenRenderbuffers(1, &depthrenderbuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, g_width, g_height);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
   // Set the list of draw buffers.
