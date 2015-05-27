@@ -15,7 +15,6 @@ Player::Player(Mesh *mesh,
     maxVelocity = WALK;
     crouch = false;
     standingScale = scale.y;
-    origDimensions = dimensions;
 }
 
 bool Player::collide(GameObject* object) {
@@ -56,19 +55,21 @@ void Player::move(float time) {
             scale.y -= 0.1f * (standingScale - CROUCH_SCALE);
             position.y -= 0.05 * standingScale;
         }
-        if (dimensions.y > origDimensions.y * CROUCH_SCALE) {
-          dimensions.y -= 0.15f * (standingScale - CROUCH_SCALE);
-        }
+        crouchStamina -= 1.0f * time;
+        crouchStamina = std::max(crouchStamina, 0.0f);
+        if (crouchStamina == 0.0f)
+            crouch = false;
     }
     else {
+        if (crouchStamina <= 0) {
+            maxVelocity = WALK;
+        }
         scale.y = std::min(scale.y + 0.01f, standingScale);
-        if (position.y < yPos) {
-          position.y += 0.01f;
-        }
-        if (dimensions.y < origDimensions.y) {
-          dimensions.y += 0.02f;
-        }
+        position.y = yPos;
+        crouchStamina += 0.5f * time;
+        crouchStamina = std::min(crouchStamina, MAX_CROUCH_STAMINA);
     }
+    //printf("crouchStamina: %f\n", crouchStamina);
 }
 
 void Player::accelerate() {
