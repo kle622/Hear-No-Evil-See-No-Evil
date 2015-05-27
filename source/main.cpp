@@ -85,6 +85,7 @@ Player* playerObject;
 vec3 oldPosition;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
+Pass2Handles HudHandles;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
@@ -1070,6 +1071,7 @@ int main(int argc, char **argv)
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
     pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+    HudHandles.installShaders(resPath(sysPath("shaders", "HUDVert.glsl")), resPath(sysPath("shaders", "HUDFrag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
     
     guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
@@ -1192,14 +1194,18 @@ int main(int argc, char **argv)
             }
         }
         if (debug || boxes) {
-#ifndef WIN32
+            #ifndef WIN32
             debugDraw->drawAll();
-#endif
+            #endif
             debugDraw->clear();
         }
 
+
+        //glUseProgram(HudHandles.prog);
         ImGui::Render();
         glfwSwapBuffers(window);
+
+
         glfwPollEvents();
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
              && glfwWindowShouldClose(window) == 0);

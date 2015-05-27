@@ -1,6 +1,8 @@
 // ImGui GLFW binding with OpenGL
 // https://github.com/ocornut/imgui
 
+//#include "../GameObject/ShadowMapPass2Handles.h"
+
 struct GLFWwindow;
 
 bool        ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks);
