@@ -1,6 +1,6 @@
 #ifndef __PASS2__HANDLES__
 #define __PASS2__HANDLES__
-#define MAX_LIGHTS 3
+#define MAX_LIGHTS 10
 #include "GameObject.h"
 #include "Shape.h"
 #include "Player.h"
