@@ -567,6 +567,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
 
     for (int l = 0; l < gLights.size(); l++) {
+      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
+      glUniform1f(pass2Handles.uDetectionLevel, detecTrack->totalDetLvl);
       glUniform3f(pass2Handles.uLightPos, gLights.at(l).position.x, gLights.at(l).position.y, gLights.at(l).position.z);
      /*glBindTexture(GL_TEXTURE_2D, shadowMap[l]);
      ostringstream stream;
@@ -675,10 +677,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
      // gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
      // //
      //}
-        printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
         gameObjects->update();
     }
-    glUniform1f(pass2Handles.uDetectionLevel, detecTrack->totalDetLvl);
+    
 }
 
 
@@ -1107,19 +1108,19 @@ void initWalls(WorldGrid* gameObjects) {
     }
 }
 
-void initDetectionTracker(WorldGrid* gameObjects) {
-  gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
-    &chairMesh,
-    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
-    0,                //rotation
-    vec3(0.2, 0, 0.2),    //scale
-    vec3(1, 0, 0),    //direction
-    0,
-    vec3(0, 0, 0),     //dimensions
-    0,                 //scanRadius
-    3                 //material
-    )));
-}
+//void initDetectionTracker(WorldGrid* gameObjects) {
+//  gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
+//    &chairMesh,
+//    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
+//    0,                //rotation
+//    vec3(0.2, 0, 0.2),    //scale
+//    vec3(1, 0, 0),    //direction
+//    0,
+//    vec3(0, 0, 0),     //dimensions
+//    0,                 //scanRadius
+//    3                 //material
+//    )));
+//}
 
 int main(int argc, char **argv)
 {

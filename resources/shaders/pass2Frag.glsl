@@ -111,14 +111,8 @@ void main() {
     	}
 	
 	   ///////////// Cook stuff
-	   vec3 viewDir = normalize(uCamPos - vec3(vPos));
-
-	   /*float geometricAtten = min(1, (2 * dot(vNormal, halfDir) * (vNormal, viewDir))/dot(viewDir, halfDir), (2 * dot(vNormal, halfDir) * (vNormal, viewDir))/dot(viewDir, halfDir));
-	   float roughness = (1/(uMatRoughness * pow(dot(vNormal, halfDir), 4)) * exp( (pow(dot(vNormal, halfDir), 2) - 1) / (pow(uMatRoughness,2) * pow(dot(vNormal, halfDir), 2)) );
-	   float fresnel = uFresReflectance + pow(1-dot(halfDir, viewDir) , 5) * (1-uFresReflectance);
-	   float Rs = (fresnel * roughness * geometricAtten)/(dot(vNormal, viewDir) * dot(vNormal, vLight));*/
-
-	   float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness); 
+	   //vec3 viewDir = normalize(uCamPos - vec3(vPos));
+	   //float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness); 
 	   /////////////////////////
 
 
@@ -136,12 +130,20 @@ void main() {
 		//gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	} 
 	}
-      //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-	  //color = drainColor(color);
-	  float avgColor = (color.r + color.b + color.g)/3.0;
-	  color.r = (color.r + ((avgColor - color.r) * detectionLevel));
-	  color.g = (color.g + ((avgColor - color.g) * detectionLevel));
-	  color.b = (color.b + ((avgColor - color.b) * detectionLevel));
 
-      gl_FragColor = vec4(color, 1.0);
+	  float avgColor = (color.r + color.b + color.g)/3.0;
+	  vec3 grayEx = vec3(0.0, 0.0, 0.0);
+	  /*if(detectionLevel > 0) {
+	     grayEx.r = avgColor;
+		 grayEx.g = avgColor;
+		 grayEx.b = avgColor;
+	  }
+	  else {*/
+		 grayEx.r = (color.r + ((avgColor - color.r) * detectionLevel));
+		 grayEx.g = (color.g + ((avgColor - color.g) * detectionLevel));
+		 grayEx.b = (color.b + ((avgColor - color.b) * detectionLevel));
+	  //}
+
+
+      gl_FragColor = vec4(grayEx, 1.0);
 }

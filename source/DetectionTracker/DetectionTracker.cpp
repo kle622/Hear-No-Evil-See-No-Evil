@@ -3,7 +3,7 @@
 DetectionTracker::DetectionTracker() {
   this->visualDetLvl = 0.0f;
   this->soundDetLvl = 0.0f;
-  this->totalDetLvl = 0.01f;
+  this->totalDetLvl = 0.0f;
   this->detecDanger = false;
 }
 
@@ -26,7 +26,7 @@ float clamp(float val) {
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   // Note detecDanger 
   if (detecDanger == true) {
-    this->totalDetLvl += 1*detecPercent *.001;
+    this->totalDetLvl += 1*detecPercent *.01;
     this->previousPlyrPos = player->position;
   }
   else if(this->totalDetLvl > 0) {
@@ -51,10 +51,10 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
-      this->totalDetLvl += .003;
+      this->totalDetLvl += .02;
     }
     else if (player->maxVelocity == RUN) {
-      this->totalDetLvl += .005;
+      this->totalDetLvl += .05;
     }
   }
   this->previousPlyrPos = player->position;
