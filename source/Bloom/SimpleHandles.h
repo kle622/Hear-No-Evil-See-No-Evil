@@ -1,5 +1,5 @@
-#ifndef __KAWASE_HANDLES
-#define __KAWASE_HANDLES
+#ifndef __SIMPLE_HANDLES
+#define __SIMPLE_HANDLES
 
 #include "../glm/glm.hpp"
 #include "../glm/gtc/type_ptr.hpp"
@@ -9,15 +9,12 @@
 #include "../GameObject/Shape.h"
 #include <string>
 
-class KawaseHandles {
+class SimpleHandles {
   public:
     GLuint prog;
     GLuint aPosition;
-    GLuint aUV;
     GLuint uMVP;
-    GLuint uTexture;
-    GLuint uKernelSize;
-    GLuint uWindowSize;
+    GLuint uColor;
     bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
     void draw(GameObject* obj);
     void draw(Shape* obj);

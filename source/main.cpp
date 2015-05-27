@@ -341,7 +341,7 @@ void initBlur()
   // "Bind" the newly created texture : all future texture functions will modify this texture
   glBindTexture(GL_TEXTURE_2D, renderedTexture);
   // Give an empty image to OpenGL ( the last "0" )
-  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, g_width, g_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, g_width, g_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
   // Poor filtering. Needed !
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -397,7 +397,7 @@ void drawBlur()
   checkGLError();
 
   // send appropriate values
-  glUniform1i(kawaseHandles.uBloomMap, 0);  // send the number of the active texture
+  glUniform1i(kawaseHandles.uTexture, 0);  // send the number of the active texture
   glUniform1f(kawaseHandles.uKernelSize, kawaseKernel);
   glUniform2f(kawaseHandles.uWindowSize, g_width, g_height);
   safe_glUniformMatrix4fv(kawaseHandles.uMVP, glm::value_ptr(glm::mat4(1.0f)));
@@ -752,29 +752,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 #ifdef BLUR
   if (action == GLFW_PRESS) {
-    if (key == GLFW_KEY_0) {
-      kawaseKernel = 0.0f;
-    }
-    else if (key == GLFW_KEY_1) {
-      kawaseKernel = 1.0f;
+    if (key == GLFW_KEY_1) {
+      kawaseKernel -= 1.0f;
     }
     else if (key == GLFW_KEY_2) {
-      kawaseKernel = 2.0f;
-    }
-    else if (key == GLFW_KEY_3) {
-      kawaseKernel = 3.0f;
-    }
-    else if (key == GLFW_KEY_4) {
-      kawaseKernel = 4.0f;
-    }
-    else if (key == GLFW_KEY_5) {
-      kawaseKernel = 5.0f;
-    }
-    else if (key == GLFW_KEY_6) {
-      kawaseKernel = 6.0f;
-    }
-    else if (key == GLFW_KEY_7) {
-      kawaseKernel = 7.0f;
+      kawaseKernel += 1.0f;
     }
   }
 #endif
@@ -1259,7 +1241,7 @@ int main(int argc, char **argv)
   debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
-  kawaseHandles.installShaders(resPath(sysPath("shaders", "KawaseVert.glsl")), resPath(sysPath("shaders", "KawaseFrag.glsl")));
+  kawaseHandles.installShaders(resPath(sysPath("shaders", "kawaseVert.glsl")), resPath(sysPath("shaders", "kawaseFrag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
 
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));

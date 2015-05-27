@@ -1,6 +1,6 @@
-#include "KawaseHandles.h"
+#include "SimpleHandles.h"
 
-bool KawaseHandles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
+bool SimpleHandles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
   GLint rc;
 
   // Create shader handles
@@ -48,18 +48,15 @@ bool KawaseHandles::installShaders(const std::string &vShaderName, const std::st
   }
 
   aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
-  aUV = GLSL::getAttribLocation(this->prog, "aUV");
   uMVP = GLSL::getUniformLocation(this->prog, "uMVP");
-  uTexture = GLSL::getUniformLocation(this->prog, "uTexture");
-  uKernelSize = GLSL::getUniformLocation(this->prog, "uKernelSize");
-  uWindowSize = GLSL::getUniformLocation(this->prog, "uWindowSize");
+  uColor = GLSL::getUniformLocation(this->prog, "uColor");
 
   assert(glGetError() == GL_NO_ERROR);
   return true;
 }
 
 
-void KawaseHandles::draw(GameObject* obj) {
+void SimpleHandles::draw(GameObject* obj) {
   GLSL::enableVertexAttribArray(this->aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->posBufObj);
   glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -72,7 +69,7 @@ void KawaseHandles::draw(GameObject* obj) {
   }
 }
 
-void KawaseHandles::draw(Shape* obj) {
+void SimpleHandles::draw(Shape* obj) {
   GLSL::enableVertexAttribArray(this->aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, obj->posBuffer);
   glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
