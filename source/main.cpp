@@ -1369,7 +1369,7 @@ int main(int argc, char **argv)
         ImGui::Begin();
         ImGui::SetWindowSize(ImVec2(700, 200));
         ImGui::SetWindowFontScale(3.5f);
-        ImGui::SliderFloat("Detection", &detecTrack->totalDetLvl, 0.0f, 1.0f);
+        ImGui::SliderFloat("Detection", &detecTrac->totalDetLvl, 0.0f, 1.0f);
         ImGui::End();
         
         camera3DPerson->update();
