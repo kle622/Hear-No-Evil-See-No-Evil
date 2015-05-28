@@ -883,6 +883,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 
 void initObjects(WorldGrid* gameObjects) {
     int levelDesign[TEST_WORLD][TEST_WORLD];
+    int rot;
     
     char ch;
     fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
@@ -920,12 +921,13 @@ void initObjects(WorldGrid* gameObjects) {
                     break;
                 case '4': //stack of boxes
                     //printf("case 4\n");
+                    rot = getRand(0, 3);
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
                                                                            &boxStackMesh,
                                                                            vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                                                                            vec3(3.5, 2, 3.5),
-                                                                           0,
-                                                                           vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
+                                                                           rot * 90,
+                                                                           vec3(cos(rot * M_PI / 2), 0, sin(rot * M_PI / 2)), // direction
                                                                            0,
                                                                            vec3(3.7, 3.7, 3.7),
                                                                            1,
