@@ -1351,11 +1351,19 @@ int main(int argc, char **argv)
     ImGui_ImplGlfw_Init(window, false);
     
     do{
+        ImGui_ImplGlfw_NewFrame();
+
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
+
+        ImGui::Begin();
+        ImGui::SetWindowSize(ImVec2(700, 200));
+        ImGui::SetWindowFontScale(3.5f);
+        ImGui::SliderFloat("Detection", &detecTrack->totalDetLvl, 0.0f, 1.0f);
+        ImGui::End();
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
@@ -1400,7 +1408,7 @@ int main(int argc, char **argv)
         }
         debugDraw->clear();
 
-        //ImGui::Render();
+        ImGui::Render();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
