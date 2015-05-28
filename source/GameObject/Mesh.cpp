@@ -47,7 +47,7 @@ void Mesh::loadMipmapTexture(const std::string &filename, int size) {
     //printf("before gltexImage2D call\n");
     glTexImage2D(GL_TEXTURE_2D, 0, 3, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
     // printf("after gltexImage2D call\n");
-    //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
+      //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
     glGenerateMipmap(GL_TEXTURE_2D);
     // printf("after glgeneratemipmap call\n");
     
