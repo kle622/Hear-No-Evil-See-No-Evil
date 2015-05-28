@@ -9,7 +9,7 @@
 Guard 1:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 4
--7 0 32 x 0 r
+-10 0 32 x 0 r
 -24 0 34 y 0 x
 -40 0 27 n 0 x
 -52 0 39 x 0 l
@@ -18,7 +18,7 @@ Guard 2:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -13 0 52 x 0 r
--51 0 54 x 0 l
+-45 0 54 x 0 l
 
 Guard 3:
 // line reserved for guard properties KEEP THIS HERE!
@@ -32,5 +32,5 @@ Path: 4
 -12 0 65 x 0 r
 -14 0 82 y 0 x
 -30 0 93 n 0 x
--45 0 83 x 0 l
+-40 0 93 x 0 l
 
