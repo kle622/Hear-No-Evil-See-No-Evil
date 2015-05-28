@@ -747,7 +747,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             }
         }
         printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
-        checkGLError();
+        //checkGLError();
         glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
         //checkGLError();
         gameObjects->update();

@@ -31,6 +31,7 @@ void main() {
      ambient = vec3(0.0, 0.0, 0.4) * 0.2;
      //float bias = 0.005;
      float visibility = 0.5;
+	 float clrBleedVal = detectionLevel;
 
    for (int i = 0; i < numLights; i++) {
      float att = 1.5;
@@ -60,7 +61,12 @@ void main() {
 	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
 				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
 					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
-	   color += att * diffuse;
+	   if(lightToSurfaceAngle > coneAngle) {
+		 color += att * diffuse;
+	   }
+	   else {
+		 color += att * light_color * diffuse;
+	   }
 	}
 	else {	
 		float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
@@ -96,5 +102,10 @@ void main() {
            visibility = 0.4;
     	}*/
 
-    gl_FragColor = vec4(visibility * color + ambient, 1.0);
+		/*float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
+			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));*/
+
+    gl_FragColor = vec4(visibility * color, 1.0);
 }
