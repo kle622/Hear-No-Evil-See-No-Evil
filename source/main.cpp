@@ -538,7 +538,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
       //    for (int l = 0; l < gLights.size(); l++) {
       printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
-      glUniform1f(pass2Handles.detectionLevel, (float)detecTrac->totalDetLvl);
+      checkGLError();
+      glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+      checkGLError();
       glUniform1i(pass2Handles.hasTex, 1);
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);

@@ -7,7 +7,7 @@
 
 class Pass2Handles  : public Handles {
  public:
-  GLuint shadowMap, uDepthMVP, hasTex, texture, aTexCoord, uNumLights, uAllLightsPosition[MAX_LIGHTS], 
+  GLuint shadowMap, uDepthMVP, hasTex, texture, aTexCoord, uNumLights, detectionLevel, uAllLightsPosition[MAX_LIGHTS], 
     uAllLightsAttenuation[MAX_LIGHTS], uAllLightsConeDirection[MAX_LIGHTS],
     uAllLightsConeAngle[MAX_LIGHTS], uConeDirection, uConeAngle, uAttenuation, uAllLights[MAX_LIGHTS];
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
