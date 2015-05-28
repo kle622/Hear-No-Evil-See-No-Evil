@@ -14,6 +14,8 @@ uniform float Ushine;
 uniform mat4 uDepthMVP;
 uniform int hasTex;
 
+//uniform float detectionLevel;
+
 varying vec3 vNormal;
 varying vec3 vCol;
 varying vec3 vPos;

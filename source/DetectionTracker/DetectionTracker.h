@@ -39,6 +39,9 @@ public:
   void reduceDetect(Player *plyr);
   void updateVisDetect(float detecPercent, Player *player);
   void updateSndDetect(Player *player);
+  void updateVisMeter(Player *player);
+  void clamp();
 };
 
 #endif
+

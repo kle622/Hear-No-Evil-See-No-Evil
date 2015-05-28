@@ -66,6 +66,7 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   uNumLights = GLSL::getUniformLocation(this->prog, "numLights");
   uConeDirection = GLSL::getUniformLocation(this->prog, "coneDirection");
   uConeAngle = GLSL::getUniformLocation(this->prog, "coneAngle");
+  detectionLevel = GLSL::getUniformLocation(this->prog, "detectionLevel");
   //uAttenuation = GLSL::getUniformLocation(this->prog, "attenuation");
 
   return true;
