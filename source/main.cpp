@@ -1202,7 +1202,7 @@ int main(int argc, char **argv)
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
     printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
-    cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
+    cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "ruggedwall.bmp")), 512);
     shortCubeMesh.sendWallTexBuf();
     shortCubeMesh.loadMipmapTexture(resPath(sysPath("textures", "shortwall.bmp")), 512);
     cubeMesh.hasTexture = true;
