@@ -106,7 +106,7 @@ Mesh tableMesh;
 Mesh chairMesh;
 Mesh rafterMesh;
 Mesh winMesh;
-Mesh pedestalMesh;
+Mesh trainMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -995,16 +995,16 @@ void initObjects(WorldGrid* gameObjects) {
                                                                              3
                                                                              )));
                     break;
-                case 'P': //pedestal
+                case 'T': //pedestal
                     //printf("case 9\n");
                     gameObjects->add(shared_ptr<GameObject>(new WinCondition(
-                                                                             &pedestalMesh,
-                                                                             vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                                                                             vec3(1, 1, 1),
-                                                                             0,
+                                                                             &trainMesh,
+                                                                             vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                                                                             vec3(8, 8, 8),
+                                                                             90,
                                                                              vec3(0, 0, 1), // direction
                                                                              0,
-                                                                             vec3(1, 1, 1),
+                                                                             vec3(4, 4, 14),
                                                                              1,
                                                                              3
                                                                              )));
@@ -1185,7 +1185,7 @@ void initWalls(WorldGrid* gameObjects) {
                                                                      vec3(dims.x / 2, 0.7f, dims.y / 2),    //scale
                                                                      vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
-                                                                     vec3(dims.x, 1, dims.y),     //dimensions
+                                                                     vec3(dims.x, 1.3, dims.y),     //dimensions
                                                                      0,            //scanRadius
                                                                      6             //material
                                                                      )));
@@ -1262,9 +1262,9 @@ int main(int argc, char **argv)
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
     
-    //pedestalMesh.loadShapes(resPath(sysPath("models", "pedestal.obj")));
-    //pedestalMesh.hasTexture = true;
-    //pedestalMesh.loadMipmapTexture(resPath(sysPath("textures", "pedestal.bmp")), TEX_SIZE);
+    trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
+    trainMesh.hasTexture = true;
+    trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
     guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
