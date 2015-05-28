@@ -64,6 +64,7 @@ bool Handles::installShaders(const std::string &vShaderName, const std::string &
   this->texFlag = GLSL::getUniformLocation(this->prog, "uTexFlag");
   this->h_aTexCoord = GLSL::getAttribLocation(this->prog, "aTexCoord");
   this->h_uTexUnit = GLSL::getUniformLocation(this->prog, "uTexUnit");
+  this->detectionLevel = GLSL::getUniformLocation(this->prog, "detectionLevel");
 
   assert(glGetError() == GL_NO_ERROR);
   return true;

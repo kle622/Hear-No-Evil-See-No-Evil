@@ -40,6 +40,7 @@
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
+#include "DetectionTracker/DetectionTracker.h"
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -111,6 +112,7 @@ bool boxes = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
+DetectionTracker *detecTrac;
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
@@ -498,7 +500,7 @@ void beginPass2Draw() {
     glCullFace(GL_BACK);
     
     glUseProgram(pass2Handles.prog);
-    
+    glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
     glEnable(GL_TEXTURE_2D);
     
     glActiveTexture(GL_TEXTURE0);
@@ -535,6 +537,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
 
     //    for (int l = 0; l < gLights.size(); l++) {
+    printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
+      glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
       glUniform1i(pass2Handles.hasTex, 1);
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);
@@ -557,6 +561,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
       for (int i = 0; i < drawList.size(); i++) {
 	if (drawList[i]->mesh->hasTexture) {
+    glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
 	  glUniform1i(pass2Handles.hasTex, 1);
 	  //printf("bound texture for game object\n");
 	  glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
@@ -594,6 +599,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         
         if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+            detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
                 if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
                     soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
@@ -604,6 +610,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         //guards
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+            detecTrac->updateVisDetect(detectPercent, playerObject);
             if (detectPercent > 0) {
                 soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
                 detectCounter += detectPercent;
@@ -615,6 +622,17 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                 }
             }
         }
+        // Dirty little visual rep of detection
+        /*if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
+          if (detecTrack->totalDetLvl < 3) {
+            gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
+          }
+          gameObjects->list[i].get()->position =
+            vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
+          gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
+          printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
+        }*/
+        glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
         gameObjects->update();
     }
 }
@@ -1134,7 +1152,8 @@ int main(int argc, char **argv)
     //First item is always the player, followed by numGuards guards,
     //	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
-    
+    detecTrac = new DetectionTracker();
+
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
     initObjects(&gameObjects);
