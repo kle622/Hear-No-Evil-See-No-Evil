@@ -822,14 +822,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
       if (playerObject->crouch) {
-            playerObject->SetMotion(WALK);
-            playerObject->crouch = false;
-        }
+        playerObject->SetMotion(WALK);
+        playerObject->crouch = false;
+      }
       else {
         playerObject->SetMotion(CROUCH);
         playerObject->crouch = true;
+      }
     }
-}
 }
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
@@ -1354,15 +1354,23 @@ int main(int argc, char **argv)
     
     //  printf("shadow map id: %d\n", shadowMap);
     //printf("player tex id: %d\n", playerMesh.texId);
-    
+
     ImGui_ImplGlfw_Init(window, false);
     
     do{
+        ImGui_ImplGlfw_NewFrame();
+
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
         deltaTime = TimeManager::Instance().DeltaTime;
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
+        
+        ImGui::Begin();
+        ImGui::SetWindowSize(ImVec2(700, 200));
+        ImGui::SetWindowFontScale(3.5f);
+        ImGui::SliderFloat("Detection", &detecTrack->totalDetLvl, 0.0f, 1.0f);
+        ImGui::End();
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
@@ -1406,8 +1414,8 @@ int main(int argc, char **argv)
 #endif
         }
         debugDraw->clear();
-        
-        //ImGui::Render();
+
+        ImGui::Render();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
