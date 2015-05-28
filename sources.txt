@@ -34,7 +34,7 @@ set(HEADERS
 
    MySound/MySound.h
    DetectionTracker/DetectionTracker.h
-   GameObjects/VisualMeter.h
+   GameObject/VisualMeter.h
 
    Geometry/Geometry.h
 
@@ -78,5 +78,5 @@ set(SOURCES
 
    MySound/MySound.cpp
    DetectionTracker/DetectionTracker.cpp
-   GameObjects/VisualMeter.cpp
+   GameObject/VisualMeter.cpp
 )
