@@ -252,11 +252,17 @@ glm::mat4 getModel(Shape *obj)
 glm::mat4 getModel(GameObject *obj)
 {
   glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
-    glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
-    glm::mat4 com = Trans*Rot*Scale;
+  glm::mat4 Rot;
+  if (dynamic_cast<Guard*>(obj) || dynamic_cast<Player*>(obj)) {
+    Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+  }
+  else {
+    Rot = glm::mat4(1.0f);
+  }
+  glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
+  glm::mat4 com = Trans*Rot*Scale;
 
-    return com;
+  return com;
 }
 
 void SetModel(GLint handle, GameObject *obj) {
