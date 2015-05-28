@@ -601,7 +601,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
             detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-            //detecTrac->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
                 if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
                     soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
@@ -612,30 +611,19 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         //guards
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+            detecTrac->detecDanger = true;
             detecTrac->updateVisDetect(detectPercent, playerObject);
-            //detecTrac->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
             if (detectPercent > 0) {
                 soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
                 detectCounter += detectPercent;
                 cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
-                if (detectCounter >= MAX_DETECT) {
+                if (detecTrac->totalDetLvl >= 1.0) {
                     // YOU lose
                     cout << "You lose! Not sneaky enough!" << endl;
                     soundObj->playSndExit(soundObj->loseSnd);
                 }
             }
         }
-        // Dirty little visual rep of detection
-        if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
-          if (detecTrac->totalDetLvl < 3) {
-            gameObjects->list[i].get()->scale.y = detecTrac->totalDetLvl;
-          }
-          gameObjects->list[i].get()->position =
-            vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrac->totalDetLvl, playerObject->position.z);
-          gameObjects->list[i].get()->dimensions.y = detecTrac->totalDetLvl * 2;
-          printf("\n totalDetect %f\n", detecTrac->totalDetLvl);
-        }
-        glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
         gameObjects->update();
     }
 }
@@ -1067,20 +1055,6 @@ void initWalls(WorldGrid* gameObjects) {
 
 }
 
-void initDetectionTracker(WorldGrid* gameObjects) {
-  gameObjects->add(shared_ptr<GameObject>(detecTrac->visMeter = new VisualMeter(
-    &chairMesh,
-    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
-    0,                //rotation
-    vec3(0.2, 0, 0.2),    //scale
-    vec3(1, 0, 0),    //direction
-    0,
-    vec3(0, 0, 0),     //dimensions
-    0,                 //scanRadius
-    3                 //material
-    )));
-}
-
 int main(int argc, char **argv)
 {
     // Sound Object
@@ -1177,7 +1151,7 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
-    initDetectionTracker(&gameObjects);
+    //initDetectionTracker(&gameObjects);
     initFramebuffer();
    
 

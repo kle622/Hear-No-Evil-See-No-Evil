@@ -6,7 +6,6 @@
 #include "../GameObject/Guard.h"
 #include "../Camera/Camera.h"
 #include "../WorldGrid/WorldGrid.h"
-#include "../GameObject/VisualMeter.h"
 
 #define CROUCH 1.0f
 #define WALK 5.0f
@@ -32,7 +31,6 @@ public:
   float totalDetLvl;
   vec3 previousPlyrPos; // Should be set when a guard sees a player, or if their movement raises the detect level too much
   bool detecDanger;
-  VisualMeter *visMeter;
 
   //Constructor
   DetectionTracker();

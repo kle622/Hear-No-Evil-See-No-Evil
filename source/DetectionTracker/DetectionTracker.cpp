@@ -3,13 +3,17 @@
 DetectionTracker::DetectionTracker() {
   this->visualDetLvl = 0.0f;
   this->soundDetLvl = 0.0f;
-  this->totalDetLvl = 0.01f;
+  this->totalDetLvl = 0.0f;
   this->detecDanger = false;
 }
 
 float clamp(float val) {
-  if (val > 1)
+  if (val > 1) {
     val = 1.0;
+  }
+  if (val < 0) {
+    val = 0.0;
+  }
 
   return val;
 }
@@ -26,11 +30,12 @@ Other, lesser, idea number of guards who detected player inhibits how fast detec
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   // Note detecDanger 
   if (detecDanger == true) {
-    this->totalDetLvl += 1 * detecPercent *.01;
+    this->totalDetLvl += 1 * detecPercent *.001;
     this->previousPlyrPos = player->position;
+    printf("Danger!");
   }
   else if (this->totalDetLvl > 0) {
-    //this->totalDetLvl -= .005;
+    this->totalDetLvl -= .005;
     this->totalDetLvl = clamp(this->totalDetLvl);
   }
 }
@@ -46,21 +51,16 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
 
   if (player->velocity <= 0.0 && this->totalDetLvl > 0) {
-    //this->totalDetLvl -= .02;
+    this->totalDetLvl -= .02;
     this->totalDetLvl = clamp(this->totalDetLvl);
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
-      this->totalDetLvl += .02;
+      this->totalDetLvl += .002;
     }
     else if (player->maxVelocity == RUN) {
-      this->totalDetLvl += .05;
+      this->totalDetLvl += .005;
     }
   }
   this->previousPlyrPos = player->position;
-}
-
-void DetectionTracker::updateVisMeter(Player *player) {
-  this->visMeter->position = vec3(player->position.x, player->position.y + 1, player->position.z);
-  this->visMeter->scale = vec3(this->totalDetLvl, this->totalDetLvl, this->totalDetLvl);
 }
