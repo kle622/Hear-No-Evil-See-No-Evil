@@ -264,7 +264,7 @@ glm::mat4 getModel(GameObject *obj)
 {
   glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
   glm::mat4 Rot;
-  if (dynamic_cast<Guard*>(obj) || dynamic_cast<Player*>(obj)) {
+  if (obj->type >= GameObject::ObjectType::GUARD) {
     Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
   }
   else {
@@ -714,25 +714,19 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         
         //all objects
         for (int j = 0; j < proximity.size(); j++) {
-            if (gameObjects->list[i].get() != proximity[j].get()) {
+            if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
-                    //do some stuff
-                }
-            }
-        }
-        
-        if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-            soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-            detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-            for (int j = 0; j < gameObjects->wallList.size(); j++) {
-                if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
-                    soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+					soundObj->setListenerPos(gameObjects->list[i]->position, gameObjects->list[i]->direction);
+					if (gameObjects->list[i]->type == GameObject::ObjectType::PLAYER && proximity[j].get()->type == GameObject::ObjectType::STATIC) {
+						soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+					}
                 }
             }
         }
         
         //guards
-        if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+		if (gameObjects->list[i].get()->type == GameObject::ObjectType::GUARD) {
+			guard = dynamic_cast<Guard*>(gameObjects->list[i].get());
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
             if (detectPercent > 0) {
               detecTrac->detecDanger = true;
@@ -1009,7 +1003,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                              3
                                                                              )));
                     break;
-                case 'T': //pedestal
+                case 'T': //train
                     //printf("case 9\n");
                     gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                                                                              &trainMesh,
@@ -1367,7 +1361,7 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
         
         bool open = true;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 10.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
@@ -1416,9 +1410,9 @@ int main(int argc, char **argv)
             }
         }
         if (debug || boxes) {
-#ifndef WIN32
+//#ifndef WIN32
             debugDraw->drawAll();
-#endif
+//#endif
         }
         debugDraw->clear();
 
