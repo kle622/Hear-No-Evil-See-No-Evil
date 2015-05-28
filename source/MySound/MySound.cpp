@@ -34,11 +34,9 @@ MySound::MySound() {
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {
   if (sound->isFinished()) {
-    printf("here so Sound is finished\n");
     sound = engine->play2D(sndLocation, false, false, true);
   }
   else if (sound->getIsPaused()) {
-    printf("unpause our sound\n");
     sound->setIsPaused(false);
   }
   return sound;

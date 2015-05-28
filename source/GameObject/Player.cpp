@@ -35,6 +35,9 @@ bool Player::collide(GameObject* object) {
                 playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
                 printf("I WIN\n");
             }
+            if (dynamic_cast<VisualMeter*>(object)) {
+              return false;
+            }
             position = oldPosition; // TODO implement a better system
             return true;
         }
@@ -52,21 +55,11 @@ void Player::move(float time) {
             scale.y -= 0.1f * (standingScale - CROUCH_SCALE);
             position.y -= 0.05 * standingScale;
         }
-        crouchStamina -= 1.0f * time;
-        crouchStamina = std::max(crouchStamina, 0.0f);
-        if (crouchStamina == 0.0f)
-            crouch = false;
     }
     else {
-        if (crouchStamina <= 0) {
-            maxVelocity = WALK;
-        }
         scale.y = std::min(scale.y + 0.01f, standingScale);
         position.y = yPos;
-        crouchStamina += 0.5f * time;
-        crouchStamina = std::min(crouchStamina, MAX_CROUCH_STAMINA);
     }
-    //printf("crouchStamina: %f\n", crouchStamina);
 }
 
 void Player::accelerate() {
@@ -77,7 +70,7 @@ void Player::accelerate() {
       playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/footstepsWalk2.wav");
     }
     else if (maxVelocity == RUN) {
-      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
+      playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/runningSound.wav");
     }
     else if (maxVelocity == CROUCH) {
       playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/crouchWalk.wav");

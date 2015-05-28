@@ -40,6 +40,8 @@
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
+#include "DetectionTracker/DetectionTracker.h"
+#include "GameObject/VisualMeter.h"
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -111,6 +113,7 @@ bool boxes = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
+DetectionTracker *detecTrack;
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
@@ -187,54 +190,72 @@ void SetMaterial(int i) {
             glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
             glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
             glUniform1f(pass2Handles.uMatShine, 100.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 1);
+    glUniform1f(pass2Handles.uFresReflectance, .1);
             break;
         case 1: // floor
             glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
             glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
             glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
             glUniform1f(pass2Handles.uMatShine, 150.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
             break;
         case 2: // player
             glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
             glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
             glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
             glUniform1f(pass2Handles.uMatShine, 150.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 1);
+    glUniform1f(pass2Handles.uFresReflectance, .3);
             break;
         case 3: // guard detect
             glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
             glUniform3f(pass2Handles.uMatDif, 0.2f, 0.80f, 0.1f);
             glUniform3f(pass2Handles.uMatSpec, 0.8f, 1.0f, 0.8f);
             glUniform1f(pass2Handles.uMatShine, 4.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.5);
+    glUniform1f(pass2Handles.uFresReflectance, 0.5);
             break;
         case 4: //big wall color
             glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.1f, 0.0f);
             glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
             glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
             glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 1);
+    glUniform1f(pass2Handles.uFresReflectance, .3);
             break;
         case 5: // ceiling
             glUniform3f(pass2Handles.uMatAmb, 0.1f, 0.1f, 0.1f);
             glUniform3f(pass2Handles.uMatDif, 0.0f, 0.0f, 0.00f);
             glUniform3f(pass2Handles.uMatSpec, 1.0f, 1.0f, 1.0f);
             glUniform1f(pass2Handles.uMatShine, 100.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
             break;
         case 6: //short wall color
             glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
             glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
             glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
             glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.5);
+    glUniform1f(pass2Handles.uFresReflectance, 0.5);
             break;
         case 7: //box stack
             glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
             glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
             glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
             glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.8);
+    glUniform1f(pass2Handles.uFresReflectance, 2);
             break;
         case 8: //chairs
             glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
             glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
             glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
             glUniform1f(pass2Handles.uMatShine, 10.0f);
+    glUniform1f(pass2Handles.uMatRoughness, 0.1);
+    glUniform1f(pass2Handles.uFresReflectance, 1);
             break;
     }
 }
@@ -436,7 +457,6 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
 }
 
-
 void beginPass1Draw() {
     glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
     //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -482,9 +502,9 @@ void SetLightUniform(Light light, int ndx) {
   ///Array of handles
   stream << "allLights[" << ndx << "]";
   checkGLError();
-  printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
-  pass2Handles.uAllLights[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
-  printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
+  //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
+  pass2Handles.uAllLightsPosition[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
+  //printf("handle allLights: %d\n", pass2Handles.uAllLights);
   checkGLError();
   glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
 }
@@ -594,6 +614,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         
         if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+            detecTrack->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+            //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
                 if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
                     soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
@@ -604,17 +626,31 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         //guards
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+            detecTrack->updateVisDetect(detectPercent, playerObject);
+            //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
             if (detectPercent > 0) {
+                detecTrack->detecDanger = true;
                 soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
                 detectCounter += detectPercent;
-                cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
+                //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
                 if (detectCounter >= MAX_DETECT) {
                     // YOU lose
-                    cout << "You lose! Not sneaky enough!" << endl;
+                    //cout << "You lose! Not sneaky enough!" << endl;
                     soundObj->playSndExit(soundObj->loseSnd);
                 }
             }
         }
+
+    // Dirty little visual rep of detection
+    //if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
+     // if (detecTrack->totalDetLvl < 3) {
+     //   gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
+     //       }
+     // gameObjects->list[i].get()->position = 
+     //   vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
+     // gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
+     // //
+     //}
         gameObjects->update();
     }
 }
@@ -671,26 +707,27 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     
     if (key == GLFW_KEY_LEFT_SHIFT) {
-        if (action == GLFW_PRESS && !playerObject->crouch) {
+    if (action == GLFW_PRESS) {
             playerObject->SetMotion(RUN);
+      playerObject->crouch = false;
             //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
             //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
         }
         else if (action == GLFW_RELEASE) {
             playerObject->SetMotion(WALK);
+      playerObject->crouch = false;
             //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
         }
     }
-    if (key == GLFW_KEY_LEFT_CONTROL) {
-        if (action == GLFW_PRESS) {
+  if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
+    if (playerObject->crouch) {
+            playerObject->SetMotion(WALK);
+            playerObject->crouch = false;
+    }
+    else {
             playerObject->SetMotion(CROUCH);
             playerObject->crouch = true;
         }
-        else if (action == GLFW_RELEASE) {
-            playerObject->SetMotion(WALK);
-            playerObject->crouch = false;
-        }
-        
     }
 }
 
@@ -1019,7 +1056,7 @@ void initWalls(WorldGrid* gameObjects) {
                                                                      vec3(dims.x / 2, 1, dims.y / 2),    //scale
                                                                      vec3(1, 0, 0),  //direction
                                                                      0,
-                                                                     vec3(dims.x, 1, dims.y),     //dimensions
+            vec3(dims.x, 2, dims.y),     //dimensions
                                                                      0,            //scanRadius
                                                                      6             //material
                                                                      )));
@@ -1039,12 +1076,25 @@ void initWalls(WorldGrid* gameObjects) {
                                                                      )));
                 }
                 testWallCount++;
-                printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+                //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+            }
             }
         }
     }
 
-}
+//void initDetectionTracker(WorldGrid* gameObjects) {
+//  gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
+//    &chairMesh,
+//    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
+//    0,                //rotation
+//    vec3(0.2, 0, 0.2),    //scale
+//    vec3(1, 0, 0),    //direction
+//    0,
+//    vec3(0, 0, 0),     //dimensions
+//    0,                 //scanRadius
+//    3                 //material
+//    )));
+//}
 
 int main(int argc, char **argv)
 {
@@ -1109,8 +1159,8 @@ int main(int argc, char **argv)
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
     playerMesh.hasTexture = true;
-    playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
-    printf("Loading cube mesh wall.bmp\n");
+    playerMesh.loadTexture(resPath(sysPath("textures", "player_texture.bmp")));
+    //printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
     cubeMesh.hasTexture = true;
@@ -1122,9 +1172,9 @@ int main(int argc, char **argv)
     boxStackMesh.hasTexture = true;
     boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
     guardMesh.hasTexture = true;
-    guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), TEX_SIZE);
-    printf("shadow map id: %d\n", shadowMap);
-    printf("player tex id: %d\n", playerMesh.texId);
+    guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), 1024);
+    //printf("shadow map id: %d\n", shadowMap);
+    //printf("player tex id: %d\n", playerMesh.texId);
     
     
     srand(time(NULL));
@@ -1134,6 +1184,7 @@ int main(int argc, char **argv)
     //First item is always the player, followed by numGuards guards,
     //	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
+    detecTrack = new DetectionTracker();
     
     initPlayer(&gameObjects);
     initGuards(&gameObjects);
@@ -1141,6 +1192,7 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
+  //initDetectionTracker(&gameObjects);
     
     initFramebuffer();
    
@@ -1178,13 +1230,13 @@ int main(int argc, char **argv)
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
-	  beginPass1Draw();
-	  drawPass1(&gameObjects);
-	  endPass1Draw();
-	  beginPass2Draw();
-	  getWindowinput(window, deltaTime);
-	  drawGameObjects(&gameObjects, deltaTime);
-	  endDrawGL();
+        beginPass1Draw();
+        drawPass1(&gameObjects);
+        endPass1Draw();
+        beginPass2Draw();
+        getWindowinput(window, deltaTime);
+        drawGameObjects(&gameObjects, deltaTime);
+        endDrawGL();
 	  //}
         
         // draw debug
@@ -1215,7 +1267,7 @@ int main(int argc, char **argv)
             debugDraw->drawAll();
 #endif
         }
-        debugDraw->clear();
+            debugDraw->clear();
         
         glfwSwapBuffers(window);
         glfwPollEvents();

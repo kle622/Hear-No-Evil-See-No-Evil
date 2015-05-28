@@ -7,6 +7,13 @@ DetectionTracker::DetectionTracker() {
   this->detecDanger = false;
 }
 
+float clamp(float val) {
+  if (val > 1)
+    val = 1.0;
+
+  return val;
+}
+
 /* 
    When detected by a guard, update visual detection.
    This means that if you're being seen by multiple guards over and over you be detected very quickly.
@@ -16,14 +23,15 @@ DetectionTracker::DetectionTracker() {
 
    Other, lesser, idea number of guards who detected player inhibits how fast detection goes down
 */
-void DetectionTracker::updateVisDetect(Guard *guard /* or a float or something representing detection*/, Player *player) {
+void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   // Note detecDanger 
   if (detecDanger == true) {
-    this->totalDetLvl += .05;
+    this->totalDetLvl += 1*detecPercent *.01;
     this->previousPlyrPos = player->position;
   }
-  else {
-    this->totalDetLvl -= .05;
+  else if(this->totalDetLvl > 0) {
+    //this->totalDetLvl -= .005;
+    this->totalDetLvl = clamp(this->totalDetLvl);    
   }
 }
 
@@ -36,10 +44,10 @@ void DetectionTracker::updateSndDetect(Player *player) {
       this->detecDanger == false;
     }
   }
-  
 
-  if (player->velocity <= 0.0) {
-    this->totalDetLvl -= .03;
+  if (player->velocity <= 0.0 && this->totalDetLvl > 0) {
+    //this->totalDetLvl -= .02;
+    this->totalDetLvl = clamp(this->totalDetLvl);
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
@@ -49,6 +57,12 @@ void DetectionTracker::updateSndDetect(Player *player) {
       this->totalDetLvl += .05;
     }
   }
+  this->previousPlyrPos = player->position;
+}
+
+void DetectionTracker::updateVisMeter(Player *player) {
+  this->visMeter->position = vec3(player->position.x, player->position.y + 1, player->position.z);
+  this->visMeter->scale = vec3(this->totalDetLvl, this->totalDetLvl, this->totalDetLvl);
 }
 
 

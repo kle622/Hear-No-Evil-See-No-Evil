@@ -14,15 +14,55 @@ uniform vec3 coneDirection;
 uniform vec3 allLights[MAX_LIGHTS];
 uniform vec3 uLightPos;
 
+// Cook Stuff
+uniform float uMatRoughness;
+uniform float uFresReflectance;
+
+// Amount to color drain
+uniform float detectionLevel;
+
 varying vec3 vNormal;
 varying vec3 vCol;
 varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
+float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float _roughness) {
+  vec3  half_vec = normalize( _view + _light ); // vector H 
+  // Now compute the various scalar products 
+  float NdotL = max( dot(_normal, _light), 0.0 );
+  float NdotV = max( dot(_normal, _view), 0.0 );
+  float NdotH = max( dot(_normal, half_vec), 1.0e-7 );
+  float VdotH = max( dot(_view, half_vec), 1.0e-7 );
+
+  // geometric component
+  float geometric = 2.0 * NdotH / VdotH;
+  geometric = min( 1.0, geometric * min(NdotV, NdotL) );
+
+  // roughness
+  float r_sq = _roughness * _roughness;
+  float NdotH_sq = NdotH * NdotH;
+  float NdotH_sq_r = 1.0 / (NdotH_sq * r_sq);
+  float roughness_exp = (NdotH_sq - 1.0) * ( NdotH_sq_r );
+  float roughness = 0.25 * exp(roughness_exp) * NdotH_sq_r / NdotH_sq;
+
+  // final result
+  return min(1.0, _fresnel * geometric * roughness / (NdotV + 1.0e-7));
+}
+
+/*vec3 drainColor(vec3 color) {
+	  vec3 newColor = (0.0, 0.0, 0.0);
+      float avgColor = (color.r + color.b + color.g)/3.0;
+	  newColor.r = color.r + ((avgColor - color.r) * detectionLevel)/256.0;
+	  newColor.g = color.g + ((avgColor - color.g) * detectionLevel)/256.0;
+	  newColor.b = color.b + ((avgColor - color.b) * detectionLevel)/256.0;
+	  //red = red1 + ((red2 - red1) * stage / 256)
+
+	  return newColor;
+} */
+
 // CHECKPOINT!!!!!!!!!
 void main() {
-     
      vec3 color = vec3(0.0, 0.0, 0.0);
      vec3 ambient = UaColor * 0.05;
      
@@ -38,7 +78,7 @@ void main() {
      vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      float clrBleedVal = 0.5;
-
+     
      if (lightToSurfaceAngle > coneAngle) {
      	att = 0.2;
      }
@@ -67,8 +107,17 @@ void main() {
            visibility -= 0.1;
     	}
 	
+	   ///////////// Cook stuff
+	   //vec3 viewDir = normalize(uCamPos - vec3(vPos));
+	   //float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness); 
+	   //gl_FragColor = vec4((att * visibility * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
+
+	   /////////////////////////
+
+	
     float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
     float avgSpecular = (specular.r + specular.b + specular.g)/3.0;
+
 	if (hasTex == 1) {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
 	   float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;

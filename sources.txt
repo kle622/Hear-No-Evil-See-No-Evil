@@ -18,6 +18,7 @@ set(HEADERS
    GameObject/Shape.h
    GameObject/Guard.h
    GameObject/WinCondition.h
+   GameObject/VisualMeter.h
 
    GuardPath/PathNode.h
 
@@ -61,6 +62,7 @@ set(SOURCES
    GameObject/Shape.cpp
    GameObject/Guard.cpp
    GameObject/WinCondition.cpp
+   GameObject/VisualMeter.cpp
 
    GuardPath/PathNode.cpp
 
