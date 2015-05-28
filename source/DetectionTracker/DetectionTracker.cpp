@@ -7,37 +7,35 @@ DetectionTracker::DetectionTracker() {
   this->detecDanger = false;
 }
 
-float clamp(float val) {
-  if (val > 1) {
-    val = 1.0;
+void DetectionTracker::clamp() {
+  if (this->totalDetLvl > 1.0) {
+    this->totalDetLvl = 1.0;
   }
-  if (val < 0) {
-    val = 0.0;
+  if (this->totalDetLvl < 0) {
+    this->totalDetLvl = 0.0;
   }
-
-  return val;
 }
 
 /*
 When detected by a guard, update visual detection.
-This means that if you're being seen by multiple guards over and over you be detected very quickly.
+This means that if you're being seen by multiple guards over and over you'll be detected very quickly.
 
-Idea, if guard detected a player (partially) and they stop detecting the player, they keep calling this method for several more frames,
-if the player remains undetected and they have left the neighborhood of suspicion, decrement very quickly
+If the player remains undetected and they have left the neighborhood of suspicion, decrement very quickly
 
 Other, lesser, idea number of guards who detected player inhibits how fast detection goes down
 */
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
-  // Note detecDanger 
-  if (detecDanger == true) {
-    this->totalDetLvl += 1 * detecPercent *.001;
+  if (this->detecDanger == true) {
+    this->totalDetLvl += 1 * detecPercent *.1;
     this->previousPlyrPos = player->position;
-    printf("Danger!");
+    //printf("Danger!\n");
   }
   else if (this->totalDetLvl > 0) {
     this->totalDetLvl -= .005;
-    this->totalDetLvl = clamp(this->totalDetLvl);
+    this->totalDetLvl = this->totalDetLvl;
+    //printf("Not Danger!\n");
   }
+  clamp();
 }
 
 // For now I'm assuming CROUCH does not contribute to the total detection level, 
@@ -52,7 +50,7 @@ void DetectionTracker::updateSndDetect(Player *player) {
 
   if (player->velocity <= 0.0 && this->totalDetLvl > 0) {
     this->totalDetLvl -= .02;
-    this->totalDetLvl = clamp(this->totalDetLvl);
+    this->totalDetLvl = this->totalDetLvl;
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
@@ -62,5 +60,9 @@ void DetectionTracker::updateSndDetect(Player *player) {
       this->totalDetLvl += .005;
     }
   }
+  if (this->totalDetLvl == 0){
+    this->detecDanger = false;
+  }
   this->previousPlyrPos = player->position;
+  clamp();
 }

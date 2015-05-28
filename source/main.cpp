@@ -537,10 +537,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     Guard *guard;
 
       //    for (int l = 0; l < gLights.size(); l++) {
-      printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
-      checkGLError();
-      glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-      checkGLError();
       glUniform1i(pass2Handles.hasTex, 1);
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);
@@ -611,8 +607,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         //guards
         if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
-            detecTrac->detecDanger = true;
-            detecTrac->updateVisDetect(detectPercent, playerObject);
+            if (detectPercent > 0) {
+              detecTrac->detecDanger = true;
+              detecTrac->updateVisDetect(detectPercent, playerObject);
+            }
             if (detectPercent > 0) {
                 soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
                 detectCounter += detectPercent;
@@ -624,6 +622,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                 }
             }
         }
+        printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
+        checkGLError();
+        glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+        checkGLError();
         gameObjects->update();
     }
 }
