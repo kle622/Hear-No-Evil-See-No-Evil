@@ -24,9 +24,11 @@ varying vec2 texCoordOut;
 void main() {
      
      vec3 color = vec3(0.0, 0.0, 0.0);
+     vec3 light_color = vec3(0.5, 0.5, 0.243);
      vec3 ambient = UaColor * 0.5;
+     ambient = vec3(0.0, 0.0, 0.4) * 0.2;
      //float bias = 0.005;
-     float visibility = 0.4;
+     float visibility = 0.5;
 
    for (int i = 0; i < numLights; i++) {
      float visibility = 1.0;
@@ -41,7 +43,7 @@ void main() {
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      
      if (lightToSurfaceAngle > coneAngle) {
-     	att = 0.2;
+     	att = 0.1;
      }
 	   vec3 diffuse = UdColor * dot(vNormal, surfaceToLight);
 	   diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
@@ -53,10 +55,15 @@ void main() {
 	
 	if (hasTex == 1) {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
-	   color += att * diffuse;
+	   if (lightToSurfaceAngle > coneAngle) {
+	      color += att * diffuse;
+	   }
+	   else {
+	      color += att * light_color * diffuse;
+	   }
 	}
 	else {	
-	   color += (att * (diffuse + specular));
+	   color += (att * light_color * (diffuse + specular));
 	}
    }	
      	 
@@ -80,5 +87,5 @@ void main() {
            visibility = 0.4;
     	}*/
 
-    gl_FragColor = vec4(visibility * color, 1.0);
+    gl_FragColor = vec4(visibility * color + ambient, 1.0);
 }
