@@ -286,7 +286,7 @@ void SetModel(GLint handle, Shape *obj) {
         glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
 }*/
 
-void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light) {
+/*void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light) {
   const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
   const float nearClipPlane = 0.3f;
   const float farClipPlane = 30.0f;
@@ -325,8 +325,18 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light
 void SetDepthMVP(bool pass1, Shape *obj, Light g_light) {
     //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
   glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
-  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - lightInv, glm::vec3(0, 1, 0));
+  const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
+  const float nearClipPlane = 0.3f;
+  const float farClipPlane = 30.0f;
+  const float zRange = nearClipPlane - farClipPlane;
+  const glm::mat4 depthProjMatrix(
+				  invTanHalfFov, 0.0f, 0.0f, 0.0f,
+				  0.0f, invTanHalfFov, 0.0f, 0.0f,
+				  0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
+				  0.0f, 0.0f, 1.0f, 0.0f
+				  );
+  //glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.coneDirection, glm::vec3(0, 1, 0));
   glm::mat4 depthModelMatrix = getModel(obj);
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
   
