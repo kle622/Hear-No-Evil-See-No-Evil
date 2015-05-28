@@ -42,6 +42,9 @@
 #include "Textures/Textures.h"
 #include "DetectionTracker/DetectionTracker.h"
 
+#include "HUD/imgui.h"
+#include "HUD/imgui_impl_glfw.h"
+
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
 #define MAX_LIGHTS 10
@@ -1344,6 +1347,8 @@ int main(int argc, char **argv)
     
     //  printf("shadow map id: %d\n", shadowMap);
     //printf("player tex id: %d\n", playerMesh.texId);
+
+    ImGui_ImplGlfw_Init(window, false);
     
     do{
         //timer stuff
@@ -1394,6 +1399,8 @@ int main(int argc, char **argv)
 #endif
         }
         debugDraw->clear();
+
+        //ImGui::Render();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
