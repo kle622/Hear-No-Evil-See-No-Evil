@@ -712,7 +712,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         //all objects
         for (int j = 0; j < proximity.size(); j++) {
             if (gameObjects->list[i].get() != proximity[j].get()) {
-                if (gameObjects->list[i]->collide(proximity[j].get())) {
+                if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
                     //do some stuff
                 }
             }
@@ -721,7 +721,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
             soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
             for (int j = 0; j < gameObjects->wallList.size(); j++) {
-                if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+                if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
                     soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
                 }
             }
@@ -823,71 +823,61 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 {
   double x_center = g_width / 2.0;
-  double y_center = g_height / 2.0;
-
-  double dx = xpos - x_center;
-  double dy = ypos - y_center;
-
-  if (!debug) {
-    // TODO time-based animation
-    // define max camera movement rate; this can be a global setting to be changed by keypress
-    float maxMove = camSpeed * deltaTime;
-    if (dx > 0) {
-      dx = dx < maxMove ? dx : maxMove;
+    double y_center = g_height / 2.0;
+    
+    double dx = xpos - x_center;
+    double dy = ypos - y_center;
+    
+    if (!debug) {
+      // TODO time-based animation
+      // define max camera movement rate; this can be a global setting to be changed by keypress
+      float maxMove = camSpeed * deltaTime;
+        if (dx > 0) {
+          dx = dx < maxMove ? dx : maxMove;
+        }
+        else {
+          dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+        }
+      if (dy > 0) {
+        dy = dy < maxMove ? dy : maxMove;
+      }
+      else {
+        dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+      }
+      camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
+        camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
     }
     else {
-      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-    }
-    if (dy > 0) {
-      dy = dy < maxMove ? dy : maxMove;
-    }
-    else {
-      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-    }
-    camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
-    camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
-  }
-  else {
-    // TODO implement first person camera class 
-    double max_vert_angle = 85;
-    double cursor_speed = 0.3;
-    float maxMove = camSpeed * deltaTime;
-
-    if (dx > 0) {
-      dx = dx < maxMove ? dx : maxMove;
-    }
-    else {
-      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-    }
-    if (dy > 0) {
-      dy = dy < maxMove ? dy : maxMove;
-    }
-    else {
-      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-    }
-
-    theta -= dx * cursor_speed;
-    // note that ypos is measured from the top of the screen, so
-    // an increase in ypos means moving the mouse down the y axis
-    if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
-      phi -= dy * cursor_speed;
-    }
-    else {
-        // TODO implement first person camera class
-        double max_vert_angle = 85;
+      // TODO implement first person camera class 
+      double max_vert_angle = 85;
         double cursor_speed = 0.3;
+        float maxMove = camSpeed * deltaTime;
         
+        if (dx > 0) {
+          dx = dx < maxMove ? dx : maxMove;
+        }
+        else {
+          dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+        }
+      if (dy > 0) {
+        dy = dy < maxMove ? dy : maxMove;
+      }
+      else {
+        dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+      }
+      
         theta -= dx * cursor_speed;
         // note that ypos is measured from the top of the screen, so
         // an increase in ypos means moving the mouse down the y axis
         if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
-            phi -= dy * cursor_speed;
+          phi -= dy * cursor_speed;
         }
+      
         debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
         debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
         debugCamera->lookat.z = debugCamera->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
     }
-    
+  
     glfwSetCursorPos(window, x_center, y_center);
 }
 
@@ -925,7 +915,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            vec3(1.5, 2, 1.5),
                                                                            1,
                                                                            0,
-                                                                           false
+                                                                           GameObject::ObjectType::STATIC
                                                                            )));
                     break;
                 case '4': //stack of boxes
@@ -940,7 +930,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            vec3(4.0, 5, 4.0),
                                                                            1,
                                                                            7,
-                                                                           false
+                                                                           GameObject::ObjectType::STATIC
                                                                            )));
                     break;
                 case '5': //table
@@ -955,7 +945,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            vec3(2.8, 1.5, 1.4),
                                                                            1,
                                                                            5,
-                                                                           true
+                                                                           GameObject::ObjectType::PUSHABLE
                                                                            )));
                     break;
                 case '6': //chair
@@ -970,7 +960,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            vec3(1.5, 2, 1.5),
                                                                            1,
                                                                            8,
-                                                                           true
+                                                                           GameObject::ObjectType::PUSHABLE
                                                                            )));
                     break;
                 case '7': 
@@ -988,7 +978,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            vec3(44, 5.0, 1.0),
                                                                            1,
                                                                            6,
-                                                                           false
+                                                                           GameObject::ObjectType::STATIC
                                                                            )));
                     break;
                 case '9': //flag

@@ -10,7 +10,7 @@ Player::Player(Mesh *mesh,
     vec3 position, vec3 scale, 
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
-        GameObject(mesh, position, 0, scale, 
+        GameObject(mesh, position, scale, 0,
 		direction, WALK, dimensions, scanRadius, material, GameObject::ObjectType::PLAYER) {
     maxVelocity = WALK;
     crouch = false;
