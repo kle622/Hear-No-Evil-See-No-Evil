@@ -7,10 +7,10 @@
 MySound* playrSoundObj = new MySound();
 
 Player::Player(Mesh *mesh,
-    vec3 position, float rotation, vec3 scale, 
+    vec3 position, vec3 scale, 
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
-        GameObject(mesh, position, rotation, scale, 
+        GameObject(mesh, position, scale, 0,
          direction, WALK, dimensions, scanRadius, material, true) {
     maxVelocity = WALK;
     crouch = false;
