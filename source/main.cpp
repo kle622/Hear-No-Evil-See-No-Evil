@@ -257,7 +257,7 @@ glm::mat4 getModel(GameObject *obj)
     Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
   }
   else {
-    Rot = glm::mat4(1.0f);
+    Rot = glm::rotate(glm::mat4(1.0f), obj->rotation, glm::vec3(0, 1, 0));
   }
   glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
   glm::mat4 com = Trans*Rot*Scale;
@@ -846,6 +846,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &barrel,
                                                                            vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
                                                                            vec3(1, 1, 1),
+                                                                           getRand(0, 360),
                                                                            vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
                                                                            vec3(1.5, 2, 1.5),
@@ -860,6 +861,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &boxStackMesh,
                                                                            vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                                                                            vec3(3.5, 2, 3.5),
+                                                                           getRand(0, 360),
                                                                            vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
                                                                            vec3(4.0, 5, 4.0),
@@ -874,6 +876,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &tableMesh,
                                                                            vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
                                                                            vec3(1.5, 2, 1.5),
+                                                                           0,
                                                                            vec3(1, 0, 0), // direction
                                                                            0,
                                                                            vec3(2.8, 1.5, 1.4),
@@ -888,6 +891,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &chairMesh,
                                                                            vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
                                                                            vec3(0.75, 0.75, 0.75),
+                                                                           getRand(0, 360),
                                                                            vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
                                                                            vec3(1.5, 2, 1.5),
@@ -905,6 +909,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &rafterMesh,
                                                                            vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
                                                                            vec3(24, 15, 24),
+                                                                           90,
                                                                            vec3(cos(0.5 * M_PI), 0, sin(0.5 * M_PI)), // direction
                                                                            0,
                                                                            vec3(44, 5.0, 1.0),
@@ -919,6 +924,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                              &winMesh,
                                                                              vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
                                                                              vec3(4, 6, 4),
+                                                                             0,
                                                                              vec3(0, 0, 1), // direction
                                                                              0,
                                                                              vec3(1, 10, 1),

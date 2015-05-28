@@ -6,7 +6,7 @@ Wall::Wall(Mesh *mesh,
   vec3 position, vec3 scale,
   vec3 direction, float velocity, vec3 dimensions, 
   int scanRadius, int material = 0) :
-  GameObject(mesh, position, scale,
+  GameObject(mesh, position, scale, 0,
   direction, velocity, dimensions, scanRadius, material, false) {
 
 }

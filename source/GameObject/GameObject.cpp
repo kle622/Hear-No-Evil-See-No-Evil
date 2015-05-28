@@ -3,13 +3,14 @@
 #define DECELERATION 0.45f
 
 GameObject::GameObject(Mesh *mesh,
-		       vec3 position, vec3 scale, 
+		       vec3 position, vec3 scale, float rotation,
 		       vec3 direction, float velocity, vec3 dimensions,
            int scanRadius, int material = 0, bool pushable = false) {
   this->mesh = mesh;
   this->position = position;
   this->oldPosition = position;
   this->scale = scale;
+  this->rotation = rotation;
   this->direction = normalize(direction);
   this->velocity = velocity;
   this->dimensions = dimensions;

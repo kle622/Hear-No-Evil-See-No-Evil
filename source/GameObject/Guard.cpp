@@ -8,7 +8,7 @@
 Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	int scanRadius, int material, vector<PathNode> motionPath) :
 	GameObject(mesh,
-	motionPath[0].pos, scale,
+	motionPath[0].pos, scale, 0,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
 	scanRadius, material, false) {
 	this->motionPath = motionPath;

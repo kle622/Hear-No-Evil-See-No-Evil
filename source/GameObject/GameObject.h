@@ -36,6 +36,7 @@ class GameObject {
   
   vec3 direction;
   float velocity;
+  float rotation;
   
   vec3 dimensions;
   int scanRadius;
@@ -49,7 +50,7 @@ class GameObject {
   
   //Constructor
   GameObject(Mesh *mesh, 
-	     vec3 position, vec3 scale, 
+	     vec3 position, vec3 scale, float rotation,
 	     vec3 direction, float velocity, vec3 dimensions, 
        int scanRadius, int material, bool pushable);
   

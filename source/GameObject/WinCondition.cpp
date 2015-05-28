@@ -1,10 +1,10 @@
 #include "WinCondition.h"
 
 WinCondition::WinCondition(Mesh *mesh,
-  vec3 position, vec3 scale,
+  vec3 position, vec3 scale, float rotation,
   vec3 direction, float velocity, vec3 dimensions, 
   int scanRadius, int material = 0) :
-  GameObject(mesh,position, scale,
+  GameObject(mesh,position, scale, rotation,
   direction, velocity, dimensions, scanRadius, material, false) {
 
 }
