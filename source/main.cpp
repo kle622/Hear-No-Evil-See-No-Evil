@@ -1399,6 +1399,8 @@ int main(int argc, char **argv)
 #endif
         }
         debugDraw->clear();
+
+        //ImGui::Render();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
