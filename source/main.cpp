@@ -34,10 +34,13 @@
 #include "GameObject/WinCondition.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
+#include "Camera/DetectionCamera.h"
 #include "Path/Path.h"
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
+#include "DetectionTracker/DetectionTracker.h"
+#include "GameObject/VisualMeter.h"
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -71,7 +74,7 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
-unsigned int detectCounter = 0;
+float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
@@ -79,7 +82,6 @@ Camera* debugCamera;
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
-Handles mainShader;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
 Mesh guardMesh;
@@ -96,8 +98,10 @@ Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
-DebugDraw debugDraw;
+DebugDraw *debugDraw;
+DetectionCamera *detectCam;
 MySound *soundObj;
+DetectionTracker *detecTrack;
 
 glm::vec3 g_light(0, 10, -5);
 
@@ -106,7 +110,12 @@ GLuint norBufObjG = 0;
 GLuint frameBufObj = 0;
 GLuint shadowMap = 0;
 
-double deltaTime;
+double deltaTime = 0;
+double timeCounter = 0;
+double currentTime = 0;
+double camSpeed = 450;
+
+GLuint texture;
 
 float getRand(double M, double N)
 {
@@ -347,6 +356,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
   }
   else {
+    playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
     glm::vec3 view = -1.0f * debugCamera->getForward();
     glm::vec3 up = debugCamera->getUp();
     glm::vec3 strafe = debugCamera->getStrafe();
@@ -389,6 +399,14 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
     debugCamera->eye += move;
     debugCamera->lookat += move;
+  }
+
+  // change mouse sensitivity
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    camSpeed *= 1.01;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    camSpeed *= 0.99;
   }
 }
 
@@ -434,6 +452,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
   // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
+<<<<<<< HEAD
 	  gameObjects->list[i]->move(time);
 	  vector<shared_ptr<GameObject>> proximity =
 		  gameObjects->getCloseObjects(gameObjects->list[i]);
@@ -456,47 +475,65 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 				}
 			}
 		}
+=======
+    gameObjects->list[i]->move(time);
+    vector<shared_ptr<GameObject>> proximity = 
+      gameObjects->getCloseObjects(gameObjects->list[i]);
 
-	  //guards
-	  if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-		  if (guard->detect(playerObject)) {
+    //all objects
+    for (int j = 0; j < proximity.size(); j++) {
+      if (gameObjects->list[i].get() != proximity[j].get()) {
+        if (gameObjects->list[i]->collide(proximity[j].get())) {
+          //do some stuff
+        } 
+      }
+    }
+
+    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+      detecTrack->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
+      for (int j = 0; j < gameObjects->wallList.size(); j++) {
+        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
+          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+        }
+      }
+    }
+>>>>>>> origin/master
+
+    //guards
+    if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+      float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+      detecTrack->updateVisDetect(detectPercent, playerObject);
+      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
+      if (detectPercent > 0) {
+        detecTrack->detecDanger = true;
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-			  cout << "Detection: " << ++detectCounter << " out of " << MAX_DETECT << endl;
-			  if (detectCounter >= MAX_DETECT) {
-				  // YOU lose
+        detectCounter += detectPercent;
+        cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
+        if (detectCounter >= MAX_DETECT) {
+          // YOU lose
           cout << "You lose! Not sneaky enough!" << endl;
           soundObj->playSndExit(soundObj->loseSnd);
-			  }
-		  }
-	  }
+        }
+      }
+    }
 
-	  //    for (int j = 0; j < proximity.size(); j++) {
-	  //        if (gameObjects->list[i] != proximity[j]) {
-	  //            if (gameObjects->list[i]->collide(proximity[j].get())) {
-	  //              //do some shit
-
-	  //              if (guardTalk->isFinished()) {
-	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, false, true);
-	  //              }
-	  //              else if (guardTalk->getIsPaused()) {
-	  //                guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", 
-	  //                  vec3df(proximity[j].get()->position.x, proximity[j].get()->position.y, proximity[j].get()->position.z), false, true, true);
-	  //                guardTalk->setIsPaused(false);
-	  //              }
-	  //            }
-	  //        }
-	  //    }
-	  //}
-	  /*for (int i = 0; i < gameObjects->wallList.size(); i++) {
-		SetMaterial(gameObjects->wallList[i]->material);
-		gameObjects->wallList[i]->draw();
-		}*/
-
-	  gameObjects->update();
+    // Dirty little visual rep of detection
+    if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
+      if (detecTrack->totalDetLvl < 3) {
+        gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
+      }
+      gameObjects->list[i].get()->position = 
+        vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
+      gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
+      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
+    }
+    gameObjects->update();
   }
 }
 
+<<<<<<< HEAD
 /*void beginDrawGL() {
   // Clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -510,6 +547,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   GLSL::enableVertexAttribArray(mainShader.aNormal);
 }*/
 
+=======
+>>>>>>> origin/master
 void beginPass1Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -609,26 +648,27 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   }
 
   if (key == GLFW_KEY_LEFT_SHIFT) {
-    if (action == GLFW_PRESS && !playerObject->crouch) {
+    if (action == GLFW_PRESS) {
       playerObject->SetMotion(RUN);
+      playerObject->crouch = false;
       //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
       //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
     else if (action == GLFW_RELEASE) {
       playerObject->SetMotion(WALK);
+      playerObject->crouch = false;
       //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
   }
-  if (key == GLFW_KEY_LEFT_CONTROL) {
-    if (action == GLFW_PRESS) {
-      playerObject->SetMotion(CROUCH);
-      playerObject->crouch = true;
-    }
-    else if (action == GLFW_RELEASE) {
+  if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
+    if (playerObject->crouch) {
       playerObject->SetMotion(WALK);
       playerObject->crouch = false;
     }
-
+    else {
+      playerObject->SetMotion(CROUCH);
+      playerObject->crouch = true;
+    }
   }
 }
 
@@ -641,6 +681,21 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   double dy = ypos - y_center;
 
   if (!debug) {
+    // TODO time-based animation
+    // define max camera movement rate; this can be a global setting to be changed by keypress
+    float maxMove = camSpeed * deltaTime;
+    if (dx > 0) {
+      dx = dx < maxMove ? dx : maxMove;
+    }
+    else {
+      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+    }
+    if (dy > 0) {
+      dy = dy < maxMove ? dy : maxMove;
+    }
+    else {
+      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+    }
     camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
     camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
   }
@@ -648,6 +703,20 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
     // TODO implement first person camera class 
     double max_vert_angle = 85;
     double cursor_speed = 0.3;
+    float maxMove = camSpeed * deltaTime;
+
+    if (dx > 0) {
+      dx = dx < maxMove ? dx : maxMove;
+    }
+    else {
+      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+    }
+    if (dy > 0) {
+      dy = dy < maxMove ? dy : maxMove;
+    }
+    else {
+      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+    }
 
     theta -= dx * cursor_speed;
     // note that ypos is measured from the top of the screen, so
@@ -664,7 +733,7 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 }
 
 void initObjects(WorldGrid* gameObjects) {
-  int levelDesign[TEST_WORLD][TEST_WORLD];
+  char levelDesign[TEST_WORLD][TEST_WORLD];
 
   char ch;
   fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
@@ -675,7 +744,7 @@ void initObjects(WorldGrid* gameObjects) {
       i++;
     }
     else {
-      levelDesign[i][j] = ch - '0';
+      levelDesign[i][j] = ch;
       j++;
     }
   }
@@ -684,6 +753,7 @@ void initObjects(WorldGrid* gameObjects) {
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
       switch(levelDesign[i][j]) {
+<<<<<<< HEAD
         case 3: //barrels
 			gameObjects->add(shared_ptr<GameObject>(new GameObject(
 				&tripleBarrelMesh,
@@ -696,51 +766,68 @@ void initObjects(WorldGrid* gameObjects) {
 				1,
 				0,
 				GameObject::ObjectType::STATIC
+=======
+        case '3': //barrels
+          gameObjects->add(shared_ptr<GameObject>(new GameObject(
+          &tripleBarrelMesh,
+          vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+          getRand(0, 360), 
+          vec3(2.5, 2.5, 2.5),  // scale
+          vec3(1.0, 0, 0),
+          0,
+          vec3(4.5, 4, 4.5),    // dimensions
+          1,
+          0,
+          false
+>>>>>>> origin/master
           )));
           break;
-        case 4: //stack of boxes
+        case '4': //stack of boxes
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &boxStackMesh,
           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
           getRand(0, 360), 
-          vec3(4, 2, 4),
+          vec3(4, 2, 4),      // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(3.0, 5, 3.0),
+          //vec3(boxStackMesh.dimensions.x * 4, boxStackMesh.dimensions.y * 2, boxStackMesh.dimensions.z * 4),  // dimensions
+          vec3(3.0, 5, 3.0),  // dimensions
           1,
           7,
 		  GameObject::ObjectType::STATIC
           )));
           break;
-        case 5: //table
+        case '5': //table
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &tableMesh,
           vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
           0, 
-          vec3(1.5, 1, 1.5),
+          vec3(1.5, 1, 1.5),    // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(2.8, 1.5, 1.4),
+          vec3(tableMesh.dimensions.x * 1.5, tableMesh.dimensions.y * 1, tableMesh.dimensions.z * 1.5),  // dimensions
+          //vec3(2.8, 1.5, 1.4),  // dimensions
           1,
           5,
 		  GameObject::ObjectType::PUSHABLE
           )));
           break;
-        case 6: //chair
+        case '6': //chair
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &chairMesh,
           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
           getRand(0, 360), 
-          vec3(1, 1, 1),
+          vec3(1, 1, 1),        // scale
           vec3(1.0, 0.0, 0.0),
           0,
-          vec3(1.5, 2, 1.5),
+          //vec3(1.5, 2, 1.5),
+          vec3(chairMesh.dimensions.x * 1, chairMesh.dimensions.y * 1, chairMesh.dimensions.z * 1),  // dimensions
           1,
           8,
 		  GameObject::ObjectType::PUSHABLE
           )));
           break;
-        case 7: //cart
+        case '7': //cart
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &cartMesh,
           vec3(i - (TEST_WORLD/2), -0.25, j - (TEST_WORLD/2)),
@@ -749,12 +836,13 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1.0, 0.0, 0.0),
           0,
           vec3(2.2, 2, 1.2),
+          //vec3(cartMesh.dimensions.x * 1, cartMesh.dimensions.y * 1, cartMesh.dimensions.z * 1),  // dimensions
           1,
           0,
 		  GameObject::ObjectType::PUSHABLE
           )));
           break;
-        case 8: //rafter
+        case '8': //rafter
           gameObjects->add(shared_ptr<GameObject>(new GameObject(
           &rafterMesh,
           vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
@@ -763,12 +851,13 @@ void initObjects(WorldGrid* gameObjects) {
           vec3(1.0, 0.0, 0.0),
           0,
           vec3(44, 5.0, 1.0),
+          //vec3(rafterMesh.dimensions.x * 24, rafterMesh.dimensions.y * 15, rafterMesh.dimensions.z * 24),  // dimensions
           1,
           6,
           GameObject::ObjectType::STATIC
           )));
           break;
-        case 9: //flag
+        case '9': //flag
           gameObjects->add(shared_ptr<GameObject>(new WinCondition(
           &winMesh,
           vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
@@ -795,7 +884,7 @@ void initPlayer(WorldGrid* gameObjects) {
       20,
       vec3(1.0, 1.0, 1.0), //scale
       vec3(1, 0, 0),
-      vec3(1.0, 2.0, 1.0),
+      playerMesh.dimensions, // dimensions
       1,
       2
       );
@@ -827,7 +916,8 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(1, 1, 1),
           GUARD_SPEED,
-          vec3(1.0, 2.0, 1.0),
+          guardMesh.dimensions,
+          //vec3(1.0, 2.0, 1.0),
           1,
           0,
           guardPath
@@ -940,7 +1030,8 @@ void initWalls(WorldGrid* gameObjects) {
             vec3(dims.x / 2, 1, dims.y / 2),    //scale
             vec3(1, 0, 0),  //direction
             0,
-            vec3(dims.x, 1, dims.y),     //dimensions
+            vec3(dims.x * cubeMesh.dimensions.x * 0.5, cubeMesh.dimensions.y, dims.y * cubeMesh.dimensions.z * 0.5),       // dimensions
+            //vec3(dims.x, 2, dims.y),     //dimensions
             0,            //scanRadius
             6             //material
             )));
@@ -964,6 +1055,20 @@ void initWalls(WorldGrid* gameObjects) {
 			}
 		}
 	}
+}
+
+void initDetectionTracker(WorldGrid* gameObjects) {
+  gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
+    &cubeMesh,
+    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
+    0,                //rotation
+    vec3(0.2, 0, 0.2),    //scale
+    vec3(1, 0, 0),    //direction
+    0,
+    vec3(0, 0, 0),     //dimensions
+    0,                 //scanRadius
+    0                  //material
+    )));
 }
 
 int main(int argc, char **argv)
@@ -991,7 +1096,7 @@ int main(int argc, char **argv)
     glfwTerminate();
     return -1;
   }
-  
+
 
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
@@ -1010,22 +1115,32 @@ int main(int argc, char **argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   initGL();
   assert(glGetError() == GL_NO_ERROR);
-  debugDraw.installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  //mainShader.installShaders(resPath(sysPath("shaders", "vert.glsl")), resPath(sysPath("shaders", "frag.glsl")));
-  //mainShader.installShaders(resPath(sysPath("shaders", "vert_nor.glsl")), resPath(sysPath("shaders", "frag_nor.glsl")));
+
+  debugDraw = new DebugDraw();
+  debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
   pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
   pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
   assert(glGetError() == GL_NO_ERROR);
 
+  std::cout << "loading guard mesh..." << std::endl;
   guardMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  std::cout << "loading player mesh..." << std::endl;
   playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+  std::cout << "loading cube mesh..." << std::endl;
   cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+  std::cout << "loading tripleBarrel mesh..." << std::endl;
   tripleBarrelMesh.loadShapes(resPath(sysPath("models", "tripleBarrel.obj")));
+  std::cout << "loading boxStack mesh..." << std::endl;
   boxStackMesh.loadShapes(resPath(sysPath("models", "boxStack.obj")));
+  std::cout << "loading table mesh..." << std::endl;
   tableMesh.loadShapes(resPath(sysPath("models", "table.obj")));
+  std::cout << "loading chair mesh..." << std::endl;
   chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
+  std::cout << "loading cart mesh..." << std::endl;
   cartMesh.loadShapes(resPath(sysPath("models", "cart.obj")));
+  std::cout << "loading rafter mesh..." << std::endl;
   rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
+  std::cout << "loading flag mesh..." << std::endl;
   winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
 
   srand(time(NULL));
@@ -1035,6 +1150,7 @@ int main(int argc, char **argv)
   //First item is always the player, followed by numGuards guards,
   //	followed by however many walls we need. -JB
   WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
+  detecTrack = new DetectionTracker();
 
   initPlayer(&gameObjects);
   initGuards(&gameObjects);
@@ -1042,69 +1158,79 @@ int main(int argc, char **argv)
   initWalls(&gameObjects);
   initGround();
   initCeiling();
+  initDetectionTracker(&gameObjects);
       
     //initialize the camera
-  camera3DPerson = new Camera3DPerson(&pass2Handles, &gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+  camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
       (float)g_width / (float)g_height,
-      CAMERA_NEAR, CAMERA_FAR);
-  camera3DPerson->debug = &debugDraw;
+      CAMERA_NEAR, CAMERA_FAR, debugDraw);
   // debug camera
-  debugCamera = new Camera(&pass2Handles,
-      glm::vec3(0.0f, 0.0f, 1.0f),
+  debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
       CAMERA_FOV,
       (float)g_width / (float)g_height,
       CAMERA_NEAR,
-      CAMERA_FAR);
-  double timeCounter = 0;
+      CAMERA_FAR,
+      debugDraw);
+  detectCam = new DetectionCamera(CAMERA_FOV,
+      (float)g_width / (float)g_height,
+      CAMERA_NEAR,
+      CAMERA_FAR * 0.4,
+      debugDraw);
+
 
   do{
     //timer stuff
     TimeManager::Instance().CalculateFrameRate(true);
     deltaTime = TimeManager::Instance().DeltaTime;
-    double currentTime = TimeManager::Instance().CurrentTime;
+    currentTime = TimeManager::Instance().CurrentTime;
     timeCounter += deltaTime;
 
+    camera3DPerson->update();
     beginPass1Draw();
     drawPass1(&gameObjects);
     endPass1Draw();
     beginPass2Draw();
-    // make sure these lines are in this order
     getWindowinput(window, deltaTime);
+    drawGameObjects(&gameObjects, deltaTime);
+    endDrawGL();
 
     // draw debug
     if (debug || boxes) {
       if (debug) {
         camera3DPerson->getView();
         camera3DPerson->getProjection();
-        debugDraw.view = debugCamera->getView();
-        debugDraw.projection = debugCamera->getProjection();
+        debugDraw->view = debugCamera->getView();
+        debugDraw->projection = debugCamera->getProjection();
       }
       else {
-        debugDraw.view = camera3DPerson->getView();
-        debugDraw.projection = camera3DPerson->getProjection();
+        debugDraw->view = camera3DPerson->getView();
+        debugDraw->projection = camera3DPerson->getProjection();
       }
 
       vector<shared_ptr<GameObject>> objs = gameObjects.list;
       for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
 
       vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
       for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-        debugDraw.addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
       }
     }
-    //    pass2Handles.uProjMatrix = camera3DPerson->getProjection();
-    //pass2Handles.uViewMatrix = camera3DPerson->getView();
-    drawGameObjects(&gameObjects, deltaTime);
-    endDrawGL();
     if (debug || boxes) {
+<<<<<<< HEAD
 //#ifndef WIN32
       debugDraw.drawAll();
 //#endif
       debugDraw.clear();
+=======
+#ifndef WIN32
+      debugDraw->drawAll();
+#endif
+      debugDraw->clear();
+>>>>>>> origin/master
     }
 
     glfwSwapBuffers(window);

@@ -1,4 +1,6 @@
 #include "MySound.h"
+#define DEBUG
+
 MySound* myReceiver = new MySound();
 
 MySound::MySound() {
@@ -64,7 +66,9 @@ void MySound::playSndExit(ISound* sound) {
     sound->setIsPaused(false);
   }
   else if (sound->isFinished()) {
+#ifndef DEBUG
     exit(0);
+#endif
   }
 }
 
