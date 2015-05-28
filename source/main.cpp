@@ -1242,7 +1242,7 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     
     // Open a window and create its OpenGL context
-    g_width = 1080;
+    g_width = 1280;
     g_height = 720;
     window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
     if (window == NULL) {
@@ -1366,11 +1366,18 @@ int main(int argc, char **argv)
         double currentTime = TimeManager::Instance().CurrentTime;
         timeCounter += deltaTime;
         
-        ImGui::Begin();
-        ImGui::SetWindowSize(ImVec2(700, 200));
+        bool open = true;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 10.0f);
+        ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
+            | ImGuiWindowFlags_NoSavedSettings
+            | ImGuiWindowFlags_NoResize
+            | ImGuiWindowFlags_NoMove);
+        ImGui::SetWindowSize(ImVec2(3900, 100));
+        ImGui::SetWindowPos(ImVec2(0, 10));
         ImGui::SetWindowFontScale(3.5f);
-        ImGui::SliderFloat("Detection", &detecTrac->totalDetLvl, 0.0f, 1.0f);
+        ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
         ImGui::End();
+        ImGui::PopStyleVar();
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
