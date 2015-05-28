@@ -239,16 +239,46 @@ void SetMaterial(int i) {
     }
 }
 
-void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
+glm::mat4 getModel(Shape *obj)
+{
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
+    glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
+    glm::mat4 com = Trans*Rot*Scale;
+
+    return com;
+}
+
+glm::mat4 getModel(GameObject *obj)
+{
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
+    glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
+    glm::mat4 com = Trans*Rot*Scale;
+
+    return com;
+}
+
+void SetModel(GLint handle, GameObject *obj) {
+    if (handle >= 0)
+        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(getModel(obj)));
+}
+
+void SetModel(GLint handle, Shape *obj) {
+    if (handle >= 0)
+        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(getModel(obj)));
+}
+
+/*void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
     glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
     glm::mat4 com = Trans*RotateY*Sc;
     if (handle >= 0)
         glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
-}
+}*/
 
-void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light) {
+/*void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light) {
     //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
   glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
   //  glm::mat4 depthProjMatrix = glm::perspective();
@@ -258,6 +288,56 @@ void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light
   glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) *
     glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
   //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
+  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
+  
+  glm::mat4 biasMatrix(
+		       0.5, 0.0, 0.0, 0.0,
+		       0.0, 0.5, 0.0, 0.0,
+		       0.0, 0.0, 0.5, 0.0,
+		       0.5, 0.5, 0.5, 1.0
+		       );
+  
+  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+  
+  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
+    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+  
+  //cerr << glGetError() << endl;
+  //  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+}*/
+
+void SetDepthMVP(bool pass1, Shape *obj, Light g_light) {
+    //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
+  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
+  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - lightInv, glm::vec3(0, 1, 0));
+  glm::mat4 depthModelMatrix = getModel(obj);
+  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
+  
+  glm::mat4 biasMatrix(
+		       0.5, 0.0, 0.0, 0.0,
+		       0.0, 0.5, 0.0, 0.0,
+		       0.0, 0.0, 0.5, 0.0,
+		       0.5, 0.5, 0.5, 1.0
+		       );
+  
+  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+  
+  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
+    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+  
+  //cerr << glGetError() << endl;
+  //  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+}
+
+void SetDepthMVP(bool pass1, GameObject *obj, Light g_light) {
+    //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
+  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
+  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - lightInv, glm::vec3(0, 1, 0));
+  glm::mat4 depthModelMatrix = getModel(obj);
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
   
   glm::mat4 biasMatrix(
@@ -340,7 +420,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             velocity.y = 0;
             direction += -velocity;
             glm::vec3 forward = camera3DPerson->getForward();
-            playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+            //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
             accelerate = true;
             leftD = true;
         }
@@ -350,7 +430,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             velocity.y = 0;
             direction += velocity;
             glm::vec3 forward = camera3DPerson->getForward();
-            playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+            //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
             accelerate = true;
             rightD = true;
         }
@@ -360,7 +440,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             velocity.y = 0;
             direction += velocity;
             glm::vec3 forward = camera3DPerson->getForward();
-            playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+            //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
             accelerate = true;
             upD = true;
         }
@@ -370,7 +450,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
             velocity.y = 0;
             direction += -velocity;
             glm::vec3 forward = camera3DPerson->getForward();
-            playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+            //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
             accelerate = true;
             downD = true;
         }
@@ -468,7 +548,8 @@ void drawPass1(WorldGrid* gameObjects) {
     //  for (int l = 0; l < gLights.size(); l++) {
         for (int i = 0; i < drawList.size(); i++) {
 	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	  SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
+	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
+	  SetDepthMVP(true, (drawList[i]).get(), gLights.at(0));
 	  pass1Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
@@ -540,16 +621,20 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       glUniform1i(pass2Handles.texture, 1);
       SetMaterial(0);
       //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-      SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(0));
-      SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
+      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(0));
+      SetDepthMVP(false, ground, gLights.at(0));
+      SetModel(pass2Handles.uModelMatrix, ground);
+      //SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
       pass2Handles.draw(ground);
       //ground->draw();
       
       glUniform1i(pass2Handles.hasTex, 0);
       SetMaterial(ceiling->material);
       //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-      SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(0));
-      SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
+      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(0));
+      SetDepthMVP(false, ceiling, gLights.at(0));
+      SetModel(pass2Handles.uModelMatrix, ceiling);
+      //SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
       pass2Handles.draw(ceiling);
       //ceiling->draw();
       //Guard *guard;
@@ -570,8 +655,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	
 	// SetMaterial(drawList[i]->material);
 	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-	SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
+	SetDepthMVP(false, (drawList[i]).get(), gLights.at(0));
+	SetModel(pass2Handles.uModelMatrix, (drawList[i]).get());
+	//SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
 	pass2Handles.draw(drawList[i].get());
 	//drawList[i]->draw();
       }
@@ -752,9 +839,8 @@ void initObjects(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
                                                                            &barrel,
                                                                            vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                                                                           getRand(0, 360),
                                                                            vec3(1, 1, 1),
-                                                                           vec3(1.0, 0, 0),
+                                                                           vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
                                                                            vec3(1.5, 2, 1.5),
                                                                            1,
@@ -767,9 +853,8 @@ void initObjects(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
                                                                            &boxStackMesh,
                                                                            vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-                                                                           getRand(0, 360),
                                                                            vec3(3.5, 2, 3.5),
-                                                                           vec3(1.0, 0.0, 0.0),
+                                                                           vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
                                                                            vec3(4.0, 5, 4.0),
                                                                            1,
@@ -782,9 +867,8 @@ void initObjects(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
                                                                            &tableMesh,
                                                                            vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
-                                                                           0,
                                                                            vec3(1.5, 2, 1.5),
-                                                                           vec3(1.0, 0.0, 0.0),
+                                                                           vec3(1, 0, 0), // direction
                                                                            0,
                                                                            vec3(2.8, 1.5, 1.4),
                                                                            1,
@@ -797,9 +881,8 @@ void initObjects(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
                                                                            &chairMesh,
                                                                            vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                                                                           getRand(0, 360),
                                                                            vec3(0.75, 0.75, 0.75),
-                                                                           vec3(1.0, -0.25, 0.0),
+                                                                           vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
                                                                            vec3(1.5, 2, 1.5),
                                                                            1,
@@ -815,9 +898,8 @@ void initObjects(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new GameObject(
                                                                            &rafterMesh,
                                                                            vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
-                                                                           90,
                                                                            vec3(24, 15, 24),
-                                                                           vec3(1.0, 0.0, 0.0),
+                                                                           vec3(cos(0.5 * M_PI), 0, sin(0.5 * M_PI)), // direction
                                                                            0,
                                                                            vec3(44, 5.0, 1.0),
                                                                            1,
@@ -830,9 +912,8 @@ void initObjects(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                                                                              &winMesh,
                                                                              vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
-                                                                             0,
                                                                              vec3(4, 6, 4),
-                                                                             vec3(1.0, 0.0, 0.0),
+                                                                             vec3(0, 0, 1), // direction
                                                                              0,
                                                                              vec3(1, 10, 1),
                                                                              1,
@@ -866,9 +947,8 @@ void initPlayer(WorldGrid* gameObjects) {
     playerObject = new Player(
                               &playerMesh,
                               vec3(0, 0, 0),
-                              20,
                               vec3(1.0, 1.0, 1.0), //scale
-                              vec3(1, 0, 0),
+                              vec3(cos(0.11 * M_PI), 0, sin(0.11 * M_PI)),      // direction
                               vec3(1.0, 2.0, 1.0),
                               1,
                               0
@@ -915,9 +995,8 @@ void initGuards(WorldGrid* gameObjects) {
 void initGround() {
     ground = new Shape(
                        vec3(0), //position
-                       0, //rotation
                        vec3(5, 1, 5), //scale
-                       vec3(1, 0, 0), //direction
+                       vec3(0, 0, 1), //direction
                        0, //velocity
                        6, //indices
                        posBufObjG,
@@ -933,9 +1012,8 @@ void initGround() {
 void initCeiling() {
     ceiling = new Shape(
                         vec3(0, 20, 0), //position
-                        0, //rotation
                         vec3(5, 1, 5), //scale
-                        vec3(1, 0, 0), //direction
+                        vec3(0, 0, 1), //direction
                         0, //velocity
                         6, //indices
                         posBufObjG,
@@ -1015,9 +1093,8 @@ void initWalls(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new Wall(
                                                                      &cubeMesh,
                                                                      vec3(center.x, 0, center.y),      //position
-                                                                     0,            //rotation
                                                                      vec3(dims.x / 2, 1, dims.y / 2),    //scale
-                                                                     vec3(1, 0, 0),  //direction
+                                                                     vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
                                                                      vec3(dims.x, 1, dims.y),     //dimensions
                                                                      0,            //scanRadius
@@ -1029,9 +1106,8 @@ void initWalls(WorldGrid* gameObjects) {
                     gameObjects->add(shared_ptr<GameObject>(new Wall(
                                                                      &cubeMesh,
                                                                      vec3(center.x, 9, center.y),      //position
-                                                                     0,            //rotation
                                                                      vec3(dims.x / 2, 10, dims.y / 2),    //scale
-                                                                     vec3(1, 0, 0),  //direction
+                                                                     vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
                                                                      vec3(dims.x, 20, dims.y),     //dimensions
                                                                      0,            //scanRadius
