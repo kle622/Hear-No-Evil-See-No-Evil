@@ -37,7 +37,8 @@ void main() {
      bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
-     
+     float clrBleedVal = 0.5;
+
      if (lightToSurfaceAngle > coneAngle) {
      	att = 0.2;
      }
@@ -66,23 +67,38 @@ void main() {
            visibility -= 0.1;
     	}
 	
+    float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
+    float avgSpecular = (specular.r + specular.b + specular.g)/3.0;
 	if (hasTex == 1) {
 	   diffuse = vec3(texture2D(texture, texCoordOut));
-	   //diffuse = vec3(0.0, 1.0, 0.0);
-	   //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-	  // gl_FragColor = texture2D(texture, texCoordOut);
-	   //gl_FragColor = vec4((att * diffuse) + ambient, 1.0);
+	   float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
+	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
+					   (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
+					   (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
+
+	   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+					   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+					   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
+	   
 	  color += (ambient + visibility * att * diffuse);
-	  //color = vec3(0.0, 1.0, 0.0);
 	}
 	else {	
-	     	//color = vec3(1.0, 0.0, 0.0);
-	        //gl_FragColor = vec4(att *((diffuse + specular)) + ambient, 1.0);
+	   float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
+	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
+					   (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
+					   (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
+
+	   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+					   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+					   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
+
+	   specular = vec3((specular.r + ((avgSpecular - specular.r) * clrBleedVal)), 
+					   (specular.g + ((avgSpecular - specular.g) * clrBleedVal)), 
+					   (specular.b + ((avgSpecular - specular.b) * clrBleedVal)));
 		color += (ambient + att * visibility * (diffuse + specular));
 	}
      	 
     }
 
-      //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     gl_FragColor = vec4(color, 1.0);
 }
