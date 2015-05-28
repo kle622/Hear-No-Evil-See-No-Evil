@@ -134,13 +134,32 @@ void Mesh::resize_obj() {
   scaleZ = 2.0/ maxExtent;
   shiftZ = minZ + (zExtent)/2.0;
 
+  minX -= shiftX;
+  minX *= scaleX;
+  minY -= shiftY;
+  minY *= scaleY;
+  minZ -= shiftZ;
+  minZ *= scaleZ;
+  maxX -= shiftX;
+  maxX *= scaleX;
+  maxY -= shiftY;
+  maxY *= scaleY;
+  maxZ -= shiftZ;
+  maxZ *= scaleZ;
+
+  // set box dimensions/center according to max x, y, and z
+  this->center = glm::vec3((maxX + minX) * 0.5, (maxY + minY) * 0.5, (maxZ + minZ) * 0.5);
+  this->dimensions = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
+
 #ifdef DEBUG
-  std::cout << "min x: " << (minX - shiftX) * scaleX << std::endl;
-  std::cout << "max x: " << (maxX - shiftX) * scaleX << std::endl;
-  std::cout << "min y: " << (minY - shiftY) * scaleY << std::endl;
-  std::cout << "max y: " << (maxY - shiftY) * scaleY << std::endl;
-  std::cout << "min z: " << (minZ - shiftZ) * scaleZ << std::endl;
-  std::cout << "max z: " << (maxZ - shiftZ) * scaleZ << std::endl;
+  std::cout << "min x: " << minX << std::endl;
+  std::cout << "max x: " << maxX << std::endl;
+  std::cout << "min y: " << minY << std::endl;
+  std::cout << "max y: " << maxY << std::endl;
+  std::cout << "min z: " << minZ << std::endl;
+  std::cout << "max z: " << maxZ << std::endl;
+  std::cout << "dimensions: <" << dimensions.x << ", " << dimensions.y << ", " << dimensions.z << ">" << std::endl;
+  std::cout << "center: <" << center.x << ", " << center.y << ", " << center.z << ">" << std::endl;
 #endif
 
   //Go through all verticies shift and scale them

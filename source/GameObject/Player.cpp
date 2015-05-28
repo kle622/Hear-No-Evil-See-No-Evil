@@ -10,36 +10,19 @@ Player::Player(Mesh *mesh,
     vec3 position, vec3 scale, 
            vec3 direction, vec3 dimensions, 
            int scanRadius, int material = 0) : 
-        GameObject(mesh, position, scale, 0,
-         direction, WALK, dimensions, scanRadius, material, true) {
+        GameObject(mesh, position, 0, scale, 
+		direction, WALK, dimensions, scanRadius, material, GameObject::ObjectType::PLAYER) {
     maxVelocity = WALK;
     crouch = false;
     standingScale = scale.y;
+    origDimensions = dimensions;
 }
 
-bool Player::collide(GameObject* object) {
-    float thisRadius = dimensions.x + dimensions.y + dimensions.z;
-    float objectRadius = object->dimensions.x + object->dimensions.y + 
-        object->dimensions.z;
-
-    if (compareDistance(position, object->position, thisRadius + objectRadius)) {
-        if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
-            intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
-            intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-            if (object->pushable && this->velocity > WALK) {
-                object->velocity = this->velocity;
-                object->direction = this->direction;
-            }
-            if (dynamic_cast<WinCondition*>(object)) {
-                //do win stuff here
-                playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
-                printf("I WIN\n");
-            }
-            position = oldPosition; // TODO implement a better system
-            return true;
-        }
-    }
-
+bool Player::collide(GameObject* object, DebugDraw *ddraw) {
+	if (GameObject::collide(object, ddraw)) {
+		// specific stuff
+		return true;
+	}
     return false;
 }
 
@@ -52,21 +35,19 @@ void Player::move(float time) {
             scale.y -= 0.1f * (standingScale - CROUCH_SCALE);
             position.y -= 0.05 * standingScale;
         }
-        crouchStamina -= 1.0f * time;
-        crouchStamina = std::max(crouchStamina, 0.0f);
-        if (crouchStamina == 0.0f)
-            crouch = false;
+        if (dimensions.y > origDimensions.y * CROUCH_SCALE) {
+          dimensions.y -= 0.15f * (standingScale - CROUCH_SCALE);
+        }
     }
     else {
-        if (crouchStamina <= 0) {
-            maxVelocity = WALK;
-        }
         scale.y = std::min(scale.y + 0.01f, standingScale);
-        position.y = yPos;
-        crouchStamina += 0.5f * time;
-        crouchStamina = std::min(crouchStamina, MAX_CROUCH_STAMINA);
+        if (position.y < yPos) {
+          position.y += 0.01f;
+        }
+        if (dimensions.y < origDimensions.y) {
+          dimensions.y += 0.02f;
+        }
     }
-    //printf("crouchStamina: %f\n", crouchStamina);
 }
 
 void Player::accelerate() {

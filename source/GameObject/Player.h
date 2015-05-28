@@ -28,8 +28,8 @@ class Player: public GameObject {
   float maxVelocity;
   bool crouch;
   float stamina = MAX_STAMINA;
-  float crouchStamina = MAX_CROUCH_STAMINA;
   int score = 0;
+  glm::vec3 origDimensions;
   
   //Constructor
   Player(Mesh *mesh,
@@ -41,7 +41,7 @@ class Player: public GameObject {
   void accelerate();
   void decelerate();
   void changeDirection(vec3 direction);
-  bool collide(GameObject* object);
+  bool collide(GameObject* object, DebugDraw *ddraw);
   void move(float time);
   void SetMotion(float motion);
 };

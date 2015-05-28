@@ -5,9 +5,7 @@ WinCondition::WinCondition(Mesh *mesh,
   vec3 direction, float velocity, vec3 dimensions, 
   int scanRadius, int material = 0) :
   GameObject(mesh,position, scale, rotation,
-  direction, velocity, dimensions, scanRadius, material, false) {
-
-}
+  direction, velocity, dimensions, scanRadius, material, GameObject::ObjectType::STATIC) {}
 
 void WinCondition::move(float time) {
 }

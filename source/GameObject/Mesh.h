@@ -43,6 +43,7 @@ class Mesh {
   void resize_obj(void);
   void sendBufs(void);
   glm::vec3 center;
+  glm::vec3 dimensions;
 };
 char* imageLoad(const char* filename);
 
