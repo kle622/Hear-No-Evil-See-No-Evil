@@ -602,9 +602,9 @@ void SetLightUniform(Light light, int ndx) {
   ///Array of handles
   stream << "allLights[" << ndx << "]";
   checkGLError();
-  printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
+  //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
   pass2Handles.uAllLights[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
-  printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
+  //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
   checkGLError();
   glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
 }
@@ -733,10 +733,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
             if (detectPercent > 0) {
                 soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
                 detectCounter += detectPercent;
-                cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
+                //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
                 if (detectCounter >= MAX_DETECT) {
                     // YOU lose
-                    cout << "You lose! Not sneaky enough!" << endl;
+                    //cout << "You lose! Not sneaky enough!" << endl;
                     soundObj->playSndExit(soundObj->loseSnd);
                 }
             }
@@ -1065,7 +1065,7 @@ void initGuards(WorldGrid* gameObjects) {
             for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
                 fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
 				y += GUARD_Y_SHIFT;
-                printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
+                //printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
                 guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
             }
             
@@ -1206,7 +1206,7 @@ void initWalls(WorldGrid* gameObjects) {
                                                                      )));
                 }
                 testWallCount++;
-                printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+                //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
             }
         }
     }
@@ -1281,7 +1281,7 @@ int main(int argc, char **argv)
     winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
     playerMesh.hasTexture = true;
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
-    printf("Loading cube mesh wall.bmp\n");
+    //printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
     shortCubeMesh.sendWallTexBuf();
@@ -1297,8 +1297,8 @@ int main(int argc, char **argv)
     boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
     guardMesh.hasTexture = true;
     guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), TEX_SIZE);
-    printf("shadow map id: %d\n", shadowMap);
-    printf("player tex id: %d\n", playerMesh.texId);
+    //printf("shadow map id: %d\n", shadowMap);
+    //printf("player tex id: %d\n", playerMesh.texId);
     
     
     srand(time(NULL));
@@ -1363,7 +1363,7 @@ int main(int argc, char **argv)
 	  endDrawGL();
 	  //}
 
-      printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
+      //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
         
         // draw debug
         if (debug || boxes) {

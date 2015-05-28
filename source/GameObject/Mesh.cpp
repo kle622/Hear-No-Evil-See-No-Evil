@@ -6,7 +6,7 @@ void Mesh::loadShapes(const std::string &objFile) {
   if(!err.empty()) {
     std::cerr << err << std::endl;
   }
-  printf("texCoords size: %d\n", this->shapes[0].mesh.texcoords.size());
+  //printf("texCoords size: %d\n", this->shapes[0].mesh.texcoords.size());
   this->resize_obj();
   this->sendBufs();
   //this->computeBound();
@@ -55,7 +55,7 @@ void Mesh::loadMipmapTexture(const std::string &filename, int size) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    printf("after glTexParameter calls\n");
+    //printf("after glTexParameter calls\n");
     
 }
 
@@ -86,7 +86,7 @@ void Mesh::computeBound() {
   this->radius = glm::distance(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
 
 #ifdef DEBUG
-  printf("Center: %f %f %f; Radius: %f\n", this->center.x, this->center.y, this->center.z, this->radius);
+  //printf("Center: %f %f %f; Radius: %f\n", this->center.x, this->center.y, this->center.z, this->radius);
 #endif
 }
 
@@ -152,14 +152,14 @@ void Mesh::resize_obj() {
   this->dimensions = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
 
 #ifdef DEBUG
-  std::cout << "min x: " << minX << std::endl;
+  /*std::cout << "min x: " << minX << std::endl;
   std::cout << "max x: " << maxX << std::endl;
   std::cout << "min y: " << minY << std::endl;
   std::cout << "max y: " << maxY << std::endl;
   std::cout << "min z: " << minZ << std::endl;
   std::cout << "max z: " << maxZ << std::endl;
   std::cout << "dimensions: <" << dimensions.x << ", " << dimensions.y << ", " << dimensions.z << ">" << std::endl;
-  std::cout << "center: <" << center.x << ", " << center.y << ", " << center.z << ">" << std::endl;
+  std::cout << "center: <" << center.x << ", " << center.y << ", " << center.z << ">" << std::endl;*/
 #endif
 
   //Go through all verticies shift and scale them

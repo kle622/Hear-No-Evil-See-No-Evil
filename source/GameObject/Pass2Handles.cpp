@@ -118,7 +118,7 @@ void Pass2Handles::draw(Shape* obj) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->idxBuffer);
   }
 
-  printf("about to draw in pass2handles\n");
+  //printf("about to draw in pass2handles\n");
   glDrawArrays(GL_TRIANGLES, 0, obj->indices);
 
   /*  GLSL::disableVertexAttribArray(this->aPosition);
