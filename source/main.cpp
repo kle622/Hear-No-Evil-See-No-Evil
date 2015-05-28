@@ -714,6 +714,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         
         //all objects
         for (int j = 0; j < proximity.size(); j++) {
+          if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
+            detecTrac->updateSndDetect(dynamic_cast<Player*>(gameObjects->list[i].get()));
+          }
             if (gameObjects->list[i] != proximity[j]) {
                 if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
 					soundObj->setListenerPos(gameObjects->list[i]->position, gameObjects->list[i]->direction);
@@ -743,7 +746,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                 }
             }
         }
-        //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
+        printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
         checkGLError();
         glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
         checkGLError();
