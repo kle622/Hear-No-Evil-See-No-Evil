@@ -8,7 +8,7 @@
 Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	int scanRadius, int material, vector<PathNode> motionPath) :
 	GameObject(mesh,
-	motionPath[0].pos, 0, scale,
+	motionPath[0].pos, scale,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
 	scanRadius, material, false) {
 	this->motionPath = motionPath;
@@ -59,7 +59,6 @@ void Guard::move(float time) {
 			position += direction * velocity * time / 3.0f;
 		}
 	}
-	rotation = (atan2f(direction.x, direction.z) * 180 / 3.14159f);
 }
 
 bool Guard::collide(GameObject* object) {

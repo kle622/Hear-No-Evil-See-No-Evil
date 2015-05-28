@@ -23,7 +23,6 @@ using namespace glm;
 class Shape {
  public:
   vec3 position;
-  float rotation;
   vec3 scale;
   vec3 direction;
   float velocity;
@@ -39,10 +38,10 @@ class Shape {
   int nump_mipmaps = 5;
   char* bmp;
   //Constructor
-  Shape(vec3 position, float rotation, 
+  Shape(vec3 position,
 	vec3 scale, vec3 direction, float velocity, int indices, 
 	GLuint posBuffer, GLuint norBuffer, GLuint idxBuffer, GLuint texBuffer, int material);
-  Shape(vec3 position, float rotation,
+  Shape(vec3 position,
         vec3 scale, vec3 direction, float velocity, int indices,
         GLuint posBuffer, GLuint norBuffer, int material);
 

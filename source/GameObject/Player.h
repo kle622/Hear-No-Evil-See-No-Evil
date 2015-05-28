@@ -33,7 +33,7 @@ class Player: public GameObject {
   
   //Constructor
   Player(Mesh *mesh,
-   vec3 position, float rotation, vec3 scale, 
+   vec3 position, vec3 scale, 
    vec3 direction, vec3 dimensions, 
   int scanRadius, int material);
   

@@ -1,11 +1,10 @@
 #include "Shape.h"
 
-Shape::Shape(vec3 position, float rotation, 
+Shape::Shape(vec3 position,
     vec3 scale, vec3 direction, float velocity, int indices, 
    GLuint posBuffer, GLuint norBuffer,int material = 0) {
   
   this->position = position;
-  this->rotation = rotation;
   this->scale = scale;
   this->direction = direction;
   this->velocity = velocity;
@@ -18,12 +17,11 @@ Shape::Shape(vec3 position, float rotation,
 }
 
 
-Shape::Shape(vec3 position, float rotation, 
+Shape::Shape(vec3 position,
     vec3 scale, vec3 direction, float velocity, int indices, 
 	     GLuint posBuffer, GLuint norBuffer, GLuint idxBuffer, GLuint texBuffer, int material = 0) {
   
   this->position = position;
-  this->rotation = rotation;
   this->scale = scale;
   this->direction = direction;
   this->velocity = velocity;
