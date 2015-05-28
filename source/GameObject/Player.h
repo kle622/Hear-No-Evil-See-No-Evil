@@ -2,7 +2,6 @@
 #define PLAYER_H_
 
 #include "GameObject.h"
-#include "VisualMeter.h"
 #include "Mesh.h"
 #include "Handles.h"
 #include "../Camera/Camera.h"

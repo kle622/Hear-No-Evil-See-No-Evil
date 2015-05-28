@@ -60,10 +60,3 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
   this->previousPlyrPos = player->position;
 }
-
-void DetectionTracker::updateVisMeter(Player *player) {
-  this->visMeter->position = vec3(player->position.x, player->position.y + 1, player->position.z);
-  this->visMeter->scale = vec3(this->totalDetLvl, this->totalDetLvl, this->totalDetLvl);
-}
-
-

@@ -40,7 +40,6 @@
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
 #include "DetectionTracker/DetectionTracker.h"
-#include "GameObject/VisualMeter.h"
 
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
@@ -452,7 +451,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
   // collide
   for (int i = 0; i < gameObjects->list.size(); i++) {
-<<<<<<< HEAD
 	  gameObjects->list[i]->move(time);
 	  vector<shared_ptr<GameObject>> proximity =
 		  gameObjects->getCloseObjects(gameObjects->list[i]);
@@ -460,7 +458,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	  //all objects
 		for (int j = 0; j < proximity.size(); j++) {
 			if (gameObjects->list[i].get() != proximity[j].get()) {
-				if (gameObjects->list[i]->collide(proximity[j].get(), &debugDraw)) {
+				if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
 					//do some stuff
 				}
 			}
@@ -470,36 +468,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 			gameObjects->list[i].get()->type == GameObject::ObjectType::PLAYER) {
 			soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
 			for (int j = 0; j < gameObjects->wallList.size(); j++) {
-				if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), &debugDraw)) {
+				if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
 					soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
 				}
 			}
 		}
-=======
-    gameObjects->list[i]->move(time);
-    vector<shared_ptr<GameObject>> proximity = 
-      gameObjects->getCloseObjects(gameObjects->list[i]);
-
-    //all objects
-    for (int j = 0; j < proximity.size(); j++) {
-      if (gameObjects->list[i].get() != proximity[j].get()) {
-        if (gameObjects->list[i]->collide(proximity[j].get())) {
-          //do some stuff
-        } 
-      }
-    }
-
-    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-      detecTrack->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      //detecTrack->updateVisMeter(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get())) {
-          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-        }
-      }
-    }
->>>>>>> origin/master
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
@@ -519,36 +492,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-    // Dirty little visual rep of detection
-    if (dynamic_cast<VisualMeter*>(gameObjects->list[i].get())) {
-      if (detecTrack->totalDetLvl < 3) {
-        gameObjects->list[i].get()->scale.y = detecTrack->totalDetLvl;
-      }
-      gameObjects->list[i].get()->position = 
-        vec3(playerObject->position.x, playerObject->position.y + 1 + detecTrack->totalDetLvl, playerObject->position.z);
-      gameObjects->list[i].get()->dimensions.y = detecTrack->totalDetLvl * 2;
-      printf("\n totalDetect %f\n", detecTrack->totalDetLvl);
-    }
     gameObjects->update();
   }
 }
 
-<<<<<<< HEAD
-/*void beginDrawGL() {
-  // Clear the screen
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // Use our GLSL program
-  glUseProgram(mainShader.prog);
-  glUniform3f(mainShader.uLightPos, g_light.x, g_light.y, g_light.z);
-  glUniform3f(mainShader.uCamPos, camera3DPerson->eye.x,
-      camera3DPerson->eye.y, camera3DPerson->eye.z);
-  GLSL::enableVertexAttribArray(mainShader.aPosition);
-  GLSL::enableVertexAttribArray(mainShader.aNormal);
-}*/
-
-=======
->>>>>>> origin/master
 void beginPass1Draw() {
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -753,7 +701,6 @@ void initObjects(WorldGrid* gameObjects) {
   for (i = 0; i < TEST_WORLD; i++) {
     for (j = 0; j < TEST_WORLD; j++) {
       switch(levelDesign[i][j]) {
-<<<<<<< HEAD
         case 3: //barrels
 			gameObjects->add(shared_ptr<GameObject>(new GameObject(
 				&tripleBarrelMesh,
@@ -766,20 +713,6 @@ void initObjects(WorldGrid* gameObjects) {
 				1,
 				0,
 				GameObject::ObjectType::STATIC
-=======
-        case '3': //barrels
-          gameObjects->add(shared_ptr<GameObject>(new GameObject(
-          &tripleBarrelMesh,
-          vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-          getRand(0, 360), 
-          vec3(2.5, 2.5, 2.5),  // scale
-          vec3(1.0, 0, 0),
-          0,
-          vec3(4.5, 4, 4.5),    // dimensions
-          1,
-          0,
-          false
->>>>>>> origin/master
           )));
           break;
         case '4': //stack of boxes
@@ -1057,20 +990,6 @@ void initWalls(WorldGrid* gameObjects) {
 	}
 }
 
-void initDetectionTracker(WorldGrid* gameObjects) {
-  gameObjects->add(shared_ptr<GameObject>(detecTrack->visMeter = new VisualMeter(
-    &cubeMesh,
-    vec3(playerObject->position.x, playerObject->dimensions.y + 1, playerObject->position.z),      //position
-    0,                //rotation
-    vec3(0.2, 0, 0.2),    //scale
-    vec3(1, 0, 0),    //direction
-    0,
-    vec3(0, 0, 0),     //dimensions
-    0,                 //scanRadius
-    0                  //material
-    )));
-}
-
 int main(int argc, char **argv)
 {
   // Sound Object
@@ -1158,7 +1077,6 @@ int main(int argc, char **argv)
   initWalls(&gameObjects);
   initGround();
   initCeiling();
-  initDetectionTracker(&gameObjects);
       
     //initialize the camera
   camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
@@ -1220,17 +1138,8 @@ int main(int argc, char **argv)
       }
     }
     if (debug || boxes) {
-<<<<<<< HEAD
-//#ifndef WIN32
-      debugDraw.drawAll();
-//#endif
-      debugDraw.clear();
-=======
-#ifndef WIN32
       debugDraw->drawAll();
-#endif
       debugDraw->clear();
->>>>>>> origin/master
     }
 
     glfwSwapBuffers(window);
