@@ -105,6 +105,7 @@ Mesh tableMesh;
 Mesh chairMesh;
 Mesh rafterMesh;
 Mesh winMesh;
+Mesh pedestalMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -933,6 +934,20 @@ void initObjects(WorldGrid* gameObjects) {
                                                                              3
                                                                              )));
                     break;
+                case 'P': //pedestal
+                    //printf("case 9\n");
+                    gameObjects->add(shared_ptr<GameObject>(new WinCondition(
+                                                                             &pedestalMesh,
+                                                                             vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
+                                                                             vec3(1, 1, 1),
+                                                                             0,
+                                                                             vec3(0, 0, 1), // direction
+                                                                             0,
+                                                                             vec3(1, 1, 1),
+                                                                             1,
+                                                                             3
+                                                                             )));
+                    break;
 	    case 'L': {
                     //glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
                     //printf("case 'L'\n");
@@ -1186,6 +1201,9 @@ int main(int argc, char **argv)
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
     
+    pedestalMesh.loadShapes(resPath(sysPath("models", "pedestal.obj")));
+    pedestalMesh.hasTexture = true;
+    pedestalMesh.loadMipmapTexture(resPath(sysPath("textures", "pedestal.bmp")), TEX_SIZE);
     guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
@@ -1279,6 +1297,8 @@ int main(int argc, char **argv)
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();
 	  //}
+
+      printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
         
         // draw debug
         if (debug || boxes) {
