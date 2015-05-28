@@ -77,34 +77,35 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
             }
 
 			
-				// Smooth Sliding Collisions
-				// other to this vector
-				vec3 dir = oldPosition - object->position;
-				dir.y = 0.0f;
-				dir = normalize(dir);
+			// Smooth Sliding Collisions
+			// other to this vector
+			vec3 dir = oldPosition - object->position;
+			dir.y = 0.0f;
+			dir = normalize(dir);
 
-				// corner of this object "closest" to the other object
-				vec3 thisCorner = oldPosition;
-				thisCorner.x -= sign(dir.x) * dimensions.x / 2;
-				thisCorner.y = 0;
-				thisCorner.z -= sign(dir.z) * dimensions.z / 2;
-				ddraw->addLine(thisCorner, thisCorner + vec3(0, -10, 0), vec3(1, 1, 1), true);
+			// corner of this object "closest" to the other object
+			vec3 thisCorner = oldPosition;
+			thisCorner.x -= sign(dir.x) * dimensions.x / 2;
+			thisCorner.y = 0;
+			thisCorner.z -= sign(dir.z) * dimensions.z / 2;
+			ddraw->addLine(thisCorner, thisCorner + vec3(0, -10, 0), vec3(1, 1, 1), true);
 
-				dir = thisCorner - object->position;
-				dir.y = 0.0f;
+			dir = thisCorner - object->position;
+			dir.y = 0.0f;
 
-				// vectors to corners of this object
-				vec3 posZnegX(-object->dimensions.x, 0, object->dimensions.z);
-				vec3 negZnegX(-object->dimensions.x, 0, -object->dimensions.z);
-				// corner vectors (green)
-				ddraw->addLine(object->position, object->position + posZnegX, vec3(0.2, 1, 0.2), true);
-				ddraw->addLine(object->position, object->position + negZnegX, vec3(0.2, 1, 0.2), true);
+			// vectors to corners of this object
+			vec3 posZnegX(-object->dimensions.x, 0, object->dimensions.z);
+			vec3 negZnegX(-object->dimensions.x, 0, -object->dimensions.z);
+			// corner vectors (green)
+			ddraw->addLine(object->position, object->position + posZnegX, vec3(0.2, 1, 0.2), true);
+			ddraw->addLine(object->position, object->position + negZnegX, vec3(0.2, 1, 0.2), true);
 
-				float cross1 = cross(posZnegX, dir).y;
-				float cross2 = cross(negZnegX, dir).y;
-				// cross vectors (red/blue)
-				ddraw->addLine(object->position + vec3(0, 1, 0), object->position + cross(posZnegX, dir) + vec3(0, 1, 0), vec3(cross(posZnegX, dir).y * 10000, 0, -cross(posZnegX, dir).y * 10000), true);
-				ddraw->addLine(object->position + vec3(0.2, 1, 0.2), object->position + cross(negZnegX, dir) + vec3(0.2, 1, 0.2), vec3(cross(negZnegX, dir).y * 10000, 0, -cross(negZnegX, dir).y * 10000), true);
+			float cross1 = cross(posZnegX, dir).y;
+			float cross2 = cross(negZnegX, dir).y;
+			// cross vectors (red/blue)
+			ddraw->addLine(object->position + vec3(0, 1, 0), object->position + cross(posZnegX, dir) + vec3(0, 1, 0), vec3(cross(posZnegX, dir).y * 10000, 0, -cross(posZnegX, dir).y * 10000), true);
+			ddraw->addLine(object->position + vec3(0.2, 1, 0.2), object->position + cross(negZnegX, dir) + vec3(0.2, 1, 0.2), vec3(cross(negZnegX, dir).y * 10000, 0, -cross(negZnegX, dir).y * 10000), true);
+
 			if (type >= object->type) {
 				int signx = sign(dir.x);
 				int signz = sign(dir.z);
@@ -113,14 +114,12 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
 				if (cross1 * cross2 < 0) {
 					// restrict x
 					printf("RESTRICT X!\n");
-					position.x = object->position.x + signx *
-						(object->dimensions.x + dimensions.x) / 2;
+					position.x = object->position.x + signx * (object->dimensions.x + dimensions.x + 0.05f) / 2;
 				}
 				else {
 					// restrict z
 					printf("RESTRICT Z!\n");
-					position.z = object->position.z + signz *
-						(object->dimensions.z + dimensions.z) / 2;
+					position.z = object->position.z + signz * (object->dimensions.z + dimensions.z + 0.05f) / 2;
 				}
 			}
             return true;
