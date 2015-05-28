@@ -1361,7 +1361,7 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
         
         bool open = true;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 10.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
@@ -1384,7 +1384,7 @@ int main(int argc, char **argv)
 	  endDrawGL();
 	  //}
 
-      //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
+      printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
         
         // draw debug
         if (debug || boxes) {
