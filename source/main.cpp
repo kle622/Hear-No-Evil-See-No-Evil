@@ -98,6 +98,7 @@ Pass2Handles pass2Handles;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
+Mesh shortCubeMesh;
 Mesh barrel;
 Mesh boxStackMesh;
 Mesh tableMesh;
@@ -1103,9 +1104,9 @@ void initWalls(WorldGrid* gameObjects) {
                 // Make the actual Wall object and add it to gameObjects list
                 if (shortWall) {
                     gameObjects->add(shared_ptr<GameObject>(new Wall(
-                                                                     &cubeMesh,
+                                                                     &shortCubeMesh,
                                                                      vec3(center.x, 0, center.y),      //position
-                                                                     vec3(dims.x / 2, 1, dims.y / 2),    //scale
+                                                                     vec3(dims.x / 2, 0.7f, dims.y / 2),    //scale
                                                                      vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
                                                                      vec3(dims.x, 1, dims.y),     //dimensions
@@ -1188,6 +1189,7 @@ int main(int argc, char **argv)
     guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+    shortCubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
     barrel.loadShapes(resPath(sysPath("models", "barrel.obj")));
     boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
     tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
@@ -1201,7 +1203,10 @@ int main(int argc, char **argv)
     printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
+    shortCubeMesh.sendWallTexBuf();
+    shortCubeMesh.loadMipmapTexture(resPath(sysPath("textures", "shortwall.bmp")), 512);
     cubeMesh.hasTexture = true;
+    shortCubeMesh.hasTexture = true;
     tableMesh.hasTexture = true;
     tableMesh.loadMipmapTexture(resPath(sysPath("textures", "desk.bmp")), TEX_SIZE);
     barrel.hasTexture = true;
