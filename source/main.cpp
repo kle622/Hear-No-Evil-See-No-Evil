@@ -924,10 +924,10 @@ void initObjects(WorldGrid* gameObjects) {
                                                                            &boxStackMesh,
                                                                            vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                                                                            vec3(3.5, 2, 3.5),
-                                                                           getRand(0, 360),
+                                                                           0,
                                                                            vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                                                                            0,
-                                                                           vec3(4.0, 5, 4.0),
+                                                                           vec3(3.7, 3.7, 3.7),
                                                                            1,
                                                                            7,
                                                                            GameObject::ObjectType::STATIC
