@@ -1,3 +1,10 @@
+----- Controls -----
+Use 'WASD' to move the player. Use the mouse to control the camera. Sprint by
+holding down 'shift', and toggle crouch by pressing 'control'. When sprinting,
+certain game objects in the world can be pushed. Crouching makes it harder for
+guards to see you behind low barriers. The 'up' and 'down' arrow keys increase
+and decrease the mouse sensitivity.
+
 ----- Debug Modes -----
 
 Press 'space' to toggle the free-floating debug camera. While in debug camera
