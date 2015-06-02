@@ -20,6 +20,7 @@ Camera3DPerson::Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom,
   this->focus = focus;
   this->zoom = zoom;
   this->minZoom = 0.7f;
+  this->offset = glm::vec3(0.0f, 0.7f, 0.0f);
 }
 
 // note: calling getEye() from constructor causes crash because setZoom() queries the WorldGrid for collision checking
@@ -156,6 +157,6 @@ void Camera3DPerson::moveHoriz(float step)
 
 void Camera3DPerson::update()
 {
-  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
+  this->lookat = this->focus->position + this->offset;
   this->eye = getEye();
 }

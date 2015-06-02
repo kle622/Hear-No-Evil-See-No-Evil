@@ -130,6 +130,15 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
     return false;
 }
 
+glm::mat4 GameObject::getModel()
+{
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), position);
+  glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0, 1, 0));
+  glm::mat4 Scale = glm::scale(glm::mat4(1.0f), scale);
+  glm::mat4 com = Trans*Rot*Scale;
+
+  return com;
+}
 /*void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
     glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
