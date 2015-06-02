@@ -18,6 +18,18 @@ Path: 2
 -31 0 47.5 x 3 r
 -50 0 52 x 3 l
 
+Guard 2:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 2
+-37 0 78 x 3 r
+-48 0 69 x 3 l
+
+Guard 3:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 2
+-17 0 70 x 1 r
+-27 0 72 x 1 l
+
 Guard 5:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2

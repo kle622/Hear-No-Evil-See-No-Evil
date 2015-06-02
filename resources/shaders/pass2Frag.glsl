@@ -27,8 +27,8 @@ void main() {
      
      vec3 color = vec3(0.0, 0.0, 0.0);
      vec3 light_color = vec3(0.5, 0.5, 0.243);
-     vec3 ambient = UaColor * 0.5;
-     ambient = vec3(0.0, 0.0, 0.4) * 0.2;
+     //vec3 ambient = UaColor * 0.5;
+     vec3 ambient = vec3(0.05, 0.05, 0.05);
      //float bias = 0.005;
      float visibility = 0.5;
 	 float clrBleedVal = detectionLevel;
@@ -102,10 +102,10 @@ void main() {
            visibility = 0.4;
     	}*/
 
-		/*float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
+		float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
 			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
 						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
-						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));*/
+						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
 
-    gl_FragColor = vec4(visibility * color, 1.0);
+    gl_FragColor = vec4((visibility * color) + avgAmbient, 1.0);
 }

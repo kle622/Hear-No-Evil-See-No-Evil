@@ -59,6 +59,7 @@
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
+#define GUARD_FAR 12.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
@@ -1082,11 +1083,11 @@ void initWalls(WorldGrid* gameObjects) {
                 if (shortWall) {
                     gameObjects->add(shared_ptr<GameObject>(new Wall(
                                                                      &shortCubeMesh,
-                                                                     vec3(center.x, 0, center.y),      //position
-                                                                     vec3(dims.x / 2, 0.7f, dims.y / 2),    //scale
+                                                                     vec3(center.x, -0.7f, center.y),      //position
+                                                                     vec3(dims.x / 2, 1.0f, dims.y / 2),    //scale
                                                                      vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
-                                                                     vec3(dims.x, 1.3, dims.y),     //dimensions
+                                                                     vec3(dims.x, 2.0f, dims.y),     //dimensions
                                                                      0,            //scanRadius
                                                                      6             //material
                                                                      )));
@@ -1234,7 +1235,7 @@ int main(int argc, char **argv)
     detectCam = new DetectionCamera(CAMERA_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
-                                    CAMERA_FAR,
+                                    GUARD_FAR,
                                     debugDraw);
     
     double timeCounter = 0;
