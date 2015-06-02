@@ -72,7 +72,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
 #endif
 
-  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->eye, 1);
   //std::vector<shared_ptr<GameObject>> objects = this->world->wallList;
   std::vector<shared_ptr<GameObject>> walls = this->world->wallList;
   objects.insert(objects.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy

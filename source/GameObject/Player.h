@@ -29,6 +29,7 @@ class Player: public GameObject {
   bool crouch;
   float stamina = MAX_STAMINA;
   int score = 0;
+  float lean = 0;
   glm::vec3 origDimensions;
   
   //Constructor

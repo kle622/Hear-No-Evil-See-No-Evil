@@ -68,6 +68,8 @@
 #define MAX_DETECT 400
 #define TEX_SIZE 1024
 
+#define MAX_LEAN 1
+
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
@@ -326,7 +328,7 @@ void initGL() {
     //initLights();
 }
 
-void getWindowinput(GLFWwindow* window, double deltaTime) {
+void getWindowInput(GLFWwindow* window, double deltaTime) {
     float forwardYVelocity = 0;
     float sideYVelocity = 0;
     bool accelerate = false;
@@ -334,6 +336,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     bool downD = false;
     bool leftD = false;
     bool rightD = false;
+    bool stopLean = false;
     vec3 direction(0, 0, 0);
     glm::vec3 forward = camera3DPerson->getForward();
     glm::vec3 strafe = camera3DPerson->getStrafe();
@@ -350,6 +353,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
           accelerate = true;
           leftD = true;
+          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
@@ -360,6 +364,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
           accelerate = true;
           rightD = true;
+          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -370,6 +375,7 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
           accelerate = true;
           upD = true;
+          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -380,12 +386,42 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
           accelerate = true;
           downD = true;
+          stopLean = true;
       }
-      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        
+      if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        stopLean = false;
+        if (playerObject->lean < MAX_LEAN) {
+          playerObject->lean += 0.1;
+          camera3DPerson->offset -= 0.1f * strafe;
+          glm::vec3 newForward = forward;
+          newForward.y = 0;
+          playerObject->changeDirection(newForward);
+        }
+      }
+      else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
+        if (playerObject->lean > 0) {
+          playerObject->lean -= 0.1;
+          camera3DPerson->offset += 0.1f * strafe;
+        }
       }
       if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        
+        stopLean = false;
+        if (playerObject->lean > -1 * MAX_LEAN) {
+          playerObject->lean -= 0.1;
+          camera3DPerson->offset += 0.1f * strafe;
+          glm::vec3 newForward = forward;
+          newForward.y = 0;
+          playerObject->changeDirection(newForward);
+        }
+      }
+      else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+        if (playerObject->lean < 0) {
+          playerObject->lean += 0.1;
+          camera3DPerson->offset -= 0.1f * strafe;
+        }
+      }
+
+      if (stopLean) {
       }
       
         if (accelerate) {
@@ -1272,7 +1308,7 @@ int main(int argc, char **argv)
 	  drawPass1(&gameObjects);
 	  endPass1Draw();
 	  beginPass2Draw();
-	  getWindowinput(window, deltaTime);
+	  getWindowInput(window, deltaTime);
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();
 	  //}
