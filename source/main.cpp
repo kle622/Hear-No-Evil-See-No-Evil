@@ -1390,7 +1390,7 @@ int main(int argc, char **argv)
 	  endDrawGL();
 	  //}
 
-      printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
+      //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
         
         // draw debug
         if (debug || boxes) {
@@ -1426,6 +1426,7 @@ int main(int argc, char **argv)
         
         glfwSwapBuffers(window);
         glfwPollEvents();
+        printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
              && glfwWindowShouldClose(window) == 0);
     
