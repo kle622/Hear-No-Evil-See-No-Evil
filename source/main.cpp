@@ -388,8 +388,8 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       }
     }
 
-    float shearSpeed = 4;
-    float camShiftSpeed = 8;
+    float shearSpeed = 3;
+    float camShiftSpeed = 6;
     float iters = 20;
     float max_lean = 0.5;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
@@ -1374,7 +1374,7 @@ int main(int argc, char **argv)
 	  drawPass1(&gameObjects);
 	  endPass1Draw();
 	  beginPass2Draw();
-	  getWindowinput(window, deltaTime);
+	  getWindowInput(window, deltaTime);
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();
 	  //}
