@@ -1245,6 +1245,8 @@ int main(int argc, char **argv)
     //printf("player tex id: %d\n", playerMesh.texId);
 
     ImGui_ImplGlfw_Init(window, false);
+    ImGuiIO& io = ImGui::GetIO();
+
     
     do{
         ImGui_ImplGlfw_NewFrame(); 
@@ -1263,11 +1265,10 @@ int main(int argc, char **argv)
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
             | ImGuiWindowFlags_NoMove);
-        ImGui::SetWindowSize(ImVec2(g_width, 100));
+        ImGui::SetWindowSize(ImVec2(io.DisplaySize.x, 100));
         ImGui::SetWindowPos(ImVec2(0, 10));
         ImGui::SetWindowFontScale(3.5f);
         ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
-        printf("width: %f, height %f\n gWidth: %d, gHeight: %d\n", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y, g_width, g_height);
         ImGui::End();
         ImGui::PopStyleVar();
         ImGui::PopStyleColor(1);
