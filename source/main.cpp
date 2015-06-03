@@ -123,14 +123,15 @@ DetectionTracker *detecTrac;
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
 glm::vec3 coneDir(0.0, -0.5, 0.0);
-float coneAngle = 20;
+float coneAngle = 5;
 float attenuation = 0.1f;
+int closestLNdx = 0;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 GLuint idxBufObjG = 0;
-GLuint frameBufObj = 0;
+GLuint frameBufObj[MAX_LIGHTS] = {0};
 GLuint texBufObjG = 0;
-GLuint shadowMap = 0;
+GLuint shadowMap[MAX_LIGHTS] = {0};
 
 double deltaTime = 0;
 double timeCounter = 0;
@@ -252,19 +253,19 @@ void SetMaterial(int i) {
 
 void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
     //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
-  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
-  const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
-  const float nearClipPlane = 0.3f;
-  const float farClipPlane = 30.0f;
-  const float zRange = nearClipPlane - farClipPlane;
-  const glm::mat4 depthProjMatrix(
-				  invTanHalfFov, 0.0f, 0.0f, 0.0f,
+  //  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
+  //const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
+  //const float nearClipPlane = 0.3f;
+  //const float farClipPlane = 30.0f;
+  //const float zRange = nearClipPlane - farClipPlane;
+  //const glm::mat4 depthProjMatrix(
+  /*	  invTanHalfFov, 0.0f, 0.0f, 0.0f,
 				  0.0f, invTanHalfFov, 0.0f, 0.0f,
 				  0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
 				  0.0f, 0.0f, 1.0f, 0.0f
-				  );
-  //glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.coneDirection, glm::vec3(0, 1, 0));
+				  );*/
+  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, glm::vec3(0, 0, -3), glm::vec3(0, 1, 0));
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
   
   glm::mat4 biasMatrix(
@@ -285,22 +286,22 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 }
 
 void initFramebuffer() {
-  //for (int i = 0; i < gLights.size(); i++) {
-    glGenFramebuffersEXT(1, &frameBufObj);
+   for (int i = 0; i < gLights.size(); i++) {
+    glGenFramebuffersEXT(1, &frameBufObj[i]);
     assert(frameBufObj > 0);
-    glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[i]);
     assert(glGetError() == GL_NO_ERROR);
     
-    // for (int i = 0; i < gLights.size(); i++) {
-      glGenTextures(1, &shadowMap);
+    //for (int i = 0; i < gLights.size(); i++) {
+      glGenTextures(1, &shadowMap[i]);
       assert(shadowMap > 0);
-      glBindTexture(GL_TEXTURE_2D, shadowMap);
+      glBindTexture(GL_TEXTURE_2D, shadowMap[i]);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, g_width, g_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap[i], 0);
       glDrawBuffer(GL_NONE);
       glReadBuffer(GL_NONE);
       assert(glGetError() == GL_NO_ERROR);
@@ -314,6 +315,7 @@ void initFramebuffer() {
     // Unbind the arrays
     glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
     assert(glGetError() == GL_NO_ERROR);
+  }
 }
 
 void initGL() {
@@ -458,9 +460,25 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
     }
 }
 
+int findClosestLight() {
+  int ndx = 0;
+  float closest = glm::distance(playerObject->position, gLights.at(0).position);
+
+  for (int i = 0; i < gLights.size(); i++) {
+    float dist = glm::distance(playerObject->position, gLights.at(i).position);
+    if (dist < closest) {
+      ndx = i;
+      closest = dist;
+    }
+  }
+
+  return ndx;
+
+}
 
 void beginPass1Draw() {
-    glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  closestLNdx = findClosestLight();
+    glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
     //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
@@ -486,9 +504,10 @@ void drawPass1(WorldGrid* gameObjects) {
     vector<shared_ptr<GameObject>> drawList = gameObjects->list;
     vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
     drawList.insert(drawList.end(), walls.begin(), walls.end());
+
     //  for (int l = 0; l < gLights.size(); l++) {
         for (int i = 0; i < drawList.size(); i++) {
-	  SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(0));
+	  SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(closestLNdx));
 	  pass1Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
@@ -521,7 +540,7 @@ void beginPass2Draw() {
     glEnable(GL_TEXTURE_2D);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, shadowMap);
+    glBindTexture(GL_TEXTURE_2D, shadowMap[closestLNdx]);
     glUniform1i(pass2Handles.shadowMap, 0);
     glActiveTexture(GL_TEXTURE1);
        
@@ -558,14 +577,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);
       SetMaterial(0);
-      SetDepthMVP(false, ground->getModel(), gLights.at(0));
+      SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
       safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ground->getModel()));
       pass2Handles.draw(ground);
       //ground->draw();
       
       glUniform1i(pass2Handles.hasTex, 0);
       SetMaterial(ceiling->material);
-      SetDepthMVP(false, ceiling->getModel(), gLights.at(0));
+      SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
       safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
       pass2Handles.draw(ceiling);
       //ceiling->draw();
@@ -586,7 +605,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	}
 	
 	// SetMaterial(drawList[i]->material);
-	SetDepthMVP(false, drawList[i]->getModel(), gLights.at(0));
+	SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
         safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
 	pass2Handles.draw(drawList[i].get());
 	//drawList[i]->draw();
