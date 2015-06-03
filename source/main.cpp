@@ -336,7 +336,9 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
     bool downD = false;
     bool leftD = false;
     bool rightD = false;
-    bool stopLean = false;
+    static bool leaningLeft = false;
+    static bool leaningRight = false;
+    static vec3 cameraLean;
     vec3 direction(0, 0, 0);
     glm::vec3 forward = camera3DPerson->getForward();
     glm::vec3 strafe = camera3DPerson->getStrafe();
@@ -353,7 +355,6 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
           accelerate = true;
           leftD = true;
-          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
@@ -364,7 +365,6 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
           accelerate = true;
           rightD = true;
-          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -375,7 +375,6 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
           accelerate = true;
           upD = true;
-          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
@@ -386,44 +385,62 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
           accelerate = true;
           downD = true;
-          stopLean = true;
       }
       if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        stopLean = false;
-        if (playerObject->lean < MAX_LEAN) {
-          playerObject->lean += 0.1;
-          camera3DPerson->offset -= 0.1f * strafe;
-          glm::vec3 newForward = forward;
-          newForward.y = 0;
-          playerObject->changeDirection(newForward);
+        if (!leaningRight) {
+          if (!leaningLeft) {
+            leaningLeft = true;
+            cameraLean = strafe;
+          }
+          if (playerObject->lean < MAX_LEAN) {
+            playerObject->lean += 0.1;
+            camera3DPerson->offset -= 0.1f * cameraLean;
+            glm::vec3 newForward = forward;
+            newForward.y = 0;
+            playerObject->changeDirection(newForward);
+          }
         }
       }
       else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
-        if (playerObject->lean > 0) {
-          playerObject->lean -= 0.1;
-          camera3DPerson->offset += 0.1f * strafe;
+        if (leaningLeft) {
+          if (playerObject->lean > 0) {
+            playerObject->lean -= 0.1;
+            camera3DPerson->offset += 0.1f * cameraLean;
+          }
+          else {
+            leaningLeft = false;
+          }
         }
       }
       if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        stopLean = false;
-        if (playerObject->lean > -1 * MAX_LEAN) {
-          playerObject->lean -= 0.1;
-          camera3DPerson->offset += 0.1f * strafe;
-          glm::vec3 newForward = forward;
-          newForward.y = 0;
-          playerObject->changeDirection(newForward);
+        if (!leaningLeft) {
+          if (!leaningRight) {
+            leaningRight = true;
+            cameraLean = strafe;
+          }
+          if (playerObject->lean > -1 * MAX_LEAN) {
+            playerObject->lean -= 0.1;
+            camera3DPerson->offset += 0.1f * cameraLean;
+            glm::vec3 newForward = forward;
+            newForward.y = 0;
+            playerObject->changeDirection(newForward);
+          }
         }
       }
       else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
-        if (playerObject->lean < 0) {
-          playerObject->lean += 0.1;
-          camera3DPerson->offset -= 0.1f * strafe;
+        if (leaningRight) {
+          for (int i = 0; i < 4 && playerObject->lean < 0) {
+          }
+          if (playerObject->lean < 0) {
+            playerObject->lean += 0.1;
+            camera3DPerson->offset -= 0.1f * cameraLean;
+          }
+          else {
+            leaningRight = false;
+          }
         }
       }
 
-      if (stopLean) {
-      }
-      
         if (accelerate) {
           direction = normalize(direction);
             if ((upD && downD) || (leftD && rightD)) {
