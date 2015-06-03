@@ -1260,7 +1260,7 @@ int main(int argc, char **argv)
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
             | ImGuiWindowFlags_NoMove);
-        ImGui::SetWindowSize(ImVec2(3900, 100));
+        ImGui::SetWindowSize(ImVec2(1400, 100));
         ImGui::SetWindowPos(ImVec2(0, 10));
         ImGui::SetWindowFontScale(3.5f);
         ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
