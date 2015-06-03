@@ -344,6 +344,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
     oldPosition = playerObject->position;
     
     if (!debug) {
+      if (!leaningRight && ! leaningLeft) {
       if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
@@ -383,6 +384,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
           //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
           accelerate = true;
           downD = true;
+      }
       }
 
       float shearSpeed = 4;

@@ -87,7 +87,7 @@ glm::mat4 Player::getModel()
   glm::mat4 Scale = glm::scale(glm::mat4(1.0f), scale);
   glm::mat4 Shear = glm::mat4(1.0f);
   Shear[1][0] = lean;
-  glm::mat4 com = Trans*Shear*Rot*Scale;
+  glm::mat4 com = Trans*Rot*Shear*Scale;
 
   return com;
 }
