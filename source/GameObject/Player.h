@@ -43,6 +43,7 @@ class Player: public GameObject {
   void changeDirection(vec3 direction);
   bool collide(GameObject* object, DebugDraw *ddraw);
   void move(float time);
+  virtual glm::mat4 getModel();
   void SetMotion(float motion);
 };
 

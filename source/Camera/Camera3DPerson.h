@@ -28,6 +28,7 @@ class Camera3DPerson: public Camera
     float minZoom;
     float lowerBound; // bounds stored as degrees
     float upperBound;
+    glm::vec3 offset; // used for tweaking
     GameObject *focus;
     WorldGrid *world;
     Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom, float fov, float aspect, float _near, float _far, DebugDraw *debug);

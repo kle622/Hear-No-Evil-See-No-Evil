@@ -59,6 +59,7 @@
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
+#define GUARD_FAR 12.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
@@ -250,88 +251,7 @@ void SetMaterial(int i) {
     }
 }
 
-glm::mat4 getModel(Shape *obj)
-{
-  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
-    glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
-    glm::mat4 com = Trans*Rot*Scale;
-
-    return com;
-}
-
-glm::mat4 getModel(GameObject *obj)
-{
-  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
-  glm::mat4 Rot;
-  if (obj->type >= GameObject::ObjectType::GUARD) {
-    Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
-  }
-  else {
-    Rot = glm::rotate(glm::mat4(1.0f), obj->rotation, glm::vec3(0, 1, 0));
-  }
-  glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
-  glm::mat4 com = Trans*Rot*Scale;
-
-  return com;
-}
-
-void SetModel(GLint handle, GameObject *obj) {
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(getModel(obj)));
-}
-
-void SetModel(GLint handle, Shape *obj) {
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(getModel(obj)));
-}
-
-/*void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
-    glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
-    glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
-    glm::mat4 com = Trans*RotateY*Sc;
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
-}*/
-
-/*void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light) {
-  const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
-  const float nearClipPlane = 0.3f;
-  const float farClipPlane = 30.0f;
-  const float zRange = nearClipPlane - farClipPlane;
-  const glm::mat4 lightProjectionMatrix(
-				      invTanHalfFov, 0.0f, 0.0f, 0.0f,
-				      0.0f, invTanHalfFov, 0.0f, 0.0f,
-				      0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
-				      0.0f, 0.0f, 1.0f, 0.0f
-				      );
-  //glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 2.0f, 50.0f);
-  //glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.coneDirection, glm::vec3(0, 1, 0));
-  glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) *
-    glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
-  //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
-  glm::mat4 depthMVP = lightProjectionMatrix * depthViewMatrix * depthModelMatrix;
-  
-  glm::mat4 biasMatrix(
-		       0.5, 0.0, 0.0, 0.0,
-		       0.0, 0.5, 0.0, 0.0,
-		       0.0, 0.0, 0.5, 0.0,
-		       0.5, 0.5, 0.5, 1.0
-		       );
-  
-  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
-  
-  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
-    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
-  
-  //cerr << glGetError() << endl;
-  //  assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
-}*/
-
-void SetDepthMVP(bool pass1, Shape *obj, Light g_light) {
+void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
     //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
   glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
   const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
@@ -346,32 +266,6 @@ void SetDepthMVP(bool pass1, Shape *obj, Light g_light) {
 				  );
   //glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
   glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.coneDirection, glm::vec3(0, 1, 0));
-  glm::mat4 depthModelMatrix = getModel(obj);
-  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
-  
-  glm::mat4 biasMatrix(
-		       0.5, 0.0, 0.0, 0.0,
-		       0.0, 0.5, 0.0, 0.0,
-		       0.0, 0.0, 0.5, 0.0,
-		       0.5, 0.5, 0.5, 1.0
-		       );
-  
-  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
-  
-  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
-    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
-  
-  //cerr << glGetError() << endl;
-  //  assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
-}
-
-void SetDepthMVP(bool pass1, GameObject *obj, Light g_light) {
-    //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
-  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
-  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - lightInv, glm::vec3(0, 1, 0));
-  glm::mat4 depthModelMatrix = getModel(obj);
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
   
   glm::mat4 biasMatrix(
@@ -488,6 +382,12 @@ void getWindowinput(GLFWwindow* window, double deltaTime) {
           accelerate = true;
           downD = true;
       }
+      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        
+      }
+      if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        
+      }
       
         if (accelerate) {
           direction = normalize(direction);
@@ -583,16 +483,13 @@ void drawPass1(WorldGrid* gameObjects) {
     Guard *guard;
     // draw
     //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
-    //SetDepthMVP(true, ground->position, ground->rotation, ground->scale);
     //pass1Handles.draw(ground);
     vector<shared_ptr<GameObject>> drawList = gameObjects->list;
     vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
     drawList.insert(drawList.end(), walls.begin(), walls.end());
     //  for (int l = 0; l < gLights.size(); l++) {
         for (int i = 0; i < drawList.size(); i++) {
-	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-	  SetDepthMVP(true, (drawList[i]).get(), gLights.at(0));
+	  SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(0));
 	  pass1Handles.draw(drawList[i].get());
             //drawList[i]->draw();
         }
@@ -662,21 +559,15 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       glBindTexture(GL_TEXTURE_2D, ground->texId);
       glUniform1i(pass2Handles.texture, 1);
       SetMaterial(0);
-      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(0));
-      SetDepthMVP(false, ground, gLights.at(0));
-      SetModel(pass2Handles.uModelMatrix, ground);
-      //SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
+      SetDepthMVP(false, ground->getModel(), gLights.at(0));
+      safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ground->getModel()));
       pass2Handles.draw(ground);
       //ground->draw();
       
       glUniform1i(pass2Handles.hasTex, 0);
       SetMaterial(ceiling->material);
-      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(0));
-      SetDepthMVP(false, ceiling, gLights.at(0));
-      SetModel(pass2Handles.uModelMatrix, ceiling);
-      //SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
+      SetDepthMVP(false, ceiling->getModel(), gLights.at(0));
+      safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
       pass2Handles.draw(ceiling);
       //ceiling->draw();
       //Guard *guard;
@@ -696,11 +587,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 	}
 	
 	// SetMaterial(drawList[i]->material);
-	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-	SetDepthMVP(false, (drawList[i]).get(), gLights.at(0));
-	SetModel(pass2Handles.uModelMatrix, (drawList[i]).get());
-	//SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
+	SetDepthMVP(false, drawList[i]->getModel(), gLights.at(0));
+        safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
 	pass2Handles.draw(drawList[i].get());
 	//drawList[i]->draw();
       }
@@ -714,22 +602,25 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         
         //all objects
         for (int j = 0; j < proximity.size(); j++) {
-          if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-            detecTrac->updateSndDetect(dynamic_cast<Player*>(gameObjects->list[i].get()));
-          }
-            if (gameObjects->list[i] != proximity[j]) {
+            if (gameObjects->list[i].get() != proximity[j].get()) {
                 if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
-					soundObj->setListenerPos(gameObjects->list[i]->position, gameObjects->list[i]->direction);
-					if (gameObjects->list[i]->type == GameObject::ObjectType::PLAYER && proximity[j].get()->type == GameObject::ObjectType::STATIC) {
-						soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-					}
+                    //do some stuff
+                }
+            }
+        }
+        
+        if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+            soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+            detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+            for (int j = 0; j < gameObjects->wallList.size(); j++) {
+                if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
+                    soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
                 }
             }
         }
         
         //guards
-		if (gameObjects->list[i].get()->type == GameObject::ObjectType::GUARD) {
-			guard = dynamic_cast<Guard*>(gameObjects->list[i].get());
+        if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
             float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
             if (detectPercent > 0) {
               detecTrac->detecDanger = true;
@@ -746,7 +637,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
                 }
             }
         }
-        printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
+        //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
         checkGLError();
         glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
         checkGLError();
@@ -1006,7 +897,7 @@ void initObjects(WorldGrid* gameObjects) {
                                                                              3
                                                                              )));
                     break;
-                case 'T': //train
+                case 'T': //pedestal
                     //printf("case 9\n");
                     gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                                                                              &trainMesh,
@@ -1192,11 +1083,11 @@ void initWalls(WorldGrid* gameObjects) {
                 if (shortWall) {
                     gameObjects->add(shared_ptr<GameObject>(new Wall(
                                                                      &shortCubeMesh,
-                                                                     vec3(center.x, 0, center.y),      //position
-                                                                     vec3(dims.x / 2, 0.7f, dims.y / 2),    //scale
+                                                                     vec3(center.x, -0.7f, center.y),      //position
+                                                                     vec3(dims.x / 2, 1.0f, dims.y / 2),    //scale
                                                                      vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
-                                                                     vec3(dims.x, 1.3, dims.y),     //dimensions
+                                                                     vec3(dims.x, 2.0f, dims.y),     //dimensions
                                                                      0,            //scanRadius
                                                                      6             //material
                                                                      )));
@@ -1344,7 +1235,7 @@ int main(int argc, char **argv)
     detectCam = new DetectionCamera(CAMERA_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
-                                    CAMERA_FAR,
+                                    GUARD_FAR,
                                     debugDraw);
     
     double timeCounter = 0;
@@ -1413,9 +1304,9 @@ int main(int argc, char **argv)
             }
         }
         if (debug || boxes) {
-//#ifndef WIN32
+#ifndef WIN32
             debugDraw->drawAll();
-//#endif
+#endif
         }
         debugDraw->clear();
 
@@ -1423,6 +1314,7 @@ int main(int argc, char **argv)
         
         glfwSwapBuffers(window);
         glfwPollEvents();
+        printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
              && glfwWindowShouldClose(window) == 0);
     

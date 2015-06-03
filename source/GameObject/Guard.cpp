@@ -96,3 +96,13 @@ float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam) {
   }
   return viewPercent;
 }
+
+glm::mat4 Guard::getModel()
+{
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), position);
+  glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(direction.x, direction.y, -1.0f * direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+  glm::mat4 Scale = glm::scale(glm::mat4(1.0f), scale);
+  glm::mat4 com = Trans*Rot*Scale;
+
+  return com;
+}

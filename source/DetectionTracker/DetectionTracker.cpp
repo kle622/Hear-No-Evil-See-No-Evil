@@ -26,12 +26,12 @@ If the player remains undetected and they have left the neighborhood of suspicio
 */
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   if (this->detecDanger == true) {
-    this->totalDetLvl += 1 * detecPercent *.005;
+    this->totalDetLvl += 1 * detecPercent *.1;
     this->previousPlyrPos = player->position;
-    printf("Danger!\n");
+    //printf("Danger!\n");
   }
   else if (this->totalDetLvl > 0) {
-    this->totalDetLvl -= .05;
+    this->totalDetLvl -= .005;
     this->totalDetLvl = this->totalDetLvl;
     //printf("Not Danger!\n");
   }
@@ -54,10 +54,10 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
-      this->totalDetLvl += .0001;
+      this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == RUN) {
-      this->totalDetLvl += .002;
+      this->totalDetLvl += .005;
     }
     }
   if (this->totalDetLvl == 0){

@@ -47,6 +47,7 @@ class Shape {
 
   void loadTexture(const std::string &filename);
   void loadMipmapTexture(const std::string &filename);
+  virtual glm::mat4 getModel();
   //Object methods
   //void draw();
   //void SetModel(GLint handle, vec3 trans, float rot, vec3 sc);

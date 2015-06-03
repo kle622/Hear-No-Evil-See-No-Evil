@@ -36,6 +36,7 @@ public:
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
+        glm::mat4 getModel();
 	float detect(WorldGrid *world, Player* player, DetectionCamera *cam);
 };
 
