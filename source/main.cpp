@@ -390,7 +390,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
     float shearSpeed = 4;
     float camShiftSpeed = 8;
     float iters = 20;
-    float max_lean = 0.8;
+    float max_lean = 0.5;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
       if (!leaningRight) {
         if (!leaningLeft) {
