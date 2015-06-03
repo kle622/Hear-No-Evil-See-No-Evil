@@ -1132,6 +1132,7 @@ int main(int argc, char **argv)
     // Open a window and create its OpenGL context
     g_width = 1280;
     g_height = 720;
+    printf("%d, %d\n", g_width, g_height);
     window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
@@ -1246,7 +1247,7 @@ int main(int argc, char **argv)
     ImGui_ImplGlfw_Init(window, false);
     
     do{
-        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplGlfw_NewFrame(); 
 
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
@@ -1255,7 +1256,9 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
         
         bool open = true;
+
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1, 1, 1, 0));
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
@@ -1264,8 +1267,10 @@ int main(int argc, char **argv)
         ImGui::SetWindowPos(ImVec2(0, 10));
         ImGui::SetWindowFontScale(3.5f);
         ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
+        printf("width: %f, height %f\n gWidth: %d, gHeight: %d\n", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y, g_width, g_height);
         ImGui::End();
         ImGui::PopStyleVar();
+        ImGui::PopStyleColor(1);
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
