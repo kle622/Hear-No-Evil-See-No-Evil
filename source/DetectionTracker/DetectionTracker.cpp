@@ -26,7 +26,7 @@ If the player remains undetected and they have left the neighborhood of suspicio
 */
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   if (this->detecDanger == true) {
-    this->totalDetLvl += 1 * detecPercent *.1;
+    this->totalDetLvl += 1 * detecPercent *.05;
     this->previousPlyrPos = player->position;
     //printf("Danger!\n");
   }

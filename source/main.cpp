@@ -59,6 +59,7 @@
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
+#define GUARD_FAR 12.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
@@ -1122,47 +1123,82 @@ void initWalls(WorldGrid* gameObjects) {
           }
           end = vec2(i1 - 1, j1);
         }
-        else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1 ||
-            j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 2) { // going down
-          while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
-              j1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
-            levelDesign[i1][j1] = 0;
-            j1++;
-          }
-          end = vec2(i1, j1 - 1);
-        }
-        else { // 1x1 wall
-          end = start;
-        }
-
-        vec2 center((start.x + end.x - TEST_WORLD + 1) / 2, (start.y + end.y - TEST_WORLD + 1) / 2);
-        vec2 dims(abs(end.x - start.x) + 1, abs(end.y - start.y) + 1);
-
-        // Make the actual Wall object and add it to gameObjects list
-        if (shortWall) {
-          gameObjects->add(shared_ptr<GameObject>(new Wall(
-                  &shortCubeMesh,
-                  vec3(center.x, 0, center.y),      //position
-                  vec3(dims.x / 2, 0.7f, dims.y / 2),    //scale
-                  vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
-                  0,
-                  vec3(dims.x, 1.3, dims.y),     //dimensions
-                  0,            //scanRadius
-                  6             //material
-                  )));
-          shortWall = false;     
-        }
-        else {
-          gameObjects->add(shared_ptr<GameObject>(new Wall(
-                  &cubeMesh,
-                  vec3(center.x, 9, center.y),      //position
-                  vec3(dims.x / 2, 10, dims.y / 2),    //scale
-                  vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
-                  0,
-                  vec3(dims.x, 20, dims.y),     //dimensions
-                  0,            //scanRadius
-                  4             //material
-                  )));
+    }
+    
+    ///////// Test print entire matrix
+    //	for (i = 0; i < TEST_WORLD; i++) {
+    //		cout << '\n';
+    //		for (j = 0; j < TEST_WORLD; j++) {
+    //			cout << levelDesign[i][j];
+    //    }
+    //}
+    //	cout << '\n';
+    
+    vec2 start, end;
+    //////////// Create the wall objects
+    for (i = 0; i < TEST_WORLD; i++) {
+        for (j = 0; j < TEST_WORLD; j++) {
+            if (levelDesign[i][j] == 1 || levelDesign[i][j] == 2) {
+                if (levelDesign[i][j] == 2) {
+                    shortWall = true;
+                }
+                start = vec2(i, j);
+                int i1 = i, j1 = j;
+                // build wall depending on direction it is oriented
+                if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1 ||
+                    i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 2) { // going right
+                    while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+                           i1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
+                        levelDesign[i1][j1] = 0;
+                        i1++;
+                    }
+                    end = vec2(i1 - 1, j1);
+                }
+                else if (j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 1 ||
+                         j1 != TEST_WORLD - 1 && levelDesign[i1][j1 + 1] == 2) { // going down
+                    while (j1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+                           j1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
+                        levelDesign[i1][j1] = 0;
+                        j1++;
+                    }
+                    end = vec2(i1, j1 - 1);
+                }
+                else { // 1x1 wall
+                    end = start;
+                }
+                
+                vec2 center((start.x + end.x - TEST_WORLD + 1) / 2, (start.y + end.y - TEST_WORLD + 1) / 2);
+                vec2 dims(abs(end.x - start.x) + 1, abs(end.y - start.y) + 1);
+                
+                // Make the actual Wall object and add it to gameObjects list
+                if (shortWall) {
+                    gameObjects->add(shared_ptr<GameObject>(new Wall(
+                                                                     &shortCubeMesh,
+                                                                     vec3(center.x, -0.7f, center.y),      //position
+                                                                     vec3(dims.x / 2, 1.0f, dims.y / 2),    //scale
+                                                                     vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
+                                                                     0,
+                                                                     vec3(dims.x, 2.0f, dims.y),     //dimensions
+                                                                     0,            //scanRadius
+                                                                     6             //material
+                                                                     )));
+                    shortWall = false;     
+                }
+                else {
+                    gameObjects->add(shared_ptr<GameObject>(new Wall(
+                                                                     &cubeMesh,
+                                                                     vec3(center.x, 9, center.y),      //position
+                                                                     vec3(dims.x / 2, 10, dims.y / 2),    //scale
+                                                                     vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
+                                                                     0,
+                                                                     vec3(dims.x, 20, dims.y),     //dimensions
+                                                                     0,            //scanRadius
+                                                                     4             //material
+                                                                     )));
+                }
+                testWallCount++;
+                //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+            }
         }
         testWallCount++;
         //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
@@ -1174,195 +1210,201 @@ void initWalls(WorldGrid* gameObjects) {
 
 int main(int argc, char **argv)
 {
-  // Sound Object
-  soundObj = new MySound();
-
-  // Initialise GLFW
-  if (!glfwInit()) {
-    fprintf(stderr, "Failed to initialize GLFW\n");
-    return -1;
-  }
-
-  glfwWindowHint(GLFW_SAMPLES, 4);
-  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-
-  // Open a window and create its OpenGL context
-  g_width = 1280;
-  g_height = 720;
-  window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
-  if (window == NULL) {
-    fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
-    glfwTerminate();
-    return -1;
-  }
-
-
-  glfwMakeContextCurrent(window);
-  glfwSetKeyCallback(window, key_callback);
-  glfwSetCursorPosCallback(window, cursor_pos_callback);
-  glfwSetWindowSizeCallback(window, window_size_callback);
-  // Initialize GLAD
-  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-  glfwSetCursorPos(window, g_width / 2, g_height / 2);
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-  // Ensure we can capture the escape key being pressed below
-  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  initGL();
-  assert(glGetError() == GL_NO_ERROR);
-
-  debugDraw = new DebugDraw();
-  debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-  pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
-  pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
-  assert(glGetError() == GL_NO_ERROR);
-
-  trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
-  trainMesh.hasTexture = true;
-  trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
-  guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
-  playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
-  cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
-  shortCubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
-  barrel.loadShapes(resPath(sysPath("models", "barrel.obj")));
-  boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
-  tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
-  chairMesh.hasTexture = true;
-  chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
-  chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
-  rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
-  winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
-  playerMesh.hasTexture = true;
-  playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
-  //printf("Loading cube mesh wall.bmp\n");
-  cubeMesh.sendWallTexBuf();
-  cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
-  shortCubeMesh.sendWallTexBuf();
-  shortCubeMesh.loadMipmapTexture(resPath(sysPath("textures", "shortwall.bmp")), 512);
-  cubeMesh.hasTexture = true;
-  shortCubeMesh.hasTexture = true;
-  tableMesh.hasTexture = true;
-  tableMesh.loadMipmapTexture(resPath(sysPath("textures", "desk.bmp")), TEX_SIZE);
-  barrel.hasTexture = true;
-  barrel.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
-  //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
-  boxStackMesh.hasTexture = true;
-  boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
-  guardMesh.hasTexture = true;
-  guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), TEX_SIZE);
-  //printf("shadow map id: %d\n", shadowMap);
-  //printf("player tex id: %d\n", playerMesh.texId);
-
-
-  srand(time(NULL));
-
-  //initialize game objects
-  //vector<shared_ptr <GameObject> > gameObjects;
-  //First item is always the player, followed by numGuards guards,
-  //	followed by however many walls we need. -JB
-  WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
-  detecTrac = new DetectionTracker();
-
-  initPlayer(&gameObjects);
-  initGuards(&gameObjects);
-  initObjects(&gameObjects);
-  initWalls(&gameObjects);
-  initGround();
-  initCeiling();
-  //initDetectionTracker(&gameObjects);
-  initFramebuffer();
-
-  //initialize the camera
-  camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
-      (float)g_width / (float)g_height,
-      CAMERA_NEAR, CAMERA_FAR, debugDraw);
-  // debug camera
-  debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      CAMERA_FOV,
-      (float)g_width / (float)g_height,
-      CAMERA_NEAR,
-      CAMERA_FAR,
-      debugDraw);
-  detectCam = new DetectionCamera(CAMERA_FOV,
-      (float)g_width / (float)g_height,
-      CAMERA_NEAR,
-      CAMERA_FAR,
-      debugDraw);
-
-  double timeCounter = 0;
-
-  //  printf("shadow map id: %d\n", shadowMap);
-  //printf("player tex id: %d\n", playerMesh.texId);
-
-  ImGui_ImplGlfw_Init(window, false);
-
-  do{
-    ImGui_ImplGlfw_NewFrame();
-
-    //timer stuff
-    TimeManager::Instance().CalculateFrameRate(true);
-    deltaTime = TimeManager::Instance().DeltaTime;
-    double currentTime = TimeManager::Instance().CurrentTime;
-    timeCounter += deltaTime;
-
-    bool open = true;
-    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
-    ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
-        | ImGuiWindowFlags_NoSavedSettings
-        | ImGuiWindowFlags_NoResize
-        | ImGuiWindowFlags_NoMove);
-    ImGui::SetWindowSize(ImVec2(3900, 100));
-    ImGui::SetWindowPos(ImVec2(0, 10));
-    ImGui::SetWindowFontScale(3.5f);
-    ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
-    ImGui::End();
-    ImGui::PopStyleVar();
-
-    camera3DPerson->update();
-    //for (int i = 0; i < gLights.size(); i++) {
-    beginPass1Draw();
-    drawPass1(&gameObjects);
-    endPass1Draw();
-    beginPass2Draw();
-    getWindowInput(window, deltaTime);
-    drawGameObjects(&gameObjects, deltaTime);
-    endDrawGL();
-    //}
-
-    //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
-
-    // draw debug
-    if (debug || boxes) {
-      if (debug) {
-        camera3DPerson->getView();
-        camera3DPerson->getProjection();
-        debugDraw->view = debugCamera->getView();
-        debugDraw->projection = debugCamera->getProjection();
-      }
-      else {
-        debugDraw->view = camera3DPerson->getView();
-        debugDraw->projection = camera3DPerson->getProjection();
-      }
-
-      vector<shared_ptr<GameObject>> objs = gameObjects.list;
-      for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
-        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
-      }
-
-      vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
-      for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
-        debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
-      }
+    // Sound Object
+    soundObj = new MySound();
+    
+    // Initialise GLFW
+    if (!glfwInit()) {
+        fprintf(stderr, "Failed to initialize GLFW\n");
+        return -1;
     }
-    if (debug || boxes) {
+    
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    
+    // Open a window and create its OpenGL context
+    g_width = 1280;
+    g_height = 720;
+    printf("%d, %d\n", g_width, g_height);
+    window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
+    if (window == NULL) {
+        fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+        glfwTerminate();
+        return -1;
+    }
+    
+    
+    glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
+    // Initialize GLAD
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    
+    glfwSetCursorPos(window, g_width / 2, g_height / 2);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
+    // Ensure we can capture the escape key being pressed below
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    initGL();
+    assert(glGetError() == GL_NO_ERROR);
+    
+    debugDraw = new DebugDraw();
+    debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
+    pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
+    pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+    assert(glGetError() == GL_NO_ERROR);
+    
+    trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
+    trainMesh.hasTexture = true;
+    trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
+    guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
+    playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
+    cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+    shortCubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
+    barrel.loadShapes(resPath(sysPath("models", "barrel.obj")));
+    boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
+    tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
+    chairMesh.hasTexture = true;
+    chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
+    chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
+    rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
+    winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
+    playerMesh.hasTexture = true;
+    playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
+    //printf("Loading cube mesh wall.bmp\n");
+    cubeMesh.sendWallTexBuf();
+    cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
+    shortCubeMesh.sendWallTexBuf();
+    shortCubeMesh.loadMipmapTexture(resPath(sysPath("textures", "shortwall.bmp")), 512);
+    cubeMesh.hasTexture = true;
+    shortCubeMesh.hasTexture = true;
+    tableMesh.hasTexture = true;
+    tableMesh.loadMipmapTexture(resPath(sysPath("textures", "desk.bmp")), TEX_SIZE);
+    barrel.hasTexture = true;
+    barrel.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
+    //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
+    boxStackMesh.hasTexture = true;
+    boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
+    guardMesh.hasTexture = true;
+    guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), TEX_SIZE);
+    //printf("shadow map id: %d\n", shadowMap);
+    //printf("player tex id: %d\n", playerMesh.texId);
+    
+    
+    srand(time(NULL));
+    
+    //initialize game objects
+    //vector<shared_ptr <GameObject> > gameObjects;
+    //First item is always the player, followed by numGuards guards,
+    //	followed by however many walls we need. -JB
+    WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
+    detecTrac = new DetectionTracker();
+    
+    initPlayer(&gameObjects);
+    initGuards(&gameObjects);
+    initObjects(&gameObjects);
+    initWalls(&gameObjects);
+    initGround();
+    initCeiling();
+    //initDetectionTracker(&gameObjects);
+    initFramebuffer();
+   
+    //initialize the camera
+    camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
+                                        (float)g_width / (float)g_height,
+                                        CAMERA_NEAR, CAMERA_FAR, debugDraw);
+    // debug camera
+    debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
+                             glm::vec3(0.0f, 0.0f, 0.0f),
+                             glm::vec3(0.0f, 1.0f, 0.0f),
+                             CAMERA_FOV,
+                             (float)g_width / (float)g_height,
+                             CAMERA_NEAR,
+                             CAMERA_FAR,
+                             debugDraw);
+    detectCam = new DetectionCamera(CAMERA_FOV,
+                                    (float)g_width / (float)g_height,
+                                    CAMERA_NEAR,
+                                    GUARD_FAR,
+                                    debugDraw);
+    
+    double timeCounter = 0;
+    
+    //  printf("shadow map id: %d\n", shadowMap);
+    //printf("player tex id: %d\n", playerMesh.texId);
+
+    ImGui_ImplGlfw_Init(window, false);
+    ImGuiIO& io = ImGui::GetIO();
+
+    
+    do{
+        ImGui_ImplGlfw_NewFrame(); 
+
+        //timer stuff
+        TimeManager::Instance().CalculateFrameRate(true);
+        deltaTime = TimeManager::Instance().DeltaTime;
+        double currentTime = TimeManager::Instance().CurrentTime;
+        timeCounter += deltaTime;
+        
+        bool open = true;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1, 1, 1, 0));
+        ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
+            | ImGuiWindowFlags_NoSavedSettings
+            | ImGuiWindowFlags_NoResize
+            | ImGuiWindowFlags_NoMove);
+        ImGui::SetWindowSize(ImVec2(io.DisplaySize.x * 1.52, io.DisplaySize.y / 7));
+        ImGui::SetWindowPos(ImVec2(0, 10));
+        ImGui::SetWindowFontScale(3.5f);
+        ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
+        ImGui::End();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor(1);
+        
+        camera3DPerson->update();
+	//for (int i = 0; i < gLights.size(); i++) {
+	  beginPass1Draw();
+	  drawPass1(&gameObjects);
+	  endPass1Draw();
+	  beginPass2Draw();
+	  getWindowinput(window, deltaTime);
+	  drawGameObjects(&gameObjects, deltaTime);
+	  endDrawGL();
+	  //}
+
+      //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
+        
+        // draw debug
+        if (debug || boxes) {
+            if (debug) {
+                camera3DPerson->getView();
+                camera3DPerson->getProjection();
+                debugDraw->view = debugCamera->getView();
+                debugDraw->projection = debugCamera->getProjection();
+            }
+            else {
+                debugDraw->view = camera3DPerson->getView();
+                debugDraw->projection = camera3DPerson->getProjection();
+            }
+            
+            vector<shared_ptr<GameObject>> objs = gameObjects.list;
+            for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
+                debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+            }
+            
+            vector<shared_ptr<GameObject>> walls = gameObjects.wallList;
+            for (auto objIter = walls.begin(); objIter != walls.end(); ++objIter) {
+                debugDraw->addBox((*objIter)->position, (*objIter)->dimensions, glm::vec3(0.7f, 0.1f, 1.0f), false, true);
+            }
+        }
+        if (debug || boxes) {
 #ifndef WIN32
       debugDraw->drawAll();
 #endif

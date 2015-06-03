@@ -113,14 +113,12 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
 				if (cross1 * cross2 < 0) {
 					// restrict x
 					//printf("RESTRICT X!\n");
-					position.x = object->position.x + signx *
-						(object->dimensions.x + dimensions.x) / 2;
+					position.x = object->position.x + signx * (object->dimensions.x + dimensions.x) / 2;
 				}
 				else {
 					// restrict z
 					//printf("RESTRICT Z!\n");
-					position.z = object->position.z + signz *
-						(object->dimensions.z + dimensions.z) / 2;
+					position.z = object->position.z + signz * (object->dimensions.z + dimensions.z) / 2;
 				}
 			}
             return true;
