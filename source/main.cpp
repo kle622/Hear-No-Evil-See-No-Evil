@@ -68,8 +68,6 @@
 #define MAX_DETECT 400
 #define TEX_SIZE 1024
 
-#define MAX_LEAN 1
-
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
@@ -386,28 +384,35 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
           accelerate = true;
           downD = true;
       }
+
+      float shearSpeed = 4;
+      float camShiftSpeed = 8;
+      float iters = 20;
+      float max_lean = 0.8;
       if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
         if (!leaningRight) {
           if (!leaningLeft) {
             leaningLeft = true;
             cameraLean = strafe;
           }
-          if (playerObject->lean < MAX_LEAN) {
-            playerObject->lean += 0.1;
-            camera3DPerson->offset -= 0.1f * cameraLean;
+          if (playerObject->lean < max_lean) {
             glm::vec3 newForward = forward;
             newForward.y = 0;
             playerObject->changeDirection(newForward);
+          }
+          for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
+            playerObject->lean += deltaTime * shearSpeed / iters;
+            camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
         }
       }
       else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
         if (leaningLeft) {
-          if (playerObject->lean > 0) {
-            playerObject->lean -= 0.1;
-            camera3DPerson->offset += 0.1f * cameraLean;
+          for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
+            playerObject->lean -= deltaTime * shearSpeed / iters;
+            camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
-          else {
+          if (playerObject->lean <= 0) {
             leaningLeft = false;
           }
         }
@@ -418,24 +423,24 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
             leaningRight = true;
             cameraLean = strafe;
           }
-          if (playerObject->lean > -1 * MAX_LEAN) {
-            playerObject->lean -= 0.1;
-            camera3DPerson->offset += 0.1f * cameraLean;
+          if (playerObject->lean > -1 * max_lean) {
             glm::vec3 newForward = forward;
             newForward.y = 0;
             playerObject->changeDirection(newForward);
+          }
+          for (int i = 0; i < iters && playerObject->lean > -1 * max_lean; ++i) {
+            playerObject->lean -= deltaTime * shearSpeed / iters;
+            camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
         }
       }
       else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
         if (leaningRight) {
-          for (int i = 0; i < 4 && playerObject->lean < 0) {
+          for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
+            playerObject->lean += deltaTime * shearSpeed / iters;
+            camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
-          if (playerObject->lean < 0) {
-            playerObject->lean += 0.1;
-            camera3DPerson->offset -= 0.1f * cameraLean;
-          }
-          else {
+          if (playerObject->lean >= 0) {
             leaningRight = false;
           }
         }
