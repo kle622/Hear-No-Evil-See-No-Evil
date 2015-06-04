@@ -36,11 +36,9 @@ void main() {
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
 
    for (int i = 0; i < numLights; i++) {
-     float visibility = 1.0;
-     float att = 1.0;
+     float visibility = 1.5;
+     float att = 1.5;
      vec3 lightPos = allLights[i];
-     //vec3 surfacePos = vPos;
-     //vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);
      float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));

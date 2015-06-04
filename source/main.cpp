@@ -115,6 +115,7 @@ Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
 Mesh clueMesh;
+Mesh printMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -1096,6 +1097,18 @@ void initObjects(WorldGrid* gameObjects) {
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
                 )));
               break;
+	case 'f':
+	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+								 &printMesh,
+								 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+								 vec3(1),
+								 0,
+								 vec3(0, 0, 1),
+								 0,
+								 vec3(0),
+								 0,
+								 0,
+								 GameObject::ObjectType::STATIC)));
       }
       default:
                 break;
@@ -1369,7 +1382,7 @@ int main(int argc, char **argv)
     pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
-    
+    printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
@@ -1386,8 +1399,8 @@ int main(int argc, char **argv)
     chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
     winMesh.loadShapes(resPath(sysPath("models", "blob.obj")));
-	winMesh.hasTexture = true;
-	winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
+    winMesh.hasTexture = true;
+    winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
     playerMesh.hasTexture = true;
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
     //printf("Loading cube mesh wall.bmp\n");
