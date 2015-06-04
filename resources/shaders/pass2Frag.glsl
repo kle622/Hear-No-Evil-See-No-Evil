@@ -34,11 +34,12 @@ void main() {
 	 float clrBleedVal = detectionLevel;
 
    for (int i = 0; i < numLights; i++) {
-     float att = 1.5;
+     float att = 1.0;
      vec3 lightPos = allLights[i];
      vec3 surfacePos = vPos;
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
-     vec3 surfaceToLight = normalize(lightPos - surfacePos);     
+     vec3 surfaceToLight = normalize(lightPos - surfacePos);
+     float dist = distance(vec2(lightPos.x, lightPos.z), vec2(vPos.x, vPos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
@@ -71,10 +72,10 @@ void main() {
 				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
 					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
-		 color += visibility * att * diffuse;
+		 color += (1.0 /(0.05 + 0.5 *  dist)) * visibility * att * diffuse;
 	   }
 	   else {
-		 color += visibility * light_color * diffuse;
+		 color += (1.0 / (0.05 + 0.5 * dist)) * visibility * att * light_color * diffuse;
 	   }
 	}
 	else {	
@@ -119,10 +120,9 @@ void main() {
            visibility = 0.4;
     	}*/
 
-		float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
+		float avgAmbient = (ambient.r + ambient.b + ambient.g)/ 3.0;
 			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
 						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
 						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
-
     gl_FragColor = vec4(color + avgAmbient, 1.0);
 }
