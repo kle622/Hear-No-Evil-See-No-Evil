@@ -38,6 +38,7 @@ class Camera {
     float aspect;
     float _near;
     float _far;
+    float max_vert_angle = 85;
     DebugDraw *debug;
 
     //Constructor
@@ -52,9 +53,16 @@ class Camera {
     virtual glm::mat4 getView();
     virtual glm::mat4 getProjection();
 
+    virtual void moveVert(float step);
+    virtual void moveHoriz(float step);
+
     // used for culling entire scene
     // returns list of objects that should be drawn
     std::vector<std::shared_ptr<GameObject>> getUnculled(WorldGrid *worldgrid);
+
+  private:
+    float theta = 0;
+    float phi = 0;
 };
 
 #endif
