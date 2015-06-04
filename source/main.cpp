@@ -1120,7 +1120,7 @@ void initObjects(WorldGrid* gameObjects) {
 								 vec3(0, 0, 1),
 								 0,
 								 vec3(0),
-								 1,
+								 2,
 								 9,
 								 GameObject::ObjectType::STATIC)));
       }
