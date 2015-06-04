@@ -34,6 +34,7 @@ void main() {
 	 float clrBleedVal = detectionLevel;
      vec3 surfacePos = vPos;
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
+     float alpha = 1.0;
 
    for (int i = 0; i < numLights; i++) {
      float visibility = 1.5;
@@ -98,6 +99,7 @@ void main() {
 						(specular.g + ((avgSpecular - specular.g) * clrBleedVal)), 
 						(specular.b + ((avgSpecular - specular.b) * clrBleedVal)));
 	   color += (att * (diffuse + specular));
+	   alpha = 0.4;
 	}
    }	
      	 
@@ -125,5 +127,5 @@ void main() {
 			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
 						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
 						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
-    gl_FragColor = vec4(color + avgAmbient, 1.0);
+    gl_FragColor = vec4(color + avgAmbient, alpha);
 }

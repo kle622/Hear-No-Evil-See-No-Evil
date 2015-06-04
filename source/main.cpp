@@ -672,11 +672,20 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   pass2Handles.draw(ground);
   //ground->draw();
 
-  glUniform1i(pass2Handles.hasTex, 0);
-  SetMaterial(ceiling->material);
+  //  glUniform1i(pass2Handles.hasTex, 0);
+  //SetMaterial(ceiling->material);
+  //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
+  //safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
+  //pass2Handles.draw(ceiling);
+
+  glUniform1i(pass2Handles.hasTex, 1);
+  glBindTexture(GL_TEXTURE_2D, ceiling->texId);
+  glUniform1i(pass2Handles.texture, 1);
+  SetMaterial(0);
   SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
   pass2Handles.draw(ceiling);
+
   //ceiling->draw();
   //Guard *guard;
   // draw
@@ -1100,8 +1109,8 @@ void initObjects(WorldGrid* gameObjects) {
 	case 'f':
 	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
 								 &printMesh,
-								 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-								 vec3(1),
+								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+								 vec3(0.5),
 								 0,
 								 vec3(0, 0, 1),
 								 0,
@@ -1194,6 +1203,8 @@ void initCeiling() {
       norBufObjG,
       5 //material
       );
+
+  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
 }
 
 void initWalls(WorldGrid* gameObjects) {
