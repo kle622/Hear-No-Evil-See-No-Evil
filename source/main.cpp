@@ -434,6 +434,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
         if (!leaningRight) {
           if (!leaningLeft) {
+            soundObj->leanOut = soundObj->startSound(soundObj->leanOut, "../dependencies/irrKlang/media/LeanOut.wav");
             leaningLeft = true;
             cameraLean = strafe;
           }
@@ -443,6 +444,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
             playerObject->changeDirection(newForward);
           }
           for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
+            playerObject->justLeaned = true;
             playerObject->lean += deltaTime * shearSpeed / iters;
             camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
@@ -450,7 +452,9 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       }
       else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
         if (leaningLeft) {
+          soundObj->leanIn = soundObj->startSound(soundObj->leanIn, "../dependencies/irrKlang/media/LeanIn.wav");
           for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
+            //playerObject->justLeaned = true;
             playerObject->lean -= deltaTime * shearSpeed / iters;
             camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
@@ -462,6 +466,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         if (!leaningLeft) {
           if (!leaningRight) {
+            soundObj->leanOut = soundObj->startSound(soundObj->leanOut, "../dependencies/irrKlang/media/LeanOut.wav");
             leaningRight = true;
             cameraLean = strafe;
           }
@@ -478,6 +483,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       }
       else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
         if (leaningRight) {
+          soundObj->leanIn = soundObj->startSound(soundObj->leanIn, "../dependencies/irrKlang/media/LeanIn.wav");
           for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
             playerObject->lean += deltaTime * shearSpeed / iters;
             camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;

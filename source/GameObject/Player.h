@@ -32,6 +32,7 @@ class Player: public GameObject {
   float lean = 0;
   glm::vec3 origDimensions;
   vec3 checkpoint = vec3(0, 0, 0);
+  bool justLeaned = false;
   
   //Constructor
   Player(Mesh *mesh,
