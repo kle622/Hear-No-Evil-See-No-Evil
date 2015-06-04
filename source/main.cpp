@@ -826,7 +826,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     boxes = !boxes;
   }
   if (key == GLFW_KEY_H && (action == GLFW_PRESS) && shiftDown) {
+    soundObj->backGroundSnd->setIsPaused(false);
     endIntro();
+    soundObj->openingSnd->setIsPaused(true);
   }
 
   if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
@@ -1556,6 +1558,7 @@ int main(int argc, char **argv)
         }
         else if (inIntro) {
           endIntro();
+          soundObj->openingSnd->setIsPaused(true);
           soundObj->backGroundSnd->setIsPaused(false);
         }
         
