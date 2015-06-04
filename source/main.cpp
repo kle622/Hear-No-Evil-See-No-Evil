@@ -61,8 +61,8 @@
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
-#define GUARD_FAR 24.0f
-#define GUARD_FOV 80.0f
+#define GUARD_FAR 20.0f
+#define GUARD_FOV 70.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
