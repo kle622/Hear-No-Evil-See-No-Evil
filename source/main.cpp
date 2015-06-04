@@ -1062,7 +1062,7 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 2, 1),
                 1,
                 3,
-                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                "../dependencies/irrKlang/media/collect0.wav"
                 )));
                 break;
       }
@@ -1077,7 +1077,7 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 2, 1),
                 1,
                 3,
-                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                "../dependencies/irrKlang/media/collect1.wav"
                 )));
               break;
       }
@@ -1092,7 +1092,7 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 2, 1),
                 1,
                 3,
-                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                "../dependencies/irrKlang/media/collect2.wav"
                 )));
               break;
       }
@@ -1107,7 +1107,7 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 2, 1),
                 1,
                 3,
-                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                "../dependencies/irrKlang/media/collect3.wav"
                 )));
               break;
 	case 'f':
@@ -1419,7 +1419,7 @@ int main(int argc, char **argv)
     winMesh.hasTexture = true;
     winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
     playerMesh.hasTexture = true;
-    playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
+    playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture.bmp")), TEX_SIZE);
     //printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 2048);
