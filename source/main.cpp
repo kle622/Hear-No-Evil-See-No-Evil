@@ -119,6 +119,7 @@ Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
+bool shiftDown = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
@@ -347,6 +348,12 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
   glm::vec3 up = camera3DPerson->getUp();
   oldPosition = playerObject->position;
 
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    shiftDown = true;
+  }
+  else {
+    shiftDown = false;
+  }
   if (!debug) {
     if (!leaningRight && ! leaningLeft) {
       if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
@@ -756,12 +763,13 @@ void window_size_callback(GLFWwindow* window, int w, int h){
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_N && (action == GLFW_PRESS) && shiftDown) {
     debug = !debug;
   }
-  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
     boxes = !boxes;
   }
+
   if (!debug) {
     if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 0.9;
