@@ -31,11 +31,11 @@ class GameObject {
   
  public:
 	 enum class ObjectType{
+     COLLECTABLE,
 		 STATIC,
 		 PUSHABLE,
 		 GUARD,
 		 PLAYER,
-     COLLECTABLE
 	 };
 
   //Properties

@@ -6,7 +6,7 @@
 #include "Handles.h"
 #include "../WorldGrid/WorldGrid.h"
 
-#define ROTATE_SPEED 0.01f
+#define ROTATE_SPEED 50.0f
 
 using namespace glm;
 

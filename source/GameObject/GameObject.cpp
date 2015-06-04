@@ -130,6 +130,8 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
 
 glm::mat4 GameObject::getModel()
 {
+	if (this->type == ObjectType::COLLECTABLE)
+		printf("%f \n", rotation);
   glm::mat4 Trans = glm::translate(glm::mat4(1.0f), position);
   glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0, 1, 0));
   glm::mat4 Scale = glm::scale(glm::mat4(1.0f), scale);

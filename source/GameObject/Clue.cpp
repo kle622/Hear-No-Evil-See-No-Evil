@@ -12,8 +12,6 @@ Clue::Clue(Mesh *mesh,
 }
 
 void Clue::move(float time) {
+	printf("GETTING HERE\n");
 	this->rotation += time * ROTATE_SPEED;
-	float radians = this->rotation * (M_PI / 180);
-	this->direction += vec3(cos(radians), sin(radians), 0);
-	printf("direction: %f, %f, %f\n", this->direction.x, this->direction.y, this->direction.z);
 }
