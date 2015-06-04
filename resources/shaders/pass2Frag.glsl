@@ -76,6 +76,7 @@ void main() {
      
      if (lightToSurfaceAngle > coneAngle) {
      	att = 0.2;
+     }
 
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
             visibility -= 0.1;
@@ -92,7 +93,6 @@ void main() {
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
             visibility -= 0.1;
         }
-     }
 	
 	if (hasTex == 1) {
 	   vec3 diffuse = vec3(texture2D(texture, texCoordOut));

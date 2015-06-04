@@ -45,7 +45,7 @@ void Mesh::loadClueMipmapTexture(const std::string &filename, int size) {
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_2D, texId);
     //printf("before gltexImage2D call\n");
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp);
     // printf("after gltexImage2D call\n");
       //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
     glGenerateMipmap(GL_TEXTURE_2D);
