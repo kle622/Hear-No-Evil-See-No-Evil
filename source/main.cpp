@@ -1559,8 +1559,13 @@ int main(int argc, char **argv)
           }
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
-          cineCam->lookat = introCurve.getLocation(introDist + 1.5 < introCurve.getMaxDist() ? introDist + 1.5 : introCurve.getMaxDist() - 0.1);
-          introDist += deltaTime;
+          if (introDist + 5 < introCurve.getMaxDist()) {
+            cineCam->lookat = introCurve.getLocation(introDist + 5);
+          }
+          else {
+            cineCam->lookat = introCurve.getLocation(introCUrve.getMaxDist() - 0.01);
+          }
+          introDist += deltaTime * 2;
         }
         else if (inIntro) {
           endIntro();
