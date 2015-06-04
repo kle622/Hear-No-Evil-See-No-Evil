@@ -1541,6 +1541,7 @@ int main(int argc, char **argv)
 #endif
 
         if (introDist < introCurve.getMaxDist() && inIntro) {
+          soundObj->openingSnd->setIsPaused(false);
           drawCam = cineCam;
           if (debug) {
             viewCam = debugCam;
@@ -1555,6 +1556,7 @@ int main(int argc, char **argv)
         }
         else if (inIntro) {
           endIntro();
+          soundObj->backGroundSnd->setIsPaused(false);
         }
         
         camera3DPerson->update();

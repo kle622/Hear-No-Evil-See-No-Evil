@@ -17,7 +17,6 @@ MySound::MySound() {
   //this->openBckGrnd->setIsPaused(false);
   this->backGroundSnd = engine->play2D("../dependencies/irrKlang/media/red_sky_at_night.wav", true, true, true);
   this->backGroundSnd->setVolume(.05);
-  this->backGroundSnd->setIsPaused(false);
 
   this->noseSnd = engine->play2D("../dependencies/irrKlang/media/ow_my_nose.wav", false, true, true);
   this->footSndPlayr = engine->play2D("../dependencies/irrKlang/media/footstepsWalk2.wav", false, true, true);
@@ -32,7 +31,7 @@ MySound::MySound() {
   this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav", false, true, true);
   this->collectableSnd->setVolume(0.4);
 
-  this->openingSnd = engine->play2D("../dependencies/irrKlang/media/.wav")
+  this->openingSnd = engine->play2D("../dependencies/irrKlang/media/intro.wav", false, true, true);
 }
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {
