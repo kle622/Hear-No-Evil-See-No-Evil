@@ -16,11 +16,38 @@ uniform vec3 uLightPos;
 
 uniform float detectionLevel;
 
+// Cook Stuff
+uniform float uMatRoughness;
+uniform float uFresReflectance;
+
 varying vec3 vNormal;
 varying vec3 vCol;
 varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
+
+float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float _roughness) {
+  vec3  half_vec = normalize( _view + _light ); // vector H 
+  // Now compute the various scalar products 
+  float NdotL = max( dot(_normal, _light), 0.0 );
+  float NdotV = max( dot(_normal, _view), 0.0 );
+  float NdotH = max( dot(_normal, half_vec), 1.0e-7 );
+  float VdotH = max( dot(_view, half_vec), 1.0e-7 );
+
+  // geometric component
+  float geometric = 2.0 * NdotH / VdotH;
+  geometric = min( 1.0, geometric * min(NdotV, NdotL) );
+
+  // roughness
+  float r_sq = _roughness * _roughness;
+  float NdotH_sq = NdotH * NdotH;
+  float NdotH_sq_r = 1.0 / (NdotH_sq * r_sq);
+  float roughness_exp = (NdotH_sq - 1.0) * ( NdotH_sq_r );
+  float roughness = 0.25 * exp(roughness_exp) * NdotH_sq_r / NdotH_sq;
+
+  // final result
+  return min(1.0, _fresnel * geometric * roughness / (NdotV + 1.0e-7));
+}
 
 // CHECKPOINT!!!!!!!!!
 void main() {
@@ -40,7 +67,7 @@ void main() {
      float visibility = 1.5;
      float att = 1.5;
      vec3 lightPos = allLights[i];
-     vec3 surfaceToLight = normalize(lightPos - surfacePos);
+     vec3 surfaceToLight = normalize(lightPos - surfacePos);     
      float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
@@ -127,5 +154,15 @@ void main() {
 			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
 						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
 						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
+
+	//float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness);
+
+	/*if (hasText != 1) {
+		gl_FragColor = vec4((att * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
+	}
+	else {
+	gl_FragColor = vec4(color + avgAmbient, 1.0);
+	}*/
+   
     gl_FragColor = vec4(color + avgAmbient, alpha);
 }

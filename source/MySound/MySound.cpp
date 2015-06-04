@@ -28,7 +28,7 @@ MySound::MySound() {
   this->loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
   this->loseSnd->setVolume(0.5);
   this->winSnd = engine->play2D("../dependencies/irrKlang/media/victory_music.wav", false, true, true);
-  this->winSnd->setVolume(0.4);
+  this->winSnd->setVolume(0.05);
   this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav", false, true, true);
   this->collectableSnd->setVolume(0.4);
 }
