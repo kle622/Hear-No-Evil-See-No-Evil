@@ -60,3 +60,9 @@ Path: 2
 -87 0 35 x 0 r
 -96 0 21 x 2 l
 
+Guard 3:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 2
+-90 0 4 x 0 r
+-63 0 3.7 x 2 l
+

@@ -26,7 +26,7 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
       playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
     }
     if (dynamic_cast<WinCondition*>(object)) {
-      playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/end.wav");
+      playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
     }
     if (object->type == GameObject::ObjectType::COLLECTABLE) {
       Clue* clue = dynamic_cast<Clue*>(object);
@@ -82,13 +82,19 @@ void Player::accelerate() {
 }
 
 void Player::lose() {
-  playrSoundObj->playSndExit(playrSoundObj->loseSnd);
-    //playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/its_curtains.wav");
+    playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/its_curtains.wav");
     this->position.x = this->checkpoint.x;
     this->position.z = this->checkpoint.z;
 }
 
 void Player::decelerate() {
+  /*if (this->lean) {
+    playrSoundObj->leanOut = playrSoundObj->startSound(playrSoundObj->leanOut, "../dependencies/irrKlang/media/LeanOut.wav");
+  }
+  else if (this->justLeaned) {
+    playrSoundObj->leanIn = playrSoundObj->startSound(playrSoundObj->leanIn, "../dependencies/irrKlang/media/LeanIn.wav");
+    this->justLeaned = false;
+  }*/
     velocity = std::min(maxVelocity, velocity);
     velocity -= DECELERATION;
     velocity = std::max(MIN_VELOCITY, velocity);
