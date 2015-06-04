@@ -351,7 +351,7 @@ for (int i = 0; i < gLights.size(); i++) {
 
 void initGL() {
   // Set the background color
-  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
@@ -1553,7 +1553,7 @@ int main(int argc, char **argv)
           }
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
-          cineCam->lookat = nextPoint;
+          cineCam->lookat = introCurve.getLocation(introDist + 1.5 < introCurve.getMaxDist() ? introDist + 1.5 : introCurve.getMaxDist() - 0.1);
           introDist += deltaTime;
         }
         else if (inIntro) {
