@@ -3,6 +3,7 @@
 #include "../Camera/Camera.h"
 #include "../MySound/MySound.h"
 #include "WinCondition.h"
+#include "Clue.h"
 #include <algorithm>
 MySound* playrSoundObj = new MySound();
 
@@ -21,6 +22,18 @@ Player::Player(Mesh *mesh,
 bool Player::collide(GameObject* object, DebugDraw *ddraw) {
 	if (GameObject::collide(object, ddraw)) {
 		// specific stuff
+    if (dynamic_cast<Wall*>(object)) {
+      playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+    }
+    if (object->type == GameObject::ObjectType::COLLECTABLE) {
+      Clue* clue = dynamic_cast<Clue*>(object);
+      playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
+      this->checkpoint.x = clue->checkpoint.x;
+      this->checkpoint.z = clue->checkpoint.z;
+    }
+    if (object->type == GameObject::ObjectType::GUARD) {
+      this->lose();
+    }
 		return true;
 	}
     return false;
@@ -63,6 +76,12 @@ void Player::accelerate() {
     else if (maxVelocity == CROUCH) {
       playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/crouchWalk.wav");
     }
+}
+
+void Player::lose() {
+    playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/its_curtains.wav");
+    this->position.x = this->checkpoint.x;
+    this->position.z = this->checkpoint.z;
 }
 
 void Player::decelerate() {

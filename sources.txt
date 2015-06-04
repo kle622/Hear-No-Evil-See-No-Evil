@@ -44,6 +44,8 @@ set(HEADERS
    HUD/imgui.h
    HUD/imgui_impl_glfw.h
    HUD/imconfig.h
+
+   GameObject/Clue.h
 )
 
 # List all .c / .cpp files here
@@ -86,4 +88,6 @@ set(SOURCES
    HUD/imgui.cpp
    HUD/imgui_impl_glfw.cpp
    GameObject/VisualMeter.cpp
+
+   GameObject/Clue.cpp
 )

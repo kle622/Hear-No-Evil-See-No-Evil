@@ -46,6 +46,8 @@
 #include "HUD/imgui.h"
 #include "HUD/imgui_impl_glfw.h"
 
+#include "GameObject/Clue.h"
+
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
 #define MAX_LIGHTS 10
@@ -73,13 +75,13 @@ GLFWwindow* window;
 using namespace std;
 using namespace glm;
 
-struct Light {
-  glm::vec3 position;
-  glm::vec3 intensities;
-  float attenuation;
-  float coneAngle;
-  glm::vec3 coneDirection;
-};
+//struct Light {
+//  glm::vec3 position;
+//  glm::vec3 intensities;
+//  float attenuation;
+//  float coneAngle;
+//  glm::vec3 coneDirection;
+//};
 
 vector<Light> gLights;
 
@@ -112,10 +114,12 @@ Mesh chairMesh;
 Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
+Mesh clueMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
+bool shiftDown = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
@@ -126,12 +130,13 @@ glm::vec3 g_light(0.0, 15.0, -2.0);
 glm::vec3 coneDir(0.0, -0.5, 0.0);
 float coneAngle = 20;
 float attenuation = 0.1f;
+int closestLNdx = 0;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 GLuint idxBufObjG = 0;
-GLuint frameBufObj = 0;
+GLuint frameBufObj[MAX_LIGHTS] = {0};
 GLuint texBufObjG = 0;
-GLuint shadowMap = 0;
+GLuint shadowMap[MAX_LIGHTS] = {0};
 
 double deltaTime = 0;
 double timeCounter = 0;
@@ -285,28 +290,29 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
   checkGLError();
 }
 
+
 void initFramebuffer() {
-  //for (int i = 0; i < gLights.size(); i++) {
-  glGenFramebuffersEXT(1, &frameBufObj);
+for (int i = 0; i < gLights.size(); i++) {
+  glGenFramebuffersEXT(1, &frameBufObj[i]);
   assert(frameBufObj > 0);
-  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[i]);
   assert(glGetError() == GL_NO_ERROR);
 
   // for (int i = 0; i < gLights.size(); i++) {
-  glGenTextures(1, &shadowMap);
+  glGenTextures(1, &shadowMap[i]);
   assert(shadowMap > 0);
-  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glBindTexture(GL_TEXTURE_2D, shadowMap[i]);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, g_width, g_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap[i], 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
-  // }
+ }
 
   //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
   //cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
@@ -344,6 +350,12 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
   glm::vec3 up = camera3DPerson->getUp();
   oldPosition = playerObject->position;
 
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    shiftDown = true;
+  }
+  else {
+    shiftDown = false;
+  }
   if (!debug) {
     if (!leaningRight && ! leaningLeft) {
       if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
@@ -519,9 +531,26 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
   }
 }
 
+int findClosestLight() {
+  int ndx = 0;
+  float closest = glm::distance(playerObject->position, gLights.at(0).position);
+
+  for (int i = 0; i < gLights.size(); i++) {
+    float dist = glm::distance(playerObject->position, gLights.at(i).position);
+    if (dist < closest) {
+      ndx = i;
+      closest = dist;
+    }
+  }
+
+  return ndx;
+
+}
+
 
 void beginPass1Draw() {
-  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  closestLNdx = findClosestLight();
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
@@ -549,7 +578,7 @@ void drawPass1(WorldGrid* gameObjects) {
   drawList.insert(drawList.end(), walls.begin(), walls.end());
   //  for (int l = 0; l < gLights.size(); l++) {
   for (int i = 0; i < drawList.size(); i++) {
-    SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(0));
+    SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(closestLNdx));
     pass1Handles.draw(drawList[i].get());
     //drawList[i]->draw();
   }
@@ -582,7 +611,7 @@ void beginPass2Draw() {
   glEnable(GL_TEXTURE_2D);
 
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glBindTexture(GL_TEXTURE_2D, shadowMap[closestLNdx]);
   glUniform1i(pass2Handles.shadowMap, 0);
   glActiveTexture(GL_TEXTURE1);
 
@@ -610,6 +639,24 @@ void beginPass2Draw() {
   checkGLError();
 }
 
+void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
+  float deltaX = first.x - second.x;
+  float deltaZ = first.z - second.z;
+
+  float dist = deltaX * deltaX +  deltaZ * deltaZ;
+  bool returnVal;
+
+  // NOTE: the + 80.0f there is to make sure the light is saved if the player get NEAR the light
+  // this does not mean it will count against the player, the detecTrac will handle that
+  if (dist < ((max * max) + 80.0f)) {
+    detecTrac->currLight = thisLight;
+    //printf("Updating current light comparing dist: %f and maxSq: %f\n", dist, (max*max));
+  }
+  else {
+    return;
+  }
+}
+
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
@@ -619,14 +666,14 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glBindTexture(GL_TEXTURE_2D, ground->texId);
   glUniform1i(pass2Handles.texture, 1);
   SetMaterial(0);
-  SetDepthMVP(false, ground->getModel(), gLights.at(0));
+  SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ground->getModel()));
   pass2Handles.draw(ground);
   //ground->draw();
 
   glUniform1i(pass2Handles.hasTex, 0);
   SetMaterial(ceiling->material);
-  SetDepthMVP(false, ceiling->getModel(), gLights.at(0));
+  SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
   pass2Handles.draw(ceiling);
   //ceiling->draw();
@@ -647,7 +694,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
 
     // SetMaterial(drawList[i]->material);
-    SetDepthMVP(false, drawList[i]->getModel(), gLights.at(0));
+    SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
     safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
     pass2Handles.draw(drawList[i].get());
     //drawList[i]->draw();
@@ -672,10 +719,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
       detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
-          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-        }
+      // Search through the lights if inside light, save that light to the detecTrac object
+      for (int L = 0; L < gLights.size(); L++) {
+        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
+          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
       }
     }
 
@@ -685,6 +732,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       if (detectPercent > 0) {
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
+      }
+      else {
+        detecTrac->detecDanger = false;
       }
       if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
@@ -704,7 +754,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     gameObjects->update();
   }
 }
-
 
 void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
@@ -733,12 +782,13 @@ void window_size_callback(GLFWwindow* window, int w, int h){
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_N && (action == GLFW_PRESS) && shiftDown) {
     debug = !debug;
   }
-  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
     boxes = !boxes;
   }
+
   if (!debug) {
     if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 0.9;
@@ -987,6 +1037,66 @@ void initObjects(WorldGrid* gameObjects) {
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
                 }
+      case '!': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(0, 0, 0),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+                break;
+      }
+      case '@': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-64.59f, 0, 95.87f),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+      }
+      case '#': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-64.59f, 0, 95.87f),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+      }
+      case '$': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-91.5f, 0, 85.0f),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+      }
       default:
                 break;
       }
@@ -1260,6 +1370,7 @@ int main(int argc, char **argv)
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
     
+    clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
@@ -1378,8 +1489,6 @@ int main(int argc, char **argv)
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();
 	  //}
-
-      //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
         
         // draw debug
         if (debug || boxes) {
@@ -1415,7 +1524,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
+    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 

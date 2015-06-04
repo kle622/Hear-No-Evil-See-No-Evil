@@ -31,6 +31,7 @@ class Player: public GameObject {
   int score = 0;
   float lean = 0;
   glm::vec3 origDimensions;
+  vec3 checkpoint = vec3(0, 0, 0);
   
   //Constructor
   Player(Mesh *mesh,
@@ -46,6 +47,7 @@ class Player: public GameObject {
   void move(float time);
   virtual glm::mat4 getModel();
   void SetMotion(float motion);
+  void lose();
 };
 
 #endif

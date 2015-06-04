@@ -29,7 +29,8 @@ MySound::MySound() {
   this->loseSnd->setVolume(0.5);
   this->winSnd = engine->play2D("../dependencies/irrKlang/media/victory_music.wav", false, true, true);
   this->winSnd->setVolume(0.4);
-  //engine->play2D("../dependencies/irrKlang/media/killing_to_me.wav", false, false, true);
+  this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav", false, true, true);
+  this->collectableSnd->setVolume(0.4);
 }
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {
