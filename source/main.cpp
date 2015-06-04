@@ -297,7 +297,7 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
       0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
       0.0f, 0.0f, 1.0f, 0.0f
       );*/
-  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
+  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 5.0f);
   glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.coneDirection + glm::vec3(0.0f, 0.0f, 0.3f), glm::vec3(0, 1, 0));
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
 
