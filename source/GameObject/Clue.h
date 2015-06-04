@@ -16,10 +16,11 @@ protected:
 public:
   //Properties
   char* soundPath;
+  vec3 checkpoint;
 
   //Constructor
   Clue(Mesh *mesh,
-    vec3 position, vec3 scale,
+    vec3 position, vec3 checkpoint, vec3 scale,
     vec3 direction, float velocity, vec3 dimensions, 
     int scanRadius, int material, char* soundPath);
 

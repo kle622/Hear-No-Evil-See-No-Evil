@@ -60,7 +60,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
       //printf("lightDist: %f\n", this->lightDist);
     }
     else if (this->lightDist > maxRadius) {
-      lightDetecMult = 0.001;
+      lightDetecMult = 0.01;
       //printf("Far view\n");
       //printf("lightDist: %f\n", this->lightDist);
     }
@@ -77,6 +77,10 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
     //this->totalDetLvl -= .005;
     //printf("Not Danger!\n");
   }
+  if (this->totalDetLvl > 1.0f) {
+    printf("you lose\n");
+    player->position = player->checkpoint;
+  }
   clamp();
   //printf("Post CLAMP DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
 }
@@ -92,14 +96,14 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
 
   if (player->velocity <= 0.0 && this->totalDetLvl > 0 && !this->detecDanger) {
-    this->totalDetLvl -= .02;
+    this->totalDetLvl -= .002;
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
-      this->totalDetLvl -= .005;
+      //this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == CROUCH) {
-      this->totalDetLvl -= .005;
+      //this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == RUN) {
       this->totalDetLvl += .005;
@@ -107,6 +111,12 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
   if (this->totalDetLvl == 0){
     this->detecDanger = false;
+  }
+  if (this->totalDetLvl > 1.0f) {
+    printf("you lose\n");
+    this->detecDanger = false;
+    this->totalDetLvl = 0.0;
+    player->position = player->checkpoint;
   }
   clamp();
 }

@@ -707,6 +707,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
       }
+      else {
+        detecTrac->detecDanger = false;
+      }
       if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
         detectCounter += detectPercent;
@@ -1007,10 +1010,11 @@ void initObjects(WorldGrid* gameObjects) {
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
                 }
-      case 'C': {
+      case '!': {
         gameObjects->add(shared_ptr<GameObject>(new Clue(
                 &clueMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(i - (TEST_WORLD/2) + 1, 1, j - (TEST_WORLD/2)),
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
@@ -1019,7 +1023,22 @@ void initObjects(WorldGrid* gameObjects) {
                 3,
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
                 )));
-        break;
+                break;
+      }
+      case '@': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(i - (TEST_WORLD/2) + 1, 1, j - (TEST_WORLD/2)),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 1, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
       }
       default:
                 break;

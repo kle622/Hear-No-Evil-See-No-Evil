@@ -28,6 +28,12 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
     if (object->type == GameObject::ObjectType::COLLECTABLE) {
       Clue* clue = dynamic_cast<Clue*>(object);
       playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
+      this->checkpoint.x = clue->checkpoint.x;
+      this->checkpoint.z = clue->checkpoint.z;
+    }
+    if (object->type == GameObject::ObjectType::GUARD) {
+      this->position.x = this->checkpoint.x;
+      this->position.z = this->checkpoint.z;
     }
 		return true;
 	}
