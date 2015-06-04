@@ -1559,7 +1559,7 @@ int main(int argc, char **argv)
             cineCam->lookat = introCurve.getLocation(introDist + 5);
           }
           else {
-            cineCam->lookat = introCurve.getLocation(introCUrve.getMaxDist() - 0.01);
+            cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
           }
           introDist += deltaTime * 2;
         }
