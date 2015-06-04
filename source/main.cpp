@@ -997,12 +997,12 @@ void initObjects(WorldGrid* gameObjects) {
         //printf("case 9\n");
         gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                 &winMesh,
-                vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-                vec3(4, 6, 4),
+                vec3(i - (TEST_WORLD/2), -0.75, j - (TEST_WORLD/2)),
+                vec3(2, 1, 2),
                 0,
-                vec3(0, 0, 1), // direction
-                0,
-                vec3(1, 10, 1),
+                vec3(0, 0, -1), // direction
+                180,
+                vec3(3, 1, 3),
                 1,
                 3
                 )));
