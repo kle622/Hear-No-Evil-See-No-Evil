@@ -32,15 +32,17 @@ void main() {
      //float bias = 0.005;
      //float visibility = 1.5;
 	 float clrBleedVal = detectionLevel;
+     vec3 surfacePos = vPos;
+     vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
 
    for (int i = 0; i < numLights; i++) {
      float visibility = 1.0;
      float att = 1.0;
      vec3 lightPos = allLights[i];
-     vec3 surfacePos = vPos;
-     vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
+     //vec3 surfacePos = vPos;
+     //vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);
-     float dist = distance(vec2(lightPos.x, lightPos.z), vec2(vPos.x, vPos.z));     
+     float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
@@ -73,10 +75,10 @@ void main() {
 				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
 					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
-		 color += (1.0 /(0.05 + 0.3 *  dist)) * visibility * att * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * diffuse;
 	   }
 	   else {
-		 color += (1.0 / (0.05 + 0.3 * dist)) * visibility * att * light_color * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * light_color * diffuse;
 	   }
 	}
 	else {	
