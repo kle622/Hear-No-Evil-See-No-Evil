@@ -254,6 +254,11 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
+  case 9: //footprint
+    glUniform3f(pass2Handles.uMatAmb, 1.0f, 1.0f, 1.0f);
+    glUniform3f(pass2Handles.uMatDif, 1.0f, 1.0f, 1.0f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 1.0f);
   }
 }
 
@@ -1110,13 +1115,13 @@ void initObjects(WorldGrid* gameObjects) {
 	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
 								 &printMesh,
 								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-								 vec3(0.5),
+								 vec3(0.5, 0.1, 0.5),
 								 0,
 								 vec3(0, 0, 1),
 								 0,
 								 vec3(0),
-								 0,
-								 0,
+								 1,
+								 9,
 								 GameObject::ObjectType::STATIC)));
       }
       default:
