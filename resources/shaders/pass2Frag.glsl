@@ -30,10 +30,11 @@ void main() {
      //vec3 ambient = UaColor * 0.5;
      vec3 ambient = vec3(0.05, 0.05, 0.05);
      //float bias = 0.005;
-     float visibility = 1.0;
+     //float visibility = 1.5;
 	 float clrBleedVal = detectionLevel;
 
    for (int i = 0; i < numLights; i++) {
+     float visibility = 1.0;
      float att = 1.0;
      vec3 lightPos = allLights[i];
      vec3 surfacePos = vPos;
@@ -46,23 +47,23 @@ void main() {
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      
      if (lightToSurfaceAngle > coneAngle) {
-     	att = 0.1;
+     	att = 0.2;
      }
 
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
+            visibility -= 0.1;
         }
         
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
+            visibility -= 0.1;
         }
         
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
+            visibility -= 0.1;
         }
         
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
+            visibility -= 0.1;
         }
 	
 	if (hasTex == 1) {
@@ -72,10 +73,10 @@ void main() {
 				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
 					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
-		 color += (1.0 /(0.05 + 0.5 *  dist)) * visibility * att * diffuse;
+		 color += (1.0 /(0.05 + 0.3 *  dist)) * visibility * att * diffuse;
 	   }
 	   else {
-		 color += (1.0 / (0.05 + 0.5 * dist)) * visibility * att * light_color * diffuse;
+		 color += (1.0 / (0.05 + 0.3 * dist)) * visibility * att * light_color * diffuse;
 	   }
 	}
 	else {	
