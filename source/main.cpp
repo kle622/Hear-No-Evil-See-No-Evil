@@ -724,6 +724,13 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       SetMaterial(drawList[i]->material);
     }
     
+    if(drawList[i]->type == GameObject::ObjectType::COLLECTABLE) {
+      glUniform1i(pass2Handles.isGlass, 1);
+    }
+    else {
+      glUniform1i(pass2Handles.isGlass, 0);
+    }
+    
     // SetMaterial(drawList[i]->material);
     SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
     safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
@@ -1399,8 +1406,8 @@ int main(int argc, char **argv)
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
-	clueMesh.hasTexture = true;
-	clueMesh.loadClueMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), 512);
+    clueMesh.hasTexture = true;
+    clueMesh.loadClueMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), 512);
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);

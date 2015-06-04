@@ -340,7 +340,7 @@ char* clueImageLoad(const char* filename) {
   unsigned long i;                    /*  standard counter. */
   unsigned short int planes;          /*  number of planes in image (must be 1)  */
   unsigned short int bpp;             /*  number of bits per pixel (must be 24) */
-  char temp;                          /*  used to convert bgr to rgb color. */
+  char temp, temp2, temp3, temp4;                          /*  used to convert bgr to rgb color. */
   char* data;
 
   /*  make sure the file is there. */
@@ -392,10 +392,15 @@ char* clueImageLoad(const char* filename) {
     return 0;
   }
 
-  for (i = 0; i<size; i += 4) { /*  reverse all of the colors. (bgr -> rgb) */
-    temp = data[i];
-    data[i] = data[i + 2];
-    data[i + 2] = temp;
+  for (i = 0; i < size; i += 4) { /*  reverse all of the colors. (bgr -> rgb) */
+    temp = data[i]; //is a
+    temp2 = data[i+1]; //is r 
+    temp3 = data[i+2]; //is g
+    temp4 = data[i+3]; // is b
+    data[i] = temp4; //r is now first
+    data[i+1] = temp3; //is g
+    data[i+2] = temp2;
+    data[i+3] = temp;
   }
 
   fclose(file); /* Close the file and release the filedes */

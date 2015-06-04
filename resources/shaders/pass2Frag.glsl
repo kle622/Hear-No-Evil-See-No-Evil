@@ -9,6 +9,7 @@ uniform sampler2D shadowMap;
 uniform sampler2D texture;
 uniform int hasTex;
 uniform int numLights;
+uniform int isGlass;
 uniform float coneAngle;
 uniform vec3 coneDirection;
 uniform vec3 allLights[MAX_LIGHTS];
@@ -53,6 +54,7 @@ float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float 
 void main() {
      
      vec3 color = vec3(0.0, 0.0, 0.0);
+     vec4 aColor = vec4(0.0, 0.0, 0.0, 1.0);
      vec3 light_color = vec3(0.5, 0.5, 0.243);
      //vec3 ambient = UaColor * 0.5;
      vec3 ambient = vec3(0.05, 0.05, 0.05);
@@ -95,17 +97,21 @@ void main() {
         }
 	
 	if (hasTex == 1) {
-	   vec3 diffuse = vec3(texture2D(texture, texCoordOut));
-	   float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
-	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
-				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
-					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
+	   vec4 aDiffuse = texture2D(texture, texCoordOut);
+	   float avgDiffuse = (aDiffuse.r + aDiffuse.b + aDiffuse.g)/3.0;
+	   vec3 diffuse = vec3((aDiffuse.r + ((avgDiffuse - aDiffuse.r) * clrBleedVal)), 
+				      (aDiffuse.g + ((avgDiffuse - aDiffuse.g) * clrBleedVal)), 
+					  (aDiffuse.b + ((avgDiffuse - aDiffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
 		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * diffuse;
+		 //aColor += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * aDiffuse; 
 	   }
 	   else {
 		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * light_color * diffuse;
+		 //aColor += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * aDiffuse;
 	   }
+
+	   aColor = aDiffuse;
 	}
 	else {	
 
@@ -163,6 +169,10 @@ void main() {
 	else {
 	gl_FragColor = vec4(color + avgAmbient, 1.0);
 	}*/
-   
-    gl_FragColor = vec4(color + avgAmbient, alpha);
+    if (isGlass == 1) {
+      gl_FragColor = aColor;
+    }
+    else {
+      gl_FragColor = vec4(color + avgAmbient, alpha);
+    }
 }
