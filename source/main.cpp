@@ -794,6 +794,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     boxes = !boxes;
   }
 
+  if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
+    cout << "introCurve.addPoint(" << playerObject->position.x << ", " << playerObject->position.y << ", " << playerObject->position.z << ");" << endl;
+  }
+
   if (!debug) {
     if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 0.9;
@@ -1404,8 +1408,8 @@ int main(int argc, char **argv)
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR, debugDraw);
     // debug camera
-    debugCam = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
-                             glm::vec3(0.0f, 0.0f, 0.0f),
+    debugCam = new Camera(glm::vec3(1.0f, 1.0f, 1.0f),
+                             glm::vec3(0.0f, 1.0f, 0.0f),
                              glm::vec3(0.0f, 1.0f, 0.0f),
                              CAMERA_FOV,
                              (float)g_width / (float)g_height,
@@ -1431,10 +1435,135 @@ int main(int argc, char **argv)
     viewCam = camera3DPerson;
 
     SplineCurve introCurve; // add points
-    introCurve.addPoint(0, 0, 0);
-    introCurve.addPoint(1, 0, 0);
-    introCurve.addPoint(2, 0, 1);
-    introCurve.addPoint(3, 0, -2);
+    /*introCurve.addPoint(0, 1, 0);
+    introCurve.addPoint(1, 1, 0);
+    introCurve.addPoint(2, 1, 1);
+    introCurve.addPoint(3, 1, -2);*/
+    
+introCurve.addPoint(0.716951, 0, 0.258118);
+introCurve.addPoint(0.52594, 0, 2.07816);
+introCurve.addPoint(-0.0430652, 0, 4.19264);
+introCurve.addPoint(-0.368239, 0, 5.74165);
+introCurve.addPoint(-0.505314, 0, 7.23002);
+introCurve.addPoint(-0.365692, 0, 8.97688);
+introCurve.addPoint(0.120832, 0, 11.0584);
+introCurve.addPoint(0.745826, 0, 12.8632);
+introCurve.addPoint(1.34777, 0, 14.4716);
+introCurve.addPoint(1.17904, 0, 16.3448);
+introCurve.addPoint(0.133931, 0, 18.3259);
+introCurve.addPoint(-0.890599, 0, 19.6836);
+introCurve.addPoint(-2.45746, 0, 21.2274);
+introCurve.addPoint(-4.42126, 0, 22.246);
+introCurve.addPoint(-5.80645, 0, 22.9172);
+introCurve.addPoint(-7.75, 0, 24.1723);
+introCurve.addPoint(-10.6611, 0, 24.8676);
+introCurve.addPoint(-12.3501, 0, 24.9254);
+introCurve.addPoint(-14.5293, 0, 24.9807);
+introCurve.addPoint(-16.8681, 0, 24.9085);
+introCurve.addPoint(-19.2465, 0, 24.8233);
+introCurve.addPoint(-21.5651, 0, 24.7402);
+introCurve.addPoint(-24.0894, 0, 25.0217);
+introCurve.addPoint(-25.7811, 0, 26.7018);
+introCurve.addPoint(-26.6603, 0, 28.2205);
+introCurve.addPoint(-27.8636, 0, 29.473);
+introCurve.addPoint(-29.3922, 0, 30.0321);
+introCurve.addPoint(-31.1699, 0, 30.1839);
+introCurve.addPoint(-33.2702, 0, 30.3982);
+introCurve.addPoint(-34.654, 0, 31.0019);
+introCurve.addPoint(-35.7728, 0, 32.302);
+introCurve.addPoint(-36.2545, 0, 33.7917);
+introCurve.addPoint(-36.5861, 0, 35.7132);
+introCurve.addPoint(-36.6792, 0, 37.9424);
+introCurve.addPoint(-36.5791, 0, 39.8798);
+introCurve.addPoint(-36.6508, 0, 41.8488);
+introCurve.addPoint(-37.1835, 0, 43.7401);
+introCurve.addPoint(-37.881, 0, 45.2196);
+introCurve.addPoint(-38.9697, 0, 46.6404);
+introCurve.addPoint(-40.0958, 0, 48.1018);
+introCurve.addPoint(-41.0266, 0, 49.3098);
+introCurve.addPoint(-42.5458, 0, 50.3322);
+introCurve.addPoint(-44.2049, 0, 51.1839);
+introCurve.addPoint(-45.6448, 0, 51.9264);
+introCurve.addPoint(-46.8884, 0, 52.9561);
+introCurve.addPoint(-48.0539, 0, 54.9436);
+introCurve.addPoint(-49.0205, 0, 56.806);
+introCurve.addPoint(-50.1815, 0, 58.41);
+introCurve.addPoint(-51.2926, 0, 59.945);
+introCurve.addPoint(-52.2471, 0, 61.3923);
+introCurve.addPoint(-52.5745, 0, 63.4663);
+introCurve.addPoint(-52.2644, 0, 65.1378);
+introCurve.addPoint(-51.8245, 0, 67.4102);
+introCurve.addPoint(-51.1744, 0, 69.0317);
+introCurve.addPoint(-49.8773, 0, 70.8026);
+introCurve.addPoint(-48.3935, 0, 72.3975);
+introCurve.addPoint(-48.0602, 0, 74.109);
+introCurve.addPoint(-48.6132, 0, 75.9779);
+introCurve.addPoint(-49.5809, 0, 77.8358);
+introCurve.addPoint(-50.2561, 0, 79.9046);
+introCurve.addPoint(-50.5872, 0, 81.8567);
+introCurve.addPoint(-51.1171, 0, 83.9697);
+introCurve.addPoint(-51.7772, 0, 86.0572);
+introCurve.addPoint(-52.8694, 0, 88.0292);
+introCurve.addPoint(-54.3045, 0, 89.6763);
+introCurve.addPoint(-56.0822, 0, 91.2206);
+introCurve.addPoint(-58.3049, 0, 92.1335);
+introCurve.addPoint(-60.2814, 0, 92.5549);
+introCurve.addPoint(-62.3325, 0, 92.0548);
+introCurve.addPoint(-63.516, 0, 90.3894);
+introCurve.addPoint(-63.7086, 0, 88.3051);
+introCurve.addPoint(-63.5706, 0, 85.985);
+introCurve.addPoint(-63.75, 0, 83.8304);
+introCurve.addPoint(-63.8803, 0, 81.7493);
+introCurve.addPoint(-64.2119, 0, 79.6521);
+introCurve.addPoint(-64.5555, 0, 77.9999);
+introCurve.addPoint(-64.7787, 0, 76.9269);
+introCurve.addPoint(-65.0984, 0, 75.3898);
+introCurve.addPoint(-65.5586, 0, 73.5089);
+introCurve.addPoint(-66.3688, 0, 72.4089);
+introCurve.addPoint(-68.0597, 0, 71.3775);
+introCurve.addPoint(-69.893, 0, 70.925);
+introCurve.addPoint(-71.9757, 0, 70.9704);
+introCurve.addPoint(-73.9188, 0, 71.0565);
+introCurve.addPoint(-75.9771, 0, 71.1302);
+introCurve.addPoint(-77.9403, 0, 70.7839);
+introCurve.addPoint(-80.0761, 0, 69.721);
+introCurve.addPoint(-81.5135, 0, 68.5902);
+introCurve.addPoint(-83.5444, 0, 67.4464);
+introCurve.addPoint(-85.7873, 0, 67.7327);
+introCurve.addPoint(-87.8577, 0, 68.9845);
+introCurve.addPoint(-90.2255, 0, 68.8911);
+introCurve.addPoint(-91.0613, 0, 67.051);
+introCurve.addPoint(-91.4203, 0, 64.6328);
+introCurve.addPoint(-91.953, 0, 62.1899);
+introCurve.addPoint(-92.5792, 0, 60.2012);
+introCurve.addPoint(-93.2806, 0, 57.974);
+introCurve.addPoint(-93.9323, 0, 55.9041);
+introCurve.addPoint(-94.4444, 0, 54.2779);
+introCurve.addPoint(-93.3841, 0.04, 54.6026);
+introCurve.addPoint(-93.25, 0.04, 54.67);
+introCurve.addPoint(-93.25, 0.04, 54.3202);
+introCurve.addPoint(-93.25, 0.04, 55.1433);
+introCurve.addPoint(-91.7106, 0.04, 55.25);
+introCurve.addPoint(-89.9775, 0.04, 55.1089);
+introCurve.addPoint(-87.8286, 0.04, 54.7154);
+introCurve.addPoint(-85.687, 0.04, 53.6239);
+introCurve.addPoint(-83.6916, 0.04, 52.6596);
+introCurve.addPoint(-81.5682, 0.04, 52.4501);
+introCurve.addPoint(-79.2132, 0.04, 52.569);
+introCurve.addPoint(-77.0161, 0.04, 52.7561);
+introCurve.addPoint(-74.9093, 0.04, 52.8661);
+introCurve.addPoint(-72.7008, 0.04, 52.5616);
+introCurve.addPoint(-70.7137, 0.04, 52.117);
+introCurve.addPoint(-69.6035, 0.04, 50.0851);
+introCurve.addPoint(-69.6339, 0.04, 48.1643);
+introCurve.addPoint(-69.972, 0.04, 45.6725);
+introCurve.addPoint(-70.2537, 0.04, 43.7328);
+introCurve.addPoint(-70.5721, 0.04, 41.5408);
+introCurve.addPoint(-70.8689, 0.04, 39.4973);
+introCurve.addPoint(-71.3325, 0.04, 37.2044);
+introCurve.addPoint(-71.7928, 0.04, 35.0889);
+introCurve.addPoint(-72.2967, 0.04, 32.7731);
+introCurve.addPoint(0.159485, 0.04, -0.310959);
     
     double timeCounter = 0;
     
@@ -1491,7 +1620,7 @@ int main(int argc, char **argv)
           cineCam->lookat = nextPoint;
           introDist += deltaTime;
         }
-        else {
+        else if (inIntro) {
           inIntro = false;
           drawCam = camera3DPerson;
           viewCam = camera3DPerson;
@@ -1540,7 +1669,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
