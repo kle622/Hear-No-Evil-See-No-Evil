@@ -1400,7 +1400,7 @@ int main(int argc, char **argv)
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
 	clueMesh.hasTexture = true;
-	clueMesh.loadMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), TEX_SIZE);
+	clueMesh.loadClueMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), TEX_SIZE);
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
@@ -1559,7 +1559,7 @@ int main(int argc, char **argv)
             cineCam->lookat = introCurve.getLocation(introDist + 5);
           }
           else {
-            cineCam->lookat = introCurve.getLocation(introCUrve.getMaxDist() - 0.01);
+            cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
           }
           introDist += deltaTime * 2;
         }

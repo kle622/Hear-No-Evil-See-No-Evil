@@ -22,6 +22,7 @@ class Mesh {
   void loadTexture(const std::string &filename);
   void sendWallTexBuf();
   void loadMipmapTexture(const std::string &filename, int size);
+  void loadClueMipmapTexture(const std::string &filename, int size);
   float radius;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
