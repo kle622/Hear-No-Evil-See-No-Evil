@@ -60,7 +60,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
       //printf("lightDist: %f\n", this->lightDist);
     }
     else if (this->lightDist > maxRadius) {
-      lightDetecMult = 0.01;
+      lightDetecMult = 0.005;
       //printf("Far view\n");
       //printf("lightDist: %f\n", this->lightDist);
     }
