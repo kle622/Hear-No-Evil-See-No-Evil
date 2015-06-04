@@ -1012,7 +1012,7 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(1, 10, 1),
+                vec3(2, 1, 2),
                 1,
                 3
                 )));
