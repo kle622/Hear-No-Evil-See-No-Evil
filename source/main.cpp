@@ -675,11 +675,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
       detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
-          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-        }
-      }
     }
 
     //guards
@@ -991,7 +986,6 @@ void initObjects(WorldGrid* gameObjects) {
                   break;
                 }
       case 'C': {
-        printf("GETTING HERE******************************************\n");
         gameObjects->add(shared_ptr<GameObject>(new Clue(
                 &clueMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
@@ -1000,7 +994,8 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(1, 1, 1),
                 1,
-                3
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
                 )));
         break;
       }
@@ -1396,8 +1391,6 @@ int main(int argc, char **argv)
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();
 	  //}
-
-      //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
         
         // draw debug
         if (debug || boxes) {
@@ -1433,7 +1426,6 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 

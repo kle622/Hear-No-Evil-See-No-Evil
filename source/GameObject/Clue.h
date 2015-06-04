@@ -15,16 +15,16 @@ protected:
 
 public:
   //Properties
+  char* soundPath;
 
   //Constructor
   Clue(Mesh *mesh,
     vec3 position, vec3 scale,
     vec3 direction, float velocity, vec3 dimensions, 
-    int scanRadius, int material);
+    int scanRadius, int material, char* soundPath);
 
   //Object methods
   void move(float time);
-  bool collide(GameObject* object);
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "../Camera/Camera.h"
 #include "../MySound/MySound.h"
 #include "WinCondition.h"
+#include "Clue.h"
 #include <algorithm>
 MySound* playrSoundObj = new MySound();
 
@@ -21,6 +22,13 @@ Player::Player(Mesh *mesh,
 bool Player::collide(GameObject* object, DebugDraw *ddraw) {
 	if (GameObject::collide(object, ddraw)) {
 		// specific stuff
+    if (dynamic_cast<Wall*>(object)) {
+      playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+    }
+    if (object->type == GameObject::ObjectType::COLLECTABLE) {
+      Clue* clue = dynamic_cast<Clue*>(object);
+      playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
+    }
 		return true;
 	}
     return false;

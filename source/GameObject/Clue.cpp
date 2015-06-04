@@ -5,28 +5,15 @@
 Clue::Clue(Mesh *mesh,
   vec3 position, vec3 scale,
   vec3 direction, float velocity, vec3 dimensions, 
-  int scanRadius, int material = 0) :
+  int scanRadius, int material = 0, char* soundPath = "THIS SHOULD NEVER HAPPEN") :
   GameObject(mesh, position, scale, 0,
   direction, velocity, dimensions, scanRadius, material, ObjectType::COLLECTABLE) {
-
+  	this->soundPath = soundPath;
 }
 
 void Clue::move(float time) {
-	rotation += ROTATE_SPEED * time;
-}
-
-bool Clue::collide(GameObject* object) {
-  float thisRadius = dimensions.x + dimensions.y + dimensions.z;
-  float objectRadius = object->dimensions.x + object->dimensions.y +
-    object->dimensions.z;
-
-  if (compareDistance(position, object->position, thisRadius + objectRadius)) {
-    if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
-      intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
-      intersect(position.z, object->position.z, dimensions.z, object->dimensions.z)) {
-      //play the fucking sound
-      return true;
-    }
-  }
-  return false;
+	this->rotation += time * ROTATE_SPEED;
+	float radians = this->rotation * (M_PI / 180);
+	this->direction += vec3(cos(radians), sin(radians), 0);
+	printf("direction: %f, %f, %f\n", this->direction.x, this->direction.y, this->direction.z);
 }
