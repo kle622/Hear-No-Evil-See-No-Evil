@@ -7,7 +7,6 @@
 #include <sstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
-//#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -49,7 +48,8 @@
 #include "GameObject/Clue.h"
 
 //#include "GuardPath/PathNode.h"
-//#define DEBUG
+#define DEBUG
+
 #define MAX_LIGHTS 10
 
 #define WORLD_WIDTH 300
@@ -97,7 +97,10 @@ float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
-Camera* debugCamera;
+Camera *debugCam;
+Camera *cineCam;
+Camera *drawCam;  // camera that's used for drawing (vfc, shading, etc.)
+Camera *viewCam;  // camera that's used for setting the view (controlled by mouse input)
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
@@ -115,14 +118,22 @@ Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
 Mesh clueMesh;
+Mesh printMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
+bool shiftDown = false;
+bool inIntro = true;
+double introDist = 0;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
 DetectionTracker *detecTrac;
+#ifdef DEBUG
+ofstream curveOutput;
+#endif
+SplineCurve introCurve; // add points
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
@@ -252,7 +263,25 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
+  case 9: //footprint
+    glUniform3f(pass2Handles.uMatAmb, 1.0f, 1.0f, 1.0f);
+    glUniform3f(pass2Handles.uMatDif, 1.0f, 1.0f, 1.0f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 1.0f);
   }
+}
+
+void readIntroSpline()
+{
+  ifstream curveInput;
+  curveInput.open(resPath("introCurve.txt"));
+  double x, y, z;
+  while (curveInput >> x) {
+    curveInput >> y;
+    curveInput >> z;
+    introCurve.addPoint(x, y, z);
+  }
+  curveInput.close();
 }
 
 void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
@@ -349,170 +378,178 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
   glm::vec3 up = camera3DPerson->getUp();
   oldPosition = playerObject->position;
 
-  if (!debug) {
-    if (!leaningRight && ! leaningLeft) {
-      if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        accelerate = true;
-        leftD = true;
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    shiftDown = true;
+  }
+  else {
+    shiftDown = false;
+  }
+  if (!inIntro) {
+    if (!debug) {
+      if (!leaningRight && ! leaningLeft) {
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
+              sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += -velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+          accelerate = true;
+          leftD = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
+              sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+          accelerate = true;
+          rightD = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+              forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+          accelerate = true;
+          upD = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+              forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += -velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+          accelerate = true;
+          downD = true;
+        }
       }
-      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        accelerate = true;
-        rightD = true;
-      }
-      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        accelerate = true;
-        upD = true;
-      }
-      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        accelerate = true;
-        downD = true;
-      }
-    }
 
-    float shearSpeed = 3;
-    float camShiftSpeed = 6;
-    float iters = 20;
-    float max_lean = 0.5;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-      if (!leaningRight) {
-        if (!leaningLeft) {
-          leaningLeft = true;
-          cameraLean = strafe;
-        }
-        if (playerObject->lean < max_lean) {
-          glm::vec3 newForward = forward;
-          newForward.y = 0;
-          playerObject->changeDirection(newForward);
-        }
-        for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
-          playerObject->lean += deltaTime * shearSpeed / iters;
-          camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-      }
-    }
-    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
-      if (leaningLeft) {
-        for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
-          playerObject->lean -= deltaTime * shearSpeed / iters;
-          camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-        if (playerObject->lean <= 0) {
-          leaningLeft = false;
-        }
-      }
-    }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-      if (!leaningLeft) {
+      float shearSpeed = 3;
+      float camShiftSpeed = 6;
+      float iters = 20;
+      float max_lean = 0.5;
+      if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
         if (!leaningRight) {
-          leaningRight = true;
-          cameraLean = strafe;
-        }
-        if (playerObject->lean > -1 * max_lean) {
-          glm::vec3 newForward = forward;
-          newForward.y = 0;
-          playerObject->changeDirection(newForward);
-        }
-        for (int i = 0; i < iters && playerObject->lean > -1 * max_lean; ++i) {
-          playerObject->lean -= deltaTime * shearSpeed / iters;
-          camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-      }
-    }
-    else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
-      if (leaningRight) {
-        for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
-          playerObject->lean += deltaTime * shearSpeed / iters;
-          camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-        if (playerObject->lean >= 0) {
-          leaningRight = false;
+          if (!leaningLeft) {
+            leaningLeft = true;
+            cameraLean = strafe;
+          }
+          if (playerObject->lean < max_lean) {
+            glm::vec3 newForward = forward;
+            newForward.y = 0;
+            playerObject->changeDirection(newForward);
+          }
+          for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
+            playerObject->lean += deltaTime * shearSpeed / iters;
+            camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
         }
       }
-    }
+      else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
+        if (leaningLeft) {
+          for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
+            playerObject->lean -= deltaTime * shearSpeed / iters;
+            camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
+          if (playerObject->lean <= 0) {
+            leaningLeft = false;
+          }
+        }
+      }
+      if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        if (!leaningLeft) {
+          if (!leaningRight) {
+            leaningRight = true;
+            cameraLean = strafe;
+          }
+          if (playerObject->lean > -1 * max_lean) {
+            glm::vec3 newForward = forward;
+            newForward.y = 0;
+            playerObject->changeDirection(newForward);
+          }
+          for (int i = 0; i < iters && playerObject->lean > -1 * max_lean; ++i) {
+            playerObject->lean -= deltaTime * shearSpeed / iters;
+            camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
+        }
+      }
+      else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+        if (leaningRight) {
+          for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
+            playerObject->lean += deltaTime * shearSpeed / iters;
+            camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
+          if (playerObject->lean >= 0) {
+            leaningRight = false;
+          }
+        }
+      }
 
-    if (accelerate) {
-      direction = normalize(direction);
-      if ((upD && downD) || (leftD && rightD)) {
-        playerObject->decelerate();
+      if (accelerate) {
+        direction = normalize(direction);
+        if ((upD && downD) || (leftD && rightD)) {
+          playerObject->decelerate();
+        }
+        else {
+          playerObject->changeDirection(direction);
+          playerObject->accelerate();
+          //printf("velocity: %f\n", playerObject->velocity);
+        }
       }
       else {
-        playerObject->changeDirection(direction);
-        playerObject->accelerate();
-        //printf("velocity: %f\n", playerObject->velocity);
+        playerObject->decelerate();
       }
     }
     else {
-      playerObject->decelerate();
-    }
-  }
-  else {
-    playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
-    glm::vec3 view = -1.0f * debugCamera->getForward();
-    glm::vec3 up = debugCamera->getUp();
-    glm::vec3 strafe = debugCamera->getStrafe();
-    glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
-    /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-      key_speed -= 0.1;
+      playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
+      glm::vec3 view = -1.0f * debugCam->getForward();
+      glm::vec3 up = debugCam->getUp();
+      glm::vec3 strafe = debugCam->getStrafe();
+      glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
+      /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+        key_speed -= 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+        key_speed += 0.1;
+        }*/
+      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        move = -1.0f * key_speed * strafe;
       }
-      if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-      key_speed += 0.1;
-      }*/
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-      move = -1.0f * key_speed * strafe;
+      if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        move = -1.0f * key_speed * strafe;
+      }
+      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        move = key_speed * strafe;
+      }
+      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        move = key_speed * strafe;
+      }
+      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        move = -1.0f * key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        move = -1.0f * key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        move = key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        move = key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+        move = key_speed * glm::vec3(0, -1, 0);
+      }
+      if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        move = key_speed * glm::vec3(0, 1, 0);
+      }
+      debugCam->eye += move;
+      debugCam->lookat += move;
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-      move = -1.0f * key_speed * strafe;
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-      move = key_speed * strafe;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-      move = key_speed * strafe;
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-      move = -1.0f * key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-      move = -1.0f * key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-      move = key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-      move = key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, -1, 0);
-    }
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, 1, 0);
-    }
-    debugCamera->eye += move;
-    debugCamera->lookat += move;
   }
 
   // change mouse sensitivity
@@ -617,17 +654,11 @@ void beginPass2Draw() {
   //glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
   glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
   glUniform1f(pass2Handles.uConeAngle, coneAngle);
-  glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
+  glUniform3f(pass2Handles.uCamPos, drawCam->eye.x,drawCam->eye.y, drawCam->eye.z);
   glUniform1i(pass2Handles.hasTex, 0);
 
-  if (debug) {
-    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
-    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
-  }
-  else {
-    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
-    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
-  }
+  safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(viewCam->getView()));
 
   checkGLError();
 }
@@ -664,15 +695,24 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   pass2Handles.draw(ground);
   //ground->draw();
 
-  glUniform1i(pass2Handles.hasTex, 0);
-  SetMaterial(ceiling->material);
+  //  glUniform1i(pass2Handles.hasTex, 0);
+  //SetMaterial(ceiling->material);
+  //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
+  //safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
+  //pass2Handles.draw(ceiling);
+
+  glUniform1i(pass2Handles.hasTex, 1);
+  glBindTexture(GL_TEXTURE_2D, ceiling->texId);
+  glUniform1i(pass2Handles.texture, 1);
+  SetMaterial(0);
   SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
   pass2Handles.draw(ceiling);
+
   //ceiling->draw();
   //Guard *guard;
   // draw
-  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  vector<shared_ptr<GameObject>> drawList = drawCam->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
     if (drawList[i]->mesh->hasTexture) {
       glUniform1i(pass2Handles.hasTex, 1);
@@ -773,14 +813,35 @@ void window_size_callback(GLFWwindow* window, int w, int h){
   g_height = h;
 }
 
+void endIntro()
+{
+  inIntro = false;
+  drawCam = camera3DPerson;
+  viewCam = camera3DPerson;
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_N && (action == GLFW_PRESS) && shiftDown) {
     debug = !debug;
+    if (debug) {
+      viewCam = debugCam;
+    }
+    else {
+      viewCam = drawCam;
+    }
   }
-  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
     boxes = !boxes;
   }
+  if (key == GLFW_KEY_H && (action == GLFW_PRESS) && shiftDown) {
+    endIntro();
+  }
+
+  if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
+    curveOutput << debugCam->eye.x << " " << debugCam->eye.y << " " << debugCam->eye.z << endl;
+  }
+
   if (!debug) {
     if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       camera3DPerson->zoom *= 0.9;
@@ -830,54 +891,22 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   double dx = xpos - x_center;
   double dy = ypos - y_center;
 
-  if (!debug) {
-    // TODO time-based animation
-    // define max camera movement rate; this can be a global setting to be changed by keypress
-    float maxMove = camSpeed * deltaTime;
-    if (dx > 0) {
-      dx = dx < maxMove ? dx : maxMove;
-    }
-    else {
-      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-    }
-    if (dy > 0) {
-      dy = dy < maxMove ? dy : maxMove;
-    }
-    else {
-      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-    }
-    camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
-    camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
+  float maxMove = camSpeed * deltaTime;
+  if (dx > 0) {
+    dx = dx < maxMove ? dx : maxMove;
   }
   else {
-    // TODO implement first person camera class 
-    double max_vert_angle = 85;
-    double cursor_speed = 0.3;
-    float maxMove = camSpeed * deltaTime;
-
-    if (dx > 0) {
-      dx = dx < maxMove ? dx : maxMove;
-    }
-    else {
-      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-    }
-    if (dy > 0) {
-      dy = dy < maxMove ? dy : maxMove;
-    }
-    else {
-      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-    }
-
-    theta -= dx * cursor_speed;
-    // note that ypos is measured from the top of the screen, so
-    // an increase in ypos means moving the mouse down the y axis
-    if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
-      phi -= dy * cursor_speed;
-    }
-
-    debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
-    debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
-    debugCamera->lookat.z = debugCamera->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+    dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+  }
+  if (dy > 0) {
+    dy = dy < maxMove ? dy : maxMove;
+  }
+  else {
+    dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+  }
+  if (!inIntro) {
+    viewCam->moveHoriz(-1.0 * dx * 0.01);
+    viewCam->moveVert(dy * 0.01);
   }
 
   glfwSetCursorPos(window, x_center, y_center);
@@ -989,12 +1018,12 @@ void initObjects(WorldGrid* gameObjects) {
         //printf("case 9\n");
         gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                 &winMesh,
-                vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
+                vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
                 vec3(4, 6, 4),
                 0,
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(1, 10, 1),
+                vec3(2, 1, 2),
                 1,
                 3
                 )));
@@ -1037,7 +1066,7 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(1, 1, 1),
+                vec3(1, 2, 1),
                 1,
                 3,
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
@@ -1052,12 +1081,54 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(1, 1, 1),
+                vec3(1, 2, 1),
                 1,
                 3,
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
                 )));
               break;
+      }
+      case '#': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-64.59f, 0, 95.87f),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+      }
+      case '$': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-91.5f, 0, 85.0f),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+	case 'f':
+	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+								 &printMesh,
+								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+								 vec3(0.5, 0.1, 0.5),
+								 0,
+								 vec3(0, 0, 1),
+								 0,
+								 vec3(0),
+								 2,
+								 9,
+								 GameObject::ObjectType::STATIC)));
       }
       default:
                 break;
@@ -1143,6 +1214,8 @@ void initCeiling() {
       norBufObjG,
       5 //material
       );
+
+  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
 }
 
 void initWalls(WorldGrid* gameObjects) {
@@ -1331,7 +1404,7 @@ int main(int argc, char **argv)
     pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
-    
+    printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
@@ -1347,7 +1420,9 @@ int main(int argc, char **argv)
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
     chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
-    winMesh.loadShapes(resPath(sysPath("models", "flag.obj")));
+    winMesh.loadShapes(resPath(sysPath("models", "blob.obj")));
+    winMesh.hasTexture = true;
+    winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
     playerMesh.hasTexture = true;
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
     //printf("Loading cube mesh wall.bmp\n");
@@ -1388,24 +1463,44 @@ int main(int argc, char **argv)
     //initDetectionTracker(&gameObjects);
     initFramebuffer();
    
+    readIntroSpline();
+
     //initialize the camera
     camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR, debugDraw);
     // debug camera
-    debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
-                             glm::vec3(0.0f, 0.0f, 0.0f),
+    debugCam = new Camera(glm::vec3(1.0f, 1.0f, 1.0f),
+                             glm::vec3(0.0f, 1.0f, 0.0f),
                              glm::vec3(0.0f, 1.0f, 0.0f),
                              CAMERA_FOV,
                              (float)g_width / (float)g_height,
                              CAMERA_NEAR,
                              CAMERA_FAR,
                              debugDraw);
+
     detectCam = new DetectionCamera(CAMERA_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
                                     GUARD_FAR,
                                     debugDraw);
+
+    // CAREFUL - can only call getLocation if introCurve has data in it already!
+    cineCam = new Camera(introCurve.getLocation(0.1),
+                             introCurve.getLocation(0),
+                             glm::vec3(0.0f, 1.0f, 0.0f),
+                             CAMERA_FOV,
+                             (float)g_width / (float)g_height,
+                             CAMERA_NEAR,
+                             CAMERA_FAR,
+                             debugDraw);
+
+    drawCam = camera3DPerson;
+    viewCam = camera3DPerson;
+
+#ifdef DEBUG
+    curveOutput.open(resPath("introCurveSample.txt"));
+#endif
     
     double timeCounter = 0;
     
@@ -1415,7 +1510,6 @@ int main(int argc, char **argv)
     ImGui_ImplGlfw_Init(window, false);
     ImGuiIO& io = ImGui::GetIO();
 
-    
     do{
         ImGui_ImplGlfw_NewFrame(); 
 
@@ -1440,6 +1534,37 @@ int main(int argc, char **argv)
         ImGui::End();
         ImGui::PopStyleVar();
         ImGui::PopStyleColor(1);
+
+#ifdef DEBUG
+        if (boxes) {
+          double iter = 0;
+          glm::vec3 oldPoint = introCurve.getLocation(0);
+          glm::vec3 newPoint;
+          while (iter < introCurve.getMaxDist()) {
+            newPoint = introCurve.getLocation(iter);
+            debugDraw->addLine(oldPoint, newPoint, glm::vec3(0.87f, 0.25f, 0.44f), false);
+            oldPoint = newPoint;
+            iter += 0.01;
+          }
+        }
+#endif
+
+        if (introDist < introCurve.getMaxDist() && inIntro) {
+          drawCam = cineCam;
+          if (debug) {
+            viewCam = debugCam;
+          }
+          else {
+            viewCam = cineCam;
+          }
+          glm::vec3 nextPoint = introCurve.getLocation(introDist);
+          cineCam->eye = cineCam->lookat;
+          cineCam->lookat = nextPoint;
+          introDist += deltaTime;
+        }
+        else if (inIntro) {
+          endIntro();
+        }
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
@@ -1455,15 +1580,13 @@ int main(int argc, char **argv)
         // draw debug
         if (debug || boxes) {
             if (debug) {
+                // just to trigger geometry being added to debug drawer
                 camera3DPerson->getView();
                 camera3DPerson->getProjection();
-                debugDraw->view = debugCamera->getView();
-                debugDraw->projection = debugCamera->getProjection();
             }
-            else {
-                debugDraw->view = camera3DPerson->getView();
-                debugDraw->projection = camera3DPerson->getProjection();
-            }
+
+            debugDraw->view = viewCam->getView();
+            debugDraw->projection = viewCam->getProjection();
             
             vector<shared_ptr<GameObject>> objs = gameObjects.list;
             for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
@@ -1476,9 +1599,9 @@ int main(int argc, char **argv)
             }
         }
         if (debug || boxes) {
-#ifndef WIN32
+//#ifndef WIN32
       debugDraw->drawAll();
-#endif
+//#endif
     }
     debugDraw->clear();
 
@@ -1486,10 +1609,13 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
+#ifdef DEBUG
+    curveOutput.close();
+#endif
   glfwTerminate();
   soundObj->cleanUpSound();
   return 0;

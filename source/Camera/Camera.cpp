@@ -67,3 +67,25 @@ std::vector<std::shared_ptr<GameObject>> Camera::getUnculled(WorldGrid *worldgri
   
   return unculled;
 }
+
+void Camera::moveHoriz(float step)
+{
+    theta += step * 80;
+
+    lookat.x = eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
+    lookat.y = eye.y + sin(phi * M_PI / 180);
+    lookat.z = eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+}
+
+void Camera::moveVert(float step)
+{
+    // note that ypos is measured from the top of the screen, so
+    // an increase in ypos means moving the mouse down the y axis
+    if ((phi < max_vert_angle && step < 0) || (phi > -1.0 * max_vert_angle && step > 0)) {
+      phi -= step * 80;
+    }
+
+    lookat.x = eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
+    lookat.y = eye.y + sin(phi * M_PI / 180);
+    lookat.z = eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+}

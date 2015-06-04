@@ -57,39 +57,42 @@ void main() {
      //vec3 ambient = UaColor * 0.5;
      vec3 ambient = vec3(0.05, 0.05, 0.05);
      //float bias = 0.005;
-     float visibility = 1.0;
+     //float visibility = 1.5;
 	 float clrBleedVal = detectionLevel;
-
-   for (int i = 0; i < numLights; i++) {
-     float att = 1.5;
-     vec3 lightPos = allLights[i];
      vec3 surfacePos = vPos;
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
+     float alpha = 1.0;
+
+   for (int i = 0; i < numLights; i++) {
+     float visibility = 1.5;
+     float att = 1.5;
+     vec3 lightPos = allLights[i];
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
+     float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      
      if (lightToSurfaceAngle > coneAngle) {
-     	att = 0.1;
+     	att = 0.2;
      }
 
-    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
-        visibility -= 0.2;
-    }
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.1;
+        }
         
-    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-        visibility -= 0.2;
-    }
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.1;
+        }
         
-    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-        visibility -= 0.2;
-    }
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.1;
+        }
         
-    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-        visibility -= 0.2;
-    }
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.1;
+        }
 	
 	if (hasTex == 1) {
 	   vec3 diffuse = vec3(texture2D(texture, texCoordOut));
@@ -98,10 +101,10 @@ void main() {
 				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
 					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
-		 color += visibility * att * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * diffuse;
 	   }
 	   else {
-		 color += visibility * light_color * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * light_color * diffuse;
 	   }
 	}
 	else {	
@@ -122,14 +125,15 @@ void main() {
 		specular = vec3((specular.r + ((avgSpecular - specular.r) * clrBleedVal)), 
 						(specular.g + ((avgSpecular - specular.g) * clrBleedVal)), 
 						(specular.b + ((avgSpecular - specular.b) * clrBleedVal)));
-	    color += (att * (diffuse + specular));
+	   color += (att * (diffuse + specular));
+	   alpha = 0.4;
 	}
    }	
      	 
-	//vec2( -0.94201624, -0.39906216) / 700.0
-	//vec2( 0.94558609, -0.76890725)  / 700.0
-	//vec2( -0.094184101, -0.9293887)  / 700.0
-	//vec2( 0.34495938, 0.29387760) / 700.0
+//vec2( -0.94201624, -0.39906216) / 700.0
+//vec2( 0.94558609, -0.76890725)  / 700.0
+//vec2( -0.094184101, -0.9293887)  / 700.0
+//vec2( 0.34495938, 0.29387760) / 700.0
 	/*if (texture2D(shadowMap, ShadowCoord.xy/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
 	   visibility -= 0.2;
 	}
@@ -144,12 +148,12 @@ void main() {
 
 	if (texture2D(shadowMap, ShadowCoord.xy/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
            visibility = 0.4;
-    }*/
+    	}*/
 
-    float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
-	ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
-					(ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
-					(ambient.b + ((avgAmbient - ambient.b) * clrBleedVal))); 
+		float avgAmbient = (ambient.r + ambient.b + ambient.g)/ 3.0;
+			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
 
 	//float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness);
 
@@ -161,4 +165,5 @@ void main() {
 	gl_FragColor = vec4(color + avgAmbient, 1.0);
 	//}
    
+    gl_FragColor = vec4(color + avgAmbient, alpha);
 }
