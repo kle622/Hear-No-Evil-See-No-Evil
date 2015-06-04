@@ -74,7 +74,7 @@ void main() {
 		 color += visibility * att * diffuse;
 	   }
 	   else {
-		 color += visibility * att * light_color * diffuse;
+		 color += visibility * light_color * diffuse;
 	   }
 	}
 	else {	
