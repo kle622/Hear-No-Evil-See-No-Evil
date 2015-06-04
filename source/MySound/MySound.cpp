@@ -25,12 +25,14 @@ MySound::MySound() {
   this->guardTalk = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(0, 0, 0), false, true, true);
   this->guardTalk->setMinDistance(1.0f);
 
-  this->loseSnd = engine->play2D("../dependencies/irrKlang/media/its_curtains.wav", false, true, true);
-  this->loseSnd->setVolume(0.5);
+  this->loseSnd = engine->play2D("../dependencies/irrKlang/media/endNoise1.wav", false, true, true);
+  //this->loseSnd->setVolume(0.5);
   this->winSnd = engine->play2D("../dependencies/irrKlang/media/victory_music.wav", false, true, true);
   this->winSnd->setVolume(0.05);
   this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav", false, true, true);
   this->collectableSnd->setVolume(0.4);
+
+  this->openingSnd = engine->play2D("../dependencies/irrKlang/media/.wav")
 }
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {

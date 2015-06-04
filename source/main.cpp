@@ -68,7 +68,6 @@
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 400
 #define TEX_SIZE 1024
 
 GLFWwindow* window;
@@ -93,7 +92,6 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
-float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
@@ -771,13 +769,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
       if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-        detectCounter += detectPercent;
-        //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
-        if (detectCounter >= MAX_DETECT) {
-          // YOU lose
-          //cout << "You lose! Not sneaky enough!" << endl;
-          soundObj->playSndExit(soundObj->loseSnd);
-        }
       }
     }
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
