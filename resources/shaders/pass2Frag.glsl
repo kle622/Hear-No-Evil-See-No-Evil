@@ -16,11 +16,38 @@ uniform vec3 uLightPos;
 
 uniform float detectionLevel;
 
+// Cook Stuff
+uniform float uMatRoughness;
+uniform float uFresReflectance;
+
 varying vec3 vNormal;
 varying vec3 vCol;
 varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
+
+float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float _roughness) {
+  vec3  half_vec = normalize( _view + _light ); // vector H 
+  // Now compute the various scalar products 
+  float NdotL = max( dot(_normal, _light), 0.0 );
+  float NdotV = max( dot(_normal, _view), 0.0 );
+  float NdotH = max( dot(_normal, half_vec), 1.0e-7 );
+  float VdotH = max( dot(_view, half_vec), 1.0e-7 );
+
+  // geometric component
+  float geometric = 2.0 * NdotH / VdotH;
+  geometric = min( 1.0, geometric * min(NdotV, NdotL) );
+
+  // roughness
+  float r_sq = _roughness * _roughness;
+  float NdotH_sq = NdotH * NdotH;
+  float NdotH_sq_r = 1.0 / (NdotH_sq * r_sq);
+  float roughness_exp = (NdotH_sq - 1.0) * ( NdotH_sq_r );
+  float roughness = 0.25 * exp(roughness_exp) * NdotH_sq_r / NdotH_sq;
+
+  // final result
+  return min(1.0, _fresnel * geometric * roughness / (NdotV + 1.0e-7));
+}
 
 // CHECKPOINT!!!!!!!!!
 void main() {
@@ -48,21 +75,21 @@ void main() {
      	att = 0.1;
      }
 
-        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
-        }
+    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
+        visibility -= 0.2;
+    }
         
-        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
-        }
+    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+        visibility -= 0.2;
+    }
         
-        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
-        }
+    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+        visibility -= 0.2;
+    }
         
-        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
-            visibility -= 0.2;
-        }
+    if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+        visibility -= 0.2;
+    }
 	
 	if (hasTex == 1) {
 	   vec3 diffuse = vec3(texture2D(texture, texCoordOut));
@@ -95,14 +122,14 @@ void main() {
 		specular = vec3((specular.r + ((avgSpecular - specular.r) * clrBleedVal)), 
 						(specular.g + ((avgSpecular - specular.g) * clrBleedVal)), 
 						(specular.b + ((avgSpecular - specular.b) * clrBleedVal)));
-	   color += (att * (diffuse + specular));
+	    color += (att * (diffuse + specular));
 	}
    }	
      	 
-//vec2( -0.94201624, -0.39906216) / 700.0
-//vec2( 0.94558609, -0.76890725)  / 700.0
-//vec2( -0.094184101, -0.9293887)  / 700.0
-//vec2( 0.34495938, 0.29387760) / 700.0
+	//vec2( -0.94201624, -0.39906216) / 700.0
+	//vec2( 0.94558609, -0.76890725)  / 700.0
+	//vec2( -0.094184101, -0.9293887)  / 700.0
+	//vec2( 0.34495938, 0.29387760) / 700.0
 	/*if (texture2D(shadowMap, ShadowCoord.xy/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
 	   visibility -= 0.2;
 	}
@@ -117,12 +144,21 @@ void main() {
 
 	if (texture2D(shadowMap, ShadowCoord.xy/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
            visibility = 0.4;
-    	}*/
+    }*/
 
-		float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
-			   ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
-						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
-						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
+    float avgAmbient = (ambient.r + ambient.b + ambient.g)/3.0;
+	ambient = vec3((ambient.r + ((avgAmbient - ambient.r) * clrBleedVal)), 
+					(ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
+					(ambient.b + ((avgAmbient - ambient.b) * clrBleedVal))); 
 
-    gl_FragColor = vec4(color + avgAmbient, 1.0);
+	//float rs = cookTorrance(vNormal, vLight, viewDir, uFresReflectance, uMatRoughness);
+
+	/*if (hasText != 1) {
+		gl_FragColor = vec4((att * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
+	}
+	else {*/
+    
+	gl_FragColor = vec4(color + avgAmbient, 1.0);
+	//}
+   
 }
