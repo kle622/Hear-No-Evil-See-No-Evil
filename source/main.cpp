@@ -97,7 +97,10 @@ float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
-Camera* debugCamera;
+Camera *debugCam;
+Camera *cineCam;
+Camera *drawCam;  // camera that's used for drawing (vfc, shading, etc.)
+Camera *viewCam;  // camera that's used for setting the view (controlled by mouse input)
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
@@ -119,6 +122,7 @@ Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
+bool inIntro = true;
 bool shiftDown = false;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
@@ -478,9 +482,9 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
   }
   else {
     playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
-    glm::vec3 view = -1.0f * debugCamera->getForward();
-    glm::vec3 up = debugCamera->getUp();
-    glm::vec3 strafe = debugCamera->getStrafe();
+    glm::vec3 view = -1.0f * debugCam->getForward();
+    glm::vec3 up = debugCam->getUp();
+    glm::vec3 strafe = debugCam->getStrafe();
     glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
     /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
       key_speed -= 0.1;
@@ -518,8 +522,8 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
       move = key_speed * glm::vec3(0, 1, 0);
     }
-    debugCamera->eye += move;
-    debugCamera->lookat += move;
+    debugCam->eye += move;
+    debugCam->lookat += move;
   }
 
   // change mouse sensitivity
@@ -624,17 +628,20 @@ void beginPass2Draw() {
   //glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
   glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
   glUniform1f(pass2Handles.uConeAngle, coneAngle);
-  glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
+  glUniform3f(pass2Handles.uCamPos, drawCam->eye.x,drawCam->eye.y, drawCam->eye.z);
+  //glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
   glUniform1i(pass2Handles.hasTex, 0);
 
-  if (debug) {
-    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
-    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
+  /*if (debug) {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCam->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCam->getView()));
   }
   else {
     safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
     safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
-  }
+  }*/
+  safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(viewCam->getView()));
 
   checkGLError();
 }
@@ -679,7 +686,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   //ceiling->draw();
   //Guard *guard;
   // draw
-  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  vector<shared_ptr<GameObject>> drawList = drawCam->getUnculled(gameObjects);
+  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
     if (drawList[i]->mesh->hasTexture) {
       glUniform1i(pass2Handles.hasTex, 1);
@@ -784,6 +792,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
   if (key == GLFW_KEY_N && (action == GLFW_PRESS) && shiftDown) {
     debug = !debug;
+    if (debug) {
+      viewCam = debugCam;
+    }
+    else {
+      viewCam = camera3DPerson;
+    }
   }
   if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
     boxes = !boxes;
@@ -838,7 +852,22 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   double dx = xpos - x_center;
   double dy = ypos - y_center;
 
-  if (!debug) {
+  float maxMove = camSpeed * deltaTime;
+  if (dx > 0) {
+    dx = dx < maxMove ? dx : maxMove;
+  }
+  else {
+    dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+  }
+  if (dy > 0) {
+    dy = dy < maxMove ? dy : maxMove;
+  }
+  else {
+    dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+  }
+  viewCam->moveHoriz(-1.0 * dx * 0.01);
+  viewCam->moveVert(dy * 0.01);
+  /*if (!debug) {
     // TODO time-based animation
     // define max camera movement rate; this can be a global setting to be changed by keypress
     float maxMove = camSpeed * deltaTime;
@@ -883,10 +912,10 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
       phi -= dy * cursor_speed;
     }
 
-    debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
-    debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
-    debugCamera->lookat.z = debugCamera->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
-  }
+    debugCam->lookat.x = debugCam->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
+    debugCam->lookat.y = debugCam->eye.y + sin(phi * M_PI / 180);
+    debugCam->lookat.z = debugCam->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+  }*/
 
   glfwSetCursorPos(window, x_center, y_center);
 }
@@ -1433,7 +1462,7 @@ int main(int argc, char **argv)
                                         (float)g_width / (float)g_height,
                                         CAMERA_NEAR, CAMERA_FAR, debugDraw);
     // debug camera
-    debugCamera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
+    debugCam = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
                              glm::vec3(0.0f, 0.0f, 0.0f),
                              glm::vec3(0.0f, 1.0f, 0.0f),
                              CAMERA_FOV,
@@ -1441,11 +1470,23 @@ int main(int argc, char **argv)
                              CAMERA_NEAR,
                              CAMERA_FAR,
                              debugDraw);
+
     detectCam = new DetectionCamera(CAMERA_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
                                     GUARD_FAR,
                                     debugDraw);
+    cineCam = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
+                             glm::vec3(0.0f, 0.0f, 0.0f),
+                             glm::vec3(0.0f, 1.0f, 0.0f),
+                             CAMERA_FOV,
+                             (float)g_width / (float)g_height,
+                             CAMERA_NEAR,
+                             CAMERA_FAR,
+                             debugDraw);
+
+    drawCam = camera3DPerson;
+    viewCam = camera3DPerson;
     
     double timeCounter = 0;
     
@@ -1495,15 +1536,13 @@ int main(int argc, char **argv)
         // draw debug
         if (debug || boxes) {
             if (debug) {
+                // just to trigger geometry being added to debug drawer
                 camera3DPerson->getView();
                 camera3DPerson->getProjection();
-                debugDraw->view = debugCamera->getView();
-                debugDraw->projection = debugCamera->getProjection();
             }
-            else {
-                debugDraw->view = camera3DPerson->getView();
-                debugDraw->projection = camera3DPerson->getProjection();
-            }
+
+            debugDraw->view = viewCam->getView();
+            debugDraw->projection = viewCam->getProjection();
             
             vector<shared_ptr<GameObject>> objs = gameObjects.list;
             for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter) {
