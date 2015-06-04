@@ -1399,6 +1399,8 @@ int main(int argc, char **argv)
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
+	clueMesh.hasTexture = true;
+	clueMesh.loadMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), TEX_SIZE);
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
