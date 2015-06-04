@@ -49,6 +49,8 @@ std::vector<glm::vec3>* OBB::getCorners()
   return corners;
 }
 
+// math for this section obtained from:
+// https://www.cs.csustan.edu/~rsc/CS3600F02/Splines.pdf
 glm::vec3 SplineCurve::getLocation(double dist)
 {
   // assume dist >= 0, dist < maxDist
