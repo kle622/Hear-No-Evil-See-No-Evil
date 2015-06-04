@@ -384,170 +384,172 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
   else {
     shiftDown = false;
   }
-  if (!debug) {
-    if (!leaningRight && ! leaningLeft) {
-      if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        accelerate = true;
-        leftD = true;
+  if (!inIntro) {
+    if (!debug) {
+      if (!leaningRight && ! leaningLeft) {
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
+              sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += -velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+          accelerate = true;
+          leftD = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
+              sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+          accelerate = true;
+          rightD = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+              forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+          accelerate = true;
+          upD = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+          vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
+              forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
+          velocity.y = 0;
+          direction += -velocity;
+          glm::vec3 forward = camera3DPerson->getForward();
+          //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+          accelerate = true;
+          downD = true;
+        }
       }
-      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
-            sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        accelerate = true;
-        rightD = true;
-      }
-      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-        accelerate = true;
-        upD = true;
-      }
-      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
-            forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-        velocity.y = 0;
-        direction += -velocity;
-        glm::vec3 forward = camera3DPerson->getForward();
-        //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-        accelerate = true;
-        downD = true;
-      }
-    }
 
-    float shearSpeed = 3;
-    float camShiftSpeed = 6;
-    float iters = 20;
-    float max_lean = 0.5;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-      if (!leaningRight) {
-        if (!leaningLeft) {
-          leaningLeft = true;
-          cameraLean = strafe;
-        }
-        if (playerObject->lean < max_lean) {
-          glm::vec3 newForward = forward;
-          newForward.y = 0;
-          playerObject->changeDirection(newForward);
-        }
-        for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
-          playerObject->lean += deltaTime * shearSpeed / iters;
-          camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-      }
-    }
-    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
-      if (leaningLeft) {
-        for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
-          playerObject->lean -= deltaTime * shearSpeed / iters;
-          camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-        if (playerObject->lean <= 0) {
-          leaningLeft = false;
-        }
-      }
-    }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-      if (!leaningLeft) {
+      float shearSpeed = 3;
+      float camShiftSpeed = 6;
+      float iters = 20;
+      float max_lean = 0.5;
+      if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
         if (!leaningRight) {
-          leaningRight = true;
-          cameraLean = strafe;
-        }
-        if (playerObject->lean > -1 * max_lean) {
-          glm::vec3 newForward = forward;
-          newForward.y = 0;
-          playerObject->changeDirection(newForward);
-        }
-        for (int i = 0; i < iters && playerObject->lean > -1 * max_lean; ++i) {
-          playerObject->lean -= deltaTime * shearSpeed / iters;
-          camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-      }
-    }
-    else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
-      if (leaningRight) {
-        for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
-          playerObject->lean += deltaTime * shearSpeed / iters;
-          camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
-        }
-        if (playerObject->lean >= 0) {
-          leaningRight = false;
+          if (!leaningLeft) {
+            leaningLeft = true;
+            cameraLean = strafe;
+          }
+          if (playerObject->lean < max_lean) {
+            glm::vec3 newForward = forward;
+            newForward.y = 0;
+            playerObject->changeDirection(newForward);
+          }
+          for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
+            playerObject->lean += deltaTime * shearSpeed / iters;
+            camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
         }
       }
-    }
+      else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
+        if (leaningLeft) {
+          for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
+            playerObject->lean -= deltaTime * shearSpeed / iters;
+            camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
+          if (playerObject->lean <= 0) {
+            leaningLeft = false;
+          }
+        }
+      }
+      if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        if (!leaningLeft) {
+          if (!leaningRight) {
+            leaningRight = true;
+            cameraLean = strafe;
+          }
+          if (playerObject->lean > -1 * max_lean) {
+            glm::vec3 newForward = forward;
+            newForward.y = 0;
+            playerObject->changeDirection(newForward);
+          }
+          for (int i = 0; i < iters && playerObject->lean > -1 * max_lean; ++i) {
+            playerObject->lean -= deltaTime * shearSpeed / iters;
+            camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
+        }
+      }
+      else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+        if (leaningRight) {
+          for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
+            playerObject->lean += deltaTime * shearSpeed / iters;
+            camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+          }
+          if (playerObject->lean >= 0) {
+            leaningRight = false;
+          }
+        }
+      }
 
-    if (accelerate) {
-      direction = normalize(direction);
-      if ((upD && downD) || (leftD && rightD)) {
-        playerObject->decelerate();
+      if (accelerate) {
+        direction = normalize(direction);
+        if ((upD && downD) || (leftD && rightD)) {
+          playerObject->decelerate();
+        }
+        else {
+          playerObject->changeDirection(direction);
+          playerObject->accelerate();
+          //printf("velocity: %f\n", playerObject->velocity);
+        }
       }
       else {
-        playerObject->changeDirection(direction);
-        playerObject->accelerate();
-        //printf("velocity: %f\n", playerObject->velocity);
+        playerObject->decelerate();
       }
     }
     else {
-      playerObject->decelerate();
-    }
-  }
-  else {
-    playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
-    glm::vec3 view = -1.0f * debugCam->getForward();
-    glm::vec3 up = debugCam->getUp();
-    glm::vec3 strafe = debugCam->getStrafe();
-    glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
-    /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-      key_speed -= 0.1;
+      playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
+      glm::vec3 view = -1.0f * debugCam->getForward();
+      glm::vec3 up = debugCam->getUp();
+      glm::vec3 strafe = debugCam->getStrafe();
+      glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
+      /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+        key_speed -= 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+        key_speed += 0.1;
+        }*/
+      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        move = -1.0f * key_speed * strafe;
       }
-      if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-      key_speed += 0.1;
-      }*/
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-      move = -1.0f * key_speed * strafe;
+      if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        move = -1.0f * key_speed * strafe;
+      }
+      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        move = key_speed * strafe;
+      }
+      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        move = key_speed * strafe;
+      }
+      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        move = -1.0f * key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        move = -1.0f * key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        move = key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        move = key_speed * view;
+      }
+      if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+        move = key_speed * glm::vec3(0, -1, 0);
+      }
+      if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        move = key_speed * glm::vec3(0, 1, 0);
+      }
+      debugCam->eye += move;
+      debugCam->lookat += move;
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-      move = -1.0f * key_speed * strafe;
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-      move = key_speed * strafe;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-      move = key_speed * strafe;
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-      move = -1.0f * key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-      move = -1.0f * key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-      move = key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-      move = key_speed * view;
-    }
-    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, -1, 0);
-    }
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-      move = key_speed * glm::vec3(0, 1, 0);
-    }
-    debugCam->eye += move;
-    debugCam->lookat += move;
   }
 
   // change mouse sensitivity
@@ -902,8 +904,10 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   else {
     dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
   }
-  viewCam->moveHoriz(-1.0 * dx * 0.01);
-  viewCam->moveVert(dy * 0.01);
+  if (!inIntro) {
+    viewCam->moveHoriz(-1.0 * dx * 0.01);
+    viewCam->moveVert(dy * 0.01);
+  }
 
   glfwSetCursorPos(window, x_center, y_center);
 }
