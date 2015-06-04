@@ -83,3 +83,13 @@ void Shape::loadTexture(const std::string &filename) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
+
+glm::mat4 Shape::getModel()
+{
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(direction.x, direction.y, -1.0f * direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), scale);
+    glm::mat4 com = Trans*Rot*Scale;
+
+    return com;
+}

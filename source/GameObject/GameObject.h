@@ -64,6 +64,7 @@ class GameObject {
   //Object Methods
   virtual void move(float time);
   virtual bool collide(GameObject* object, DebugDraw *ddraw);
+  virtual glm::mat4 getModel();
   //virtual int* findRestrictedMovement(Camera* camera, double deltaTime, GameObject* object);
 };
 

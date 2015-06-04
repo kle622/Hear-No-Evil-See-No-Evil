@@ -20,6 +20,7 @@ Camera3DPerson::Camera3DPerson(WorldGrid *world, GameObject *focus, float zoom,
   this->focus = focus;
   this->zoom = zoom;
   this->minZoom = 0.7f;
+  this->offset = glm::vec3(0.0f, 0.7f, 0.0f);
 }
 
 // note: calling getEye() from constructor causes crash because setZoom() queries the WorldGrid for collision checking
@@ -71,7 +72,7 @@ glm::vec3 Camera3DPerson::setZoom(glm::vec3 outVec)
   this->debug->addLine(downRight, downLeft, glm::vec3(0.0f, 0.0f, 1.0f), false);
 #endif
 
-  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->lookat, 1);
+  std::vector<shared_ptr<GameObject>> objects = this->world->getCloseObjects(this->eye, 1);
   //std::vector<shared_ptr<GameObject>> objects = this->world->wallList;
   std::vector<shared_ptr<GameObject>> walls = this->world->wallList;
   objects.insert(objects.begin(), walls.begin(), walls.end());  // whyyyyyyyyyyy
@@ -156,6 +157,6 @@ void Camera3DPerson::moveHoriz(float step)
 
 void Camera3DPerson::update()
 {
-  this->lookat = this->focus->position + glm::vec3(0.0f, 0.7f, 0.0f);;
+  this->lookat = this->focus->position + this->offset;
   this->eye = getEye();
 }

@@ -29,6 +29,7 @@ class Player: public GameObject {
   bool crouch;
   float stamina = MAX_STAMINA;
   int score = 0;
+  float lean = 0;
   glm::vec3 origDimensions;
   
   //Constructor
@@ -43,6 +44,7 @@ class Player: public GameObject {
   void changeDirection(vec3 direction);
   bool collide(GameObject* object, DebugDraw *ddraw);
   void move(float time);
+  virtual glm::mat4 getModel();
   void SetMotion(float motion);
 };
 

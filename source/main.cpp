@@ -59,6 +59,7 @@
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
+#define GUARD_FAR 12.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
@@ -72,13 +73,13 @@ GLFWwindow* window;
 using namespace std;
 using namespace glm;
 
-struct Light {
-  glm::vec3 position;
-  glm::vec3 intensities;
-  float attenuation;
-  float coneAngle;
-  glm::vec3 coneDirection;
-};
+//struct Light {
+//  glm::vec3 position;
+//  glm::vec3 intensities;
+//  float attenuation;
+//  float coneAngle;
+//  glm::vec3 coneDirection;
+//};
 
 vector<Light> gLights;
 
@@ -141,251 +142,144 @@ GLuint texture;
 
 float G_edge = 30;
 GLfloat planeVertices[] = {
-    -G_edge, -1.0f, -G_edge,
-    -G_edge, -1.0f, G_edge,
-    G_edge, -1.0f, -G_edge,
-    -G_edge, -1.0f, G_edge,
-    G_edge, -1.0f, -G_edge,
-    G_edge, -1.0f, G_edge,
+  -G_edge, -1.0f, -G_edge,
+  -G_edge, -1.0f, G_edge,
+  G_edge, -1.0f, -G_edge,
+  -G_edge, -1.0f, G_edge,
+  G_edge, -1.0f, -G_edge,
+  G_edge, -1.0f, G_edge,
 };
 
 GLfloat planeNormals[] = {
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
 };
 
 
 float getRand(double M, double N)
 {
-    float random = (float)(M + (rand() / (RAND_MAX / (N - M))));
-    return roundf(random * 1000) / 1000;
+  float random = (float)(M + (rand() / (RAND_MAX / (N - M))));
+  return roundf(random * 1000) / 1000;
 }
 
 bool floatCompare(double a, double b)
 {
-    return fabs(a - b) < .01;
+  return fabs(a - b) < .01;
 }
 
 int printOglError(const char *file, int line) {
-    /* Returns 1 if an OpenGL error occurred, 0 otherwise. */
-    GLenum glErr;
-    int    retCode = 0;
-    
+  /* Returns 1 if an OpenGL error occurred, 0 otherwise. */
+  GLenum glErr;
+  int    retCode = 0;
+
+  glErr = glGetError();
+  while (glErr != GL_NO_ERROR)
+  {
+    //printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
+    retCode = 1;
     glErr = glGetError();
-    while (glErr != GL_NO_ERROR)
-    {
-        //printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
-        retCode = 1;
-        glErr = glGetError();
-    }
-    return retCode;
+  }
+  return retCode;
 }
 
 /* helper function to make sure your matrix handle is correct */
 inline void safe_glUniformMatrix4fv(const GLint handle, const GLfloat data[]) {
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, data);
+  if (handle >= 0)
+    glUniformMatrix4fv(handle, 1, GL_FALSE, data);
 }
 
 void SetMaterial(int i) {
-    switch (i) {
-        case 0: // guards
-            glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.025f, 0.025f);
-            glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
-            glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
-            glUniform1f(pass2Handles.uMatShine, 100.0f);
-            break;
-        case 1: // floor
-            glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
-            glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
-            glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
-            glUniform1f(pass2Handles.uMatShine, 150.0f);
-            break;
-        case 2: // player
-            glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
-            glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
-            glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
-            glUniform1f(pass2Handles.uMatShine, 150.0f);
-            break;
-        case 3: // guard detect
-            glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
-            glUniform3f(pass2Handles.uMatDif, 0.2f, 0.80f, 0.1f);
-            glUniform3f(pass2Handles.uMatSpec, 0.8f, 1.0f, 0.8f);
-            glUniform1f(pass2Handles.uMatShine, 4.0f);
-            break;
-        case 4: //big wall color
-            glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.1f, 0.0f);
-            glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
-            glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
-            glUniform1f(pass2Handles.uMatShine, 10.0f);
-            break;
-        case 5: // ceiling
-            glUniform3f(pass2Handles.uMatAmb, 0.1f, 0.1f, 0.1f);
-            glUniform3f(pass2Handles.uMatDif, 0.0f, 0.0f, 0.00f);
-            glUniform3f(pass2Handles.uMatSpec, 1.0f, 1.0f, 1.0f);
-            glUniform1f(pass2Handles.uMatShine, 100.0f);
-            break;
-        case 6: //short wall color
-            glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
-            glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
-            glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
-            glUniform1f(pass2Handles.uMatShine, 10.0f);
-            break;
-        case 7: //box stack
-            glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
-            glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
-            glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
-            glUniform1f(pass2Handles.uMatShine, 10.0f);
-            break;
-        case 8: //chairs
-            glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
-            glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
-            glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
-            glUniform1f(pass2Handles.uMatShine, 10.0f);
-            break;
-    }
-}
-
-glm::mat4 getModel(Shape *obj)
-{
-  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
-    glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
-    glm::mat4 com = Trans*Rot*Scale;
-
-    return com;
-}
-
-glm::mat4 getModel(GameObject *obj)
-{
-  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), obj->position);
-  glm::mat4 Rot;
-  if (obj->type >= GameObject::ObjectType::GUARD) {
-    Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(obj->direction.x, obj->direction.y, -1.0f * obj->direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+  switch (i) {
+  case 0: // guards
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.025f, 0.025f);
+    glUniform3f(pass2Handles.uMatDif, 0.9f, 0.1f, 0.05f);
+    glUniform3f(pass2Handles.uMatSpec, 0.8f, 0.2f, 0.2f);
+    glUniform1f(pass2Handles.uMatShine, 100.0f);
+    break;
+  case 1: // floor
+    glUniform3f(pass2Handles.uMatAmb, 0.13f, 0.13f, 0.14f);
+    glUniform3f(pass2Handles.uMatDif, 0.3f, 0.3f, 0.4f);
+    glUniform3f(pass2Handles.uMatSpec, 0.3f, 0.3f, 0.4f);
+    glUniform1f(pass2Handles.uMatShine, 150.0f);
+    break;
+  case 2: // player
+    glUniform3f(pass2Handles.uMatAmb, 0.3f, 0.3f, 0.3f);
+    glUniform3f(pass2Handles.uMatDif, 0.9f, 0.9f, 0.9f);
+    glUniform3f(pass2Handles.uMatSpec, 0.0f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 150.0f);
+    break;
+  case 3: // guard detect
+    glUniform3f(pass2Handles.uMatAmb, 0.06f, 0.09f, 0.06f);
+    glUniform3f(pass2Handles.uMatDif, 0.2f, 0.80f, 0.1f);
+    glUniform3f(pass2Handles.uMatSpec, 0.8f, 1.0f, 0.8f);
+    glUniform1f(pass2Handles.uMatShine, 4.0f);
+    break;
+  case 4: //big wall color
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.1f, 0.0f);
+    glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 5: // ceiling
+    glUniform3f(pass2Handles.uMatAmb, 0.1f, 0.1f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.0f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 1.0f, 1.0f, 1.0f);
+    glUniform1f(pass2Handles.uMatShine, 100.0f);
+    break;
+  case 6: //short wall color
+    glUniform3f(pass2Handles.uMatAmb, 0.2f, 0.2f, 0.2f);
+    glUniform3f(pass2Handles.uMatDif, 0.08f, 0.0f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 7: //box stack
+    glUniform3f(pass2Handles.uMatAmb, 0.39f, 0.20f, 0.1f);
+    glUniform3f(pass2Handles.uMatDif, 0.28f, 0.1f, 0.00f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.0f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
+  case 8: //chairs
+    glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.1f, 0.25f);
+    glUniform3f(pass2Handles.uMatDif, 0.1f, 0.15f, 0.2f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 10.0f);
+    break;
   }
-  else {
-    Rot = glm::rotate(glm::mat4(1.0f), obj->rotation, glm::vec3(0, 1, 0));
-  }
-  glm::mat4 Scale = glm::scale(glm::mat4(1.0f), obj->scale);
-  glm::mat4 com = Trans*Rot*Scale;
-
-  return com;
 }
 
-void SetModel(GLint handle, GameObject *obj) {
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(getModel(obj)));
-}
-
-void SetModel(GLint handle, Shape *obj) {
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(getModel(obj)));
-}
-
-/*void SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), trans);
-    glm::mat4 RotateY = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0));
-    glm::mat4 Sc = glm::scale(glm::mat4(1.0f), sc);
-    glm::mat4 com = Trans*RotateY*Sc;
-    if (handle >= 0)
-        glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
-}*/
-
-/*void SetDepthMVP(bool pass1, vec3 position, float rot, vec3 scale, Light g_light) {
-  const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
-  const float nearClipPlane = 0.3f;
-  const float farClipPlane = 30.0f;
-  const float zRange = nearClipPlane - farClipPlane;
-  const glm::mat4 lightProjectionMatrix(
-				      invTanHalfFov, 0.0f, 0.0f, 0.0f,
-				      0.0f, invTanHalfFov, 0.0f, 0.0f,
-				      0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
-				      0.0f, 0.0f, 1.0f, 0.0f
-				      );
-  //glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 2.0f, 50.0f);
-  //glm::mat4 depthProjMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.coneDirection, glm::vec3(0, 1, 0));
-  glm::mat4 depthModelMatrix = glm::translate(glm::mat4(1.0f), position) *
-    glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1.0f), scale);
-  //glm::mat4 depthModelMatrix = glm::mat4(1.0f);
-  glm::mat4 depthMVP = lightProjectionMatrix * depthViewMatrix * depthModelMatrix;
-  
-  glm::mat4 biasMatrix(
-		       0.5, 0.0, 0.0, 0.0,
-		       0.0, 0.5, 0.0, 0.0,
-		       0.0, 0.0, 0.5, 0.0,
-		       0.5, 0.5, 0.5, 1.0
-		       );
-  
-  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
-  
-  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
-    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
-  
-  //cerr << glGetError() << endl;
-  //  assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
-}*/
-
-void SetDepthMVP(bool pass1, Shape *obj, Light g_light) {
-    //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
+void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
+  //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
   glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
   const float invTanHalfFov = 1.0f / std::tan(g_light.coneAngle * 0.5f);
   const float nearClipPlane = 0.3f;
   const float farClipPlane = 30.0f;
   const float zRange = nearClipPlane - farClipPlane;
   const glm::mat4 depthProjMatrix(
-				  invTanHalfFov, 0.0f, 0.0f, 0.0f,
-				  0.0f, invTanHalfFov, 0.0f, 0.0f,
-				  0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
-				  0.0f, 0.0f, 1.0f, 0.0f
-				  );
+      invTanHalfFov, 0.0f, 0.0f, 0.0f,
+      0.0f, invTanHalfFov, 0.0f, 0.0f,
+      0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
+      0.0f, 0.0f, 1.0f, 0.0f
+      );
   //glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
   glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.coneDirection, glm::vec3(0, 1, 0));
-  glm::mat4 depthModelMatrix = getModel(obj);
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
-  
-  glm::mat4 biasMatrix(
-		       0.5, 0.0, 0.0, 0.0,
-		       0.0, 0.5, 0.0, 0.0,
-		       0.0, 0.0, 0.5, 0.0,
-		       0.5, 0.5, 0.5, 1.0
-		       );
-  
-  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
-  
-  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
-    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
-  
-  //cerr << glGetError() << endl;
-  //  assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
-}
 
-void SetDepthMVP(bool pass1, GameObject *obj, Light g_light) {
-    //WE WANT SPOT LIGHTS USE PERSPECTIVE MATRIX INSTEAD!!!!
-  glm::vec3 lightInv = glm::vec3(0.5f, 2, 2);
-  glm::mat4 depthProjMatrix = glm::perspective<float>(45.0f, 1.0f, 0.1f, 50.0f);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - lightInv, glm::vec3(0, 1, 0));
-  glm::mat4 depthModelMatrix = getModel(obj);
-  glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
-  
   glm::mat4 biasMatrix(
-		       0.5, 0.0, 0.0, 0.0,
-		       0.0, 0.5, 0.0, 0.0,
-		       0.0, 0.0, 0.5, 0.0,
-		       0.5, 0.5, 0.5, 1.0
-		       );
-  
+      0.5, 0.0, 0.0, 0.0,
+      0.0, 0.5, 0.0, 0.0,
+      0.0, 0.0, 0.5, 0.0,
+      0.5, 0.5, 0.5, 1.0
+      );
+
   glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
-  
+
   pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
     safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
-  
+
   //cerr << glGetError() << endl;
   //  assert(glGetError() == GL_NO_ERROR);
   checkGLError();
@@ -393,212 +287,275 @@ void SetDepthMVP(bool pass1, GameObject *obj, Light g_light) {
 
 void initFramebuffer() {
   //for (int i = 0; i < gLights.size(); i++) {
-    glGenFramebuffersEXT(1, &frameBufObj);
-    assert(frameBufObj > 0);
-    glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
-    assert(glGetError() == GL_NO_ERROR);
-    
-    // for (int i = 0; i < gLights.size(); i++) {
-      glGenTextures(1, &shadowMap);
-      assert(shadowMap > 0);
-      glBindTexture(GL_TEXTURE_2D, shadowMap);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, g_width, g_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
-      glDrawBuffer(GL_NONE);
-      glReadBuffer(GL_NONE);
-      assert(glGetError() == GL_NO_ERROR);
-      checkGLError();
-      // }
-    
-    //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    //cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
-    //}
-    
-    // Unbind the arrays
-    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-    assert(glGetError() == GL_NO_ERROR);
+  glGenFramebuffersEXT(1, &frameBufObj);
+  assert(frameBufObj > 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  assert(glGetError() == GL_NO_ERROR);
+
+  // for (int i = 0; i < gLights.size(); i++) {
+  glGenTextures(1, &shadowMap);
+  assert(shadowMap > 0);
+  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, g_width, g_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+  glDrawBuffer(GL_NONE);
+  glReadBuffer(GL_NONE);
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
+  // }
+
+  //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+  //cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+  //}
+
+  // Unbind the arrays
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  assert(glGetError() == GL_NO_ERROR);
 }
 
 void initGL() {
-    // Set the background color
-    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-    // Enable Z-buffer test
-    glEnable(GL_DEPTH_TEST);
-    glPointSize(18);
-    initVertexObject(&posBufObjG, &norBufObjG, &idxBufObjG, &texBufObjG, planeVertices, planeNormals, G_edge);
-    //initLights();
+  // Set the background color
+  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+  // Enable Z-buffer test
+  glEnable(GL_DEPTH_TEST);
+  glPointSize(18);
+  initVertexObject(&posBufObjG, &norBufObjG, &idxBufObjG, &texBufObjG, planeVertices, planeNormals, G_edge);
+  //initLights();
 }
 
-void getWindowinput(GLFWwindow* window, double deltaTime) {
-    float forwardYVelocity = 0;
-    float sideYVelocity = 0;
-    bool accelerate = false;
-    bool upD = false;
-    bool downD = false;
-    bool leftD = false;
-    bool rightD = false;
-    vec3 direction(0, 0, 0);
-    glm::vec3 forward = camera3DPerson->getForward();
-    glm::vec3 strafe = camera3DPerson->getStrafe();
-    glm::vec3 up = camera3DPerson->getUp();
-    oldPosition = playerObject->position;
-    
-    if (!debug) {
+void getWindowInput(GLFWwindow* window, double deltaTime) {
+  float forwardYVelocity = 0;
+  float sideYVelocity = 0;
+  bool accelerate = false;
+  bool upD = false;
+  bool downD = false;
+  bool leftD = false;
+  bool rightD = false;
+  static bool leaningLeft = false;
+  static bool leaningRight = false;
+  static vec3 cameraLean;
+  vec3 direction(0, 0, 0);
+  glm::vec3 forward = camera3DPerson->getForward();
+  glm::vec3 strafe = camera3DPerson->getStrafe();
+  glm::vec3 up = camera3DPerson->getUp();
+  oldPosition = playerObject->position;
+
+  if (!debug) {
+    if (!leaningRight && ! leaningLeft) {
       if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-          velocity.y = 0;
-          direction += -velocity;
-          glm::vec3 forward = camera3DPerson->getForward();
-          //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-          accelerate = true;
-          leftD = true;
+        velocity.y = 0;
+        direction += -velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+        accelerate = true;
+        leftD = true;
       }
       if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(strafe.x * CAMERA_SPEED * deltaTime,
             sideYVelocity, strafe.z * CAMERA_SPEED * deltaTime);
-          velocity.y = 0;
-          direction += velocity;
-          glm::vec3 forward = camera3DPerson->getForward();
-          //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-          accelerate = true;
-          rightD = true;
+        velocity.y = 0;
+        direction += velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+        accelerate = true;
+        rightD = true;
       }
       if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-          velocity.y = 0;
-          direction += velocity;
-          glm::vec3 forward = camera3DPerson->getForward();
-          //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
-          accelerate = true;
-          upD = true;
+        velocity.y = 0;
+        direction += velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        //playerObject->rotation = atan2f(velocity.x, velocity.z) * 180 / M_PI;
+        accelerate = true;
+        upD = true;
       }
       if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         vec3 velocity = glm::vec3(forward.x * CAMERA_SPEED * deltaTime,
             forwardYVelocity, forward.z * CAMERA_SPEED * deltaTime);
-          velocity.y = 0;
-          direction += -velocity;
-          glm::vec3 forward = camera3DPerson->getForward();
-          //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
-          accelerate = true;
-          downD = true;
+        velocity.y = 0;
+        direction += -velocity;
+        glm::vec3 forward = camera3DPerson->getForward();
+        //playerObject->rotation = atan2f(-velocity.x, -velocity.z) * 180 / M_PI;
+        accelerate = true;
+        downD = true;
       }
-      
-        if (accelerate) {
-          direction = normalize(direction);
-            if ((upD && downD) || (leftD && rightD)) {
-              playerObject->decelerate();
-            }
-            else {
-              playerObject->changeDirection(direction);
-                playerObject->accelerate();
-                //printf("velocity: %f\n", playerObject->velocity);
-            }
+    }
+
+    float shearSpeed = 3;
+    float camShiftSpeed = 6;
+    float iters = 20;
+    float max_lean = 0.5;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+      if (!leaningRight) {
+        if (!leaningLeft) {
+          leaningLeft = true;
+          cameraLean = strafe;
         }
-        else {
-          playerObject->decelerate();
+        if (playerObject->lean < max_lean) {
+          glm::vec3 newForward = forward;
+          newForward.y = 0;
+          playerObject->changeDirection(newForward);
         }
+        for (int i = 0; i < iters && playerObject->lean < max_lean; ++i) {
+          playerObject->lean += deltaTime * shearSpeed / iters;
+          camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+        }
+      }
+    }
+    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
+      if (leaningLeft) {
+        for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
+          playerObject->lean -= deltaTime * shearSpeed / iters;
+          camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+        }
+        if (playerObject->lean <= 0) {
+          leaningLeft = false;
+        }
+      }
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+      if (!leaningLeft) {
+        if (!leaningRight) {
+          leaningRight = true;
+          cameraLean = strafe;
+        }
+        if (playerObject->lean > -1 * max_lean) {
+          glm::vec3 newForward = forward;
+          newForward.y = 0;
+          playerObject->changeDirection(newForward);
+        }
+        for (int i = 0; i < iters && playerObject->lean > -1 * max_lean; ++i) {
+          playerObject->lean -= deltaTime * shearSpeed / iters;
+          camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+        }
+      }
+    }
+    else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+      if (leaningRight) {
+        for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
+          playerObject->lean += deltaTime * shearSpeed / iters;
+          camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
+        }
+        if (playerObject->lean >= 0) {
+          leaningRight = false;
+        }
+      }
+    }
+
+    if (accelerate) {
+      direction = normalize(direction);
+      if ((upD && downD) || (leftD && rightD)) {
+        playerObject->decelerate();
+      }
+      else {
+        playerObject->changeDirection(direction);
+        playerObject->accelerate();
+        //printf("velocity: %f\n", playerObject->velocity);
+      }
     }
     else {
-      playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
-      glm::vec3 view = -1.0f * debugCamera->getForward();
-        glm::vec3 up = debugCamera->getUp();
-        glm::vec3 strafe = debugCamera->getStrafe();
-        glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
-        /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-          key_speed -= 0.1;
-          }
-          if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-          key_speed += 0.1;
-          }*/
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-          move = -1.0f * key_speed * strafe;
-        }
-      if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        move = -1.0f * key_speed * strafe;
-      }
-      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        move = key_speed * strafe;
-      }
-      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        move = key_speed * strafe;
-      }
-      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        move = -1.0f * key_speed * view;
-      }
-      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        move = -1.0f * key_speed * view;
-      }
-      if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        move = key_speed * view;
-      }
-      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        move = key_speed * view;
-      }
-      if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-        move = key_speed * glm::vec3(0, -1, 0);
-      }
-      if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-        move = key_speed * glm::vec3(0, 1, 0);
-      }
-      debugCamera->eye += move;
-        debugCamera->lookat += move;
+      playerObject->decelerate();
     }
-    
-      // change mouse sensitivity
-      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        camSpeed *= 1.01;
+  }
+  else {
+    playerObject->decelerate(); // fixes bug where player keeps moving in debug mode
+    glm::vec3 view = -1.0f * debugCamera->getForward();
+    glm::vec3 up = debugCamera->getUp();
+    glm::vec3 strafe = debugCamera->getStrafe();
+    glm::vec3 move = glm::vec3(0.0f, 0.0f, 0.0f);
+    /*if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+      key_speed -= 0.1;
       }
+      if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+      key_speed += 0.1;
+      }*/
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+      move = -1.0f * key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+      move = -1.0f * key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+      move = key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+      move = key_speed * strafe;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+      move = -1.0f * key_speed * view;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+      move = -1.0f * key_speed * view;
+    }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-      camSpeed *= 0.99;
+      move = key_speed * view;
     }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+      move = key_speed * view;
+    }
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+      move = key_speed * glm::vec3(0, -1, 0);
+    }
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+      move = key_speed * glm::vec3(0, 1, 0);
+    }
+    debugCamera->eye += move;
+    debugCamera->lookat += move;
+  }
+
+  // change mouse sensitivity
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    camSpeed *= 1.01;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    camSpeed *= 0.99;
+  }
 }
 
 
 void beginPass1Draw() {
-    glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
-    //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
-    glEnable(GL_DEPTH_TEST);
-    glCullFace(GL_FRONT);
-    glDrawBuffer(GL_NONE);
-    //cerr << "BeginPass1Draw error: " << glGetError() << endl;
-    assert(glGetError() == GL_NO_ERROR);
-    //cerr << glGetError() << endl;
-    
-    glUseProgram(pass1Handles.prog);
-    assert(glGetError() == GL_NO_ERROR);
-    //cerr << glGetError() << endl;
-    assert(glGetError() == GL_NO_ERROR);
-    checkGLError();
+  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj);
+  //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //cerr << "BeginPass1Draw error line 539: " << glGetError() << endl;
+  glEnable(GL_DEPTH_TEST);
+  glCullFace(GL_FRONT);
+  glDrawBuffer(GL_NONE);
+  //cerr << "BeginPass1Draw error: " << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+
+  glUseProgram(pass1Handles.prog);
+  assert(glGetError() == GL_NO_ERROR);
+  //cerr << glGetError() << endl;
+  assert(glGetError() == GL_NO_ERROR);
+  checkGLError();
 }
 
 void drawPass1(WorldGrid* gameObjects) {
-    Guard *guard;
-    // draw
-    //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
-    //SetDepthMVP(true, ground->position, ground->rotation, ground->scale);
-    //pass1Handles.draw(ground);
-    vector<shared_ptr<GameObject>> drawList = gameObjects->list;
-    vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
-    drawList.insert(drawList.end(), walls.begin(), walls.end());
-    //  for (int l = 0; l < gLights.size(); l++) {
-        for (int i = 0; i < drawList.size(); i++) {
-	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	  //SetDepthMVP(true, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-	  SetDepthMVP(true, (drawList[i]).get(), gLights.at(0));
-	  pass1Handles.draw(drawList[i].get());
-            //drawList[i]->draw();
-        }
-	//}
-    
-    gameObjects->update();
+  Guard *guard;
+  // draw
+  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //pass1Handles.draw(ground);
+  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
+  drawList.insert(drawList.end(), walls.begin(), walls.end());
+  //  for (int l = 0; l < gLights.size(); l++) {
+  for (int i = 0; i < drawList.size(); i++) {
+    SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(0));
+    pass1Handles.draw(drawList[i].get());
+    //drawList[i]->draw();
+  }
+  //}
+
+  gameObjects->update();
 }
 
 void SetLightUniform(Light light, int ndx) {
@@ -614,532 +571,580 @@ void SetLightUniform(Light light, int ndx) {
 }
 
 void beginPass2Draw() {
-    //Second Pass
-    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glDrawBuffer(GL_BACK);
-    glCullFace(GL_BACK);
-    
-    glUseProgram(pass2Handles.prog);
-    glEnable(GL_TEXTURE_2D);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, shadowMap);
-    glUniform1i(pass2Handles.shadowMap, 0);
-    glActiveTexture(GL_TEXTURE1);
-       
-    glUniform1i(pass2Handles.uNumLights, (int)gLights.size());
-    for (int i = 0; i < gLights.size(); i++) {
-      SetLightUniform(gLights[i], i);
-    }
+  //Second Pass
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+  glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);
 
-    checkGLError();
-    //glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
-    glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
-    glUniform1f(pass2Handles.uConeAngle, coneAngle);
-    glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
-    glUniform1i(pass2Handles.hasTex, 0);
-    
-    if (debug) {
-        safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
-        safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
-    }
-    else {
-        safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
-        safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
-    }
-    
-    checkGLError();
+  glUseProgram(pass2Handles.prog);
+  glEnable(GL_TEXTURE_2D);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, shadowMap);
+  glUniform1i(pass2Handles.shadowMap, 0);
+  glActiveTexture(GL_TEXTURE1);
+
+  glUniform1i(pass2Handles.uNumLights, (int)gLights.size());
+  for (int i = 0; i < gLights.size(); i++) {
+    SetLightUniform(gLights[i], i);
+  }
+
+  checkGLError();
+  //glUniform3f(pass2Handles.uLightPos, gLights.at(0).position.x, gLights.at(0).position.y, gLights.at(0).position.z);
+  glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
+  glUniform1f(pass2Handles.uConeAngle, coneAngle);
+  glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
+  glUniform1i(pass2Handles.hasTex, 0);
+
+  if (debug) {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCamera->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCamera->getView()));
+  }
+  else {
+    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
+    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
+  }
+
+  checkGLError();
+}
+
+void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
+  float deltaX = first.x - second.x;
+  float deltaZ = first.z - second.z;
+
+  float dist = deltaX * deltaX +  deltaZ * deltaZ;
+  bool returnVal;
+
+  // NOTE: the + 20.0f there is to make sure the light is saved if the player get NEAR the light
+  // this does not mean it will count against the player, the detecTrac will handle that
+  if (dist < (max * max) + 20.0f) {
+    detecTrac->currLight = thisLight;
+    //printf("Updating current light comparing dist: %f and maxSq: %f\n", dist, (max*max));
+  }
+  else {
+    return;
+  }
 }
 
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
-    Guard *guard;
+  Guard *guard;
 
-    //    for (int l = 0; l < gLights.size(); l++) {
+  //    for (int l = 0; l < gLights.size(); l++) {
+  glUniform1i(pass2Handles.hasTex, 1);
+  glBindTexture(GL_TEXTURE_2D, ground->texId);
+  glUniform1i(pass2Handles.texture, 1);
+  SetMaterial(0);
+  SetDepthMVP(false, ground->getModel(), gLights.at(0));
+  safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ground->getModel()));
+  pass2Handles.draw(ground);
+  //ground->draw();
+
+  glUniform1i(pass2Handles.hasTex, 0);
+  SetMaterial(ceiling->material);
+  SetDepthMVP(false, ceiling->getModel(), gLights.at(0));
+  safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
+  pass2Handles.draw(ceiling);
+  //ceiling->draw();
+  //Guard *guard;
+  // draw
+  vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  for (int i = 0; i < drawList.size(); i++) {
+    if (drawList[i]->mesh->hasTexture) {
       glUniform1i(pass2Handles.hasTex, 1);
-      glBindTexture(GL_TEXTURE_2D, ground->texId);
+      //printf("bound texture for game object\n");
+      glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
       glUniform1i(pass2Handles.texture, 1);
       SetMaterial(0);
-      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, g_light);
-      //SetDepthMVP(false, ground->position, ground->rotation, ground->scale, gLights.at(0));
-      SetDepthMVP(false, ground, gLights.at(0));
-      SetModel(pass2Handles.uModelMatrix, ground);
-      //SetModel(pass2Handles.uModelMatrix, ground->position, ground->rotation, ground->scale);
-      pass2Handles.draw(ground);
-      //ground->draw();
-      
-      glUniform1i(pass2Handles.hasTex, 0);
-      SetMaterial(ceiling->material);
-      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, g_light);
-      //SetDepthMVP(false, ceiling->position, ceiling->rotation, ceiling->scale, gLights.at(0));
-      SetDepthMVP(false, ceiling, gLights.at(0));
-      SetModel(pass2Handles.uModelMatrix, ceiling);
-      //SetModel(pass2Handles.uModelMatrix, ceiling->position, ceiling->rotation, ceiling->scale);
-      pass2Handles.draw(ceiling);
-      //ceiling->draw();
-      //Guard *guard;
-      // draw
-      vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
-      for (int i = 0; i < drawList.size(); i++) {
-	if (drawList[i]->mesh->hasTexture) {
-	  glUniform1i(pass2Handles.hasTex, 1);
-	  //printf("bound texture for game object\n");
-	  glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-	  glUniform1i(pass2Handles.texture, 1);
-	  SetMaterial(0);
-	}
-	else {
-	  glUniform1i(pass2Handles.hasTex, 0);
-	  SetMaterial(drawList[i]->material);
-	}
-	
-	// SetMaterial(drawList[i]->material);
-	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, g_light);
-	//SetDepthMVP(false, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale, gLights.at(0));
-	SetDepthMVP(false, (drawList[i]).get(), gLights.at(0));
-	SetModel(pass2Handles.uModelMatrix, (drawList[i]).get());
-	//SetModel(pass2Handles.uModelMatrix, drawList[i]->position, drawList[i]->rotation, drawList[i]->scale);
-	pass2Handles.draw(drawList[i].get());
-	//drawList[i]->draw();
-      }
-      //}
-      
-      // collide
-    for (int i = 0; i < gameObjects->list.size(); i++) {
-        gameObjects->list[i]->move(time);
-        vector<shared_ptr<GameObject>> proximity =
-        gameObjects->getCloseObjects(gameObjects->list[i]);
-        
-        //all objects
-        for (int j = 0; j < proximity.size(); j++) {
-          if (dynamic_cast<Player*>(gameObjects->list[i].get())) {
-            detecTrac->updateSndDetect(dynamic_cast<Player*>(gameObjects->list[i].get()));
-          }
-            if (gameObjects->list[i] != proximity[j]) {
-                if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
-					soundObj->setListenerPos(gameObjects->list[i]->position, gameObjects->list[i]->direction);
-					if (gameObjects->list[i]->type == GameObject::ObjectType::PLAYER && proximity[j].get()->type == GameObject::ObjectType::STATIC) {
-						soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-					}
-                }
-            }
-        }
-        
-        //guards
-		if (gameObjects->list[i].get()->type == GameObject::ObjectType::GUARD) {
-			guard = dynamic_cast<Guard*>(gameObjects->list[i].get());
-            float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
-            if (detectPercent > 0) {
-              detecTrac->detecDanger = true;
-              detecTrac->updateVisDetect(detectPercent, playerObject);
-            }
-            if (detectPercent > 0) {
-                soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-                detectCounter += detectPercent;
-                //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
-                if (detectCounter >= MAX_DETECT) {
-                    // YOU lose
-                    //cout << "You lose! Not sneaky enough!" << endl;
-                    soundObj->playSndExit(soundObj->loseSnd);
-                }
-            }
-        }
-        printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
-        checkGLError();
-        glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-        checkGLError();
-        gameObjects->update();
     }
+    else {
+      glUniform1i(pass2Handles.hasTex, 0);
+      SetMaterial(drawList[i]->material);
+    }
+
+    // SetMaterial(drawList[i]->material);
+    SetDepthMVP(false, drawList[i]->getModel(), gLights.at(0));
+    safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
+    pass2Handles.draw(drawList[i].get());
+    //drawList[i]->draw();
+  }
+  //}
+
+  // collide
+  for (int i = 0; i < gameObjects->list.size(); i++) {
+    gameObjects->list[i]->move(time);
+    vector<shared_ptr<GameObject>> proximity =
+      gameObjects->getCloseObjects(gameObjects->list[i]);
+
+    //all objects
+    for (int j = 0; j < proximity.size(); j++) {
+      if (gameObjects->list[i].get() != proximity[j].get()) {
+        if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
+          //do some stuff
+        }
+      }
+    }
+
+    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+      detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+      // Search through the lights if inside light, save that light to the detecTrac object
+      for (int L = 0; L < gLights.size(); L++) {
+        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
+          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
+
+      }
+      for (int j = 0; j < gameObjects->wallList.size(); j++) {
+        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
+          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+        }
+      }
+    }
+
+    //guards
+    if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
+      float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+      if (detectPercent > 0) {
+        detecTrac->detecDanger = true;
+        detecTrac->updateVisDetect(detectPercent, playerObject);
+      }
+      if (detectPercent > 0) {
+        soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
+        detectCounter += detectPercent;
+        //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
+        if (detectCounter >= MAX_DETECT) {
+          // YOU lose
+          //cout << "You lose! Not sneaky enough!" << endl;
+          soundObj->playSndExit(soundObj->loseSnd);
+        }
+      }
+    }
+    //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
+    checkGLError();
+    glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    checkGLError();
+    gameObjects->update();
+  }
 }
 
-
 void endPass1Draw() {
-    GLSL::disableVertexAttribArray(pass1Handles.aPosition);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  GLSL::disableVertexAttribArray(pass1Handles.aPosition);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 }
 
 void endDrawGL() {
-    
-    GLSL::disableVertexAttribArray(pass2Handles.aPosition);
-    GLSL::disableVertexAttribArray(pass2Handles.aNormal);
-    GLSL::disableVertexAttribArray(pass2Handles.aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    
-    glUseProgram(0);
-    checkGLError();
+
+  GLSL::disableVertexAttribArray(pass2Handles.aPosition);
+  GLSL::disableVertexAttribArray(pass2Handles.aNormal);
+  GLSL::disableVertexAttribArray(pass2Handles.aTexCoord);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  glUseProgram(0);
+  checkGLError();
 }
 
 void window_size_callback(GLFWwindow* window, int w, int h){
-    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-    g_width = w;
-    g_height = h;
+  glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+  g_width = w;
+  g_height = h;
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        debug = !debug;
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    debug = !debug;
+  }
+  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+    boxes = !boxes;
+  }
+  if (!debug) {
+    if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      camera3DPerson->zoom *= 0.9;
     }
-    if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-        boxes = !boxes;
+    if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      camera3DPerson->zoom *= 1.1;
     }
-    if (!debug) {
-        if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-            camera3DPerson->zoom *= 0.9;
-        }
-        if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-            camera3DPerson->zoom *= 1.1;
-        }
+  }
+  else {
+    if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      key_speed *= 0.9;
+    }
+    if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      key_speed *= 1.1;
+    }
+  }
+
+  if (key == GLFW_KEY_LEFT_SHIFT) {
+    if (action == GLFW_PRESS) {
+      playerObject->SetMotion(RUN);
+      playerObject->crouch = false;
+      //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
+      //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
+    }
+    else if (action == GLFW_RELEASE) {
+      playerObject->SetMotion(WALK);
+      //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
+    }
+  }
+  if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
+    if (playerObject->crouch) {
+      playerObject->SetMotion(WALK);
+      playerObject->crouch = false;
     }
     else {
-        if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-            key_speed *= 0.9;
-        }
-        if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-            key_speed *= 1.1;
-        }
+      playerObject->SetMotion(CROUCH);
+      playerObject->crouch = true;
     }
-    
-    if (key == GLFW_KEY_LEFT_SHIFT) {
-        if (action == GLFW_PRESS) {
-            playerObject->SetMotion(RUN);
-            playerObject->crouch = false;
-            //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
-            //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
-        }
-        else if (action == GLFW_RELEASE) {
-            playerObject->SetMotion(WALK);
-            //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
-        }
-    }
-    if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
-      if (playerObject->crouch) {
-        playerObject->SetMotion(WALK);
-        playerObject->crouch = false;
-      }
-      else {
-        playerObject->SetMotion(CROUCH);
-        playerObject->crouch = true;
-      }
-    }
+  }
 }
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 {
   double x_center = g_width / 2.0;
-    double y_center = g_height / 2.0;
-    
-    double dx = xpos - x_center;
-    double dy = ypos - y_center;
-    
-    if (!debug) {
-      // TODO time-based animation
-      // define max camera movement rate; this can be a global setting to be changed by keypress
-      float maxMove = camSpeed * deltaTime;
-        if (dx > 0) {
-          dx = dx < maxMove ? dx : maxMove;
-        }
-        else {
-          dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-        }
-      if (dy > 0) {
-        dy = dy < maxMove ? dy : maxMove;
-      }
-      else {
-        dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-      }
-      camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
-        camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
+  double y_center = g_height / 2.0;
+
+  double dx = xpos - x_center;
+  double dy = ypos - y_center;
+
+  if (!debug) {
+    // TODO time-based animation
+    // define max camera movement rate; this can be a global setting to be changed by keypress
+    float maxMove = camSpeed * deltaTime;
+    if (dx > 0) {
+      dx = dx < maxMove ? dx : maxMove;
     }
     else {
-      // TODO implement first person camera class 
-      double max_vert_angle = 85;
-        double cursor_speed = 0.3;
-        float maxMove = camSpeed * deltaTime;
-        
-        if (dx > 0) {
-          dx = dx < maxMove ? dx : maxMove;
-        }
-        else {
-          dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-        }
-      if (dy > 0) {
-        dy = dy < maxMove ? dy : maxMove;
-      }
-      else {
-        dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-      }
-      
-        theta -= dx * cursor_speed;
-        // note that ypos is measured from the top of the screen, so
-        // an increase in ypos means moving the mouse down the y axis
-        if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
-          phi -= dy * cursor_speed;
-        }
-      
-        debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
-        debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
-        debugCamera->lookat.z = debugCamera->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
     }
-  
-    glfwSetCursorPos(window, x_center, y_center);
+    if (dy > 0) {
+      dy = dy < maxMove ? dy : maxMove;
+    }
+    else {
+      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+    }
+    camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
+    camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
+  }
+  else {
+    // TODO implement first person camera class 
+    double max_vert_angle = 85;
+    double cursor_speed = 0.3;
+    float maxMove = camSpeed * deltaTime;
+
+    if (dx > 0) {
+      dx = dx < maxMove ? dx : maxMove;
+    }
+    else {
+      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
+    }
+    if (dy > 0) {
+      dy = dy < maxMove ? dy : maxMove;
+    }
+    else {
+      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
+    }
+
+    theta -= dx * cursor_speed;
+    // note that ypos is measured from the top of the screen, so
+    // an increase in ypos means moving the mouse down the y axis
+    if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
+      phi -= dy * cursor_speed;
+    }
+
+    debugCamera->lookat.x = debugCamera->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
+    debugCamera->lookat.y = debugCamera->eye.y + sin(phi * M_PI / 180);
+    debugCamera->lookat.z = debugCamera->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
+  }
+
+  glfwSetCursorPos(window, x_center, y_center);
 }
 
 void initObjects(WorldGrid* gameObjects) {
-    int levelDesign[TEST_WORLD][TEST_WORLD];
-    int rot;
-    
-    char ch;
-    fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
-    int i = 0, j = 0;
-    while (fin >> noskipws >> ch) {
-        if (ch == '\n') {
-            j = 0;
-            i++;
-        }
-        else {
-            levelDesign[i][j] = ch - '0';
-            j++;
-        }
+  int levelDesign[TEST_WORLD][TEST_WORLD];
+  int rot;
+
+  char ch;
+  fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
+  int i = 0, j = 0;
+  while (fin >> noskipws >> ch) {
+    if (ch == '\n') {
+      j = 0;
+      i++;
     }
-    
-    //////////// Create the wall objects
-    for (i = 0; i < TEST_WORLD; i++) {
-        for (j = 0; j < TEST_WORLD; j++) {
-            char design = '0' + levelDesign[i][j];
-            switch(design) {
-                case '3': //barrels
-                    //printf("case 3\n");
-                    gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &barrel,
-                                                                           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                                                                           vec3(1, 1, 1),
-                                                                           getRand(0, 360),
-                                                                           vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
-                                                                           0,
-                                                                           vec3(1.5, 2, 1.5),
-                                                                           1,
-                                                                           0,
-                                                                           GameObject::ObjectType::STATIC
-                                                                           )));
-                    break;
-                case '4': //stack of boxes
-                    //printf("case 4\n");
-                    rot = getRand(0, 3);
-                    gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &boxStackMesh,
-                                                                           vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-                                                                           vec3(3.5, 2, 3.5),
-                                                                           rot * 90,
-                                                                           vec3(cos(rot * M_PI / 2), 0, sin(rot * M_PI / 2)), // direction
-                                                                           0,
-                                                                           vec3(3.7, 3.7, 3.7),
-                                                                           1,
-                                                                           7,
-                                                                           GameObject::ObjectType::STATIC
-                                                                           )));
-                    break;
-                case '5': //table
-                    //printf("case 5\n");
-                    gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &tableMesh,
-                                                                           vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
-                                                                           vec3(1.5, 2, 1.5),
-                                                                           0,
-                                                                           vec3(1, 0, 0), // direction
-                                                                           0,
-                                                                           vec3(2.8, 1.5, 1.4),
-                                                                           1,
-                                                                           5,
-                                                                           GameObject::ObjectType::PUSHABLE
-                                                                           )));
-                    break;
-                case '6': //chair
-                    //printf("case 6\n");
-                    gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &chairMesh,
-                                                                           vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                                                                           vec3(0.75, 0.75, 0.75),
-                                                                           getRand(0, 360),
-                                                                           vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
-                                                                           0,
-                                                                           vec3(1.5, 2, 1.5),
-                                                                           1,
-                                                                           8,
-                                                                           GameObject::ObjectType::PUSHABLE
-                                                                           )));
-                    break;
-                case '7': 
-                    //add an object here!
-                    break;
-                case '8': //rafter
-                    //printf("case 8\n");
-                    gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                           &rafterMesh,
-                                                                           vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
-                                                                           vec3(24, 15, 24),
-                                                                           90,
-                                                                           vec3(cos(0.5 * M_PI), 0, sin(0.5 * M_PI)), // direction
-                                                                           0,
-                                                                           vec3(44, 5.0, 1.0),
-                                                                           1,
-                                                                           6,
-                                                                           GameObject::ObjectType::STATIC
-                                                                           )));
-                    break;
-                case '9': //flag
-                    //printf("case 9\n");
-                    gameObjects->add(shared_ptr<GameObject>(new WinCondition(
-                                                                             &winMesh,
-                                                                             vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
-                                                                             vec3(4, 6, 4),
-                                                                             0,
-                                                                             vec3(0, 0, 1), // direction
-                                                                             0,
-                                                                             vec3(1, 10, 1),
-                                                                             1,
-                                                                             3
-                                                                             )));
-                    break;
-                case 'T': //train
-                    //printf("case 9\n");
-                    gameObjects->add(shared_ptr<GameObject>(new WinCondition(
-                                                                             &trainMesh,
-                                                                             vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-                                                                             vec3(8, 8, 8),
-                                                                             90,
-                                                                             vec3(0, 0, 1), // direction
-                                                                             0,
-                                                                             vec3(4, 4, 14),
-                                                                             1,
-                                                                             3
-                                                                             )));
-                    break;
-	    case 'L': {
-                    //glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
-                    //printf("case 'L'\n");
-                    //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
-		    Light spotLight;
-		    spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
-		    //printf("i: %d, j: %d\n", i, j);
-		    //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
-		    spotLight.intensities = glm::vec3(1, 1, 1);
-		    spotLight.attenuation = 0.1f;
-		    spotLight.coneAngle = 50.0f;
-		    spotLight.coneDirection = glm::vec3(0.0, 15.0, 0.0);
-		    gLights.push_back(spotLight);
-                    //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
-                    break;
-	    }
-                default:
-                    break;
-            }
-        }
+    else {
+      levelDesign[i][j] = ch - '0';
+      j++;
     }
+  }
+
+  //////////// Create the wall objects
+  for (i = 0; i < TEST_WORLD; i++) {
+    for (j = 0; j < TEST_WORLD; j++) {
+      char design = '0' + levelDesign[i][j];
+      switch(design) {
+      case '3': //barrels
+        //printf("case 3\n");
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
+                &barrel,
+                vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
+                vec3(1, 1, 1),
+                getRand(0, 360),
+                vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
+                0,
+                vec3(1.5, 2, 1.5),
+                1,
+                0,
+                GameObject::ObjectType::STATIC
+                )));
+        break;
+      case '4': //stack of boxes
+        //printf("case 4\n");
+        rot = getRand(0, 3);
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
+                &boxStackMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(3.5, 2, 3.5),
+                rot * 90,
+                vec3(cos(rot * M_PI / 2), 0, sin(rot * M_PI / 2)), // direction
+                0,
+                vec3(3.7, 3.7, 3.7),
+                1,
+                7,
+                GameObject::ObjectType::STATIC
+                )));
+        break;
+      case '5': //table
+        //printf("case 5\n");
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
+                &tableMesh,
+                vec3(i - (TEST_WORLD/2), -0.50, j - (TEST_WORLD/2)),
+                vec3(1.5, 2, 1.5),
+                0,
+                vec3(1, 0, 0), // direction
+                0,
+                vec3(2.8, 1.5, 1.4),
+                1,
+                5,
+                GameObject::ObjectType::PUSHABLE
+                )));
+        break;
+      case '6': //chair
+        //printf("case 6\n");
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
+                &chairMesh,
+                vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
+                vec3(0.75, 0.75, 0.75),
+                getRand(0, 360),
+                vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
+                0,
+                vec3(1.5, 2, 1.5),
+                1,
+                8,
+                GameObject::ObjectType::PUSHABLE
+                )));
+        break;
+      case '7': 
+        //add an object here!
+        break;
+      case '8': //rafter
+        //printf("case 8\n");
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
+                &rafterMesh,
+                vec3(i - (TEST_WORLD/2), 16, j - (TEST_WORLD/2)),
+                vec3(24, 15, 24),
+                90,
+                vec3(cos(0.5 * M_PI), 0, sin(0.5 * M_PI)), // direction
+                0,
+                vec3(44, 5.0, 1.0),
+                1,
+                6,
+                GameObject::ObjectType::STATIC
+                )));
+        break;
+      case '9': //flag
+        //printf("case 9\n");
+        gameObjects->add(shared_ptr<GameObject>(new WinCondition(
+                &winMesh,
+                vec3(i - (TEST_WORLD/2), 3.2, j - (TEST_WORLD/2)),
+                vec3(4, 6, 4),
+                0,
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 10, 1),
+                1,
+                3
+                )));
+        break;
+      case 'T': //pedestal
+        //printf("case 9\n");
+        gameObjects->add(shared_ptr<GameObject>(new WinCondition(
+                &trainMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(8, 8, 8),
+                90,
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(4, 4, 14),
+                1,
+                3
+                )));
+        break;
+      case 'L': {
+                  //glm::vec3 light((1024 * i) / TEST_WORLD, 15.0, (780 * j) / TEST_WORLD);
+                  //printf("case 'L'\n");
+                  //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
+                  Light spotLight;
+                  spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
+                  //printf("i: %d, j: %d\n", i, j);
+                  //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
+                  spotLight.intensities = glm::vec3(1, 1, 1);
+                  spotLight.attenuation = 0.1f;
+                  spotLight.coneAngle = 50.0f;
+                  spotLight.coneDirection = glm::vec3(0.0, 15.0, 0.0);
+                  gLights.push_back(spotLight);
+                  //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
+                  break;
+                }
+      default:
+                break;
+      }
+    }
+  }
 }
 
 void initPlayer(WorldGrid* gameObjects) {
-    playerObject = new Player(
-                              &playerMesh,
-                              vec3(0, 0, 0),
-                              vec3(1.0, 1.0, 1.0), //scale
-                              vec3(cos(0.11 * M_PI), 0, sin(0.11 * M_PI)),      // direction
-                              vec3(1.0, 2.0, 1.0),
-                              1,
-                              0
-                              );
-    
-    gameObjects->add(shared_ptr<GameObject>(playerObject));
+  playerObject = new Player(
+      &playerMesh,
+      vec3(0, 0, 0),
+      vec3(1.0, 1.0, 1.0), //scale
+      vec3(cos(0.11 * M_PI), 0, sin(0.11 * M_PI)),      // direction
+      vec3(1.0, 2.0, 1.0),
+      1,
+      0
+      );
+
+  gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
 #define GUARD_Y_SHIFT 0.8f
 void initGuards(WorldGrid* gameObjects) {
-    vector<PathNode> guardPath;
-    FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
-    char line[100];
-    float x, y, z, dur;
-    char smartTurn, endTurnDir;
-    int numNodes;
-    
-    while (fgets(line, 100, file)) {
-        if (line[0] == 'G') { // build new guard
-            guardPath.clear();
-            fgets(line, 100, file); // guard settings, ignored for now
-            fscanf(file, "%s %d", line, &numNodes); // read number of nodes in path
-            
-            for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
-                fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
-				y += GUARD_Y_SHIFT;
-                //printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
-                guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
-            }
-            
-            Guard* guardObject = new Guard(
-                                           &guardMesh,
-                                           vec3(2.5, 2.5, 2.5),
-                                           GUARD_SPEED,
-                                           vec3(2.5, 2.5, 2.5),
-                                           1,
-                                           0,
-                                           guardPath
-                                           );
-            gameObjects->add(shared_ptr<GameObject>(guardObject));
-        }
+  vector<PathNode> guardPath;
+  FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
+  char line[100];
+  float x, y, z, dur;
+  char smartTurn, endTurnDir;
+  int numNodes;
+
+  while (fgets(line, 100, file)) {
+    if (line[0] == 'G') { // build new guard
+      guardPath.clear();
+      fgets(line, 100, file); // guard settings, ignored for now
+      fscanf(file, "%s %d", line, &numNodes); // read number of nodes in path
+
+      for (int i = 0; i < numNodes; i++) { // read in numNodes nodes
+        fscanf(file, "%f %f %f %c %f %c", &x, &y, &z, &smartTurn, &dur, &endTurnDir);
+        y += GUARD_Y_SHIFT;
+        //printf("NODE: %f %f %f %c %f %c\n", x, y, z, smartTurn, dur, endTurnDir);
+        guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
+      }
+
+      Guard* guardObject = new Guard(
+          &guardMesh,
+          vec3(2.5, 2.5, 2.5),
+          GUARD_SPEED,
+          vec3(2.5, 2.5, 2.5),
+          1,
+          0,
+          guardPath
+          );
+      gameObjects->add(shared_ptr<GameObject>(guardObject));
     }
+  }
 }
 
 void initGround() {
-    ground = new Shape(
-                       vec3(0), //position
-                       vec3(5, 1, 5), //scale
-                       vec3(0, 0, 1), //direction
-                       0, //velocity
-                       6, //indices
-                       posBufObjG,
-                       norBufObjG,
-                       idxBufObjG,
-                       texBufObjG,
-                       1 //material
-                       );
-    // printf("loading concrete.bmp for ground\n");
-    ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")));
+  ground = new Shape(
+      vec3(0), //position
+      vec3(5, 1, 5), //scale
+      vec3(0, 0, 1), //direction
+      0, //velocity
+      6, //indices
+      posBufObjG,
+      norBufObjG,
+      idxBufObjG,
+      texBufObjG,
+      1 //material
+      );
+  // printf("loading concrete.bmp for ground\n");
+  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")));
 }
 
 void initCeiling() {
-    ceiling = new Shape(
-                        vec3(0, 20, 0), //position
-                        vec3(5, 1, 5), //scale
-                        vec3(0, 0, 1), //direction
-                        0, //velocity
-                        6, //indices
-                        posBufObjG,
-                        norBufObjG,
-                        5 //material
-                        );
+  ceiling = new Shape(
+      vec3(0, 20, 0), //position
+      vec3(5, 1, 5), //scale
+      vec3(0, 0, 1), //direction
+      0, //velocity
+      6, //indices
+      posBufObjG,
+      norBufObjG,
+      5 //material
+      );
 }
 
 void initWalls(WorldGrid* gameObjects) {
-    int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
-    float posX, posY;
-    vec3 tempScale, tempPos, tempBBox;
-    int testWallCount = 0;
-    bool shortWall = false;
-    
-    char ch;
-    fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
-    int i = 0, j = 0;
-    while (fin >> noskipws >> ch) {
-        if (ch == '\n') {
-            j = 0;
-            i++;
+  int levelDesign[TEST_WORLD][TEST_WORLD], tempI, tempJ, realI, realJ;
+  float posX, posY;
+  vec3 tempScale, tempPos, tempBBox;
+  int testWallCount = 0;
+  bool shortWall = false;
+
+  char ch;
+  fstream fin(resPath("LevelDesignFull.txt"), fstream::in);
+  int i = 0, j = 0;
+  while (fin >> noskipws >> ch) {
+    if (ch == '\n') {
+      j = 0;
+      i++;
+    }
+    else {
+      levelDesign[i][j] = ch - '0';
+      j++;
+    }
+  }
+
+  ///////// Test print entire matrix
+  //	for (i = 0; i < TEST_WORLD; i++) {
+  //		cout << '\n';
+  //		for (j = 0; j < TEST_WORLD; j++) {
+  //			cout << levelDesign[i][j];
+  //    }
+  //}
+  //	cout << '\n';
+
+  vec2 start, end;
+  //////////// Create the wall objects
+  for (i = 0; i < TEST_WORLD; i++) {
+    for (j = 0; j < TEST_WORLD; j++) {
+      if (levelDesign[i][j] == 1 || levelDesign[i][j] == 2) {
+        if (levelDesign[i][j] == 2) {
+          shortWall = true;
         }
-        else {
-            levelDesign[i][j] = ch - '0';
-            j++;
+        start = vec2(i, j);
+        int i1 = i, j1 = j;
+        // build wall depending on direction it is oriented
+        if (i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 1 ||
+            i1 != TEST_WORLD - 1 && levelDesign[i1 + 1][j1] == 2) { // going right
+          while (i1 < TEST_WORLD && levelDesign[i1][j1] == 1 ||
+              i1 < TEST_WORLD && levelDesign[i1][j1] == 2) {
+            levelDesign[i1][j1] = 0;
+            i1++;
+          }
+          end = vec2(i1 - 1, j1);
         }
     }
     
@@ -1192,11 +1197,11 @@ void initWalls(WorldGrid* gameObjects) {
                 if (shortWall) {
                     gameObjects->add(shared_ptr<GameObject>(new Wall(
                                                                      &shortCubeMesh,
-                                                                     vec3(center.x, 0, center.y),      //position
-                                                                     vec3(dims.x / 2, 0.7f, dims.y / 2),    //scale
+                                                                     vec3(center.x, -0.7f, center.y),      //position
+                                                                     vec3(dims.x / 2, 1.0f, dims.y / 2),    //scale
                                                                      vec3(0, 0, 1),  //direction (this value is important to setting model matrix)
                                                                      0,
-                                                                     vec3(dims.x, 1.3, dims.y),     //dimensions
+                                                                     vec3(dims.x, 2.0f, dims.y),     //dimensions
                                                                      0,            //scanRadius
                                                                      6             //material
                                                                      )));
@@ -1218,7 +1223,11 @@ void initWalls(WorldGrid* gameObjects) {
                 //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
             }
         }
+        testWallCount++;
+        //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
+      }
     }
+  }
 
 }
 
@@ -1241,6 +1250,7 @@ int main(int argc, char **argv)
     // Open a window and create its OpenGL context
     g_width = 1280;
     g_height = 720;
+    printf("%d, %d\n", g_width, g_height);
     window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
@@ -1344,7 +1354,7 @@ int main(int argc, char **argv)
     detectCam = new DetectionCamera(CAMERA_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
-                                    CAMERA_FAR,
+                                    GUARD_FAR,
                                     debugDraw);
     
     double timeCounter = 0;
@@ -1353,9 +1363,11 @@ int main(int argc, char **argv)
     //printf("player tex id: %d\n", playerMesh.texId);
 
     ImGui_ImplGlfw_Init(window, false);
+    ImGuiIO& io = ImGui::GetIO();
+
     
     do{
-        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplGlfw_NewFrame(); 
 
         //timer stuff
         TimeManager::Instance().CalculateFrameRate(true);
@@ -1364,17 +1376,20 @@ int main(int argc, char **argv)
         timeCounter += deltaTime;
         
         bool open = true;
+
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1, 1, 1, 0));
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
             | ImGuiWindowFlags_NoMove);
-        ImGui::SetWindowSize(ImVec2(3900, 100));
+        ImGui::SetWindowSize(ImVec2(io.DisplaySize.x * 1.52, io.DisplaySize.y / 7));
         ImGui::SetWindowPos(ImVec2(0, 10));
         ImGui::SetWindowFontScale(3.5f);
         ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
         ImGui::End();
         ImGui::PopStyleVar();
+        ImGui::PopStyleColor(1);
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
@@ -1382,7 +1397,7 @@ int main(int argc, char **argv)
 	  drawPass1(&gameObjects);
 	  endPass1Draw();
 	  beginPass2Draw();
-	  getWindowinput(window, deltaTime);
+	  getWindowInput(window, deltaTime);
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();
 	  //}
@@ -1413,20 +1428,21 @@ int main(int argc, char **argv)
             }
         }
         if (debug || boxes) {
-//#ifndef WIN32
-            debugDraw->drawAll();
-//#endif
-        }
-        debugDraw->clear();
+#ifndef WIN32
+      debugDraw->drawAll();
+#endif
+    }
+    debugDraw->clear();
 
-        ImGui::Render();
-        
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
-             && glfwWindowShouldClose(window) == 0);
-    
-    glfwTerminate();
-    soundObj->cleanUpSound();
-    return 0;
+    ImGui::Render();
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+    //printf("x: %f, z: %f\n", playerObject->position.x, playerObject->position.z);
+  } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
+      && glfwWindowShouldClose(window) == 0);
+
+  glfwTerminate();
+  soundObj->cleanUpSound();
+  return 0;
 }

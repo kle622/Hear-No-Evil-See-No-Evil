@@ -79,3 +79,15 @@ void Player::changeDirection(vec3 direction) {
 void Player::SetMotion(float motion) {
     maxVelocity = motion;
 }
+
+glm::mat4 Player::getModel()
+{
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), position);
+  glm::mat4 Rot = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(direction.x, direction.y, -1.0f * direction.z), glm::vec3(0.0f, 1.0f, 0.0f));
+  glm::mat4 Scale = glm::scale(glm::mat4(1.0f), scale);
+  glm::mat4 Shear = glm::mat4(1.0f);
+  Shear[1][0] = lean;
+  glm::mat4 com = Trans*Rot*Shear*Scale;
+
+  return com;
+}

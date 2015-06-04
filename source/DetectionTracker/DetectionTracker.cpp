@@ -5,8 +5,12 @@ DetectionTracker::DetectionTracker() {
   this->soundDetLvl = 0.0f;
   this->totalDetLvl = 0.0f;
   this->detecDanger = false;
+  this->lightRadius = 1.7f;
 }
 
+/* Keep our totalDetLvl (total detection level) between 0.0 and 1.0.
+   This is important for color bleeding and the detection bar. 
+*/
 void DetectionTracker::clamp() {
   if (this->totalDetLvl > 1.0) {
     this->totalDetLvl = 1.0;
@@ -16,22 +20,52 @@ void DetectionTracker::clamp() {
   }
 }
 
-/* 
-   When detected by a guard, update visual detection.
+/* Calculate the current distance from the most recent light to the player*/
+void DetectionTracker::getDistToCurrLight(vec3 playerPos, vec3 lightPos) {
+  float deltaX = playerPos.x - lightPos.x;
+  float deltaZ = playerPos.z - lightPos.z;
+
+  float dist = deltaX * deltaX + deltaZ * deltaZ;
+
+  this->lightDist = sqrt(dist);
+}
+
+/*
+When detected by a guard, update visual detection.
 This means that if you're being seen by multiple guards over and over you'll be detected very quickly.
 
 If the player remains undetected and they have left the neighborhood of suspicion, decrement very quickly
 
-   Other, lesser, idea number of guards who detected player inhibits how fast detection goes down
+The player's distance to the closest light will influence how fast detection is raised.
 */
 void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
+  float lightDetecMult = 0.0f;
+  float playerRadius = player->dimensions.x + player->dimensions.z;
+  getDistToCurrLight(player->position, this->currLight.position);
+
   if (this->detecDanger == true) {
-    this->totalDetLvl += detecPercent *.0001;
+    if (this->lightDist < lightRadius + playerRadius) {
+      lightDetecMult = 1.0f;
+      printf("Full view\n");
+      printf("lightDist: %f\n", this->lightDist);
+    }
+    else if (playerRadius + lightRadius > this->lightDist > lightRadius) {
+      lightDetecMult = ((this->lightDist - lightRadius) / playerRadius) * 0.8 + 0.2;
+      printf("Half view\n");
+      printf("lightDist: %f\n", this->lightDist);
+    }
+    else if (this->lightDist > lightDist + playerRadius) {
+      lightDetecMult = 0.0001;
+      printf("Far view\n");
+      printf("lightDist: %f\n", this->lightDist);
+    }
+    this->totalDetLvl += detecPercent * lightDetecMult;
     this->previousPlyrPos = player->position;
-    printf("Danger!\n");
+    printf("comparing lightDist: %f, radius: %f\n", this->lightDist, this->lightRadius + playerRadius);
+    printf("DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
   }
   else if (this->totalDetLvl > 0) {
-    this->totalDetLvl -= .05;
+    this->totalDetLvl -= .005;
     this->totalDetLvl = this->totalDetLvl;
     //printf("Not Danger!\n");
   }
@@ -39,27 +73,27 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
 }
 
 // For now I'm assuming CROUCH does not contribute to the total detection level, 
-// but it also doesn't lower it
+// but it also doesn't outright lower it
 void DetectionTracker::updateSndDetect(Player *player) {
   if (this->detecDanger == true) {
     float dist = glm::distance(this->previousPlyrPos, player->position);
     if (dist < NEIGHBORHOOD_OF_SUSPICION) {
-      this->detecDanger == false;
+      this->detecDanger = false;
     }
   }
-  
+
   if (player->velocity <= 0.0 && this->totalDetLvl > 0) {
     this->totalDetLvl -= .02;
     this->totalDetLvl = this->totalDetLvl;
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
-      this->totalDetLvl += .0001;
+      this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == RUN) {
-      this->totalDetLvl += .002;
+      this->totalDetLvl += .005;
     }
-    }
+  }
   if (this->totalDetLvl == 0){
     this->detecDanger = false;
   }
