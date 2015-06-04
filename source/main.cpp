@@ -796,6 +796,13 @@ void window_size_callback(GLFWwindow* window, int w, int h){
   g_height = h;
 }
 
+void endIntro()
+{
+  inIntro = false;
+  drawCam = camera3DPerson;
+  viewCam = camera3DPerson;
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_N && (action == GLFW_PRESS) && shiftDown) {
@@ -810,10 +817,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
     boxes = !boxes;
   }
-  if (key == GLFW_KEY_J && (action == GLFW_PRESS) && shiftDown) {
-    inIntro = false;
-    drawCam = camera3DPerson;
-    viewCam = camera3DPerson;
+  if (key == GLFW_KEY_H && (action == GLFW_PRESS) && shiftDown) {
+    endIntro();
   }
 
   if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
@@ -1446,8 +1451,10 @@ int main(int argc, char **argv)
                                     CAMERA_NEAR,
                                     GUARD_FAR,
                                     debugDraw);
-    cineCam = new Camera(glm::vec3(0.0f, 0.0f, 1.0f),
-                             glm::vec3(0.0f, 0.0f, 0.0f),
+
+    // CAREFUL - can only call getLocation if introCurve has data in it already!
+    cineCam = new Camera(introCurve.getLocation(0.1),
+                             introCurve.getLocation(0),
                              glm::vec3(0.0f, 1.0f, 0.0f),
                              CAMERA_FOV,
                              (float)g_width / (float)g_height,
@@ -1523,9 +1530,7 @@ int main(int argc, char **argv)
           introDist += deltaTime;
         }
         else if (inIntro) {
-          inIntro = false;
-          drawCam = camera3DPerson;
-          viewCam = camera3DPerson;
+          endIntro();
         }
         
         camera3DPerson->update();
