@@ -1399,6 +1399,8 @@ int main(int argc, char **argv)
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
+	clueMesh.hasTexture = true;
+	clueMesh.loadMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), TEX_SIZE);
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
@@ -1553,8 +1555,13 @@ int main(int argc, char **argv)
           }
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
-          cineCam->lookat = introCurve.getLocation(introDist + 1.5 < introCurve.getMaxDist() ? introDist + 1.5 : introCurve.getMaxDist() - 0.1);
-          introDist += deltaTime;
+          if (introDist + 5 < introCurve.getMaxDist()) {
+            cineCam->lookat = introCurve.getLocation(introDist + 5);
+          }
+          else {
+            cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
+          }
+          introDist += deltaTime * 2;
         }
         else if (inIntro) {
           endIntro();
