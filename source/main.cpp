@@ -56,12 +56,13 @@
 #define WORLD_HEIGHT 300
 #define TEST_WORLD 200
 
-#define CAMERA_FOV 60
+#define CAMERA_FOV 60.0f
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
-#define GUARD_FAR 12.0f
+#define GUARD_FAR 20.0f
+#define GUARD_FOV 70.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
@@ -1480,7 +1481,7 @@ int main(int argc, char **argv)
                              CAMERA_FAR,
                              debugDraw);
 
-    detectCam = new DetectionCamera(CAMERA_FOV,
+    detectCam = new DetectionCamera(GUARD_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
                                     GUARD_FAR,
@@ -1561,13 +1562,16 @@ int main(int argc, char **argv)
           }
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
-          if (introDist + 5 < introCurve.getMaxDist()) {
+          cineCam->lookat = nextPoint;
+          /*if (introDist + 5 < introCurve.getMaxDist()) {
             cineCam->lookat = introCurve.getLocation(introDist + 5);
           }
           else {
             cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
-          }
-          introDist += deltaTime * 2;
+          }*/
+
+          // target intro time is 1:20
+          introDist += deltaTime * 0.625;
         }
         else if (inIntro) {
           endIntro();
@@ -1618,7 +1622,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
