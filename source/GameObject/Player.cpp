@@ -53,12 +53,12 @@ void Player::move(float time) {
         }
     }
     else {
-        scale.y = std::min(scale.y + 0.01f, standingScale);
+        scale.y = std::min(scale.y + 0.1f, standingScale);
         if (position.y < yPos) {
-          position.y += 0.01f;
+          position.y += 0.09f * standingScale;
         }
         if (dimensions.y < origDimensions.y) {
-          dimensions.y += 0.02f;
+          dimensions.y += 0.12f * (standingScale - CROUCH_SCALE);
         }
     }
 }
