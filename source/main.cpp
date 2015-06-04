@@ -46,6 +46,8 @@
 #include "HUD/imgui.h"
 #include "HUD/imgui_impl_glfw.h"
 
+#include "GameObject/Clue.h"
+
 //#include "GuardPath/PathNode.h"
 //#define DEBUG
 #define MAX_LIGHTS 10
@@ -112,6 +114,7 @@ Mesh chairMesh;
 Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
+Mesh clueMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -987,6 +990,20 @@ void initObjects(WorldGrid* gameObjects) {
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
                 }
+      case 'C': {
+        printf("GETTING HERE******************************************\n");
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 1, 1),
+                1,
+                3
+                )));
+        break;
+      }
       default:
                 break;
       }
@@ -1260,6 +1277,7 @@ int main(int argc, char **argv)
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
     
+    clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);

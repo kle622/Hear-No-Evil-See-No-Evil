@@ -34,7 +34,8 @@ class GameObject {
 		 STATIC,
 		 PUSHABLE,
 		 GUARD,
-		 PLAYER
+		 PLAYER,
+     COLLECTABLE
 	 };
 
   //Properties
