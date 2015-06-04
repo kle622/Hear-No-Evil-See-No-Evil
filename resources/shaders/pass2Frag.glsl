@@ -101,10 +101,10 @@ void main() {
 				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
 					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
-		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * diffuse;
+		 color += (1.0 /(0.5 + 0.25 * dist)) * visibility * att * diffuse;
 	   }
 	   else {
-		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * light_color * diffuse;
+		 color += (1.0 /(0.5 + 0.25 * dist)) * visibility * att * light_color * diffuse;
 	   }
 	}
 	else {	
