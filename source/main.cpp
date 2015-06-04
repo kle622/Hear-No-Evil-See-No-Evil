@@ -794,8 +794,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     boxes = !boxes;
   }
 
-  if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
-    cout << "introCurve.addPoint(" << playerObject->position.x << ", " << playerObject->position.y << ", " << playerObject->position.z << ");" << endl;
+  if (key == GLFW_KEY_F && action == GLFW_PRESS && debug) {
+    cout << "introCurve.addPoint(" << debugCam->eye.x << ", " << debugCam->eye.y << ", " << debugCam->eye.z << ");" << endl;
   }
 
   if (!debug) {
@@ -1440,7 +1440,7 @@ int main(int argc, char **argv)
     introCurve.addPoint(2, 1, 1);
     introCurve.addPoint(3, 1, -2);*/
     
-introCurve.addPoint(0.716951, 0, 0.258118);
+/*introCurve.addPoint(0.716951, 0, 0.258118);
 introCurve.addPoint(0.52594, 0, 2.07816);
 introCurve.addPoint(-0.0430652, 0, 4.19264);
 introCurve.addPoint(-0.368239, 0, 5.74165);
@@ -1563,7 +1563,7 @@ introCurve.addPoint(-70.8689, 0.04, 39.4973);
 introCurve.addPoint(-71.3325, 0.04, 37.2044);
 introCurve.addPoint(-71.7928, 0.04, 35.0889);
 introCurve.addPoint(-72.2967, 0.04, 32.7731);
-introCurve.addPoint(0.159485, 0.04, -0.310959);
+introCurve.addPoint(0.159485, 0.04, -0.310959);*/
     
     double timeCounter = 0;
     
