@@ -723,7 +723,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       glUniform1i(pass2Handles.hasTex, 0);
       SetMaterial(drawList[i]->material);
     }
-
+    
     // SetMaterial(drawList[i]->material);
     SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
     safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
@@ -1400,7 +1400,7 @@ int main(int argc, char **argv)
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
 	clueMesh.hasTexture = true;
-	clueMesh.loadClueMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), TEX_SIZE);
+	clueMesh.loadClueMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), 512);
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);

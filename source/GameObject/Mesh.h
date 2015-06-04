@@ -47,5 +47,5 @@ class Mesh {
   glm::vec3 dimensions;
 };
 char* imageLoad(const char* filename);
-
+char* clueImageLoad(const char* filename);
 #endif
