@@ -160,10 +160,9 @@ void main() {
 	/*if (hasText != 1) {
 		gl_FragColor = vec4((att * ((max(dot(vNormal, vLight), 0) * (specular * rs)) + diffuse)) + ambient, 1.0);
 	}
-	else {*/
-    
+	else {
 	gl_FragColor = vec4(color + avgAmbient, 1.0);
-	//}
+	}*/
    
     gl_FragColor = vec4(color + avgAmbient, alpha);
 }
