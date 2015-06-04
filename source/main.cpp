@@ -1380,7 +1380,7 @@ int main(int argc, char **argv)
     g_width = 1280;
     g_height = 720;
     printf("%d, %d\n", g_width, g_height);
-    window = glfwCreateWindow(g_width, g_height, "bunny and ground", NULL, NULL);
+    window = glfwCreateWindow(g_width, g_height, "Hear No Evil, See No Evil", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
         glfwTerminate();
