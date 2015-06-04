@@ -18,7 +18,7 @@
 #define MAX_STAMINA 5.0f
 #define MAX_CROUCH_STAMINA 5.0f
 
-#define NEIGHBORHOOD_OF_SUSPICION 8.0f
+#define NEIGHBORHOOD_OF_SUSPICION 5.0f
 using namespace glm;
 
 struct Light {

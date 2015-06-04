@@ -617,9 +617,9 @@ void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
   float dist = deltaX * deltaX +  deltaZ * deltaZ;
   bool returnVal;
 
-  // NOTE: the + 20.0f there is to make sure the light is saved if the player get NEAR the light
+  // NOTE: the + 80.0f there is to make sure the light is saved if the player get NEAR the light
   // this does not mean it will count against the player, the detecTrac will handle that
-  if (dist < (max * max) + 20.0f) {
+  if (dist < ((max * max) + 80.0f)) {
     detecTrac->currLight = thisLight;
     //printf("Updating current light comparing dist: %f and maxSq: %f\n", dist, (max*max));
   }
