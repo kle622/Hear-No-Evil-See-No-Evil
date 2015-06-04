@@ -32,6 +32,7 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
       this->checkpoint.z = clue->checkpoint.z;
     }
     if (object->type == GameObject::ObjectType::GUARD) {
+      playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/its_curtains.wav");
       this->position.x = this->checkpoint.x;
       this->position.z = this->checkpoint.z;
     }
