@@ -30,7 +30,7 @@ void main() {
      //vec3 ambient = UaColor * 0.5;
      vec3 ambient = vec3(0.05, 0.05, 0.05);
      //float bias = 0.005;
-     float visibility = 0.5;
+     float visibility = 1.0;
 	 float clrBleedVal = detectionLevel;
 
    for (int i = 0; i < numLights; i++) {
@@ -39,14 +39,46 @@ void main() {
      vec3 surfacePos = vPos;
      vec3 surfaceToCamera = normalize(uCamPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
-     //float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
-     //bias = clamp(bias, 0.0, 0.01);
+     float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
+     bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
      
      if (lightToSurfaceAngle > coneAngle) {
      	att = 0.1;
      }
+
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.2;
+        }
+        
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.2;
+        }
+        
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.2;
+        }
+        
+        if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z <  (ShadowCoord.z-bias) / ShadowCoord.w) {
+            visibility -= 0.2;
+        }
+	
+	if (hasTex == 1) {
+	   vec3 diffuse = vec3(texture2D(texture, texCoordOut));
+	   float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
+	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
+				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
+					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
+	   if(lightToSurfaceAngle > coneAngle) {
+		 color += visibility * att * diffuse;
+	   }
+	   else {
+		 color += visibility * light_color * diffuse;
+	   }
+	}
+	else {	
+
 	   vec3 diffuse = UdColor * dot(vNormal, surfaceToLight);
 	   diffuse.x = diffuse.x < 0.0 ? 0.0: diffuse.x;
 	   diffuse.y = diffuse.y < 0.0 ? 0.0: diffuse.y;
@@ -54,21 +86,6 @@ void main() {
 	   float temp = dot(surfaceToCamera, reflect(-surfaceToLight, vNormal));
 	   temp = temp < 0.0 ? 0.0: temp;
 	   vec3 specular = UsColor * pow(temp, Ushine); // n=1
-	
-	if (hasTex == 1) {
-	   diffuse = vec3(texture2D(texture, texCoordOut));
-	   float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
-	   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
-				      (diffuse.g + ((avgDiffuse - diffuse.g) * clrBleedVal)), 
-					  (diffuse.b + ((avgDiffuse - diffuse.b) * clrBleedVal)));
-	   if(lightToSurfaceAngle > coneAngle) {
-		 color += att * diffuse;
-	   }
-	   else {
-		 color += att * light_color * diffuse;
-	   }
-	}
-	else {	
 		float avgDiffuse = (diffuse.r + diffuse.b + diffuse.g)/3.0;
 		float avgSpecular = (specular.r + specular.b + specular.g)/3.0;
 		diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * clrBleedVal)), 
@@ -107,5 +124,5 @@ void main() {
 						   (ambient.g + ((avgAmbient - ambient.g) * clrBleedVal)), 
 						   (ambient.b + ((avgAmbient - ambient.b) * clrBleedVal)));
 
-    gl_FragColor = vec4((visibility * color) + avgAmbient, 1.0);
+    gl_FragColor = vec4(color + avgAmbient, 1.0);
 }

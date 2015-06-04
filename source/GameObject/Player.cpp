@@ -32,8 +32,7 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
       this->checkpoint.z = clue->checkpoint.z;
     }
     if (object->type == GameObject::ObjectType::GUARD) {
-      this->position.x = this->checkpoint.x;
-      this->position.z = this->checkpoint.z;
+      this->lose();
     }
 		return true;
 	}
@@ -77,6 +76,12 @@ void Player::accelerate() {
     else if (maxVelocity == CROUCH) {
       playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/crouchWalk.wav");
     }
+}
+
+void Player::lose() {
+    playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/its_curtains.wav");
+    this->position.x = this->checkpoint.x;
+    this->position.z = this->checkpoint.z;
 }
 
 void Player::decelerate() {
