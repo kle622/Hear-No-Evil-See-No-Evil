@@ -7,7 +7,6 @@
 #include <sstream>
 #include <cassert>
 #define _USE_MATH_DEFINES
-//#define DEBUG 1
 #include <cmath>
 #include <math.h>
 #include <time.h>
@@ -50,6 +49,7 @@
 
 //#include "GuardPath/PathNode.h"
 #define DEBUG
+
 #define MAX_LIGHTS 10
 
 #define WORLD_WIDTH 300
@@ -129,6 +129,10 @@ DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
 DetectionTracker *detecTrac;
+#ifdef DEBUG
+ofstream curveOutput;
+#endif
+SplineCurve introCurve; // add points
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
@@ -259,6 +263,19 @@ void SetMaterial(int i) {
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
   }
+}
+
+void readIntroSpline()
+{
+  ifstream curveInput;
+  curveInput.open("introCurve.txt");
+  double x, y, z;
+  while (curveInput >> x) {
+    curveInput >> y;
+    curveInput >> z;
+    introCurve.addPoint(x, y, z);
+  }
+  curveInput.close();
 }
 
 void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
@@ -795,7 +812,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   }
 
   if (key == GLFW_KEY_F && action == GLFW_PRESS && debug) {
-    cout << "introCurve.addPoint(" << debugCam->eye.x << ", " << debugCam->eye.y << ", " << debugCam->eye.z << ");" << endl;
+    curveOutput << debugCam->eye.x << " " << debugCam->eye.y << " " << debugCam->eye.z << endl;
   }
 
   if (!debug) {
@@ -1434,12 +1451,17 @@ int main(int argc, char **argv)
     drawCam = camera3DPerson;
     viewCam = camera3DPerson;
 
-    SplineCurve introCurve; // add points
     /*introCurve.addPoint(0, 1, 0);
     introCurve.addPoint(1, 1, 0);
     introCurve.addPoint(2, 1, 1);
     introCurve.addPoint(3, 1, -2);*/
     
+    readIntroSpline();
+
+#ifdef DEBUG
+    curveOutput.open("introCurve.txt");
+#endif
+
 /*introCurve.addPoint(0.716951, 0, 0.258118);
 introCurve.addPoint(0.52594, 0, 2.07816);
 introCurve.addPoint(-0.0430652, 0, 4.19264);
@@ -1673,6 +1695,9 @@ introCurve.addPoint(0.159485, 0.04, -0.310959);*/
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
+#ifdef DEBUG
+    curveOutput.close();
+#endif
   glfwTerminate();
   soundObj->cleanUpSound();
   return 0;
