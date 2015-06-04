@@ -82,7 +82,7 @@ void Player::accelerate() {
 }
 
 void Player::lose() {
-    playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/its_curtains.wav");
+    playrSoundObj->loseSnd = playrSoundObj->startSound(playrSoundObj->loseSnd, "../dependencies/irrKlang/media/endNoise1.wav");
     this->position.x = this->checkpoint.x;
     this->position.z = this->checkpoint.z;
 }
