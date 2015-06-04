@@ -80,7 +80,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   if (this->totalDetLvl > 1.0f) {
     printf("you lose\n");
     this->totalDetLvl = 0.0f;
-    player->position = player->checkpoint;
+    player->lose();
   }
   clamp();
   //printf("Post CLAMP DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
@@ -117,7 +117,7 @@ void DetectionTracker::updateSndDetect(Player *player) {
     printf("you lose\n");
     this->detecDanger = false;
     this->totalDetLvl = 0.0f;
-    player->position = player->checkpoint;
+    player->lose();
   }
   clamp();
 }

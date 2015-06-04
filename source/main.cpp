@@ -1045,7 +1045,7 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(1, 1, 1),
+                vec3(1, 2, 1),
                 1,
                 3,
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
@@ -1060,7 +1060,37 @@ void initObjects(WorldGrid* gameObjects) {
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+      }
+      case '#': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-64.59f, 0, 95.87f),
                 vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
+                1,
+                3,
+                "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
+                )));
+              break;
+      }
+      case '$': {
+        gameObjects->add(shared_ptr<GameObject>(new Clue(
+                &clueMesh,
+                vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
+                vec3(-91.5f, 0, 85.0f),
+                vec3(1, 1, 1),
+                vec3(0, 0, 1), // direction
+                0,
+                vec3(1, 2, 1),
                 1,
                 3,
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
