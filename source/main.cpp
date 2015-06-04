@@ -697,12 +697,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       for (int L = 0; L < gLights.size(); L++) {
         inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
           (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
-
-      }
-      for (int j = 0; j < gameObjects->wallList.size(); j++) {
-        if (gameObjects->list[i]->collide(gameObjects->wallList[j].get(), debugDraw)) {
-          soundObj->noseSnd = soundObj->startSound(soundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-        }
       }
     }
 
