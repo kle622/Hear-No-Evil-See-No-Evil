@@ -268,7 +268,7 @@ void SetMaterial(int i) {
 void readIntroSpline()
 {
   ifstream curveInput;
-  curveInput.open("introCurve.txt");
+  curveInput.open(resPath("introCurve.txt"));
   double x, y, z;
   while (curveInput >> x) {
     curveInput >> y;
@@ -809,6 +809,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   }
   if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
     boxes = !boxes;
+  }
+  if (key == GLFW_KEY_J && (action == GLFW_PRESS) && shiftDown) {
+    inIntro = false;
+    drawCam = camera3DPerson;
+    viewCam = camera3DPerson;
   }
 
   if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
@@ -1420,6 +1425,8 @@ int main(int argc, char **argv)
     //initDetectionTracker(&gameObjects);
     initFramebuffer();
    
+    readIntroSpline();
+
     //initialize the camera
     camera3DPerson = new Camera3DPerson(&gameObjects, playerObject, CAMERA_ZOOM, CAMERA_FOV,
                                         (float)g_width / (float)g_height,
@@ -1451,15 +1458,8 @@ int main(int argc, char **argv)
     drawCam = camera3DPerson;
     viewCam = camera3DPerson;
 
-    /*introCurve.addPoint(0, 1, 0);
-    introCurve.addPoint(1, 1, 0);
-    introCurve.addPoint(2, 1, 1);
-    introCurve.addPoint(3, 1, -2);*/
-    
-    readIntroSpline();
-
 #ifdef DEBUG
-    curveOutput.open("introCurve.txt");
+    curveOutput.open(resPath("introCurveSample.txt"));
 #endif
     
     double timeCounter = 0;
@@ -1496,7 +1496,7 @@ int main(int argc, char **argv)
         ImGui::PopStyleColor(1);
 
 #ifdef DEBUG
-        if (boxes || debug) {
+        if (boxes) {
           double iter = 0;
           glm::vec3 oldPoint = introCurve.getLocation(0);
           glm::vec3 newPoint;
@@ -1511,7 +1511,12 @@ int main(int argc, char **argv)
 
         if (introDist < introCurve.getMaxDist() && inIntro) {
           drawCam = cineCam;
-          viewCam = cineCam;
+          if (debug) {
+            viewCam = debugCam;
+          }
+          else {
+            viewCam = cineCam;
+          }
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
           cineCam->lookat = nextPoint;
