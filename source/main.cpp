@@ -49,7 +49,7 @@
 #include "GameObject/Clue.h"
 
 //#include "GuardPath/PathNode.h"
-//#define DEBUG
+#define DEBUG
 #define MAX_LIGHTS 10
 
 #define WORLD_WIDTH 300
@@ -122,8 +122,9 @@ Shape *ground;
 Shape *ceiling;
 bool debug = false;
 bool boxes = false;
-bool inIntro = true;
 bool shiftDown = false;
+bool inIntro = true;
+double introDist = 0;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
@@ -629,17 +630,8 @@ void beginPass2Draw() {
   glUniform3f(pass2Handles.uConeDirection, coneDir.x, coneDir.y, coneDir.z);
   glUniform1f(pass2Handles.uConeAngle, coneAngle);
   glUniform3f(pass2Handles.uCamPos, drawCam->eye.x,drawCam->eye.y, drawCam->eye.z);
-  //glUniform3f(pass2Handles.uCamPos, camera3DPerson->eye.x,camera3DPerson->eye.y, camera3DPerson->eye.z);
   glUniform1i(pass2Handles.hasTex, 0);
 
-  /*if (debug) {
-    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(debugCam->getProjection()));
-    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(debugCam->getView()));
-  }
-  else {
-    safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(camera3DPerson->getProjection()));
-    safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(camera3DPerson->getView()));
-  }*/
   safe_glUniformMatrix4fv(pass2Handles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
   safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(viewCam->getView()));
 
@@ -687,7 +679,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   //Guard *guard;
   // draw
   vector<shared_ptr<GameObject>> drawList = drawCam->getUnculled(gameObjects);
-  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
     if (drawList[i]->mesh->hasTexture) {
       glUniform1i(pass2Handles.hasTex, 1);
@@ -796,7 +787,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
       viewCam = debugCam;
     }
     else {
-      viewCam = camera3DPerson;
+      viewCam = drawCam;
     }
   }
   if (key == GLFW_KEY_B && (action == GLFW_PRESS) && shiftDown) {
@@ -867,55 +858,6 @@ void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
   }
   viewCam->moveHoriz(-1.0 * dx * 0.01);
   viewCam->moveVert(dy * 0.01);
-  /*if (!debug) {
-    // TODO time-based animation
-    // define max camera movement rate; this can be a global setting to be changed by keypress
-    float maxMove = camSpeed * deltaTime;
-    if (dx > 0) {
-      dx = dx < maxMove ? dx : maxMove;
-    }
-    else {
-      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-    }
-    if (dy > 0) {
-      dy = dy < maxMove ? dy : maxMove;
-    }
-    else {
-      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-    }
-    camera3DPerson->moveHoriz(-1.0 * dx * 0.01);
-    camera3DPerson->moveVert(dy * 0.01); // negated becase y=0 is at the top of the screen
-  }
-  else {
-    // TODO implement first person camera class 
-    double max_vert_angle = 85;
-    double cursor_speed = 0.3;
-    float maxMove = camSpeed * deltaTime;
-
-    if (dx > 0) {
-      dx = dx < maxMove ? dx : maxMove;
-    }
-    else {
-      dx = dx > -1.0 * maxMove ? dx : -1.0 * maxMove;
-    }
-    if (dy > 0) {
-      dy = dy < maxMove ? dy : maxMove;
-    }
-    else {
-      dy = dy > -1.0 * maxMove ? dy : -1.0 * maxMove;
-    }
-
-    theta -= dx * cursor_speed;
-    // note that ypos is measured from the top of the screen, so
-    // an increase in ypos means moving the mouse down the y axis
-    if ((phi < max_vert_angle && dy < 0) || (phi > -1.0 * max_vert_angle && dy > 0)) {
-      phi -= dy * cursor_speed;
-    }
-
-    debugCam->lookat.x = debugCam->eye.x + cos(phi * M_PI / 180) * cos(theta * M_PI / 180);
-    debugCam->lookat.y = debugCam->eye.y + sin(phi * M_PI / 180);
-    debugCam->lookat.z = debugCam->eye.z + cos(phi * M_PI / 180) * sin(-1.0 * theta * M_PI / 180);
-  }*/
 
   glfwSetCursorPos(window, x_center, y_center);
 }
@@ -1487,6 +1429,12 @@ int main(int argc, char **argv)
 
     drawCam = camera3DPerson;
     viewCam = camera3DPerson;
+
+    SplineCurve introCurve; // add points
+    introCurve.addPoint(0, 0, 0);
+    introCurve.addPoint(1, 0, 0);
+    introCurve.addPoint(2, 0, 1);
+    introCurve.addPoint(3, 0, -2);
     
     double timeCounter = 0;
     
@@ -1496,7 +1444,6 @@ int main(int argc, char **argv)
     ImGui_ImplGlfw_Init(window, false);
     ImGuiIO& io = ImGui::GetIO();
 
-    
     do{
         ImGui_ImplGlfw_NewFrame(); 
 
@@ -1521,6 +1468,34 @@ int main(int argc, char **argv)
         ImGui::End();
         ImGui::PopStyleVar();
         ImGui::PopStyleColor(1);
+
+#ifdef DEBUG
+        if (boxes) {
+          double iter = 0;
+          glm::vec3 oldPoint = introCurve.getLocation(0);
+          glm::vec3 newPoint;
+          while (iter < introCurve.getMaxDist()) {
+            newPoint = introCurve.getLocation(iter);
+            debugDraw->addLine(oldPoint, newPoint, glm::vec3(0.87f, 0.25f, 0.44f), false);
+            oldPoint = newPoint;
+            iter += 0.01;
+          }
+        }
+#endif
+
+        if (introDist < introCurve.getMaxDist() && inIntro) {
+          drawCam = cineCam;
+          viewCam = cineCam;
+          glm::vec3 nextPoint = introCurve.getLocation(introDist);
+          cineCam->eye = cineCam->lookat;
+          cineCam->lookat = nextPoint;
+          introDist += deltaTime;
+        }
+        else {
+          inIntro = false;
+          drawCam = camera3DPerson;
+          viewCam = camera3DPerson;
+        }
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {

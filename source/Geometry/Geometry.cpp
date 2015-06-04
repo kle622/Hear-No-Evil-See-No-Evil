@@ -49,17 +49,16 @@ std::vector<glm::vec3>* OBB::getCorners()
   return corners;
 }
 
-// THIS CODE IS SHIT
-glm::vec3 SplineCurve::getLocation(float dist)
+glm::vec3 SplineCurve::getLocation(double dist)
 {
   // assume dist >= 0, dist < maxDist
   // assume at least 4 points in spline curve
-  int start = (int)floor(dist);
+  int start = (int)dist;
   glm::vec3 p0;
   glm::vec3 p1;
   glm::vec3 p2;
   glm::vec3 p3;
-  if (start > 0 && start < points.size()) {
+  if (start > 0 && start < points.size() - 2) {
     p0 = points.at(start - 1);
     p1 = points.at(start);
     p2 = points.at(start + 1);
@@ -71,7 +70,7 @@ glm::vec3 SplineCurve::getLocation(float dist)
     p2 = points.at(start + 1);
     p3 = points.at(start + 2);
   }
-  else if (start == points.size()) {
+  else if (start == points.size() - 2) {
     p0 = points.at(start - 1);
     p1 = points.at(start);
     p2 = points.at(start + 1);
@@ -81,7 +80,7 @@ glm::vec3 SplineCurve::getLocation(float dist)
     // don't ever be here
     exit(-1);
   }
-  dist = dist - (float)start;
+  dist = dist - (double)start;
   glm::vec4 poly(1.0f, dist, dist * dist, dist * dist * dist);
   glm::vec3 result(0.0f, 0.0f, 0.0f);
   result += glm::dot(f0, poly) * p0;
@@ -91,7 +90,7 @@ glm::vec3 SplineCurve::getLocation(float dist)
   return result;
 }
 
-float SplineCurve::getMaxDist()
+double SplineCurve::getMaxDist()
 {
   return maxDist;
 }
@@ -100,6 +99,11 @@ void SplineCurve::addPoint(glm::vec3 point)
 {
   points.push_back(point);
   maxDist += 1;
+}
+
+void SplineCurve::addPoint(float x, float y, float z)
+{
+  addPoint(glm::vec3(x, y, z));
 }
 
 bool pointOutsidePlane(glm::vec3 point, glm::vec4 plane)

@@ -21,11 +21,12 @@ class OBB
 class SplineCurve
 {
   public:
-    glm::vec3 getLocation(float dist);
-    float getMaxDist();
+    glm::vec3 getLocation(double dist);
+    double getMaxDist();
     void addPoint(glm::vec3 point);
+    void addPoint(float x, float y, float z);
   private:
-    float maxDist = -1;
+    double maxDist = -1;
     glm::vec4 f0 = glm::vec4(0.0f, -0.5f, 1.0f, -0.5f);
     glm::vec4 f1 = glm::vec4(1.0f, 0.0f, -2.5f, 1.5f);
     glm::vec4 f2 = glm::vec4(0.0f, 0.5f, 2.0f, -1.5f);
