@@ -12,43 +12,49 @@ Path: 2
 -11 0 28 x 3 r
 -18 0 35 x 3 l
 
-Guard 2:
+Guard 1:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -31 0 47.5 x 3 r
 -50 0 52 x 3 l
 
-Guard 3:
+Guard 1:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -37 0 78 x 3 r
 -48 0 69 x 3 l
 
-Guard 4:
+Guard 1:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -17 0 70 x 1 r
 -27 0 72 x 1 l
 
-Guard 5:
+Guard 2:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -79 0 87 x 1 r
 -80 0 67 x 1 l
 
-Guard 6:
+Guard 2:
+// line reserved for guard properties KEEP THIS HERE!
+Path: 2
+-77 0 65 x 1 r
+-76 0 84 x 1 l
+
+Guard 3:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -78 0 48 x 0 r
 -72 0 34 x 2 l
 
-Guard 7:
+Guard 3:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -62 0 20 x 0 r
 -82 0 17 x 2 l
 
-Guard 8:
+Guard 3:
 // line reserved for guard properties KEEP THIS HERE!
 Path: 2
 -87 0 35 x 0 r

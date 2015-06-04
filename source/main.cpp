@@ -118,6 +118,7 @@ Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
 Mesh clueMesh;
+Mesh printMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -262,6 +263,11 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
     glUniform1f(pass2Handles.uMatShine, 10.0f);
     break;
+  case 9: //footprint
+    glUniform3f(pass2Handles.uMatAmb, 1.0f, 1.0f, 1.0f);
+    glUniform3f(pass2Handles.uMatDif, 1.0f, 1.0f, 1.0f);
+    glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
+    glUniform1f(pass2Handles.uMatShine, 1.0f);
   }
 }
 
@@ -687,11 +693,20 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   pass2Handles.draw(ground);
   //ground->draw();
 
-  glUniform1i(pass2Handles.hasTex, 0);
-  SetMaterial(ceiling->material);
+  //  glUniform1i(pass2Handles.hasTex, 0);
+  //SetMaterial(ceiling->material);
+  //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
+  //safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
+  //pass2Handles.draw(ceiling);
+
+  glUniform1i(pass2Handles.hasTex, 1);
+  glBindTexture(GL_TEXTURE_2D, ceiling->texId);
+  glUniform1i(pass2Handles.texture, 1);
+  SetMaterial(0);
   SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
   pass2Handles.draw(ceiling);
+
   //ceiling->draw();
   //Guard *guard;
   // draw
@@ -1004,7 +1019,7 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(1, 10, 1),
+                vec3(2, 1, 2),
                 1,
                 3
                 )));
@@ -1098,6 +1113,18 @@ void initObjects(WorldGrid* gameObjects) {
                 "../dependencies/irrKlang/media/blockTillo_getting_thirsty.wav"
                 )));
               break;
+	case 'f':
+	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+								 &printMesh,
+								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+								 vec3(0.5, 0.1, 0.5),
+								 0,
+								 vec3(0, 0, 1),
+								 0,
+								 vec3(0),
+								 2,
+								 9,
+								 GameObject::ObjectType::STATIC)));
       }
       default:
                 break;
@@ -1183,6 +1210,8 @@ void initCeiling() {
       norBufObjG,
       5 //material
       );
+
+  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
 }
 
 void initWalls(WorldGrid* gameObjects) {
@@ -1371,7 +1400,7 @@ int main(int argc, char **argv)
     pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
-    
+    printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
@@ -1388,8 +1417,8 @@ int main(int argc, char **argv)
     chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
     rafterMesh.loadShapes(resPath(sysPath("models", "rafter.obj")));
     winMesh.loadShapes(resPath(sysPath("models", "blob.obj")));
-	winMesh.hasTexture = true;
-	winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
+    winMesh.hasTexture = true;
+    winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
     playerMesh.hasTexture = true;
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture2.bmp")), TEX_SIZE);
     //printf("Loading cube mesh wall.bmp\n");
