@@ -18,8 +18,16 @@
 #define MAX_STAMINA 5.0f
 #define MAX_CROUCH_STAMINA 5.0f
 
-#define NEIGHBORHOOD_OF_SUSPICION 8.0f
+#define NEIGHBORHOOD_OF_SUSPICION 5.0f
 using namespace glm;
+
+struct Light {
+  vec3 position;
+  vec3 intensities;
+  float attenuation;
+  float coneAngle;
+  vec3 coneDirection;
+};
 
 class DetectionTracker {
 public:
@@ -31,6 +39,10 @@ public:
   float totalDetLvl;
   vec3 previousPlyrPos; // Should be set when a guard sees a player, or if their movement raises the detect level too much
   bool detecDanger;
+  float lightDist;
+  float lightRadius;
+  bool isInLight;
+  Light currLight;
 
   //Constructor
   DetectionTracker();
@@ -38,6 +50,7 @@ public:
   //Object methods
   void reduceDetect(Player *plyr);
   void updateVisDetect(float detecPercent, Player *player);
+  void getDistToCurrLight(vec3 playerPos, vec3 lightPos);
   void updateSndDetect(Player *player);
   void updateVisMeter(Player *player);
   void clamp();

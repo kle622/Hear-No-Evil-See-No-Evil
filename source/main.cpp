@@ -75,13 +75,13 @@ GLFWwindow* window;
 using namespace std;
 using namespace glm;
 
-struct Light {
-  glm::vec3 position;
-  glm::vec3 intensities;
-  float attenuation;
-  float coneAngle;
-  glm::vec3 coneDirection;
-};
+//struct Light {
+//  glm::vec3 position;
+//  glm::vec3 intensities;
+//  float attenuation;
+//  float coneAngle;
+//  glm::vec3 coneDirection;
+//};
 
 vector<Light> gLights;
 
@@ -613,6 +613,24 @@ void beginPass2Draw() {
   checkGLError();
 }
 
+void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
+  float deltaX = first.x - second.x;
+  float deltaZ = first.z - second.z;
+
+  float dist = deltaX * deltaX +  deltaZ * deltaZ;
+  bool returnVal;
+
+  // NOTE: the + 80.0f there is to make sure the light is saved if the player get NEAR the light
+  // this does not mean it will count against the player, the detecTrac will handle that
+  if (dist < ((max * max) + 80.0f)) {
+    detecTrac->currLight = thisLight;
+    //printf("Updating current light comparing dist: %f and maxSq: %f\n", dist, (max*max));
+  }
+  else {
+    return;
+  }
+}
+
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
@@ -675,6 +693,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
       detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
+      // Search through the lights if inside light, save that light to the detecTrac object
+      for (int L = 0; L < gLights.size(); L++) {
+        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
+          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
+      }
     }
 
     //guards
@@ -702,7 +725,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     gameObjects->update();
   }
 }
-
 
 void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
