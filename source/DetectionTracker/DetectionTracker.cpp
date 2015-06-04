@@ -104,7 +104,7 @@ void DetectionTracker::updateSndDetect(Player *player) {
       //this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == CROUCH) {
-      //this->totalDetLvl -= .005;
+      this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == RUN) {
       this->totalDetLvl += .005;
