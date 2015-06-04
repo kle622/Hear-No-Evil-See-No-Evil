@@ -56,12 +56,13 @@
 #define WORLD_HEIGHT 300
 #define TEST_WORLD 200
 
-#define CAMERA_FOV 60
+#define CAMERA_FOV 60.0f
 #define CAMERA_NEAR 0.1f
 #define CAMERA_FAR 200.0f
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
-#define GUARD_FAR 12.0f
+#define GUARD_FAR 24.0f
+#define GUARD_FOV 80.0f
 
 #define GUARD_SPEED 5.0f
 #define BOTTOM_LEVEL 1.0f
@@ -1474,7 +1475,7 @@ int main(int argc, char **argv)
                              CAMERA_FAR,
                              debugDraw);
 
-    detectCam = new DetectionCamera(CAMERA_FOV,
+    detectCam = new DetectionCamera(GUARD_FOV,
                                     (float)g_width / (float)g_height,
                                     CAMERA_NEAR,
                                     GUARD_FAR,
@@ -1615,7 +1616,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
