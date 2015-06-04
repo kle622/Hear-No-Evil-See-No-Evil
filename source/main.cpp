@@ -68,7 +68,6 @@
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
 
-#define MAX_DETECT 400
 #define TEX_SIZE 1024
 
 GLFWwindow* window;
@@ -93,7 +92,6 @@ vector<tinyobj::shape_t> wall;
 int g_width;
 int g_height;
 
-float detectCounter = 0;
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
 float phi = 0.0f;
@@ -771,13 +769,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
       if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-        detectCounter += detectPercent;
-        //cout << "Detection: " << detectCounter << " out of " << MAX_DETECT << endl;
-        if (detectCounter >= MAX_DETECT) {
-          // YOU lose
-          //cout << "You lose! Not sneaky enough!" << endl;
-          soundObj->playSndExit(soundObj->loseSnd);
-        }
       }
     }
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
@@ -835,7 +826,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     boxes = !boxes;
   }
   if (key == GLFW_KEY_H && (action == GLFW_PRESS) && shiftDown) {
+    soundObj->backGroundSnd->setIsPaused(false);
     endIntro();
+    soundObj->openingSnd->setIsPaused(true);
   }
 
   if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
@@ -1406,6 +1399,8 @@ int main(int argc, char **argv)
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
+	clueMesh.hasTexture = true;
+	clueMesh.loadMipmapTexture(resPath(sysPath("textures", "m_glass.bmp")), TEX_SIZE);
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
@@ -1550,6 +1545,7 @@ int main(int argc, char **argv)
 #endif
 
         if (introDist < introCurve.getMaxDist() && inIntro) {
+          soundObj->openingSnd->setIsPaused(false);
           drawCam = cineCam;
           if (debug) {
             viewCam = debugCam;
@@ -1569,6 +1565,8 @@ int main(int argc, char **argv)
         }
         else if (inIntro) {
           endIntro();
+          soundObj->openingSnd->setIsPaused(true);
+          soundObj->backGroundSnd->setIsPaused(false);
         }
         
         camera3DPerson->update();
