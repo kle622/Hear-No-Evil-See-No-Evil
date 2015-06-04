@@ -75,12 +75,12 @@ void main() {
             else {
                 color += light_color * diffuse;
             }*/
-            if (i == 0) {
+            //if (i == 0) {
 	       color += visibility * diffuse;
-	    }	      
-	    else {
-	       color += att * diffuse;
-	    } 
+	   // }	      
+	   // else {
+	     //  color += att * diffuse;
+	   // } 
 	}
         else {
             
