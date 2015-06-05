@@ -435,7 +435,7 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
         if (!leaningRight) {
           if (!leaningLeft) {
-            soundObj->leanOut = soundObj->startSound(soundObj->leanOut, "../dependencies/irrKlang/media/LeanOut.wav");
+            playerObject->handleLeanSound(true);
             leaningLeft = true;
             cameraLean = strafe;
           }
@@ -453,21 +453,20 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       }
       else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
         if (leaningLeft) {
-          soundObj->leanIn = soundObj->startSound(soundObj->leanIn, "../dependencies/irrKlang/media/LeanIn.wav");
           for (int i = 0; i < iters && playerObject->lean > 0; ++i) {
-            //playerObject->justLeaned = true;
             playerObject->lean -= deltaTime * shearSpeed / iters;
             camera3DPerson->offset += ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
           if (playerObject->lean <= 0) {
             leaningLeft = false;
+            playerObject->handleLeanSound(false);
           }
         }
       }
       if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         if (!leaningLeft) {
           if (!leaningRight) {
-            soundObj->leanOut = soundObj->startSound(soundObj->leanOut, "../dependencies/irrKlang/media/LeanOut.wav");
+            playerObject->handleLeanSound(true);
             leaningRight = true;
             cameraLean = strafe;
           }
@@ -484,13 +483,13 @@ void getWindowInput(GLFWwindow* window, double deltaTime) {
       }
       else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
         if (leaningRight) {
-          soundObj->leanIn = soundObj->startSound(soundObj->leanIn, "../dependencies/irrKlang/media/LeanIn.wav");
           for (int i = 0; i < iters && playerObject->lean < 0; ++i) {
             playerObject->lean += deltaTime * shearSpeed / iters;
             camera3DPerson->offset -= ((float)deltaTime * camShiftSpeed / iters) * cameraLean;
           }
           if (playerObject->lean >= 0) {
             leaningRight = false;
+            playerObject->handleLeanSound(false);
           }
         }
       }
@@ -840,9 +839,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     boxes = !boxes;
   }
   if (key == GLFW_KEY_H && (action == GLFW_PRESS) && shiftDown) {
-    soundObj->backGroundSnd->setIsPaused(false);
+    //soundObj->backGroundSnd->setIsPaused(false);
     endIntro();
-    soundObj->openingSnd->setIsPaused(true);
+    playerObject->handleOpenSounds(false);
+    //soundObj->openingSnd->setIsPaused(true);
   }
 
   if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
@@ -1559,7 +1559,8 @@ int main(int argc, char **argv)
 #endif
 
         if (introDist < introCurve.getMaxDist() && inIntro) {
-          soundObj->openingSnd->setIsPaused(false);
+          //soundObj->openingSnd->setIsPaused(false);
+          playerObject->handleOpenSounds(true);
           drawCam = cineCam;
           if (debug) {
             viewCam = debugCam;
@@ -1570,20 +1571,21 @@ int main(int argc, char **argv)
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
           cineCam->lookat = nextPoint;
-          /*if (introDist + 5 < introCurve.getMaxDist()) {
+          if (introDist + 5 < introCurve.getMaxDist()) {
             cineCam->lookat = introCurve.getLocation(introDist + 5);
           }
           else {
             cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
-          }*/
+          }
 
-          // target intro time is 1:20
+          //target intro time is 1:20
           introDist += deltaTime * 0.625;
         }
         else if (inIntro) {
           endIntro();
-          soundObj->openingSnd->setIsPaused(true);
-          soundObj->backGroundSnd->setIsPaused(false);
+          playerObject->handleOpenSounds(false);
+          //soundObj->openingSnd->setIsPaused(true);
+          //soundObj->backGroundSnd->setIsPaused(false);
         }
         
         camera3DPerson->update();
