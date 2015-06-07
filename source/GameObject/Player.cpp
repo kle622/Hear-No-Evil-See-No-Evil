@@ -22,7 +22,7 @@ Player::Player(Mesh *mesh,
 bool Player::collide(GameObject* object, DebugDraw *ddraw) {
 	if (GameObject::collide(object, ddraw)) {
 		// specific stuff
-    if (dynamic_cast<Wall*>(object)) {
+    if (dynamic_cast<Wall*>(object) && maxVelocity == RUN) {
       playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
     }
     if (dynamic_cast<WinCondition*>(object)) {

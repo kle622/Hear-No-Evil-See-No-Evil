@@ -43,6 +43,7 @@ public:
   float lightRadius;
   bool isInLight;
   Light currLight;
+  float guardDist;
 
   //Constructor
   DetectionTracker();
