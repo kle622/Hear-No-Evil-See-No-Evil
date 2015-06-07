@@ -8,7 +8,53 @@ Wall::Wall(Mesh *mesh,
   int scanRadius, int material = 0) :
   GameObject(mesh, position, scale, 0,
   direction, velocity, dimensions, scanRadius, material, ObjectType::STATIC) {
+	texBuf = std::vector<float>();
+	genTexCoords();
+}
 
+void Wall::genTexCoords() {
+	// coord 1
+	texBuf.push_back(0.5f - dimensions.x * 0.125f);
+	texBuf.push_back(0.0f);
+	// coord 2
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 3
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 4
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 5
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 6
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 7
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 8
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 9
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 10
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 11
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 12
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 13
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
+	// coord 14
+	texBuf.push_back(0.0f);
+	texBuf.push_back(0.0f);
 }
 
 void Wall::move(float time) {
