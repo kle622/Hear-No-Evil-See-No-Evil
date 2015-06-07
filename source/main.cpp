@@ -707,7 +707,7 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
-
+  Clue *clue;
   //    for (int l = 0; l < gLights.size(); l++) {
   glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ground->texId);
@@ -775,7 +775,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       if (gameObjects->list[i].get() != proximity[j].get()) {
         if (gameObjects->list[i]->collide(proximity[j].get(), debugDraw)) {
           //do some stuff
-           
         }
       }
     }
@@ -805,6 +804,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
+
+    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {\
+      if (clue->isCollected)
+        gameObjects->list.erase(gameObjects->list.begin() + i);
+    }
+
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);

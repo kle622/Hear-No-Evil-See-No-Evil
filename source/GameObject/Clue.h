@@ -17,6 +17,7 @@ public:
   //Properties
   char* soundPath;
   vec3 checkpoint;
+  bool isCollected;
 
   //Constructor
   Clue(Mesh *mesh,

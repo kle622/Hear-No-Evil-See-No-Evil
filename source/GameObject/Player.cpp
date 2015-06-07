@@ -33,6 +33,7 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
       playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
       this->checkpoint.x = clue->checkpoint.x;
       this->checkpoint.z = clue->checkpoint.z;
+      clue->isCollected = true;
     }
     if (object->type == GameObject::ObjectType::GUARD) {
       this->lose();
