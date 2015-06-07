@@ -120,3 +120,26 @@ glm::mat4 Player::getModel()
 
   return com;
 }
+
+void Player::handleOpenSounds(bool inIntro) {
+  if (inIntro) {
+    playrSoundObj->openingSnd->setIsPaused(false);
+  }
+  else {
+    playrSoundObj->openingSnd->setIsPaused(true);
+    playrSoundObj->backGroundSnd->setIsPaused(false);
+  }
+}
+
+void Player::handleLeanSound(bool isInLean) {
+  if (isInLean) {
+    playrSoundObj->leanOut = playrSoundObj->engine->play2D("../dependencies/irrKlang/media/leanOut.wav", false, true, true);
+    playrSoundObj->leanOut->setVolume(0.05);
+    playrSoundObj->leanOut->setIsPaused(false);
+  }
+  else {
+    playrSoundObj->leanIn = playrSoundObj->engine->play2D("../dependencies/irrKlang/media/leanIn.wav", false, true, true);
+    playrSoundObj->leanIn->setVolume(0.05);
+    playrSoundObj->leanIn->setIsPaused(false);
+  }
+}

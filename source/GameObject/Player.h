@@ -49,6 +49,8 @@ class Player: public GameObject {
   virtual glm::mat4 getModel();
   void SetMotion(float motion);
   void lose();
+  void handleOpenSounds(bool inIntro);
+  void handleLeanSound(bool isInLean);
 };
 
 #endif
