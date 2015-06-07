@@ -125,6 +125,8 @@ bool boxes = false;
 bool shiftDown = false;
 bool inIntro = true;
 double introDist = 0;
+// introduction time, in seconds
+float introTime = 80;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
@@ -1571,15 +1573,15 @@ int main(int argc, char **argv)
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
           cineCam->lookat = nextPoint;
-          if (introDist + 5 < introCurve.getMaxDist()) {
+          /*if (introDist + 5 < introCurve.getMaxDist()) {
             cineCam->lookat = introCurve.getLocation(introDist + 5);
           }
           else {
             cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
-          }
+          }*/
 
           //target intro time is 1:20
-          introDist += deltaTime * 0.625;
+          introDist += deltaTime * introCurve.getMaxDist() / introTime;
         }
         else if (inIntro) {
           endIntro();
