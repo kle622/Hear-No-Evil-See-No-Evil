@@ -45,7 +45,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   float maxRadius = lightRadius + playerRadius;
   maxRadius = maxRadius * maxRadius;
   this->previousPlyrPos = player->position;
-  float darkObsucrement = .5;
+  float darkObsucrement = .07;
 
   if (this->detecDanger == true) {
     if (this->lightDist < maxRadius) {

@@ -708,6 +708,7 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
   Clue *clue;
+  float guardDetecDir = 0.0;
   //    for (int l = 0; l < gLights.size(); l++) {
   glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ground->texId);
@@ -796,6 +797,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       if (detectPercent > 0) {
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
+        //guardDetecDir = calculateGuardDetecDir()
       }
       else {
         detecTrac->detecDanger = false;
@@ -896,7 +898,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (action == GLFW_PRESS) {
       playerObject->SetMotion(RUN);
       playerObject->crouch = false;
-      printf("got here\n");
       //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
       //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }

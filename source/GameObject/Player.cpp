@@ -71,7 +71,6 @@ void Player::accelerate() {
     velocity = std::max(MIN_VELOCITY, velocity);
     velocity += ACCELERATION;
     velocity = std::min(maxVelocity, velocity);
-    printf("maxVelocity: %f, RUN: %f\n", maxVelocity, RUN);
     if (maxVelocity == WALK) {
       playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/footstepsWalk2.wav");
     }
