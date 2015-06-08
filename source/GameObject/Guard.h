@@ -9,12 +9,14 @@
 #include "../GuardPath/PathNode.h"
 #include "../Camera/DetectionCamera.h"
 #include "../glm/glm.hpp"
+#include "../DetectionTracker/DetectionTracker.h"
 
 #define GUARD_SPIN_SPEED 75.0f
 #define GUARD_VISION_RANGE 0.2
 
 using namespace std;
 using namespace glm;
+class DetectionTracker;
 
 class Guard : public GameObject {
 protected:
@@ -36,8 +38,8 @@ public:
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
-        glm::mat4 getModel();
-	float detect(WorldGrid *world, Player* player, DetectionCamera *cam);
+  glm::mat4 getModel();
+	float detect(WorldGrid *world, Player* player, DetectionCamera *cam, DetectionTracker *detecTrac);
 };
 
 #endif

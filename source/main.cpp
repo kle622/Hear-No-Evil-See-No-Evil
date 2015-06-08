@@ -667,28 +667,47 @@ void beginPass2Draw() {
   checkGLError();
 }
 
-void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
-  float deltaX = first.x - second.x;
-  float deltaZ = first.z - second.z;
+//void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
+//  float deltaX = first.x - second.x;
+//  float deltaZ = first.z - second.z;
+//
+//  float dist = deltaX * deltaX +  deltaZ * deltaZ;
+//  bool returnVal;
+//
+//  // NOTE: the + 80.0f there is to make sure the light is saved if the player get NEAR the light
+//  // this does not mean it will count against the player, the detecTrac will handle that
+//  if (dist < ((max * max) + 80.0f)) {
+//    detecTrac->currLight = thisLight;
+//    printf("Updating current light comparing dist: %f and maxSq: %f\n", dist, (max*max));
+//  }
+//  else {
+//    return;
+//  }
+//}
 
-  float dist = deltaX * deltaX +  deltaZ * deltaZ;
-  bool returnVal;
+Light getClosestLight(vector<Light> gLights, Player *player) {
+  Light lightWithMinDist;
+  float min = ((gLights[0].position.x - player->position.x) * (gLights[0].position.x - player->position.x)) + ((gLights[0].position.z - player->position.z) * (gLights[0].position.z - player->position.z));
+   for (int L = 1; L < gLights.size(); L++) {
+       float deltaX = gLights[L].position.x - player->position.x;
+       float deltaZ = gLights[L].position.z - player->position.z;
+     
+       float dist = deltaX * deltaX +  deltaZ * deltaZ;
+       //printf("comparing dist: %f with min:  %f\n", dist, min);
+       if (dist < min) {
+         min = dist;
+         //printf("Choose %f, light indx: %d\n", min, L);
+         lightWithMinDist = gLights[L];
+       }
+   }
 
-  // NOTE: the + 80.0f there is to make sure the light is saved if the player get NEAR the light
-  // this does not mean it will count against the player, the detecTrac will handle that
-  if (dist < ((max * max) + 80.0f)) {
-    detecTrac->currLight = thisLight;
-    //printf("Updating current light comparing dist: %f and maxSq: %f\n", dist, (max*max));
-  }
-  else {
-    return;
-  }
+   return lightWithMinDist;
 }
 
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
-
+  Clue *clue;
   //    for (int l = 0; l < gLights.size(); l++) {
   glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ground->texId);
@@ -764,15 +783,16 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
       detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
       // Search through the lights if inside light, save that light to the detecTrac object
-      for (int L = 0; L < gLights.size(); L++) {
+      /*for (int L = 0; L < gLights.size(); L++) {
         inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
           (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
-      }
+      }*/
+      detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
     }
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-      float detectPercent = guard->detect(gameObjects, playerObject, detectCam);
+      float detectPercent = guard->detect(gameObjects, playerObject, detectCam, detecTrac);
       if (detectPercent > 0) {
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
@@ -784,6 +804,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
+
+    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {\
+      if (clue->isCollected)
+        gameObjects->list.erase(gameObjects->list.begin() + i);
+    }
+
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
@@ -870,6 +896,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (action == GLFW_PRESS) {
       playerObject->SetMotion(RUN);
       playerObject->crouch = false;
+      printf("got here\n");
       //soundObj->footSndPlayr = soundObj->startSound(soundObj->footSndPlayr, "../dependencies/irrKlang/media/fastWalk.wav");
       //soundObj->footSndPlayr = soundObj->engine->play2D("../dependincies/irrKlang/media/footstepsWalk2.wav", false, true, true);
     }
@@ -1631,7 +1658,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 

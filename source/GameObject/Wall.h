@@ -10,9 +10,10 @@ using namespace glm;
 
 class Wall : public GameObject {
 protected:
-
+	void genTexCoords();
 public:
   //Properties
+	std::vector<float> texBuf;
 
   //Constructor
   Wall(Mesh *mesh,

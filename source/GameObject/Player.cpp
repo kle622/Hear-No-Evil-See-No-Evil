@@ -22,7 +22,7 @@ Player::Player(Mesh *mesh,
 bool Player::collide(GameObject* object, DebugDraw *ddraw) {
 	if (GameObject::collide(object, ddraw)) {
 		// specific stuff
-    if (dynamic_cast<Wall*>(object)) {
+    if (dynamic_cast<Wall*>(object) && maxVelocity == RUN) {
       playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
     }
     if (dynamic_cast<WinCondition*>(object)) {
@@ -33,6 +33,7 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
       playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
       this->checkpoint.x = clue->checkpoint.x;
       this->checkpoint.z = clue->checkpoint.z;
+      clue->isCollected = true;
     }
     if (object->type == GameObject::ObjectType::GUARD) {
       this->lose();
@@ -70,6 +71,7 @@ void Player::accelerate() {
     velocity = std::max(MIN_VELOCITY, velocity);
     velocity += ACCELERATION;
     velocity = std::min(maxVelocity, velocity);
+    printf("maxVelocity: %f, RUN: %f\n", maxVelocity, RUN);
     if (maxVelocity == WALK) {
       playrSoundObj->footSndPlayr = playrSoundObj->startSound(playrSoundObj->footSndPlayr, "../dependencies/irrKlang/media/footstepsWalk2.wav");
     }
