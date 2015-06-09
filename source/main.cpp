@@ -1631,7 +1631,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
