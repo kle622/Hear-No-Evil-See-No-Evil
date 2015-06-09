@@ -8,7 +8,65 @@ Wall::Wall(Mesh *mesh,
   int scanRadius, int material = 0) :
   GameObject(mesh, position, scale, 0,
   direction, velocity, dimensions, scanRadius, material, ObjectType::STATIC) {
+	texBuf = std::vector<float>();
+	genTexCoords(0.5f);
+	sendTexCoords();
+}
 
+void Wall::genTexCoords(float mult) {	// incorporate mult!!!!!!
+	// 1 - face 1 (front) 1 2 3 4
+	texBuf.push_back(0.5f - dimensions.x * 0.125f * mult); texBuf.push_back(0.0f);
+	// 2
+	texBuf.push_back(0.5f + dimensions.x * 0.125f * mult); texBuf.push_back(0.0f);
+	// 3
+	texBuf.push_back(0.5f - dimensions.x * 0.125f * mult); texBuf.push_back(dimensions.y * 0.25f * mult);
+	// 4
+	texBuf.push_back(0.5f + dimensions.x * 0.125f * mult); texBuf.push_back(dimensions.y * 0.25f * mult);
+
+	// face 2 (top) doesn't matter what the texture is, we never see it
+	texBuf.push_back(0); texBuf.push_back(0);
+	texBuf.push_back(0); texBuf.push_back(0);
+	texBuf.push_back(0); texBuf.push_back(0);
+	texBuf.push_back(0); texBuf.push_back(0);
+
+	// 9 - face 3 (back) 8 7 6 5
+	texBuf.push_back(texBuf[6]); texBuf.push_back(texBuf[7]);
+	// 10
+	texBuf.push_back(texBuf[4]); texBuf.push_back(texBuf[5]);
+	// 11
+	texBuf.push_back(texBuf[2]); texBuf.push_back(texBuf[3]);
+	// 12
+	texBuf.push_back(texBuf[0]); texBuf.push_back(texBuf[1]);
+
+	// face 4 (bottom) doesn't matter what the texture is, we never see it
+	texBuf.push_back(0); texBuf.push_back(0);
+	texBuf.push_back(0); texBuf.push_back(0);
+	texBuf.push_back(0); texBuf.push_back(0);
+	texBuf.push_back(0); texBuf.push_back(0);
+
+	// 17 - face 5 (right) 13 1 14 3
+	texBuf.push_back(texBuf[0] - dimensions.z * 0.25f * mult); texBuf.push_back(0);
+	// 18
+	texBuf.push_back(texBuf[0]); texBuf.push_back(0);
+	// 19
+	texBuf.push_back(texBuf[32]); texBuf.push_back(texBuf[5]);
+	// 20
+	texBuf.push_back(texBuf[4]); texBuf.push_back(texBuf[5]);
+
+	// 21 - face 6 (left) 2 11 4 12
+	texBuf.push_back(texBuf[2]); texBuf.push_back(0);
+	// 22
+	texBuf.push_back(texBuf[2] - dimensions.z * 0.25f * mult); texBuf.push_back(0);
+	// 23
+	texBuf.push_back(texBuf[6]); texBuf.push_back(texBuf[7]);
+	// 24
+	texBuf.push_back(texBuf[42]); texBuf.push_back(texBuf[7]);
+}
+
+void Wall::sendTexCoords() {
+	glGenBuffers(1, &texBufObj);
+	glBindBuffer(GL_ARRAY_BUFFER, texBufObj);
+	glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
 }
 
 void Wall::move(float time) {

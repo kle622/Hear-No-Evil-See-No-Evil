@@ -82,7 +82,16 @@ bool Guard::collide(GameObject* object) {
     return false;
 }
 
-float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam) {
+float getDistToGuard(vec3 playerPos, vec3 guardPos) {
+  float deltaX = playerPos.x - guardPos.x;
+  float deltaZ = playerPos.z - guardPos.z;
+
+  float dist = deltaX * deltaX + deltaZ * deltaZ;
+
+  return dist;
+}
+
+float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam, DetectionTracker *detecTrac) {
   float viewPercent;
   cam->update(this);
   viewPercent = cam->percentInView(world, this, player);
@@ -94,6 +103,8 @@ float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam) {
   else {
     material = originalMaterial;
   }
+  detecTrac->guardDist = getDistToGuard(player->position, this->position);
+
   return viewPercent;
 }
 

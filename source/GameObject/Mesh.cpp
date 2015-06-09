@@ -6,7 +6,8 @@ void Mesh::loadShapes(const std::string &objFile) {
   if(!err.empty()) {
     std::cerr << err << std::endl;
   }
-  //printf("texCoords size: %d\n", this->shapes[0].mesh.texcoords.size());
+  std::cout << objFile << std::endl;
+  printf("texCoords size: %d\n", this->shapes[0].mesh.texcoords.size());
   this->resize_obj();
   this->sendBufs();
   //this->computeBound();
@@ -228,43 +229,7 @@ void Mesh::sendBufs() {
 	glGenBuffers(1, &this->texBufObj);
 	glBindBuffer(GL_ARRAY_BUFFER, this->texBufObj);
 	glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
-	/**
-    // compute the normals per vertex
-    int idx1, idx2, idx3;
-    glm::vec3 v1, v2, v3;
-    //for every vertex initialize a normal to 0
-    for (int j = 0; j < this->shapes[s].mesh.positions.size()/3; j++) {
-      this->norBuf.push_back(0);
-      this->norBuf.push_back(0);
-      this->norBuf.push_back(0);
-    }
-    // compute the normals for every face
-    //then add its normal to its associated vertex
-    for (int i = 0; i < this->shapes[s].mesh.indices.size()/3; i++) {
-      idx1 = this->shapes[s].mesh.indices[3*i+0];
-      idx2 = this->shapes[s].mesh.indices[3*i+1];
-      idx3 = this->shapes[s].mesh.indices[3*i+2];
-      v1 = glm::vec3(this->shapes[s].mesh.positions[3*idx1 +0],this->shapes[s].mesh.positions[3*idx1 +1], this->shapes[s].mesh.positions[3*idx1 +2]); 
-      v2 = glm::vec3(this->shapes[s].mesh.positions[3*idx2 +0],this->shapes[s].mesh.positions[3*idx2 +1], this->shapes[s].mesh.positions[3*idx2 +2]); 
-      v3 = glm::vec3(this->shapes[s].mesh.positions[3*idx3 +0],this->shapes[s].mesh.positions[3*idx3 +1], this->shapes[s].mesh.positions[3*idx3 +2]); 
 
-      glm::vec3 sideA = v2 - v1;
-      glm::vec3 sideB = v3 - v1;
-      glm::vec3 norm = glm::cross(sideA, sideB);
-      this->norBuf[3*idx1+0] += norm.x;
-      this->norBuf[3*idx1+1] += norm.y;
-      this->norBuf[3*idx1+2] += norm.z;
-      this->norBuf[3*idx2+0] += norm.x;
-      this->norBuf[3*idx2+1] += norm.y;
-      this->norBuf[3*idx2+2] += norm.z;
-      this->norBuf[3*idx3+0] += norm.x;
-      this->norBuf[3*idx3+1] += norm.y;
-      this->norBuf[3*idx3+2] += norm.z;
-    }
-    glGenBuffers(1, &this->norBufObj);
-    glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
-    glBufferData(GL_ARRAY_BUFFER, this->norBuf.size()*sizeof(float), &this->norBuf[0], GL_STATIC_DRAW);
-	*/
     // Send the index array to the GPU
     const std::vector<unsigned int> &indBuf = this->shapes[s].mesh.indices;
     glGenBuffers(1, &this->indBufObj);

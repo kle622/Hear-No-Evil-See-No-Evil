@@ -10,6 +10,7 @@ Clue::Clue(Mesh *mesh,
   direction, velocity, dimensions, scanRadius, material, ObjectType::COLLECTABLE) {
   	this->soundPath = soundPath;
   	this->checkpoint = checkpoint;
+    this->isCollected = false;
 }
 
 void Clue::move(float time) {
