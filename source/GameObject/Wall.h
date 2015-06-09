@@ -10,10 +10,12 @@ using namespace glm;
 
 class Wall : public GameObject {
 protected:
-	void genTexCoords();
+	void genTexCoords(float mult);
+	void sendTexCoords();
 public:
   //Properties
 	std::vector<float> texBuf;
+	GLuint texBufObj;
 
   //Constructor
   Wall(Mesh *mesh,

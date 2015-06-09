@@ -83,9 +83,15 @@ void Pass2Handles::draw(GameObject* obj) {
   glVertexAttribPointer(this->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   if(obj->mesh->hasTexture) {
-    GLSL::enableVertexAttribArray(this->aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->texBufObj);
-    glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	Wall *wall;
+	GLSL::enableVertexAttribArray(this->aTexCoord);
+	if ((wall = dynamic_cast<Wall *>(obj)) && true) {
+		glBindBuffer(GL_ARRAY_BUFFER, wall->texBufObj);
+	}
+	else {
+		glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->texBufObj);
+	}
+	glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
   for (int s = 0; s < obj->mesh->shapes.size(); ++s) {
