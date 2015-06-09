@@ -1682,7 +1682,8 @@ int main(int argc, char **argv)
     }
     debugDraw->clear();
 
-    ImGui::Render();
+    if (!inIntro)
+      ImGui::Render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
