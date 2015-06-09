@@ -1465,7 +1465,7 @@ int main(int argc, char **argv)
     
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-    pass1Handles.installShaders(resPath(sysPath("shaders", "pass1Vert.glsl")), resPath(sysPath("shaders", "pass1Frag.glsl")));
+    pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
