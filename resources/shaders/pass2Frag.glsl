@@ -66,8 +66,8 @@ void main() {
      float alpha = 1.0;
 
    for (int i = 0; i < numLights; i++) {
-     float visibility = 1.0;
-     float att = 1.0;
+     float visibility = 1.5;
+     float att = 1.5;
      vec3 lightPos = allLights[i];
      float distance = length(lightPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
@@ -78,7 +78,7 @@ void main() {
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
           
      if (lightToSurfaceAngle > coneAngle) {
-     	att = 0.1;
+     	att = 0.2;
      }
 
         if (texture2D(shadowMap, (ShadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/ShadowCoord.w).z < (ShadowCoord.z-bias) / ShadowCoord.w) {
@@ -104,11 +104,11 @@ void main() {
 				      (aDiffuse.g + ((avgDiffuse - aDiffuse.g) * clrBleedVal)), 
 					  (aDiffuse.b + ((avgDiffuse - aDiffuse.b) * clrBleedVal)));
 	   if(lightToSurfaceAngle > coneAngle) {
-		 color += (1.0 /(1.0 + att)) * att * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * diffuse;
 		 //aColor += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * aDiffuse; 
 	   }
 	   else {
-		 color += (1.0 /(1.0 + att)) * visibility * light_color * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * light_color * diffuse;
 		 //aColor += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * aDiffuse;
 	   }
 
