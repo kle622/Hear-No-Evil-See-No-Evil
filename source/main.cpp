@@ -52,8 +52,8 @@
 
 #define MAX_LIGHTS 10
 
-#define WORLD_WIDTH 300
-#define WORLD_HEIGHT 300
+#define WORLD_WIDTH 400
+#define WORLD_HEIGHT 400
 #define TEST_WORLD 200
 
 #define CAMERA_FOV 60.0f
@@ -809,9 +809,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {\
+    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected)
-        gameObjects->list.erase(gameObjects->list.begin() + i);
+        gameObjects->remove(i);
     }
 
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
@@ -1067,7 +1067,7 @@ void initObjects(WorldGrid* gameObjects) {
         break;
       case 'T': //pedestal
         //printf("case 9\n");
-        gameObjects->add(shared_ptr<GameObject>(new WinCondition(
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
                 &trainMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                 vec3(8, 8, 8),
@@ -1076,7 +1076,8 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(4, 4, 14),
                 1,
-                3
+                3,
+                GameObject::ObjectType::STATIC
                 )));
         break;
       case 'L': {
