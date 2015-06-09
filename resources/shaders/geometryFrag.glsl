@@ -9,5 +9,4 @@ void main() {
   gl_FragData[0] = vec3(texture2D(texture, vTexCoord)); // diffuse
   gl_FragData[1] = vNormal; // normal
   gl_FragData[2] = vWorldPos; // world pos
-  gl_FragData[3] = vec3(vTexCoord, 0.0); // world pos
 }
