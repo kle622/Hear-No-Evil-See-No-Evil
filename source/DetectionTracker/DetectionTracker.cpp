@@ -45,32 +45,34 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   float maxRadius = lightRadius + playerRadius;
   maxRadius = maxRadius * maxRadius;
   this->previousPlyrPos = player->position;
+  float darkObsucrement = .07;
 
   if (this->detecDanger == true) {
     if (this->lightDist < maxRadius) {
-      lightDetecMult = 1.0f;
-      //printf("Full view\n");
-      //printf("lightDist: %f\n", this->lightDist);
+      lightDetecMult = 1/sqrt(this->lightDist);
+      //printf("In Light\n");
+    //  //printf("lightDist: %f\n", this->lightDist);
     }
-    //else if (maxRadius > this->lightDist > (lightRadius*lightRadius)) {
-    else if (this->lightDist < maxRadius * 15.0f) {
-      //lightDetecMult = ((this->lightDist - (lightRadius*lightRadius)) / (playerRadius*playerRadius)) * 0.8 + 0.2;
-      lightDetecMult = .01;
-      //printf("Half view\n");
-      //printf("lightDist: %f\n", this->lightDist);
-    }
-    else if (this->lightDist > maxRadius) {
-      lightDetecMult = 0.005;
-      //printf("Far view\n");
-      //printf("lightDist: %f\n", this->lightDist);
-    }
+    ////else if (maxRadius > this->lightDist > (lightRadius*lightRadius)) {
+    //else if (this->lightDist < maxRadius * 15.0f) {
+    //  //lightDetecMult = ((this->lightDist - (lightRadius*lightRadius)) / (playerRadius*playerRadius)) * 0.8 + 0.2;
+    //  lightDetecMult = 1/this->guardDist * .01;
+    //  printf("Half view\n");
+    //  //printf("lightDist: %f\n", this->lightDist);
+    //}
+    //else if (this->lightDist > maxRadius) {
+    //  lightDetecMult = 0.005 * 1/this->guardDist;
+    //  printf("Far view\n");
+    //  //printf("lightDist: %f\n", this->lightDist);
+    //}
     else {
-      lightDetecMult = 0.0001;
+      lightDetecMult = (1 / sqrt(this->guardDist)) * darkObsucrement;
+     // printf("In Dark\n");
     }
     this->totalDetLvl += detecPercent * lightDetecMult;
     //this->totalDetLvl += .5;
     this->previousPlyrPos = player->position;
-    //printf("comparing lightDist: %f, radius: %f\n", this->lightDist, maxRadius);
+    //printf("current lightDist: %f, current guardDist: %f\n", this->lightDist, this->guardDist);
     //printf("DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
   }
   else if (this->totalDetLvl > 0) {
@@ -78,7 +80,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
     //printf("Not Danger!\n");
   }
   if (this->totalDetLvl > 1.0f) {
-    printf("you lose\n");
+    //printf("you lose\n");
     this->totalDetLvl = 0.0f;
     player->lose();
   }
@@ -97,14 +99,14 @@ void DetectionTracker::updateSndDetect(Player *player) {
   }
 
   if (player->velocity <= 0.0 && this->totalDetLvl > 0 && !this->detecDanger) {
-    this->totalDetLvl -= .002;
+    this->totalDetLvl -= .01;
   }
   else if (player->velocity > 0.0){
     if (player->maxVelocity == WALK) {
       //this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == CROUCH) {
-      this->totalDetLvl -= .001;
+      this->totalDetLvl -= .005;
     }
     else if (player->maxVelocity == RUN) {
       this->totalDetLvl += .005;
@@ -114,7 +116,7 @@ void DetectionTracker::updateSndDetect(Player *player) {
     this->detecDanger = false;
   }
   if (this->totalDetLvl > 1.0f) {
-    printf("you lose\n");
+    //printf("you lose\n");
     this->detecDanger = false;
     this->totalDetLvl = 0.0f;
     player->lose();
