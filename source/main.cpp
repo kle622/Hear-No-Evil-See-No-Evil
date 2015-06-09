@@ -1170,29 +1170,29 @@ void initObjects(WorldGrid* gameObjects) {
 	  break;
 	case 'g':
 	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                 &printMesh,
-                                                                 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-                                                                 vec3(0.5, 0.1, 0.5),
-                                                                 -90,
-                                                                 vec3(0, 0, 1),
-                                                                 0,
-                                                                 vec3(0),
-                                                                 2,
-                                                                 9,
-                                                                 GameObject::ObjectType::STATIC)));
+     &printMesh,
+     vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+     vec3(0.5, 0.1, 0.5),
+     -90,
+     vec3(0, 0, 1),
+     0,
+     vec3(0),
+     2,
+     9,
+     GameObject::ObjectType::STATIC)));
 	  break;
 	case 'h':
 	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
-                                                                 &printMesh,
-                                                                 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-                                                                 vec3(0.5, 0.1, 0.5),
-                                                                 180,
-                                                                 vec3(0, 0, 1),
-                                                                 0,
-                                                                 vec3(0),
-                                                                 2,
-                                                                 9,
-                                                                 GameObject::ObjectType::STATIC)));
+     &printMesh,
+     vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+     vec3(0.5, 0.1, 0.5),
+     180,
+     vec3(0, 0, 1),
+     0,
+     vec3(0),
+     2,
+     9,
+     GameObject::ObjectType::STATIC)));
 	  break;
       }
       default:
