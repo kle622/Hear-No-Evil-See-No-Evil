@@ -49,14 +49,23 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   }
 
   aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
+  std::cout << aPosition << std::endl;
   uProj = GLSL::getUniformLocation(this->prog, "uProj");
+  std::cout << uProj << std::endl;
   uView = GLSL::getUniformLocation(this->prog, "uView");
+  std::cout << uView << std::endl;
   uModel = GLSL::getUniformLocation(this->prog, "uModel");
+  std::cout << uModel << std::endl;
   uScreenSize = GLSL::getUniformLocation(this->prog, "uScreenSize");
+  std::cout << uScreenSize << std::endl;
   uNormMap = GLSL::getUniformLocation(this->prog, "uNormMap");
+  std::cout << uNormMap << std::endl;
   uPosMap = GLSL::getUniformLocation(this->prog, "uPosMap");
+  std::cout << uPosMap << std::endl;
   uColMap = GLSL::getUniformLocation(this->prog, "uColMap");
+  std::cout << uColMap << std::endl;
   uCamPos = GLSL::getUniformLocation(this->prog, "uCamPos");
+  std::cout << uCamPos << std::endl;
 
   return true;
 }

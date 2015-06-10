@@ -3,8 +3,9 @@
 #include "../GameObject/Mesh.h"
 #include "../GameObject/Shape.h"
 
-class LightPassHandles : public Handles {
+class LightPassHandles {
  public:
+  GLuint prog;
   GLuint aPosition;
   GLuint uModel;
   GLuint uView;

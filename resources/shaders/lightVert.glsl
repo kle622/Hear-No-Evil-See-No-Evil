@@ -1,4 +1,5 @@
 attribute vec3 aPosition;
+attribute vec2 aUV;
 
 uniform mat4 uModel;
 uniform mat4 uView;

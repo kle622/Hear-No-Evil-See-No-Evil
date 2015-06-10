@@ -86,6 +86,53 @@ using namespace glm;
 //  glm::vec3 coneDirection;
 //};
 
+#define QUAD_BULLSHIT
+#ifdef QUAD_BULLSHIT
+GLuint quad_VertexArrayID;
+static const GLfloat g_quad_vertex_buffer_data[] = {
+    -1.0f, -1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,
+};
+/*static const GLfloat g_quad_vertex_buffer_data[] = {
+    -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    0.5f,  0.5f, 0.0f,
+};*/
+static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+};
+/*static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    0.5f, 0.0f,
+    0.0f, 0.5f,
+    0.0f, 0.5f,
+    0.5f, 0.0f,
+    0.5f, 0.5f,
+};*/
+/*static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    2.0f, 0.0f,
+    0.0f, 2.0f,
+    0.0f, 2.0f,
+    2.0f, 0.0f,
+    2.0f, 2.0f,
+};*/
+GLuint quad_vertexbuffer;
+GLuint quad_uvbuffer;
+#endif
+
 vector<Light> gLights;
 
 vector<tinyobj::shape_t> player;
@@ -327,7 +374,7 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 }
 
 
-void initFramebuffer() {
+/*void initFramebuffer() {
 for (int i = 0; i < gLights.size(); i++) {
   glGenFramebuffersEXT(1, &frameBufObj[i]);
   assert(frameBufObj > 0);
@@ -357,11 +404,11 @@ for (int i = 0; i < gLights.size(); i++) {
   // Unbind the arrays
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   assert(glGetError() == GL_NO_ERROR);
-}
+}*/
 
 void initGL() {
   // Set the background color
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.9f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
@@ -591,7 +638,7 @@ int findClosestLight() {
 }
 
 
-void beginPass1Draw() {
+/*void beginPass1Draw() {
   closestLNdx = findClosestLight();
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -609,9 +656,9 @@ void beginPass1Draw() {
   //cerr << glGetError() << endl;
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
-}
+}*/
 
-void drawPass1(WorldGrid* gameObjects) {
+/*void drawPass1(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
   //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
@@ -628,9 +675,9 @@ void drawPass1(WorldGrid* gameObjects) {
   //}
 
   gameObjects->update();
-}
+}*/
 
-void SetLightUniform(Light light, int ndx) {
+/*void SetLightUniform(Light light, int ndx) {
   ostringstream stream;
   ///Array of handles
   stream << "allLights[" << ndx << "]";
@@ -640,9 +687,9 @@ void SetLightUniform(Light light, int ndx) {
   //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
   checkGLError();
   glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
-}
+}*/
 
-void beginPass2Draw() {
+/*void beginPass2Draw() {
   //Second Pass
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -674,7 +721,7 @@ void beginPass2Draw() {
   safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(viewCam->getView()));
 
   checkGLError();
-}
+}*/
 
 //void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
 //  float deltaX = first.x - second.x;
@@ -750,7 +797,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   //SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ground->getModel()));
   geomHandles.draw(ground);
-
 
   //  glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ceiling->texId);
@@ -882,7 +928,7 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   //checkGLError();
 }
 
-void beginLightPass() {
+/*void beginLightPass() {
   // glEnable(GL_BLEND);
   checkGLError();
   //glBlendEquation(GL_FUNC_ADD);
@@ -890,22 +936,34 @@ void beginLightPass() {
   //glBlendFunc(GL_ONE, GL_ONE);
   checkGLError();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+}*/
 
-
-void lightPass() {
-  m_gbuffer.stop();
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glUseProgram(lightHandles.prog);
+#ifdef QUAD_BULLSHIT
+void drawQuad()
+{
+  // draw shape
+  GLSL::enableVertexAttribArray(lightHandles.aPosition);
+  glBindVertexArray(quad_VertexArrayID);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glVertexAttribPointer(lightHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
   checkGLError();
 
-  safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
-  safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(glm::mat4(1.0f)));
-  glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10.0));
-  safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(scale));
-  glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
-  glUniform2f(lightHandles.uScreenSize, g_width, g_height);
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 3 * 6);
+}
+#endif
+
+void lightPass() {
+  glUseProgram(lightHandles.prog);
+  glDisable(GL_CULL_FACE);
+  m_gbuffer.stop();
+  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+  //glDrawBuffer(GL_FRONT);
+
+  checkGLError();
 
   glActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
@@ -922,7 +980,22 @@ void lightPass() {
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
 
-  lightHandles.draw(&coneMesh);
+  glm::mat4 scale = glm::mat4(1.0f);
+  safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(scale));
+  safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(scale));
+  //safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(glm::mat4(1.0f)));
+  //safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));
+  //glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10.0));
+  glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
+  glUniform2f(lightHandles.uScreenSize, g_width, g_height);
+  checkGLError();
+
+#ifdef QUAD_BULLSHIT
+  drawQuad();
+#endif
+  //lightHandles.draw(&coneMesh);
+
 
   /*  glBegin(GL_QUADS);
   glTexCoord2f( 0, 0 );
@@ -953,12 +1026,12 @@ void lightPass() {
 
 
 
-void endPass1Draw() {
+/*void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-}
+}*/
 
 void endDrawGL() {
 
@@ -1548,6 +1621,25 @@ void initWalls(WorldGrid* gameObjects) {
 
 }
 
+#ifdef QUAD_BULLSHIT
+void initQuad() 
+{
+  glGenVertexArrays(1, &quad_VertexArrayID);
+  assert(quad_VertexArrayID > 0);
+  glBindVertexArray(quad_VertexArrayID);
+
+  glGenBuffers(1, &quad_vertexbuffer);
+  assert(quad_vertexbuffer > 0);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
+
+  glGenBuffers(1, &quad_uvbuffer);
+  assert(quad_uvbuffer > 0);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_uv_buffer_data) * sizeof(GLfloat), &g_quad_uv_buffer_data[0], GL_STATIC_DRAW);
+}
+#endif
+
 int main(int argc, char **argv)
 {
     // Sound Object
@@ -1597,8 +1689,8 @@ int main(int argc, char **argv)
     m_gbuffer.Init(g_width, g_height);
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-    pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
-    pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+    //pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
+    //pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     lightHandles.installShaders(resPath(sysPath("shaders", "lightVert.glsl")), resPath(sysPath("shaders", "lightFrag.glsl")));
     geomHandles.installShaders(resPath(sysPath("shaders", "geometryVert.glsl")), resPath(sysPath("shaders", "geometryFrag.glsl")));
     coneMesh.loadShapes(resPath(sysPath("models", "cone.obj")));
@@ -1701,6 +1793,10 @@ int main(int argc, char **argv)
 
 #ifdef DEBUG
     curveOutput.open(resPath("introCurveSample.txt"));
+#endif
+
+#ifdef QUAD_BULLSHIT
+    initQuad();
 #endif
     
     double timeCounter = 0;
