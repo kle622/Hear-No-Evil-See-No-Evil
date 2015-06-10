@@ -47,40 +47,20 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   this->previousPlyrPos = player->position;
   float darkObsucrement = .07;
 
-  if (this->detecDanger == true) {
+  if (detecDanger) {
+	  printf("DANGER 1!\n");
     if (this->lightDist < maxRadius) {
       lightDetecMult = 1/sqrt(this->lightDist);
-      //printf("In Light\n");
-    //  //printf("lightDist: %f\n", this->lightDist);
     }
-    ////else if (maxRadius > this->lightDist > (lightRadius*lightRadius)) {
-    //else if (this->lightDist < maxRadius * 15.0f) {
-    //  //lightDetecMult = ((this->lightDist - (lightRadius*lightRadius)) / (playerRadius*playerRadius)) * 0.8 + 0.2;
-    //  lightDetecMult = 1/this->guardDist * .01;
-    //  printf("Half view\n");
-    //  //printf("lightDist: %f\n", this->lightDist);
-    //}
-    //else if (this->lightDist > maxRadius) {
-    //  lightDetecMult = 0.005 * 1/this->guardDist;
-    //  printf("Far view\n");
-    //  //printf("lightDist: %f\n", this->lightDist);
-    //}
     else {
-      lightDetecMult = (1 / sqrt(this->guardDist)) * darkObsucrement;
-     // printf("In Dark\n");
+		lightDetecMult = (1 / sqrt(this->guardDist)) * 1 / sqrt(this->lightDist);
     }
     this->totalDetLvl += detecPercent * lightDetecMult;
-    //this->totalDetLvl += .5;
     this->previousPlyrPos = player->position;
-    //printf("current lightDist: %f, current guardDist: %f\n", this->lightDist, this->guardDist);
-    //printf("DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
   }
   else if (this->totalDetLvl > 0) {
-    //this->totalDetLvl -= .005;
-    //printf("Not Danger!\n");
   }
   if (this->totalDetLvl > 1.0f) {
-    //printf("you lose\n");
     this->totalDetLvl = 0.0f;
     player->lose();
   }
@@ -91,35 +71,38 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
 // For now I'm assuming CROUCH does not contribute to the total detection level, 
 // but it also doesn't outright lower it
 void DetectionTracker::updateSndDetect(Player *player) {
-  if (this->detecDanger == true) {
-    float dist = glm::distance(this->previousPlyrPos, player->position);
-    if (dist > NEIGHBORHOOD_OF_SUSPICION) {
-      this->detecDanger = false;
-    }
-  }
-
-  if (player->velocity <= 0.0 && this->totalDetLvl > 0 && !this->detecDanger) {
-    this->totalDetLvl -= .01;
-  }
-  else if (player->velocity > 0.0){
-    if (player->maxVelocity == WALK) {
-      //this->totalDetLvl -= .005;
-    }
-    else if (player->maxVelocity == CROUCH) {
-      this->totalDetLvl -= .005;
-    }
-    else if (player->maxVelocity == RUN) {
-      this->totalDetLvl += .005;
-    }
-  }
-  if (this->totalDetLvl == 0){
-    this->detecDanger = false;
-  }
-  if (this->totalDetLvl > 1.0f) {
-    //printf("you lose\n");
-    this->detecDanger = false;
-    this->totalDetLvl = 0.0f;
-    player->lose();
-  }
-  clamp();
+	/*if (this->detecDanger == true) {
+		float dist = glm::distance(this->previousPlyrPos, player->position);
+		if (dist > NEIGHBORHOOD_OF_SUSPICION) {
+			this->detecDanger = false;
+		}
+	}*/
+	if (detecDanger)
+		printf("DANGER!\n");
+	if (player->velocity <= 0.0 && totalDetLvl > 0 && !detecDanger) {
+		printf("out of view\n");
+		this->totalDetLvl -= .01;
+	}
+	else if (player->velocity > 0.0) {
+		if (player->maxVelocity == WALK) {
+			//this->totalDetLvl -= .005;
+		}
+		else if (player->maxVelocity == CROUCH && !detecDanger) {
+			printf("detracting 2\n");
+			this->totalDetLvl -= .005;
+		}
+		else if (player->maxVelocity == RUN) {
+			this->totalDetLvl += .01;
+		}
+	}
+	if (this->totalDetLvl <= 0) {
+		//this->detecDanger = false;
+	}
+	if (this->totalDetLvl > 1.0f) {
+		//printf("you lose\n");
+		this->detecDanger = false;
+		this->totalDetLvl = 0.0f;
+		player->lose();
+	}
+	clamp();
 }

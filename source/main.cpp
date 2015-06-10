@@ -706,6 +706,7 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
 
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
+	//detecTrac->detecDanger = false;
   Guard *guard;
   Clue *clue;
   float guardDetecDir = 0.0;
@@ -780,34 +781,33 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-      detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      // Search through the lights if inside light, save that light to the detecTrac object
-      /*for (int L = 0; L < gLights.size(); L++) {
-        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
-          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
-      }*/
-      detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
-    }
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       float detectPercent = guard->detect(gameObjects, playerObject, detectCam, detecTrac);
       if (detectPercent > 0) {
+		  printf("Detected!\n");
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
-        //guardDetecDir = calculateGuardDetecDir()
-      }
-      else {
-        detecTrac->detecDanger = false;
-      }
-      if (detectPercent > 0) {
+		printf(detecTrac->detecDanger ? "g true\n": "g false\n");
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
 
-    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {\
+	if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+		soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+		// Search through the lights if inside light, save that light to the detecTrac object
+		/*for (int L = 0; L < gLights.size(); L++) {
+		inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
+		(playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
+		}*/
+		printf(detecTrac->detecDanger ? "p true\n" : "p false\n");
+		detecTrac->updateSndDetect(playerObject);
+		detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
+		detecTrac->detecDanger = false;
+	}
+
+    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected)
         gameObjects->list.erase(gameObjects->list.begin() + i);
     }
@@ -1049,12 +1049,12 @@ void initObjects(WorldGrid* gameObjects) {
                 GameObject::ObjectType::STATIC
                 )));
         break;
-      case '9': //flag
+      case '9': //blob
         //printf("case 9\n");
         gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                 &winMesh,
-                vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-                vec3(4, 6, 4),
+                vec3(i - (TEST_WORLD/2), -0.8f, j - (TEST_WORLD/2)),
+                vec3(2.5f, 4, 2.5f),
                 0,
                 vec3(0, 0, 1), // direction
                 0,
@@ -1065,7 +1065,7 @@ void initObjects(WorldGrid* gameObjects) {
         break;
       case 'T': //pedestal
         //printf("case 9\n");
-        gameObjects->add(shared_ptr<GameObject>(new WinCondition(
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
                 &trainMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                 vec3(8, 8, 8),
@@ -1074,7 +1074,8 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(4, 4, 14),
                 1,
-                3
+				3,
+				GameObject::ObjectType::STATIC
                 )));
         break;
       case 'L': {
@@ -1446,7 +1447,7 @@ int main(int argc, char **argv)
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
-    guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
+    guardMesh.loadShapes(resPath(sysPath("models", "guard2.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
     shortCubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
