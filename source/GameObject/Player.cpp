@@ -22,22 +22,25 @@ Player::Player(Mesh *mesh,
 bool Player::collide(GameObject* object, DebugDraw *ddraw) {
 	if (GameObject::collide(object, ddraw)) {
 		// specific stuff
-    if (dynamic_cast<Wall*>(object) && maxVelocity == RUN) {
-      playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
-    }
-    else if (dynamic_cast<WinCondition*>(object)) {
-      playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
-    }
-    else if (object->type == GameObject::ObjectType::COLLECTABLE) {
-      Clue* clue = dynamic_cast<Clue*>(object);
-      playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
-      this->checkpoint.x = clue->checkpoint.x;
-      this->checkpoint.z = clue->checkpoint.z;
-      clue->isCollected = true;
-    }
-    else if (object->type == GameObject::ObjectType::GUARD) {
-      this->lose();
-    }
+		if (dynamic_cast<Wall*>(object) && maxVelocity == RUN) {
+		  playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
+		}
+		else if (dynamic_cast<WinCondition*>(object)) {
+		  playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
+		}
+		else if (object->type == GameObject::ObjectType::COLLECTABLE) {
+		  Clue* clue = dynamic_cast<Clue*>(object);
+		  playrSoundObj->collectableSnd = playrSoundObj->startSound(playrSoundObj->collectableSnd, (char*)clue->soundPath);
+		  this->checkpoint.x = clue->checkpoint.x;
+		  this->checkpoint.z = clue->checkpoint.z;
+		  clue->isCollected = true;
+		}
+		else if (object->type == GameObject::ObjectType::COLLECTABLE) {
+
+		}
+		else if (object->type == GameObject::ObjectType::GUARD) {
+		  this->lose();
+		}
 		return true;
 	}
     return false;

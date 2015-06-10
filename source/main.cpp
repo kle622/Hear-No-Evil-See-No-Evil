@@ -32,6 +32,7 @@
 #include "GameObject/ShadowMapPass2Handles.h"
 #include "GameObject/Mesh.h"
 #include "GameObject/WinCondition.h"
+#include "GameObject/DetailProp.h"
 #include "GameObject/VisualMeter.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
@@ -1155,43 +1156,40 @@ void initObjects(WorldGrid* gameObjects) {
                 )));
               break;
 	case 'f':
-	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
 								 &printMesh,
 								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
 								 vec3(0.5, 0.1, 0.5),
 								 0,
 								 vec3(0, 0, 1),
 								 0,
-								 vec3(0),
-								 2,
-								 9,
-								 GameObject::ObjectType::STATIC)));
+								 vec3(1, 1, 1),
+								 9
+								 )));
 	  break;
 	case 'g':
-	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
-     &printMesh,
-     vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-     vec3(0.5, 0.1, 0.5),
-     -90,
-     vec3(0, 0, 1),
-     0,
-     vec3(0),
-     2,
-     9,
-     GameObject::ObjectType::STATIC)));
+	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
+		 &printMesh,
+		 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+		 vec3(0.5, 0.1, 0.5),
+		 -90,
+		 vec3(0, 0, 1),
+		 0,
+		 vec3(1, 1, 1),
+		 9
+		 )));
 	  break;
 	case 'h':
-	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
-     &printMesh,
-     vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-     vec3(0.5, 0.1, 0.5),
-     180,
-     vec3(0, 0, 1),
-     0,
-     vec3(0),
-     2,
-     9,
-     GameObject::ObjectType::STATIC)));
+	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
+		 &printMesh,
+		 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+		 vec3(0.5, 0.1, 0.5),
+		 180,
+		 vec3(0, 0, 1),
+		 0,
+		 vec3(1, 1, 1),
+		 9
+		 )));
 	  break;
       }
       default:
@@ -1507,9 +1505,6 @@ int main(int argc, char **argv)
     boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
     guardMesh.hasTexture = true;
     guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), TEX_SIZE);
-    //printf("shadow map id: %d\n", shadowMap);
-    //printf("player tex id: %d\n", playerMesh.texId);
-    
     
     srand(time(NULL));
     

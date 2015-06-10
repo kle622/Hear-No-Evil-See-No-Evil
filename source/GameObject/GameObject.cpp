@@ -56,6 +56,9 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
     float objectRadius = object->dimensions.x + object->dimensions.y + 
         object->dimensions.z;
 
+	if (object->type == ObjectType::DETAIL)
+		return false;
+
     if (compareDistance(position, object->position, thisRadius + objectRadius)) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
