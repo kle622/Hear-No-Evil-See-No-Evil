@@ -9,8 +9,8 @@ void main() {
   vec2 texCoord = gl_FragCoord.xy / uScreenSize;
   vec3 worldPos = texture2D(uPosMap, texCoord).xyz;
   worldPos = texture2D(uPosMap, gl_TexCoord[0].xy).xyz;
-  vec3 color = texture2D(uColMap, texCoord).xyz;
-  //vec3 color = vec3(1.0, 0.0, 0.0);
+  //vec3 color = texture2D(uColMap, texCoord).xyz;
+  vec3 color = vec3(1.0, 0.0, 0.0);
   vec3 normal = texture2D(uNormMap, texCoord).xyz;
   normal = texture2D(uNormMap, gl_TexCoord[0].xy).xyz;
   normal = normalize(normal);
