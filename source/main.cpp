@@ -860,17 +860,26 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   safe_glUniformMatrix4fv(geomHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
   safe_glUniformMatrix4fv(geomHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
  
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, m_gbuffer.getPosTexture());
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
+
+  glActiveTexture(GL_TEXTURE0);
+  glEnable(GL_TEXTURE_2D);
+
   drawGameObjects(gameObjects, time);
 
-  GLSL::disableVertexAttribArray(geomHandles.aPosition);
+  /*  GLSL::disableVertexAttribArray(geomHandles.aPosition);
   GLSL::disableVertexAttribArray(geomHandles.aNormal);
   GLSL::disableVertexAttribArray(geomHandles.aTexCoord);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 
-  glUseProgram(0);
-  m_gbuffer.stop();
-  checkGLError();
+  //m_gbuffer.stop();
+  //glUseProgram(0);
+  //checkGLError();
 }
 
 void beginLightPass() {
@@ -885,6 +894,7 @@ void beginLightPass() {
 
 
 void lightPass() {
+  m_gbuffer.stop();
   glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(lightHandles.prog);
@@ -897,22 +907,22 @@ void lightPass() {
   glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
-  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getDiffTexture());
   glUniform1i(lightHandles.uColMap, 0);
 
-  glActiveTexture(GL_TEXTURE1_ARB);
+  glActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getPosTexture());
   glUniform1i(lightHandles.uPosMap, 1);
 
-  glActiveTexture(GL_TEXTURE2_ARB);
+  glActiveTexture(GL_TEXTURE2);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
 
-  lightHandles.draw(&coneMesh);
+  lightHandles.draw(&playerMesh);
 
   /*  glBegin(GL_QUADS);
   glTexCoord2f( 0, 0 );
@@ -925,15 +935,15 @@ void lightPass() {
   glVertex3f(    0.0f,  (float) m_height, 0.0f);
   glEnd();*/
 
-  glActiveTexture(GL_TEXTURE0_ARB);
+  glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  glActiveTexture(GL_TEXTURE1_ARB);
+  glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  glActiveTexture(GL_TEXTURE2_ARB);
+  glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -952,9 +962,9 @@ void endPass1Draw() {
 
 void endDrawGL() {
 
-  GLSL::disableVertexAttribArray(pass2Handles.aPosition);
-  GLSL::disableVertexAttribArray(pass2Handles.aNormal);
-  GLSL::disableVertexAttribArray(pass2Handles.aTexCoord);
+  GLSL::disableVertexAttribArray(geomHandles.aPosition);
+  GLSL::disableVertexAttribArray(geomHandles.aNormal);
+  GLSL::disableVertexAttribArray(geomHandles.aTexCoord);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -1782,6 +1792,7 @@ int main(int argc, char **argv)
 	  //}
 	getWindowInput(window, deltaTime);
 	geometryPass(&gameObjects, deltaTime);
+	endDrawGL();
 	//	beginLightPass();
 	lightPass();
         
