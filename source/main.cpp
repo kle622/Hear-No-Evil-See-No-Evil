@@ -767,14 +767,22 @@ void passDetectDirection(float guardDetectDir) {
   }
   // Right Triangle
   else if (guardDetectDir == 4.0) {
-    pt1 = vec2(1230, 360);
-    pt2 = vec2(1155, 435);
-    pt3 = vec2(1155, 285);
+    pt1 = vec2(1180, 360);
+    pt2 = vec2(1105, 435);
+    pt3 = vec2(1105, 285);
   }
+
   glUniform2f(pass2Handles.pt1, pt1.x, pt1.y);
   glUniform2f(pass2Handles.pt2, pt2.x, pt2.y);
   glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
   glUniform1i(pass2Handles.detecDir, guardDetectDir);
+
+  #ifdef APPLE
+  glUniform2f(pass2Handles.pt1, pt1.x*2, pt1.y*2);
+  glUniform2f(pass2Handles.pt2, pt2.x*2, pt2.y*2);
+  glUniform2f(pass2Handles.pt3, pt3.x*2, pt3.y*2);
+  #endif
+
 }
 
 //PASS different number of lights! Not a different number of renderings?
