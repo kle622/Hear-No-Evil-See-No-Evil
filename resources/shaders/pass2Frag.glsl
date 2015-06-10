@@ -28,26 +28,26 @@ varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
-uniform float detecDir;
+uniform int detecDir;
 
-int isInTri(vec2 pt1, vec2, pt2, vec2 pt3) {
-	float totalArea = (((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
+int isInTri(vec2 pt1, vec2 pt2, vec2 pt3) {
+	float i = gl_FragCoord.x;
+	float j = gl_FragCoord.y;
+	float totalArea = (((pt2.x - pt1.x) * (pt3.y - pt1.y)) - ((pt3.x - pt1.x) * (pt2.y - pt1.y)));
 
-	float alpha, beta, gamma, zero, one, totalArea;
-	zero = 0; one = 1;
+	int is_inside = 0;
 
-	//beta = ((x1-x3)*(y-y3) - (x-x3)*(y1-y3)) / area
-	beta = (float)(((myTri.x1-myTri.x3) * (j-myTri.y3)) - ((i-myTri.x3) * (myTri.y1-myTri.y3)));
-	beta = beta/myTri.totalArea;
-	//printf("beta: %f, i: %d j: %d\n", beta, i, j);
+	float alpha, beta, gamma, zero, one;
+	zero = 0.0; 
+	one = 1.0;
 
-	//gamma = ((x2 - x1)*(y-y1) - (x-x1)*(y2-y1)) / area 
-	gamma = (float)(((myTri.x2-myTri.x1) * (j-myTri.y1)) - ((i-myTri.x1) * (myTri.y2-myTri.y1)));
-	gamma = gamma/myTri.totalArea;
-	//printf("gamma: %f, i: %d j: %d\n", gamma, i, j);
+	beta = (((pt1.x-pt3.x) * (j-pt3.y)) - ((i-pt3.x) * (pt1.y-pt3.y)));
+	beta = beta/totalArea;
 
-	alpha = 1 - beta - gamma;
-	//printf("alpha: %f, i: %d j: %d\n", alpha, i, j);
+	gamma = (((pt2.x-pt1.x) * (j-pt1.y)) - ((i-pt1.x) * (pt2.y-pt1.y)));
+	gamma = gamma/totalArea;
+
+	alpha = 1.0 - beta - gamma;
 
 	if(zero <= alpha && alpha <= one) {
 		if(zero <= beta && beta <= one) {
@@ -56,7 +56,7 @@ int isInTri(vec2 pt1, vec2, pt2, vec2 pt3) {
 			}
 		}
 	}
-	is_inside = 0;
+
 	return is_inside;
 }
 
@@ -209,25 +209,26 @@ void main() {
       gl_FragColor = vec4(color + avgAmbient, alpha);
     }
 
-	/*if (detecDir == 1.0) {
-	   if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
-		   && gl_FragCoord.y > (720.0 - 100.0) && gl_FragCoord.y < (720.0 - 75.0)) {
-		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
-	   }
-	if (detecDir == 2.0) {
-	   if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
-		   && gl_FragCoord.y > 75.0 && gl_FragCoord.y < 100) {
-		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
-	   }
+	if (detecDir == 1) {
+		int isIn = isInTri(vec2(610.0, 1000.0), vec2(670.0, 1000.0), vec2(640.0, 950.0));
+		if (isIn == 1) {
+			gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
+		}   
 	}
-	if (detecDir == 3.0) {
-	   if(gl_FragCoord.x > 133.0 && gl_FragCoord.x < 158.0 && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
-		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
-	   }
-	}
-	if (detecDir == 4.0) {
-	   if(gl_FragCoord.x < (1280.0 - 133.0) && gl_FragCoord.x > (1280.0 - 158.0) && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
-		  gl_FragColor = vec4(0.7, 0.0, 0.0, 0.2);
-	   }
-	}*/
+	// if (detecDir == 2) {
+	//    if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
+	// 	   && gl_FragCoord.y > 75.0 && gl_FragCoord.y < 100) {
+	// 	  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
+	//    }
+	// }
+	// if (detecDir == 3) {
+	//    if(gl_FragCoord.x > 133.0 && gl_FragCoord.x < 158.0 && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
+	// 	  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
+	//    }
+	// }
+	// if (detecDir == 4) {
+	//    if(gl_FragCoord.x < (1280.0 - 133.0) && gl_FragCoord.x > (1280.0 - 158.0) && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
+	// 	  gl_FragColor = vec4(0.7, 0.0, 0.0, 0.2);
+	//    }
+	// }
 }

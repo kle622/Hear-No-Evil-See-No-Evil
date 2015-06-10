@@ -721,11 +721,11 @@ float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camer
   float crossMag = length(crossProd);
   float dotProd = dot(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
 
-  printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
-  printf("cross %f : dot %f \n", crossMag, dotProd);
+  //printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
+  //printf("cross %f : dot %f \n", crossMag, dotProd);
   if (crossProd.x < dotProd && crossProd.z < dotProd) {
     float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
-    printf("side of plane: %f\n", sideOfView);
+    //printf("side of plane: %f\n", sideOfView);
     if (sideOfView > 0) {
       retVal = 4.0;
     }
@@ -742,7 +742,7 @@ float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camer
         retVal = 2.0;
     }
   }
-  return retVal;
+  return retVal = 1;
 }
 
 //PASS different number of lights! Not a different number of renderings?
@@ -867,7 +867,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
     glUniform1i(pass2Handles.ignoreMat, 0);
-    glUniform1f(pass2Handles.detecDir, guardDetecDir);
+    glUniform1i(pass2Handles.detecDir, guardDetecDir);
     checkGLError();
     gameObjects->update();
   }
