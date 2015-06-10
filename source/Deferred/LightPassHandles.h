@@ -6,7 +6,6 @@
 class LightPassHandles : public Handles {
  public:
   GLuint aPosition;
-  GLuint aUV;
   GLuint uModel;
   GLuint uView;
   GLuint uProj;
