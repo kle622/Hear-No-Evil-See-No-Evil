@@ -35,6 +35,7 @@ bool GeometryPassHandles::installShaders(const std::string &vShaderName, const s
 
   // Create the program and link
   this->prog = glCreateProgram();
+  assert(this->prog > 0);
   glAttachShader(this->prog, VS);
   glAttachShader(this->prog, FS);
   glLinkProgram(this->prog);

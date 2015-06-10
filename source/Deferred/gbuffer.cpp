@@ -2,73 +2,113 @@
 
 GBuffer::GBuffer() {}
 
-GBuffer::~GBuffer() {};
+GBuffer::~GBuffer() {
+  glDeleteTextures(1, &m_diffTex);
+  glDeleteTextures(1, &m_posTex);
+  glDeleteTextures(1, &m_normTex);
+  glDeleteFramebuffersEXT(1, &m_diffRT);
+  glDeleteRenderbuffersEXT(1, &m_posRT);
+  glDeleteRenderbuffersEXT(1, &m_normRT);
+  glDeleteRenderbuffersEXT(1, &m_depthBuff);
+};
 
 bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
+  width = w_width;
+  height = w_height;
+
   glGenFramebuffersEXT(1, &m_fbo);
   assert(m_fbo > 0);
-  glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, m_fbo);
+  glGenRenderbuffersEXT(1, &m_diffRT);
+  glGenRenderbuffersEXT(1, &m_posRT);
+  glGenRenderbuffersEXT(1, &m_normRT);
+  glGenRenderbuffersEXT(1, &m_depthBuff);
 
-  glGenTextures(ARRAY_SIZE_IN_ELEMENTS(m_textures), m_textures);
-  glGenTextures(1, &m_depthTexture);
-  assert(glGetError() == GL_NO_ERROR);
+  glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, m_fbo);
 
-  for (unsigned int i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_textures); i++) {
-    glBindTexture(GL_TEXTURE_2D, m_textures[i]);
-    assert(glGetError() == GL_NO_ERROR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w_width, w_height, 0, GL_RGB, GL_FLOAT, NULL);
-    assert(glGetError() == GL_NO_ERROR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    assert(glGetError() == GL_NO_ERROR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    assert(glGetError() == GL_NO_ERROR);
-    glFramebufferTexture2DEXT(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_textures[i], 0);
-    assert(glGetError() == GL_NO_ERROR);
+  //bind diffuse render target
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_diffRT);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, m_diffRT);
+  
+  //bind position render target
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_posRT);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA32F_ARB, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_RENDERBUFFER_EXT, m_posRT);  
+
+  //bind normal render target
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_normRT);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA16F_ARB, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_RENDERBUFFER_EXT, m_normRT);
+
+  //bind depth buffer
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_depthBuff);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_depthBuff);    
+
+  //bind diffuse texture
+  glGenTextures(1, &m_diffTex);
+  glBindTexture(GL_TEXTURE_2D, m_diffTex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_diffTex, 0);
+
+  
+  //bind pos texture
+  glGenTextures(1, &m_posTex);
+  glBindTexture(GL_TEXTURE_2D, m_posTex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, m_posTex, 0);
+
+
+  //bind diffuse texture
+  glGenTextures(1, &m_normTex);
+  glBindTexture(GL_TEXTURE_2D, m_normTex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_TEXTURE_2D, m_normTex, 0);
+
+  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+  if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+    throw std::runtime_error("FRAME BUFFER NOT OKAY!");
   }
 
-  glBindTexture(GL_TEXTURE_2D, m_depthTexture);
-  assert(glGetError() == GL_NO_ERROR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, w_width, w_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  assert(glGetError() == GL_NO_ERROR);
-  glFramebufferTexture2DEXT(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture, 0);
-  assert(glGetError() == GL_NO_ERROR);
-  
-  GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-  glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(drawBuffers), drawBuffers);
-  assert(glGetError() == GL_NO_ERROR);
-
-  GLenum status = glCheckFramebufferStatusEXT(GL_DRAW_FRAMEBUFFER);
-  assert(glGetError() == GL_NO_ERROR);
-
-  if (status != GL_FRAMEBUFFER_COMPLETE) {
-    std::cerr << "ERROR!!! frame buffer not ok" << std::endl;
-    return false;
-  }
-  
-  glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
-  assert(glGetError() == GL_NO_ERROR);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
   return true;
 }
 
-void GBuffer::bindForWriting() {
-  glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, m_fbo);
-  assert(glGetError() == GL_NO_ERROR);
+void GBuffer::start() {
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
+  
+  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glEnable(GL_TEXTURE_2D);
+  
+  GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT};
+  glDrawBuffers(3, drawBuffs);
 }
 
-void GBuffer::bindForReading() {
-  glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
-  assert(glGetError() == GL_NO_ERROR);
-
-  for (unsigned int i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_textures); i++) {
-    glActiveTexture(GL_TEXTURE0 + i);
-    assert(glGetError() == GL_NO_ERROR);
-    glBindTexture(GL_TEXTURE_2D, m_textures[GBUFFER_TEXTURE_TYPE_POS + i]);
-    assert(glGetError() == GL_NO_ERROR);
-  }
+void GBuffer::stop() {
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
-void GBuffer::setReadBuffer(GBUFFER_TEXTURE_TYPE texType) {
-  glReadBuffer(GL_COLOR_ATTACHMENT0 + texType);
-  assert(glGetError() == GL_NO_ERROR);
+GLuint GBuffer::getDiffTexture() {
+  return m_diffTex;
+}
+
+GLuint GBuffer::getPosTexture() {
+  return m_posTex;
+}
+
+GLuint GBuffer::getNormTexture() {
+  return m_normTex;
 }

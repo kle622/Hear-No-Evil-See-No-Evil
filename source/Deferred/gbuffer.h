@@ -4,32 +4,34 @@
 #include "../Library/GLSL.h"
 #include "../glm/glm.hpp"
 #include <iostream>
+#include <exception>
  
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
 class GBuffer {
  public:
-  enum GBUFFER_TEXTURE_TYPE {
-    GBUFFER_TEXTURE_TYPE_POS,
-    GBUFFER_TEXTURE_TYPE_DIFF,
-    GBUFFER_TEXTURE_TYPE_NORM,
-    GBUFFER_TEXTURE_TYPE_TEXCOORD,
-    GBUFFER_NUM_TEXTURES
-  };
-
-  GBuffer();
-  
+  GBuffer();  
   ~GBuffer();
 
   bool Init(unsigned int w_width, unsigned int w_height);
-  void bindForWriting();
-  void bindForReading();
-  void setReadBuffer(GBUFFER_TEXTURE_TYPE texType);
+  void start();
+  void stop();
+  GLuint getDiffTexture();
+  GLuint getPosTexture();
+  GLuint getNormTexture();
 
  private:
   GLuint m_fbo;
-  GLuint m_textures[GBUFFER_NUM_TEXTURES];
-  GLuint m_depthTexture;
+  GLuint m_diffRT;
+  unsigned int m_diffTex;
+  GLuint m_posRT;
+  unsigned int m_posTex;
+  GLuint m_normRT;
+  unsigned int m_normTex;
+  GLuint m_depthBuff;
+  
+  unsigned int width;
+  unsigned int height;
 };
 
 #endif
