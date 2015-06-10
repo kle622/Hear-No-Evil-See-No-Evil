@@ -45,12 +45,15 @@ void WorldGrid::remove(int i, int j, int k) {
 }
 
 void WorldGrid::remove(int index) {
-	for (int i = 0; i < grid.size(); i++) {
-		for (int j = 0; j < grid[i].size(); j++) {
-			for (int k = 0; k < grid[i][j].size(); k++) {
-				if (list[index] == grid[i][j][k]) {
+    bool getOut = false;
+	for (int i = 0; i < grid.size() && !getOut; i++) {
+		for (int j = 0; j < grid[i].size() && !getOut; j++) {
+			for (int k = 0; k < grid[i][j].size() && !getOut; k++) {
+				if (list[index].get() == grid[i][j][k].get()) {
 					list.erase(list.begin() + index);
+                    printf("************************************************************************************\n");
 					grid[i][j].erase(grid[i][j].begin() + k);
+                    getOut = true;
 				}
 			}
 		}
