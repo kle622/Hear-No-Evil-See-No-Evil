@@ -4,8 +4,9 @@
 #include "../GameObject/Shape.h"
 #include "../GameObject/Wall.h"
 
-class GeometryPassHandles : public Handles {
+class GeometryPassHandles {
  public:
+  GLuint prog;
   GLuint aPosition;
   GLuint aNormal;
   GLuint aTexCoord;

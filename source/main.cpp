@@ -408,7 +408,7 @@ for (int i = 0; i < gLights.size(); i++) {
 
 void initGL() {
   // Set the background color
-  glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.9f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
@@ -795,7 +795,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
   //SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
-  safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ground->getModel()));
+  safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ground->getModel()));
   geomHandles.draw(ground);
 
   //  glUniform1i(pass2Handles.hasTex, 1);
@@ -803,7 +803,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
   //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
-  safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
+  safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ceiling->getModel()));
   geomHandles.draw(ceiling);
 
   //ceiling->draw();
@@ -832,7 +832,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     
     // SetMaterial(drawList[i]->material);
     // SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
-    safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
+    safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(drawList[i]->getModel()));
     geomHandles.draw(drawList[i].get());
     //drawList[i]->draw();
   }
@@ -903,8 +903,8 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glUseProgram(geomHandles.prog);
   checkGLError();
 
-  safe_glUniformMatrix4fv(geomHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
-  safe_glUniformMatrix4fv(geomHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
+  safe_glUniformMatrix4fv(geomHandles.uProj, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(geomHandles.uView, glm::value_ptr(viewCam->getView()));
  
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getPosTexture());
@@ -959,7 +959,7 @@ void lightPass() {
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
   //glDrawBuffer(GL_FRONT);
 
@@ -981,11 +981,11 @@ void lightPass() {
   glUniform1i(lightHandles.uNormMap, 2);
 
   glm::mat4 scale = glm::mat4(1.0f);
-  safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(scale));
-  safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(scale));
-  //safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
-  safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(glm::mat4(1.0f)));
-  //safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
+  safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(scale));
+  safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(scale));
+  //safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(glm::mat4(1.0f)));
+  //safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));
   //glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10.0));
   glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
