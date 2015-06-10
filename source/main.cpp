@@ -1129,7 +1129,7 @@ void initObjects(WorldGrid* gameObjects) {
         gameObjects->add(shared_ptr<GameObject>(new Clue(
                 &clueMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-                vec3(-64.59f, 0, 95.87f),
+                vec3(-47.0f, 0, -3.0f),
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
@@ -1689,7 +1689,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
