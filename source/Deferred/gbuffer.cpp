@@ -92,6 +92,10 @@ void GBuffer::start() {
   
   glActiveTexture(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE1_ARB);
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE2_ARB);
+  glEnable(GL_TEXTURE_2D);
   
   GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT};
   glDrawBuffers(3, drawBuffs);

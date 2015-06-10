@@ -940,12 +940,12 @@ void drawQuad()
   glVertexAttribPointer(lightHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
   checkGLError();
 
-  GLSL::enableVertexAttribArray(lightHandles.aUV);
+  /*GLSL::enableVertexAttribArray(lightHandles.aUV);
   checkGLError();
   glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
   checkGLError();
   glVertexAttribPointer(lightHandles.aUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
-  checkGLError();
+  checkGLError();*/
 
   glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 3 * 6);
 }
@@ -957,17 +957,10 @@ void lightPass() {
 
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
-  glDrawBuffer(GL_BACK);
+  glDrawBuffer(GL_FRONT);
   glCullFace(GL_BACK);
 
   checkGLError();
-
-  safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(glm::mat4(1.0f)));
-  safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(glm::mat4(1.0f)));
-  glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10.0));
-  safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(scale));
-  glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
-  glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
@@ -983,6 +976,14 @@ void lightPass() {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
+
+  //safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(glm::mat4(1.0f)));
+  //safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(glm::mat4(1.0f)));
+  //glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10.0));
+  //glm::mat4 scale = glm::mat4(1.0f);
+  //safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(scale));
+  glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
+  glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
 #ifdef QUAD_BULLSHIT
   drawQuad();
@@ -1681,8 +1682,8 @@ int main(int argc, char **argv)
     m_gbuffer.Init(g_width, g_height);
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-    pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
-    pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+    //pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
+    //pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     lightHandles.installShaders(resPath(sysPath("shaders", "lightVert.glsl")), resPath(sysPath("shaders", "lightFrag.glsl")));
     geomHandles.installShaders(resPath(sysPath("shaders", "geometryVert.glsl")), resPath(sysPath("shaders", "geometryFrag.glsl")));
     coneMesh.loadShapes(resPath(sysPath("models", "cone.obj")));
