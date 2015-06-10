@@ -6,7 +6,7 @@
 #include "../glm/core/_swizzle_func.hpp"
 
 Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
-	int scanRadius, int material, vector<PathNode> motionPath) :
+	int scanRadius, int material, vector<PathNode> motionPath, Player *player) :
 	GameObject(mesh,
 	motionPath[0].pos, scale, 0,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
@@ -17,46 +17,58 @@ Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	moving = true;
 	waitTime = 0.0f;
 	originalMaterial = material;
+	staring = false;
+	playerObject = player;
 }
 
 void Guard::move(float time) {
-	oldPosition = position;
-	if (moving) { // moving between path nodes
-		//set movement direction
-		direction = normalize(motionPath[currentNode + pathDirection].pos - position);
-		position += direction * velocity * time;
+	if (staring) {
+		// turn to face the player
+		vec3 gtop = playerObject->position - position; // guard to player vector
+		gtop.y = 0;
+		int stareTurnDir = (int)sign(cross(direction, gtop).y);
+		direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * stareTurnDir));
 
-		//check if we're at next node now
-		if (dot(direction, normalize(motionPath[currentNode + pathDirection].pos - position)) < 0) {
-			moving = false;
-			currentNode += pathDirection;
-			position = motionPath[currentNode].pos;
-			if (motionPath[currentNode].end) { // endpoint, switch pathDirection
-				pathDirection *= -1;
-			}
-			else {
-				sweepDirection = (int)sign(cross(direction, motionPath[currentNode + pathDirection].pos - motionPath[currentNode].pos).y);
+	}
+	else {
+		oldPosition = position;
+		if (moving) { // moving between path nodes
+			//set movement direction
+			direction = normalize(motionPath[currentNode + pathDirection].pos - position);
+			position += direction * velocity * time;
+
+			//check if we're at next node now
+			if (dot(direction, normalize(motionPath[currentNode + pathDirection].pos - position)) < 0) {
+				moving = false;
+				currentNode += pathDirection;
+				position = motionPath[currentNode].pos;
+				if (motionPath[currentNode].end) { // endpoint, switch pathDirection
+					pathDirection *= -1;
+				}
+				else {
+					sweepDirection = (int)sign(cross(direction, motionPath[currentNode + pathDirection].pos - motionPath[currentNode].pos).y);
+				}
 			}
 		}
-	}
-	else if (waitTime < motionPath[currentNode].moveDelay)
-	{
-		waitTime += time;
-	}
-	else { // at a path node, re-orienting to face next path node
-		int rotateDirection = (motionPath[currentNode].end) ? motionPath[currentNode].endTurnDir : sweepDirection;
-		direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * rotateDirection));
-
-		// check to see if we are now oriented correctly
-		float cross_y = cross(direction, motionPath[currentNode + pathDirection].pos - motionPath[currentNode].pos).y;
-		//printf("ROTATING: cross_y = %.3f, sweepDirection = %d\n", cross_y, rotateDirection);
-		if (cross_y * rotateDirection < 0) { // positive value means sweepDirection was clockwise
-			moving = true;
-			waitTime = 0.0f;
+		else if (waitTime < motionPath[currentNode].moveDelay) // delay until we continue to next node
+		{
+			waitTime += time;
 		}
+		else { // at a path node, re-orienting to face next path node
+			int rotateDirection = (motionPath[currentNode].end) ? motionPath[currentNode].endTurnDir : sweepDirection;
+			direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * rotateDirection));
 
-		if (motionPath[currentNode].smoothTurn) {
-			position += direction * velocity * time / 3.0f;
+			// check to see if we are now oriented correctly
+			float cross_y = cross(direction, motionPath[currentNode + pathDirection].pos - motionPath[currentNode].pos).y;
+			//printf("ROTATING: cross_y = %.3f, sweepDirection = %d\n", cross_y, rotateDirection);
+			if (cross_y * rotateDirection < 0) { // positive value means sweepDirection was clockwise
+				moving = true;
+				waitTime = 0.0f;
+			}
+
+			if (motionPath[currentNode].smoothTurn) {
+				position += direction * velocity * time / 3.0f;
+			}
 		}
 	}
 }
@@ -91,10 +103,10 @@ float getDistToGuard(vec3 playerPos, vec3 guardPos) {
   return dist;
 }
 
-float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam, DetectionTracker *detecTrac) {
+float Guard::detect(WorldGrid *world, DetectionCamera *cam, DetectionTracker *detecTrac) {
   float viewPercent;
   cam->update(this);
-  viewPercent = cam->percentInView(world, this, player);
+  viewPercent = cam->percentInView(world, this, playerObject);
   // if object is within guard's cone of vision, return true
   if (viewPercent > 0) {
     material = 3;
@@ -103,7 +115,7 @@ float Guard::detect(WorldGrid *world, Player* player, DetectionCamera *cam, Dete
   else {
     material = originalMaterial;
   }
-  detecTrac->guardDist = getDistToGuard(player->position, this->position);
+  detecTrac->guardDist = getDistToGuard(playerObject->position, this->position);
 
   return viewPercent;
 }
@@ -116,4 +128,10 @@ glm::mat4 Guard::getModel()
   glm::mat4 com = Trans*Rot*Scale;
 
   return com;
+}
+
+void Guard::stare() {
+	//face towards the player
+	//	set a flag for move method to lerp to face player
+	staring = true;
 }

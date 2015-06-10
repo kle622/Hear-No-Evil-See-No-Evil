@@ -786,7 +786,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-      float detectPercent = guard->detect(gameObjects, playerObject, detectCam, detecTrac);
+      float detectPercent = guard->detect(gameObjects, detectCam, detecTrac);
       if (detectPercent > 0) {
 		  printf("Detected!\n");
         detecTrac->detecDanger = true;
@@ -1242,7 +1242,8 @@ void initGuards(WorldGrid* gameObjects) {
           vec3(2, 2, 2),
           1,
           0,
-          guardPath
+          guardPath,
+		  playerObject
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
     }

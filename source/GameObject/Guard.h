@@ -26,20 +26,23 @@ public:
 	std::vector<PathNode> motionPath;
 	int pathDirection;
 	bool moving;
+	bool staring;
 	int currentNode;
 	int sweepDirection; // 1 = clockwise, -1 = ccw
 	float waitTime;
 	int originalMaterial;
+	Player *playerObject;
 
 	//Constructor
 	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
-		int scanRadius, int material, vector<PathNode> motionPath);
+		int scanRadius, int material, vector<PathNode> motionPath, Player *player);
 
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
+	void stare();
   glm::mat4 getModel();
-	float detect(WorldGrid *world, Player* player, DetectionCamera *cam, DetectionTracker *detecTrac);
+	float detect(WorldGrid *world, DetectionCamera *cam, DetectionTracker *detecTrac);
 };
 
 #endif
