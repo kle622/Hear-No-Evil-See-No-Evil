@@ -85,11 +85,6 @@ using namespace glm;
 
 vector<Light> gLights;
 
-typedef struct triangle {
-  float x1, y1, z1, x2, y2, z2, x3, y3, z3;
-  float totalArea;
-} triangle;
-
 vector<tinyobj::shape_t> player;
 vector<tinyobj::shape_t> guard;
 vector<tinyobj::material_t> materials;
@@ -712,15 +707,15 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
 
 float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camera) {
   vec3 cameraDir = camera->getForward();
-  //float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
-  //float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
+  float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
+  float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
   float retVal, sideOfView;
-  ////printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
-  //vec3 crossProd = cross(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
-  //float crossMag = length(crossProd);
-  //float dotProd = dot(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+  //printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
+  vec3 crossProd = cross(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+  float crossMag = length(crossProd);
+  float dotProd = dot(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
 
-  /*printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
+  printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
   printf("cross %f : dot %f \n", crossMag, dotProd);
   if (crossProd.x < dotProd && crossProd.z < dotProd) {
     float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
@@ -732,15 +727,15 @@ float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camer
       retVal = 3.0;
     }
   }
-  else {*/
-  float dotProd = dot(cameraDir, guard->position);
-  if (dotProd > 0) {
-      retVal = 0.0;
-  }
   else {
-      retVal = 2.0;
+    float dotProd = dot(cameraDir, guard->position);
+    if (dotProd > 0) {
+        retVal = 0.0;
+    }
+    else {
+        retVal = 2.0;
+    }
   }
-  //}
   return retVal;
 }
 
@@ -854,8 +849,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
 
                       //(((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
-    float totalArea = (((670.0 - 610.0) * (75.0 - 100.0)) - ((640.0 - 610.0) * (100.0 - 100.0)));
-    glUniform1f(pass2Handles.totalArea, totalArea);
+   /* float totalArea = (((670.0 - 610.0) * (75.0 - 100.0)) - ((640.0 - 610.0) * (100.0 - 100.0)));
+    glUniform1f(pass2Handles.totalArea, totalArea);*/
 
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
