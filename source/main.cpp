@@ -52,8 +52,8 @@
 
 #define MAX_LIGHTS 10
 
-#define WORLD_WIDTH 300
-#define WORLD_HEIGHT 300
+#define WORLD_WIDTH 400
+#define WORLD_HEIGHT 400
 #define TEST_WORLD 200
 
 #define CAMERA_FOV 60.0f
@@ -125,6 +125,8 @@ bool boxes = false;
 bool shiftDown = false;
 bool inIntro = true;
 double introDist = 0;
+// introduction time, in seconds
+float introTime = 80;
 DebugDraw *debugDraw;
 DetectionCamera *detectCam;
 MySound *soundObj;
@@ -706,7 +708,6 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
 
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
-	//detecTrac->detecDanger = false;
   Guard *guard;
   Clue *clue;
   float guardDetecDir = 0.0;
@@ -794,22 +795,22 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-	if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-		soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-		// Search through the lights if inside light, save that light to the detecTrac object
-		/*for (int L = 0; L < gLights.size(); L++) {
-		inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
-		(playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
-		}*/
+    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
+      // Search through the lights if inside light, save that light to the detecTrac object
+      /*for (int L = 0; L < gLights.size(); L++) {
+        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
+          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
+      }*/
 		printf(detecTrac->detecDanger ? "p true\n" : "p false\n");
 		detecTrac->updateSndDetect(playerObject);
-		detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
-		detecTrac->detecDanger = false;
-	}
+      detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
+        detecTrac->detecDanger = false;
+      }
 
     if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected)
-        gameObjects->list.erase(gameObjects->list.begin() + i);
+        gameObjects->remove(i);
     }
 
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
@@ -1074,8 +1075,8 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(4, 4, 14),
                 1,
-				3,
-				GameObject::ObjectType::STATIC
+                3,
+                GameObject::ObjectType::STATIC
                 )));
         break;
       case 'L': {
@@ -1165,6 +1166,33 @@ void initObjects(WorldGrid* gameObjects) {
 								 2,
 								 9,
 								 GameObject::ObjectType::STATIC)));
+	  break;
+	case 'g':
+	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+     &printMesh,
+     vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+     vec3(0.5, 0.1, 0.5),
+     -90,
+     vec3(0, 0, 1),
+     0,
+     vec3(0),
+     2,
+     9,
+     GameObject::ObjectType::STATIC)));
+	  break;
+	case 'h':
+	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+     &printMesh,
+     vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+     vec3(0.5, 0.1, 0.5),
+     180,
+     vec3(0, 0, 1),
+     0,
+     vec3(0),
+     2,
+     9,
+     GameObject::ObjectType::STATIC)));
+	  break;
       }
       default:
                 break;
@@ -1600,15 +1628,15 @@ int main(int argc, char **argv)
           glm::vec3 nextPoint = introCurve.getLocation(introDist);
           cineCam->eye = cineCam->lookat;
           cineCam->lookat = nextPoint;
-          if (introDist + 5 < introCurve.getMaxDist()) {
+          /*if (introDist + 5 < introCurve.getMaxDist()) {
             cineCam->lookat = introCurve.getLocation(introDist + 5);
           }
           else {
             cineCam->lookat = introCurve.getLocation(introCurve.getMaxDist() - 0.01);
-          }
+          }*/
 
           //target intro time is 1:20
-          introDist += deltaTime * 0.625;
+          introDist += deltaTime * introCurve.getMaxDist() / introTime;
         }
         else if (inIntro) {
           endIntro();
@@ -1656,6 +1684,7 @@ int main(int argc, char **argv)
     }
     debugDraw->clear();
 
+    if (!inIntro)
     ImGui::Render();
 
     glfwSwapBuffers(window);

@@ -1,5 +1,5 @@
 #include "WorldGrid.h"
-#define CELL_SIZE 5
+#define CELL_SIZE 10
 
 WorldGrid::WorldGrid(int width, int height) {
 	this->width = width;
@@ -35,13 +35,26 @@ void WorldGrid::add(shared_ptr<GameObject> gameObject) {
 }
 
 void WorldGrid::remove(int i, int j, int k) {
-	for (int i = 0; i < list.size(); i++) {
-		if (grid[i][j][k] == list[i]) {
-			list.erase(list.begin() + i);
+	for (int x = 0; x < list.size(); x++) {
+		if (grid[i][j][k] == list[x]) {
+			list.erase(list.begin() + x);
 			break;
 		}
 	}
 	grid[i][j].erase(grid[i][j].begin() + k);
+}
+
+void WorldGrid::remove(int index) {
+	for (int i = 0; i < grid.size(); i++) {
+		for (int j = 0; j < grid[i].size(); j++) {
+			for (int k = 0; k < grid[i][j].size(); k++) {
+				if (list[index] == grid[i][j][k]) {
+					list.erase(list.begin() + index);
+					grid[i][j].erase(grid[i][j].begin() + k);
+				}
+			}
+		}
+	}
 }
 
 void WorldGrid::update() {

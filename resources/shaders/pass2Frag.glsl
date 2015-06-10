@@ -66,16 +66,17 @@ void main() {
      float alpha = 1.0;
 
    for (int i = 0; i < numLights; i++) {
-     float visibility = 1.0;
-     float att = 1.0;
+     float visibility = 1.5;
+     float att = 1.5;
      vec3 lightPos = allLights[i];
+     float distance = length(lightPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
      float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
-     
+          
      if (lightToSurfaceAngle > coneAngle) {
      	att = 0.2;
      }
@@ -107,7 +108,7 @@ void main() {
 		 //aColor += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * aDiffuse; 
 	   }
 	   else {
-		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * light_color * diffuse;
+		 color += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * light_color * diffuse;
 		 //aColor += (1.0 /(0.5 + 0.3 * dist)) * visibility * att * aDiffuse;
 	   }
 
