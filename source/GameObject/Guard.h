@@ -26,7 +26,12 @@ public:
 	std::vector<PathNode> motionPath;
 	int pathDirection;
 	bool moving;
-	bool staring;
+
+	bool staring; // whether or not we're in staring mode
+	bool foundPlayer; // whether or not our view has been centered on the player or not
+	float playerTimer; // how long since we last saw the player
+	vec3 lastSeen;
+
 	int currentNode;
 	int sweepDirection; // 1 = clockwise, -1 = ccw
 	float waitTime;

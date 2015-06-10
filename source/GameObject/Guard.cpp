@@ -19,16 +19,31 @@ Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	originalMaterial = material;
 	staring = false;
 	playerObject = player;
+	foundPlayer = false;
+	playerTimer = 0.0f;
 }
 
 void Guard::move(float time) {
 	if (staring) {
 		// turn to face the player
-		vec3 gtop = playerObject->position - position; // guard to player vector
+		vec3 gtop = lastSeen - position; // guard to player vector
 		gtop.y = 0;
+		gtop = normalize(gtop);
 		int stareTurnDir = (int)sign(cross(direction, gtop).y);
-		direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * stareTurnDir));
-
+		if (!foundPlayer) { // turn to initially center player in view
+			direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * stareTurnDir));
+			gtop = playerObject->position - position;
+			float cross_y = cross(direction, gtop).y;
+			if (cross_y * stareTurnDir < 0) { // we see the player, now just set the direction to be the vector to the player
+				foundPlayer = true;
+				lastSeen = vec3(playerObject->position.x, 0, playerObject->position.z);
+			}
+		}
+		if (foundPlayer) { // check to see if we should turn to follow the player
+			// we somehow want to stop following the player if we lose sight
+			if ()
+			direction = gtop;
+		}
 	}
 	else {
 		oldPosition = position;
@@ -134,4 +149,6 @@ void Guard::stare() {
 	//face towards the player
 	//	set a flag for move method to lerp to face player
 	staring = true;
+	playerTimer = 0.0f;
+	lastSeen = vec3(playerObject->position.x, 0, playerObject->position.z);
 }
