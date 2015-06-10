@@ -120,6 +120,7 @@ Mesh clueMesh;
 Mesh printMesh;
 Shape *ground;
 Shape *ceiling;
+Shape *triangle;
 bool debug = false;
 bool boxes = false;
 bool shiftDown = false;
@@ -146,6 +147,11 @@ GLuint idxBufObjG = 0;
 GLuint frameBufObj[MAX_LIGHTS] = {0};
 GLuint texBufObjG = 0;
 GLuint shadowMap[MAX_LIGHTS] = {0};
+
+GLuint posBufObJT = 0;
+GLuint norBufObjT = 0;
+GLuint idxBufObjT = 0;
+GLuint texBufObjT = 0;
 
 double deltaTime = 0;
 double timeCounter = 0;
@@ -848,10 +854,19 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         gameObjects->list.erase(gameObjects->list.begin() + i);
     }
 
+    //glUniform1i(pass2Handles.ignoreMat, 0);
+    //glUniform1i(pass2Handles.hasTex, 1);
+    //glBindTexture(GL_TEXTURE_2D, triangle->texId);
+    //glUniform1i(pass2Handles.texture, 1);
+    //SetMaterial(0);
+    ////SetDepthMVP(false, triangle->getModel(), gLights.at(closestLNdx));
+    //safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(triangle->getModel()));
+    //pass2Handles.draw(triangle);
+
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-    glUniform1f(pass2Handles.ignoreMat, );
+    glUniform1i(pass2Handles.ignoreMat, 0);
     glUniform1f(pass2Handles.detecDir, guardDetecDir);
     checkGLError();
     gameObjects->update();
@@ -1273,7 +1288,7 @@ void initGround() {
       1 //material
       );
   // printf("loading concrete.bmp for ground\n");
-  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")));
+  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")), 512);
 }
 
 void initCeiling() {
@@ -1288,7 +1303,7 @@ void initCeiling() {
       5 //material
       );
 
-  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
+  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
 }
 
 void initWalls(WorldGrid* gameObjects) {
@@ -1426,6 +1441,23 @@ void initWalls(WorldGrid* gameObjects) {
 
 }
 
+void initTriangle() {
+  triangle = new Shape(
+    vec3(0), //position
+    vec3(1, 1, 1), //scale
+    vec3(0, 0, 1), //direction
+    0, //velocity
+    6, //indices
+    posBufObJT,
+    norBufObjT,
+    idxBufObjT,
+    texBufObjT,
+    1 //material
+    );
+  // printf("loading concrete.bmp for ground\n");
+  ground->loadMipmapTexture(resPath(sysPath("textures", "triangle.bmp")), 512);
+}
+
 int main(int argc, char **argv)
 {
     // Sound Object
@@ -1535,6 +1567,7 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
+    //initTriangle();
     //initDetectionTracker(&gameObjects);
     initFramebuffer();
    

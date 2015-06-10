@@ -16,6 +16,7 @@ uniform vec3 allLights[MAX_LIGHTS];
 uniform vec3 uLightPos;
 
 uniform float detectionLevel;
+uniform int ignoreMat;
 
 // Cook Stuff
 uniform float uMatRoughness;
@@ -28,6 +29,36 @@ varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
 uniform float detecDir;
+
+int isInTri(vec2 pt1, vec2, pt2, vec2 pt3) {
+	float totalArea = (((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
+
+	float alpha, beta, gamma, zero, one, totalArea;
+	zero = 0; one = 1;
+
+	//beta = ((x1-x3)*(y-y3) - (x-x3)*(y1-y3)) / area
+	beta = (float)(((myTri.x1-myTri.x3) * (j-myTri.y3)) - ((i-myTri.x3) * (myTri.y1-myTri.y3)));
+	beta = beta/myTri.totalArea;
+	//printf("beta: %f, i: %d j: %d\n", beta, i, j);
+
+	//gamma = ((x2 - x1)*(y-y1) - (x-x1)*(y2-y1)) / area 
+	gamma = (float)(((myTri.x2-myTri.x1) * (j-myTri.y1)) - ((i-myTri.x1) * (myTri.y2-myTri.y1)));
+	gamma = gamma/myTri.totalArea;
+	//printf("gamma: %f, i: %d j: %d\n", gamma, i, j);
+
+	alpha = 1 - beta - gamma;
+	//printf("alpha: %f, i: %d j: %d\n", alpha, i, j);
+
+	if(zero <= alpha && alpha <= one) {
+		if(zero <= beta && beta <= one) {
+			if(zero <= gamma && gamma <= one){
+				is_inside = 1;
+			}
+		}
+	}
+	is_inside = 0;
+	return is_inside;
+}
 
 float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float _roughness) {
   vec3  half_vec = normalize( _view + _light ); // vector H 

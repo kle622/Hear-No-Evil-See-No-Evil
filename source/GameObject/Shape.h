@@ -46,7 +46,7 @@ class Shape {
         GLuint posBuffer, GLuint norBuffer, int material);
 
   void loadTexture(const std::string &filename);
-  void loadMipmapTexture(const std::string &filename);
+  void loadMipmapTexture(const std::string &filename, int size);
   virtual glm::mat4 getModel();
   //Object methods
   //void draw();

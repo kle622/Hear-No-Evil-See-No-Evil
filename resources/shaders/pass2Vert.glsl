@@ -14,7 +14,7 @@ uniform float Ushine;
 uniform mat4 uDepthMVP;
 uniform int hasTex;
 
-uniform float ignoreMat;
+uniform int ignoreMat;
 
 //uniform float detectionLevel;
 
@@ -27,7 +27,6 @@ varying vec2 texCoordOut;
 // CHECKPOINT!!!!!!!!!
 void main() {
 	vec3 pre_pos = vec3(uModelMatrix * vec4(aPosition, 1.0));
-	gl_Position = uProjMatrix * uViewMatrix * vec4(pre_pos, 1.0); // vec4
 	vec3 normal_fin = normalize(vec3(uModelMatrix * vec4(aNormal, 0.0)));
 
 	vNormal = normal_fin; // normalized
@@ -37,5 +36,10 @@ void main() {
 	if (hasTex == 1) 
 	   texCoordOut = texCoordIn;
 
-	if()
+	/*if(ignoreMat == 1) {
+		gl_Position = vec4(pre_pos, 1.0);
+	}
+	else {*/
+		gl_Position = uProjMatrix * uViewMatrix * vec4(pre_pos, 1.0); // vec4
+	//}
 }
