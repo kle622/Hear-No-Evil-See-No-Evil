@@ -749,27 +749,27 @@ void passDetectDirection(float guardDetectDir) {
   vec2 pt1, pt2, pt3;
   // Forward Triangle
   if (guardDetectDir == 1.0) {
-    pt1 = vec2(590, 620);
-    pt2 = vec2(690, 620);
-    pt3 = vec2(640, 670);
+    pt1 = vec2(565, 570);
+    pt2 = vec2(715, 570);
+    pt3 = vec2(640, 645);
   }
   // Backward Triangle
   else if (guardDetectDir == 2.0) {
-    pt1 = vec2(590, 100);
-    pt2 = vec2(640, 50); 
-    pt3 = vec2(690, 100);
+    pt1 = vec2(565, 125);
+    pt2 = vec2(715, 125); 
+    pt3 = vec2(640, 50);
   }
   // Left Triangle
   else if (guardDetectDir == 3.0) {
-    pt1 = vec2(50, 360);
-    pt2 = vec2(100, 410);
-    pt3 = vec2(100, 310);
+    pt1 = vec2(100, 360);
+    pt2 = vec2(175, 435);
+    pt3 = vec2(175, 285);
   }
   // Right Triangle
   else if (guardDetectDir == 4.0) {
     pt1 = vec2(1230, 360);
-    pt2 = vec2(1180, 410);
-    pt3 = vec2(1180, 310);
+    pt2 = vec2(1155, 435);
+    pt3 = vec2(1155, 285);
   }
   glUniform2f(pass2Handles.pt1, pt1.x, pt1.y);
   glUniform2f(pass2Handles.pt2, pt2.x, pt2.y);
