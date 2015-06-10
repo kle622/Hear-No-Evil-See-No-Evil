@@ -14,6 +14,8 @@ uniform float Ushine;
 uniform mat4 uDepthMVP;
 uniform int hasTex;
 
+uniform float ignoreMat;
+
 //uniform float detectionLevel;
 
 varying vec3 vNormal;
@@ -34,4 +36,6 @@ void main() {
 	
 	if (hasTex == 1) 
 	   texCoordOut = texCoordIn;
+
+	if()
 }

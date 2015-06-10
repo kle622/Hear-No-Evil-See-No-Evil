@@ -26,7 +26,7 @@ bool Player::collide(GameObject* object, DebugDraw *ddraw) {
       playrSoundObj->noseSnd = playrSoundObj->startSound(playrSoundObj->noseSnd, "../dependencies/irrKlang/media/ow_my_nose.wav");
     }
     if (dynamic_cast<WinCondition*>(object)) {
-      playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/victory_music.wav");
+      playrSoundObj->winSnd = playrSoundObj->startSound(playrSoundObj->winSnd, "../dependencies/irrKlang/media/end.wav");
     }
     if (object->type == GameObject::ObjectType::COLLECTABLE) {
       Clue* clue = dynamic_cast<Clue*>(object);

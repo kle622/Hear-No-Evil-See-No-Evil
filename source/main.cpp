@@ -848,13 +848,10 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         gameObjects->list.erase(gameObjects->list.begin() + i);
     }
 
-                      //(((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
-   /* float totalArea = (((670.0 - 610.0) * (75.0 - 100.0)) - ((640.0 - 610.0) * (100.0 - 100.0)));
-    glUniform1f(pass2Handles.totalArea, totalArea);*/
-
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    glUniform1f(pass2Handles.ignoreMat, );
     glUniform1f(pass2Handles.detecDir, guardDetecDir);
     checkGLError();
     gameObjects->update();
