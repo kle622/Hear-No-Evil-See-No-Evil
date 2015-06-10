@@ -45,7 +45,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   float maxRadius = lightRadius + playerRadius;
   maxRadius = maxRadius * maxRadius;
   this->previousPlyrPos = player->position;
-  float darkObsucrement = .07;
+  float darkObsucrement = .1;
 
   if (this->detecDanger == true) {
     if (this->lightDist < maxRadius) {
@@ -66,7 +66,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
     //  //printf("lightDist: %f\n", this->lightDist);
     //}
     else {
-      lightDetecMult = (1 / sqrt(this->guardDist)) * darkObsucrement;
+      lightDetecMult = (1 / sqrt(this->guardDist)) * (1 / sqrt(this->lightDist));
      // printf("In Dark\n");
     }
     this->totalDetLvl += detecPercent * lightDetecMult;
@@ -85,7 +85,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
     player->lose();
   }
   clamp();
-  //printf("Post CLAMP DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
+  printf("Post CLAMP DetecPercent: %f * lightMult: %f  = TOTAL: %f\n\n", detecPercent, lightDetecMult, this->totalDetLvl);
 }
 
 // For now I'm assuming CROUCH does not contribute to the total detection level, 

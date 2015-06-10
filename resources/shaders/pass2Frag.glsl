@@ -27,6 +27,10 @@ varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
+uniform float width;
+uniform float height;
+uniform float detecDir;
+
 float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float _roughness) {
   vec3  half_vec = normalize( _view + _light ); // vector H 
   // Now compute the various scalar products 
@@ -175,4 +179,27 @@ void main() {
     else {
       gl_FragColor = vec4(color + avgAmbient, alpha);
     }
+
+	/*if (detecDir == 1.0) {
+	   if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
+		   && gl_FragCoord.y > (720.0 - 100.0) && gl_FragCoord.y < (720.0 - 75.0)) {
+		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
+	   }
+	}*/
+	if (detecDir == 2.0) {
+	   if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
+		   && gl_FragCoord.y > 75.0 && gl_FragCoord.y < 100) {
+		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
+	   }
+	}
+	/*if (detecDir == 3.0) {
+	   if(gl_FragCoord.x > 133.0 && gl_FragCoord.x < 158.0 && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
+		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
+	   }
+	}
+	if (detecDir == 4.0) {
+	   if(gl_FragCoord.x < (1280 - 133.0) && gl_FragCoord.x > (1280.0 - 158.0) && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
+		  gl_FragColor = vec4(0.7, 0.0, 0.0, 0.2);
+	   }
+	}*/
 }

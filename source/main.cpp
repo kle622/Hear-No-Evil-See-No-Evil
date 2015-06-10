@@ -85,6 +85,11 @@ using namespace glm;
 
 vector<Light> gLights;
 
+typedef struct triangle {
+  float x1, y1, z1, x2, y2, z2, x3, y3, z3;
+  float totalArea;
+} triangle;
+
 vector<tinyobj::shape_t> player;
 vector<tinyobj::shape_t> guard;
 vector<tinyobj::material_t> materials;
@@ -337,7 +342,10 @@ for (int i = 0; i < gLights.size(); i++) {
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap[i], 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
+
   assert(glGetError() == GL_NO_ERROR);
+  //glUniform1f(pass2Handles.width, (g_width/2.0));
+  //glUniform1f(pass2Handles.height, (g_height/2.0));
   checkGLError();
  }
 
@@ -704,6 +712,40 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
    return lightWithMinDist;
 }
 
+float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camera) {
+  vec3 cameraDir = camera->getForward();
+  //float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
+  //float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
+  float retVal, sideOfView;
+  ////printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
+  //vec3 crossProd = cross(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+  //float crossMag = length(crossProd);
+  //float dotProd = dot(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+
+  /*printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
+  printf("cross %f : dot %f \n", crossMag, dotProd);
+  if (crossProd.x < dotProd && crossProd.z < dotProd) {
+    float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
+    printf("side of plane: %f\n", sideOfView);
+    if (sideOfView > 0) {
+      retVal = 4.0;
+    }
+    else {
+      retVal = 3.0;
+    }
+  }
+  else {*/
+  float dotProd = dot(cameraDir, guard->position);
+  if (dotProd > 0) {
+      retVal = 0.0;
+  }
+  else {
+      retVal = 2.0;
+  }
+  //}
+  return retVal;
+}
+
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
@@ -797,7 +839,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       if (detectPercent > 0) {
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
-        //guardDetecDir = calculateGuardDetecDir()
+        guardDetecDir = calculateGuardDetecDir(playerObject, guard, camera3DPerson);
       }
       else {
         detecTrac->detecDanger = false;
@@ -806,15 +848,26 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
-
-    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {\
+    
+    //clue
+    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected)
         gameObjects->list.erase(gameObjects->list.begin() + i);
     }
 
+    /*Area = 1 / 2 * (-p1y*p2x + p0y*(-p1x + p2x) + p0x*(p1y - p2y) + p1x*p2y);
+    float area = 1 / 2 * ((-100.0)*((1280.0 / 2.0) + 30.0) 
+      + (100.0)*(((1280.0 / 2.0) - 30.0) + ((1280.0 / 2.0) + 30.0)) 
+      + ((1280.0 / 2.0) - 30.0)*(p1y - p2y) + p1x*p2y);*/
+
+   // triangle myTri;
+   // float totalArea = (((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
+
+
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    glUniform1f(pass2Handles.detecDir, guardDetecDir);
     checkGLError();
     gameObjects->update();
   }
