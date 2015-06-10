@@ -745,7 +745,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   //    for (int l = 0; l < gLights.size(); l++) {
   //glUniform1i(geomHandles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ground->texId);
-  glUniform1i(geomHandles.texture, 1);
+  glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
   //SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ground->getModel()));
@@ -760,7 +760,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
   //  glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ceiling->texId);
-  glUniform1i(geomHandles.texture, 1);
+  glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
   //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
@@ -775,7 +775,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       //glUniform1i(pass2Handles.hasTex, 1);
       //printf("bound texture for game object\n");
       glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-      glUniform1i(geomHandles.texture, 1);
+      glUniform1i(geomHandles.texture, 0);
       //SetMaterial(0);
     }
     else {
@@ -856,9 +856,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 void geometryPass(WorldGrid* gameObjects, float time) {
   m_gbuffer.bindForWriting();
   checkGLError();
- 
-  glUseProgram(geomHandles.prog);
-  checkGLError();
 
   glDepthMask(GL_TRUE);
   checkGLError();
@@ -870,13 +867,23 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glDisable(GL_BLEND);
   checkGLError();
 
+  glUseProgram(geomHandles.prog);
+  checkGLError();
+
   safe_glUniformMatrix4fv(geomHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
   safe_glUniformMatrix4fv(geomHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
   
+  glActiveTexture(GL_TEXTURE0);
   drawGameObjects(gameObjects, time);
 
   glDepthMask(GL_FALSE);
   glDisable(GL_DEPTH_TEST);
+
+  GLSL::disableVertexAttribArray(geomHandles.aPosition);
+  GLSL::disableVertexAttribArray(geomHandles.aNormal);
+  GLSL::disableVertexAttribArray(geomHandles.aTexCoord);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void beginLightPass() {
@@ -894,8 +901,9 @@ void beginLightPass() {
 void lightPass() {
   glUseProgram(lightHandles.prog);
   checkGLError();
-  safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
-  safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
+
+  safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(glm::mat4(1.0f)));
+  safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(glm::mat4(1.0f)));
   safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(glm::mat4(1.0f)));
   glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
@@ -1748,6 +1756,7 @@ int main(int argc, char **argv)
 	  endDrawGL();*/
 	  //}
 	geometryPass(&gameObjects, deltaTime);
+	beginLightPass();
 	lightPass();
         
         // draw debug
