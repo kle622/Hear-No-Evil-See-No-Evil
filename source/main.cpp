@@ -803,7 +803,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
           (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
       }*/
-		printf(detecTrac->detecDanger ? "p true\n" : "p false\n");
+		//printf(detecTrac->detecDanger ? "p true\n" : "p false\n");
 		detecTrac->updateSndDetect(playerObject);
       detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
         detecTrac->detecDanger = false;
@@ -1213,7 +1213,7 @@ void initPlayer(WorldGrid* gameObjects) {
 
   gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
-#define GUARD_Y_SHIFT 1.4f
+#define GUARD_Y_SHIFT 1.0f
 void initGuards(WorldGrid* gameObjects) {
   vector<PathNode> guardPath;
   FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
@@ -1237,9 +1237,9 @@ void initGuards(WorldGrid* gameObjects) {
 
       Guard* guardObject = new Guard(
           &guardMesh,
-          vec3(2.5, 2.5, 2.5),
+          vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2.5, 2.5, 2.5),
+          vec3(2, 2, 2),
           1,
           0,
           guardPath
@@ -1685,7 +1685,7 @@ int main(int argc, char **argv)
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
+    //printf("curr pos %f, %f, %f\n", playerObject->position.x, playerObject->position.y, playerObject->position.z);
   } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
       && glfwWindowShouldClose(window) == 0);
 
