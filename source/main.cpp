@@ -344,8 +344,6 @@ for (int i = 0; i < gLights.size(); i++) {
   glReadBuffer(GL_NONE);
 
   assert(glGetError() == GL_NO_ERROR);
-  //glUniform1f(pass2Handles.width, (g_width/2.0));
-  //glUniform1f(pass2Handles.height, (g_height/2.0));
   checkGLError();
  }
 
@@ -855,14 +853,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         gameObjects->list.erase(gameObjects->list.begin() + i);
     }
 
-    /*Area = 1 / 2 * (-p1y*p2x + p0y*(-p1x + p2x) + p0x*(p1y - p2y) + p1x*p2y);
-    float area = 1 / 2 * ((-100.0)*((1280.0 / 2.0) + 30.0) 
-      + (100.0)*(((1280.0 / 2.0) - 30.0) + ((1280.0 / 2.0) + 30.0)) 
-      + ((1280.0 / 2.0) - 30.0)*(p1y - p2y) + p1x*p2y);*/
-
-   // triangle myTri;
-   // float totalArea = (((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
-
+                      //(((myTri.x2 - myTri.x1) * (myTri.y3 - myTri.y1)) - ((myTri.x3 - myTri.x1) * (myTri.y2 - myTri.y1)));
+    float totalArea = (((670.0 - 610.0) * (75.0 - 100.0)) - ((640.0 - 610.0) * (100.0 - 100.0)));
+    glUniform1f(pass2Handles.totalArea, totalArea);
 
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();

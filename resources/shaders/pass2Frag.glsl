@@ -16,6 +16,7 @@ uniform vec3 allLights[MAX_LIGHTS];
 uniform vec3 uLightPos;
 
 uniform float detectionLevel;
+uniform float totalArea;
 
 // Cook Stuff
 uniform float uMatRoughness;
