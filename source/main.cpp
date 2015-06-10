@@ -711,22 +711,30 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
    return lightWithMinDist;
 }
 
+#define FORWARD_LIMIT 0.8f
+#define BACK_LIMIT -0.8f
+// 1 = forward, 2 = backward, 3 = left, 4 = right
 float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camera) {
   vec3 cameraDir = camera->getForward();
-  float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
-  float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
+  cameraDir.y = 0;
+  cameraDir = normalize(cameraDir);
+  //float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
+  //float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
   float retVal, sideOfView;
   //printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
-  vec3 crossProd = cross(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
-  float crossMag = length(crossProd);
-  float dotProd = dot(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+  vec3 ptog = guard->position - player->position;
+  ptog.y = 0.0f;
+  ptog = normalize(ptog);
+  vec3 crossProd = cross(cameraDir, ptog);
+  float crossMag = crossProd.y;
+  float dotProd = dot(cameraDir, ptog);
 
   //printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
   //printf("cross %f : dot %f \n", crossMag, dotProd);
-  if (crossProd.x < dotProd && crossProd.z < dotProd) {
-    float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
+  if (dotProd < FORWARD_LIMIT && dotProd > BACK_LIMIT) { // to a side
+    //float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
     //printf("side of plane: %f\n", sideOfView);
-    if (sideOfView > 0) {
+    if (crossMag < 0) {
       retVal = 4.0;
     }
     else {
@@ -734,7 +742,7 @@ float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camer
     }
   }
   else {
-    float dotProd = dot(cameraDir, guard->position);
+    //float dotProd = dot(cameraDir, guard->position);
     if (dotProd > 0) {
         retVal = 1.0;
     }
