@@ -798,7 +798,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ground->getModel()));
   geomHandles.draw(ground);
 
-
   //  glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ceiling->texId);
   glUniform1i(geomHandles.texture, 0);
@@ -953,12 +952,12 @@ void drawQuad()
 
 void lightPass() {
   glUseProgram(lightHandles.prog);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_CULL_FACE);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
-  glDrawBuffer(GL_FRONT);
-  glCullFace(GL_BACK);
+  //glDrawBuffer(GL_FRONT);
 
   checkGLError();
 
@@ -977,13 +976,16 @@ void lightPass() {
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
 
-  //safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(glm::mat4(1.0f)));
-  //safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(glm::mat4(1.0f)));
+  glm::mat4 scale = glm::mat4(1.0f);
+  safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(scale));
+  safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(scale));
+  //safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(glm::mat4(1.0f)));
+  //safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
   //glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10.0));
-  //glm::mat4 scale = glm::mat4(1.0f);
-  //safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(scale));
   glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
+  checkGLError();
 
 #ifdef QUAD_BULLSHIT
   drawQuad();
