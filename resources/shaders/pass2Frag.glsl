@@ -178,7 +178,7 @@ void main() {
       gl_FragColor = vec4(color + avgAmbient, alpha);
     }
 
-	if (detecDir == 1.0) {
+	/*if (detecDir == 1.0) {
 	   if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
 		   && gl_FragCoord.y > (720.0 - 100.0) && gl_FragCoord.y < (720.0 - 75.0)) {
 		  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
@@ -198,5 +198,5 @@ void main() {
 	   if(gl_FragCoord.x < (1280.0 - 133.0) && gl_FragCoord.x > (1280.0 - 158.0) && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
 		  gl_FragColor = vec4(0.7, 0.0, 0.0, 0.2);
 	   }
-	}
+	}*/
 }
