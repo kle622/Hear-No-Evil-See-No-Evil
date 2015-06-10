@@ -849,7 +849,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
 void geometryPass(WorldGrid* gameObjects, float time) {
   m_gbuffer.start();
-  //m_gbuffer.bindForWriting();
   checkGLError();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -860,7 +859,7 @@ void geometryPass(WorldGrid* gameObjects, float time) {
 
   safe_glUniformMatrix4fv(geomHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
   safe_glUniformMatrix4fv(geomHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
-  
+ 
   drawGameObjects(gameObjects, time);
 
   GLSL::disableVertexAttribArray(geomHandles.aPosition);
@@ -903,12 +902,12 @@ void lightPass() {
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getDiffTexture());
   glUniform1i(lightHandles.uColMap, 0);
 
-  glActiveTextureARB(GL_TEXTURE1_ARB);
+  glActiveTexture(GL_TEXTURE1_ARB);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getPosTexture());
   glUniform1i(lightHandles.uPosMap, 1);
 
-  glActiveTextureARB(GL_TEXTURE2_ARB);
+  glActiveTexture(GL_TEXTURE2_ARB);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
@@ -926,15 +925,15 @@ void lightPass() {
   glVertex3f(    0.0f,  (float) m_height, 0.0f);
   glEnd();*/
 
-  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glActiveTexture(GL_TEXTURE0_ARB);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  glActiveTextureARB(GL_TEXTURE1_ARB);
+  glActiveTexture(GL_TEXTURE1_ARB);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  glActiveTextureARB(GL_TEXTURE2_ARB);
+  glActiveTexture(GL_TEXTURE2_ARB);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
