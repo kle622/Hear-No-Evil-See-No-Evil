@@ -68,6 +68,7 @@ set(SOURCES
    GameObject/Shape.cpp
    GameObject/Guard.cpp
    GameObject/WinCondition.cpp
+   GameObject/DetailProp.cpp
 
    GuardPath/PathNode.cpp
 
