@@ -69,7 +69,7 @@ void main() {
      float visibility = 1.5;
      float att = 1.5;
      vec3 lightPos = allLights[i];
-     float distance = length(lightPos - surfacePos);
+     //float distance = length(lightPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
      float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
