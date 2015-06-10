@@ -777,7 +777,7 @@ void passDetectDirection(float guardDetectDir) {
   glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
   glUniform1i(pass2Handles.detecDir, guardDetectDir);
 
-  #ifdef APPLE
+  #ifdef __APPLE__
   glUniform2f(pass2Handles.pt1, pt1.x*2, pt1.y*2);
   glUniform2f(pass2Handles.pt2, pt2.x*2, pt2.y*2);
   glUniform2f(pass2Handles.pt3, pt3.x*2, pt3.y*2);
