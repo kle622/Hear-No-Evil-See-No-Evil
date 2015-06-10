@@ -19,6 +19,8 @@ set(HEADERS
    GameObject/Guard.h
    GameObject/WinCondition.h
 
+   Deferred/gbuffer.h
+
    GuardPath/PathNode.h
 
    WorldGrid/WorldGrid.h
@@ -65,11 +67,14 @@ set(SOURCES
    GameObject/Handles.cpp	
    GameObject/Pass1Handles.cpp
    GameObject/Pass2Handles.cpp
-   GameObject/GeometryPassHandles.cpp
-   GameObject/LightPassHandles.cpp
    GameObject/Shape.cpp
    GameObject/Guard.cpp
    GameObject/WinCondition.cpp
+
+
+   Deferred/GeometryPassHandles.cpp
+   Deferred/LightPassHandles.cpp
+   Deferred/gbuffer.cpp
 
    GuardPath/PathNode.cpp
 

@@ -1,8 +1,7 @@
 #ifndef __LIGHT_PASS__HANDLES__
 #define __LIGHT_PASS__HANDLES__
-#include "GameObject.h"
-#include "Shape.h"
-#include "Player.h"
+#include "../GameObject/Mesh.h"
+#include "../GameObject/Shape.h"
 
 class LightPassHandles : public Handles {
  public:
@@ -14,8 +13,9 @@ class LightPassHandles : public Handles {
   GLuint uPosMap;
   GLuint uColMap;
   GLuint uNormMap;
+  GLuint uCamPos;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
-  void draw(GameObject* obj);
+  void draw(Mesh *mesh);
   void draw(Shape* obj);
 };
 

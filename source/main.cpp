@@ -37,6 +37,9 @@
 #include "Camera/Camera3DPerson.h"
 #include "Camera/DetectionCamera.h"
 #include "Path/Path.h"
+#include "Deferred/gbuffer.h"
+#include "Deferred/LightPassHandles.h"
+#include "Deferred/GeometryPassHandles.h"
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
 #include "Textures/Textures.h"
@@ -105,6 +108,9 @@ Player* playerObject;
 vec3 oldPosition;
 Pass1Handles pass1Handles;
 Pass2Handles pass2Handles;
+GeometryPassHandles geomHandles;
+LightPassHandles lightHandles;
+GBuffer m_gbuffer;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
@@ -118,6 +124,7 @@ Mesh winMesh;
 Mesh trainMesh;
 Mesh clueMesh;
 Mesh printMesh;
+Mesh coneMesh;
 Shape *ground;
 Shape *ceiling;
 bool debug = false;
@@ -706,19 +713,43 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
    return lightWithMinDist;
 }
 
+
+/*void lightPass() {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  m_gbuffer.bindForReading();
+  
+  int half_width = g_width / 2.0f;
+  int half_height = g_height / 2.0f;
+
+  m_gbuffer.setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_POS);
+  glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, half_width, half_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+  m_gbuffer.setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_DIFF);
+  glBlitFramebufferEXT(0, 0, g_width, g_height, 0, half_height, half_width, g_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+  m_gbuffer.setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_NORM);
+  glBlitFramebufferEXT(0, 0, g_width, g_height, half_width, half_height, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+  m_gbuffer.setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_TEXCOORD);
+  glBlitFramebufferEXT(0, 0, g_width, g_height, half_width, 0, g_width, half_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+}*/
+
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
   Clue *clue;
   float guardDetecDir = 0.0;
   //    for (int l = 0; l < gLights.size(); l++) {
-  glUniform1i(pass2Handles.hasTex, 1);
+  //glUniform1i(geomHandles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ground->texId);
-  glUniform1i(pass2Handles.texture, 1);
-  SetMaterial(0);
-  SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
-  safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ground->getModel()));
-  pass2Handles.draw(ground);
+  glUniform1i(geomHandles.texture, 1);
+  //SetMaterial(0);
+  //SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
+  safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ground->getModel()));
+  geomHandles.draw(ground);
   //ground->draw();
 
   //  glUniform1i(pass2Handles.hasTex, 0);
@@ -727,13 +758,13 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   //safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
   //pass2Handles.draw(ceiling);
 
-  glUniform1i(pass2Handles.hasTex, 1);
+  //  glUniform1i(pass2Handles.hasTex, 1);
   glBindTexture(GL_TEXTURE_2D, ceiling->texId);
-  glUniform1i(pass2Handles.texture, 1);
-  SetMaterial(0);
-  SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
-  safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
-  pass2Handles.draw(ceiling);
+  glUniform1i(geomHandles.texture, 1);
+  //SetMaterial(0);
+  //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
+  safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(ceiling->getModel()));
+  geomHandles.draw(ceiling);
 
   //ceiling->draw();
   //Guard *guard;
@@ -741,28 +772,28 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   vector<shared_ptr<GameObject>> drawList = drawCam->getUnculled(gameObjects);
   for (int i = 0; i < drawList.size(); i++) {
     if (drawList[i]->mesh->hasTexture) {
-      glUniform1i(pass2Handles.hasTex, 1);
+      //glUniform1i(pass2Handles.hasTex, 1);
       //printf("bound texture for game object\n");
       glBindTexture(GL_TEXTURE_2D, drawList[i]->mesh->texId);
-      glUniform1i(pass2Handles.texture, 1);
-      SetMaterial(0);
+      glUniform1i(geomHandles.texture, 1);
+      //SetMaterial(0);
     }
     else {
-      glUniform1i(pass2Handles.hasTex, 0);
-      SetMaterial(drawList[i]->material);
+      //glUniform1i(pass2Handles.hasTex, 0);
+      //SetMaterial(drawList[i]->material);
     }
     
-    if(drawList[i]->type == GameObject::ObjectType::COLLECTABLE) {
-      glUniform1i(pass2Handles.isGlass, 1);
+    /*if(drawList[i]->type == GameObject::ObjectType::COLLECTABLE) {
+      //glUniform1i(pass2Handles.isGlass, 1);
     }
     else {
-      glUniform1i(pass2Handles.isGlass, 0);
-    }
+      //glUniform1i(pass2Handles.isGlass, 0);
+    }*/
     
     // SetMaterial(drawList[i]->material);
-    SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
-    safe_glUniformMatrix4fv(pass2Handles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
-    pass2Handles.draw(drawList[i].get());
+    // SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
+    safe_glUniformMatrix4fv(geomHandles.uModelMatrix, glm::value_ptr(drawList[i]->getModel()));
+    geomHandles.draw(drawList[i].get());
     //drawList[i]->draw();
   }
   //}
@@ -816,11 +847,69 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
-    glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    //glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
     checkGLError();
     gameObjects->update();
   }
 }
+
+void geometryPass(WorldGrid* gameObjects, float time) {
+  m_gbuffer.bindForWriting();
+  checkGLError();
+ 
+  glUseProgram(geomHandles.prog);
+  checkGLError();
+
+  glDepthMask(GL_TRUE);
+  checkGLError();
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  checkGLError();
+  glEnable(GL_DEPTH_TEST);
+  checkGLError();
+  glDisable(GL_BLEND);
+  checkGLError();
+
+  safe_glUniformMatrix4fv(geomHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(geomHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
+  
+  drawGameObjects(gameObjects, time);
+
+  glDepthMask(GL_FALSE);
+  glDisable(GL_DEPTH_TEST);
+}
+
+void beginLightPass() {
+  glEnable(GL_BLEND);
+  checkGLError();
+  glBlendEquation(GL_FUNC_ADD);
+  checkGLError();
+  glBlendFunc(GL_ONE, GL_ONE);
+  checkGLError();
+  m_gbuffer.bindForReading();
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+
+void lightPass() {
+  glUseProgram(lightHandles.prog);
+  checkGLError();
+  safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(viewCam->getProjection()));
+  safe_glUniformMatrix4fv(lightHandles.uViewMatrix, glm::value_ptr(viewCam->getView()));
+  safe_glUniformMatrix4fv(lightHandles.uModelMatrix, glm::value_ptr(glm::mat4(1.0f)));
+  glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
+  glUniform2f(lightHandles.uScreenSize, g_width, g_height);
+  glUniform1i(lightHandles.uColMap, 0); 
+  glUniform1i(lightHandles.uNormMap, 1);
+  glUniform1i(lightHandles.uPosMap, 2);
+
+  lightHandles.draw(&coneMesh);
+  
+  /*for (int i = 0; i < g_lights.size(); i++) {
+    
+  }*/
+}
+
 
 void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
@@ -1467,6 +1556,9 @@ int main(int argc, char **argv)
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
     pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
     pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
+    lightHandles.installShaders(resPath(sysPath("shaders", "lightVert.glsl")), resPath(sysPath("shaders", "lightFrag.glsl")));
+    geomHandles.installShaders(resPath(sysPath("shaders", "geometryVert.glsl")), resPath(sysPath("shaders", "geometryFrag.glsl")));
+    coneMesh.loadShapes(resPath(sysPath("models", "cone.obj")));
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));
@@ -1647,14 +1739,16 @@ int main(int argc, char **argv)
         
         camera3DPerson->update();
 	//for (int i = 0; i < gLights.size(); i++) {
-	  beginPass1Draw();
+	/*beginPass1Draw();
 	  drawPass1(&gameObjects);
 	  endPass1Draw();
 	  beginPass2Draw();
 	  getWindowInput(window, deltaTime);
 	  drawGameObjects(&gameObjects, deltaTime);
-	  endDrawGL();
+	  endDrawGL();*/
 	  //}
+	geometryPass(&gameObjects, deltaTime);
+	lightPass();
         
         // draw debug
         if (debug || boxes) {

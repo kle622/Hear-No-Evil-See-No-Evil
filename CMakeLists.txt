@@ -56,7 +56,7 @@ endforeach(SOURCE)
 # force C++11 with gcc
 SET(CMAKE_CXX_FLAGS "-std=c++0x -std=gnu++0x")
 
-SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_BUILD_TYPE Debug)
 
 include_directories(${INCLUDES})
 add_executable(${PROJECT_NAME} ${ABS_SOURCES} ${ABS_HEADERS} ${LIB_SOURCES})

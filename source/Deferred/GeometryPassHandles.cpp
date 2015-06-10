@@ -1,6 +1,6 @@
-#include "LightPassHandles.h"
+#include "GeometryPassHandles.h"
 
-bool LightPassHandles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
+bool GeometryPassHandles::installShaders(const std::string &vShaderName, const std::string &fShaderName) {
   GLint rc;
 
   // Create shader handles
@@ -48,22 +48,37 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   }
 
   aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
+  aNormal = GLSL::getAttribLocation(this->prog, "aNormal");
+  aTexCoord = GLSL::getAttribLocation(this->prog, "aTexCoordIn");
   uProj = GLSL::getUniformLocation(this->prog, "uProj");
   uView = GLSL::getUniformLocation(this->prog, "uView");
   uModel = GLSL::getUniformLocation(this->prog, "uModel");
-  uScreenSize = GLSL::getUniformLocation(this->prog, "uScreenSize");
-  uNormMap = GLSL::getUniformLocation(this->prog, "uNormMap");
-  uPosMap = GLSL::getUniformLocation(this->prog, "uPosMap");
-  uColMap = GLSL::getUniformLocation(this->prog, "uColMap");
+  texture = GLSL::getUniformLocation(this->prog, "texture");
 
   return true;
 }
 
-void LightPassHandles::draw(GameObject* obj) {
+void GeometryPassHandles::draw(GameObject* obj) {
   GLSL::enableVertexAttribArray(this->aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->posBufObj);
   glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
   
+  GLSL::enableVertexAttribArray(this->aNormal);
+  glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->norBufObj);
+  glVertexAttribPointer(this->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  if(obj->mesh->hasTexture) {
+	Wall *wall;
+	GLSL::enableVertexAttribArray(this->aTexCoord);
+	if ((wall = dynamic_cast<Wall *>(obj)) && true) {
+		glBindBuffer(GL_ARRAY_BUFFER, wall->texBufObj);
+	}
+	else {
+		glBindBuffer(GL_ARRAY_BUFFER, obj->mesh->texBufObj);
+	}
+	glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+
   for (int s = 0; s < obj->mesh->shapes.size(); ++s) {
     int nIndices = (int)obj->mesh->shapes[s].mesh.indices.size();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->mesh->indBufObj);
@@ -77,10 +92,23 @@ void LightPassHandles::draw(GameObject* obj) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
 }
 
-void LightPassHandles::draw(Shape* obj) {
+void GeometryPassHandles::draw(Shape* obj) {
   GLSL::enableVertexAttribArray(this->aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, obj->posBuffer);
   glVertexAttribPointer(this->aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  GLSL::enableVertexAttribArray(this->aNormal);
+  glBindBuffer(GL_ARRAY_BUFFER, obj->norBuffer);
+  glVertexAttribPointer(this->aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  
+  if (obj->texBuffer > 0) {
+  
+    GLSL::enableVertexAttribArray(this->aTexCoord);
+    glBindBuffer(GL_ARRAY_BUFFER, obj->texBuffer);
+    glVertexAttribPointer(this->aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->idxBuffer);
+  }
 
   glDrawArrays(GL_TRIANGLES, 0, obj->indices);
 

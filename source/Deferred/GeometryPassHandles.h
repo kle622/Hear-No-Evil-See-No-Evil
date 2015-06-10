@@ -1,8 +1,8 @@
 #ifndef __GEOMETRY_PASS__HANDLES__
 #define __GEOMETRY_PASS__HANDLES__
-#include "GameObject.h"
-#include "Shape.h"
-#include "Player.h"
+#include "../GameObject/GameObject.h"
+#include "../GameObject/Shape.h"
+#include "../GameObject/Wall.h"
 
 class GeometryPassHandles : public Handles {
  public:

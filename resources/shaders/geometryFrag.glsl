@@ -6,7 +6,7 @@ varying vec2 vTexCoord;
 uniform sampler2D texture;
 
 void main() {
-  gl_FragData[0] = vec3(texture2D(texture, vTexCoord)); // diffuse
-  gl_FragData[1] = vNormal; // normal
-  gl_FragData[2] = vWorldPos; // world pos
+  gl_FragData[0] = texture2D(texture, vTexCoord); // diffuse
+  gl_FragData[1] = vec4(vNormal, 0.0); // normal
+  gl_FragData[2] = vec4(vWorldPos, 0.0); // world pos
 }
