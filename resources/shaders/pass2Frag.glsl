@@ -28,9 +28,13 @@ varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
 
+uniform vec2 pt1;
+uniform vec2 pt2;
+uniform vec2 pt3;
+
 uniform int detecDir;
 
-int isInTri(vec2 pt1, vec2 pt2, vec2 pt3) {
+int isInTri() {
 	float i = gl_FragCoord.x;
 	float j = gl_FragCoord.y;
 	float totalArea = (((pt2.x - pt1.x) * (pt3.y - pt1.y)) - ((pt3.x - pt1.x) * (pt2.y - pt1.y)));
@@ -208,27 +212,11 @@ void main() {
     else {
       gl_FragColor = vec4(color + avgAmbient, alpha);
     }
-
-	if (detecDir == 1) {
-		int isIn = isInTri(vec2(610.0, 1000.0), vec2(670.0, 1000.0), vec2(640.0, 950.0));
-		if (isIn == 1) {
-			gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
-		}   
-	}
-	// if (detecDir == 2) {
-	//    if(gl_FragCoord.x > ((1280.0/2.0) - 300.0) && gl_FragCoord.x < ((1280.0/2.0) + 300.0) 
-	// 	   && gl_FragCoord.y > 75.0 && gl_FragCoord.y < 100) {
-	// 	  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
-	//    }
-	// }
-	// if (detecDir == 3) {
-	//    if(gl_FragCoord.x > 133.0 && gl_FragCoord.x < 158.0 && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
-	// 	  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.2);
-	//    }
-	// }
-	// if (detecDir == 4) {
-	//    if(gl_FragCoord.x < (1280.0 - 133.0) && gl_FragCoord.x > (1280.0 - 158.0) && gl_FragCoord.y < (720.0 - 100.0) && gl_FragCoord.y > 100.0) {
-	// 	  gl_FragColor = vec4(0.7, 0.0, 0.0, 0.2);
-	//    }
-	// }
+		
+	if (detecDir > 0) {
+	    int isIn = isInTri();
+		if(isIn == 1) {
+			gl_FragColor = vec4(0.7, 0.0, 0.0, 0.5);
+		}
+	}   
 }

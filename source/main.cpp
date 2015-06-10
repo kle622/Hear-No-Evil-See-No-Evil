@@ -736,13 +736,45 @@ float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camer
   else {
     float dotProd = dot(cameraDir, guard->position);
     if (dotProd > 0) {
-        retVal = 0.0;
+        retVal = 1.0;
     }
     else {
         retVal = 2.0;
     }
   }
-  return retVal = 1;
+  return retVal;
+}
+
+void passDetectDirection(float guardDetectDir) {
+  vec2 pt1, pt2, pt3;
+  // Forward Triangle
+  if (guardDetectDir == 1.0) {
+    pt1 = vec2(590, 620);
+    pt2 = vec2(690, 620);
+    pt3 = vec2(640, 670);
+  }
+  // Backward Triangle
+  else if (guardDetectDir == 2.0) {
+    pt1 = vec2(590, 100);
+    pt2 = vec2(640, 50); 
+    pt3 = vec2(690, 100);
+  }
+  // Left Triangle
+  else if (guardDetectDir == 3.0) {
+    pt1 = vec2(50, 360);
+    pt2 = vec2(100, 410);
+    pt3 = vec2(100, 310);
+  }
+  // Right Triangle
+  else if (guardDetectDir == 4.0) {
+    pt1 = vec2(1230, 360);
+    pt2 = vec2(1180, 410);
+    pt3 = vec2(1180, 310);
+  }
+  glUniform2f(pass2Handles.pt1, pt1.x, pt1.y);
+  glUniform2f(pass2Handles.pt2, pt2.x, pt2.y);
+  glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
+  glUniform1i(pass2Handles.detecDir, guardDetectDir);
 }
 
 //PASS different number of lights! Not a different number of renderings?
@@ -866,8 +898,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-    glUniform1i(pass2Handles.ignoreMat, 0);
-    glUniform1i(pass2Handles.detecDir, guardDetecDir);
+    passDetectDirection(guardDetecDir);
     checkGLError();
     gameObjects->update();
   }

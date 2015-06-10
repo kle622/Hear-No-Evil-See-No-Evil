@@ -71,6 +71,9 @@ bool Pass2Handles::installShaders(const std::string &vShaderName, const std::str
   ignoreMat = GLSL::getUniformLocation(this->prog, "ignoreMat");
   //uAttenuation = GLSL::getUniformLocation(this->prog, "attenuation");
   isGlass = GLSL::getUniformLocation(this->prog, "isGlass");
+  pt1 = GLSL::getUniformLocation(this->prog, "pt1");
+  pt2 = GLSL::getUniformLocation(this->prog, "pt2");
+  pt3 = GLSL::getUniformLocation(this->prog, "pt3");
   return true;
 }
 
