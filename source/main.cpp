@@ -327,7 +327,7 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 }
 
 
-void initFramebuffer() {
+/*void initFramebuffer() {
 for (int i = 0; i < gLights.size(); i++) {
   glGenFramebuffersEXT(1, &frameBufObj[i]);
   assert(frameBufObj > 0);
@@ -357,11 +357,11 @@ for (int i = 0; i < gLights.size(); i++) {
   // Unbind the arrays
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   assert(glGetError() == GL_NO_ERROR);
-}
+}*/
 
 void initGL() {
   // Set the background color
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
   // Enable Z-buffer test
   glEnable(GL_DEPTH_TEST);
   glPointSize(18);
@@ -591,7 +591,7 @@ int findClosestLight() {
 }
 
 
-void beginPass1Draw() {
+/*void beginPass1Draw() {
   closestLNdx = findClosestLight();
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
   //cerr << "BeginPass1Draw error line 537: " << glGetError() << endl;
@@ -609,9 +609,9 @@ void beginPass1Draw() {
   //cerr << glGetError() << endl;
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
-}
+}*/
 
-void drawPass1(WorldGrid* gameObjects) {
+/*void drawPass1(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
   //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
@@ -628,9 +628,9 @@ void drawPass1(WorldGrid* gameObjects) {
   //}
 
   gameObjects->update();
-}
+}*/
 
-void SetLightUniform(Light light, int ndx) {
+/*void SetLightUniform(Light light, int ndx) {
   ostringstream stream;
   ///Array of handles
   stream << "allLights[" << ndx << "]";
@@ -640,9 +640,9 @@ void SetLightUniform(Light light, int ndx) {
   //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
   checkGLError();
   glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
-}
+}*/
 
-void beginPass2Draw() {
+/*void beginPass2Draw() {
   //Second Pass
   glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -674,7 +674,7 @@ void beginPass2Draw() {
   safe_glUniformMatrix4fv(pass2Handles.uViewMatrix, glm::value_ptr(viewCam->getView()));
 
   checkGLError();
-}
+}*/
 
 //void inLightCalc(vec3 first, vec3 second, float max, Light thisLight) {
 //  float deltaX = first.x - second.x;
@@ -874,7 +874,7 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   checkGLError();
 }
 
-void beginLightPass() {
+/*void beginLightPass() {
   // glEnable(GL_BLEND);
   checkGLError();
   //glBlendEquation(GL_FUNC_ADD);
@@ -882,7 +882,7 @@ void beginLightPass() {
   //glBlendFunc(GL_ONE, GL_ONE);
   checkGLError();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+}*/
 
 
 void lightPass() {
@@ -944,18 +944,18 @@ void lightPass() {
 
 
 
-void endPass1Draw() {
+/*void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   //glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-}
+}*/
 
 void endDrawGL() {
 
-  GLSL::disableVertexAttribArray(pass2Handles.aPosition);
+  /*GLSL::disableVertexAttribArray(pass2Handles.aPosition);
   GLSL::disableVertexAttribArray(pass2Handles.aNormal);
-  GLSL::disableVertexAttribArray(pass2Handles.aTexCoord);
+  GLSL::disableVertexAttribArray(pass2Handles.aTexCoord);*/
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -1653,7 +1653,7 @@ int main(int argc, char **argv)
     initGround();
     initCeiling();
     //initDetectionTracker(&gameObjects);
-    initFramebuffer();
+    //initFramebuffer();
    
     readIntroSpline();
 

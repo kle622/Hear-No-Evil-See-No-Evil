@@ -79,7 +79,7 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
 
   GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
   if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-    throw std::runtime_error("FRAME BUFFER NOT OKAY!");
+    //throw std::runtime_error("FRAME BUFFER NOT OKAY!");
   }
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
