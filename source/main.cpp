@@ -86,6 +86,53 @@ using namespace glm;
 //  glm::vec3 coneDirection;
 //};
 
+#define QUAD_BULLSHIT
+#ifdef QUAD_BULLSHIT
+GLuint quad_VertexArrayID;
+static const GLfloat g_quad_vertex_buffer_data[] = {
+    -1.0f, -1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,
+};
+/*static const GLfloat g_quad_vertex_buffer_data[] = {
+    -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    0.5f,  0.5f, 0.0f,
+};*/
+static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+};
+/*static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    0.5f, 0.0f,
+    0.0f, 0.5f,
+    0.0f, 0.5f,
+    0.5f, 0.0f,
+    0.5f, 0.5f,
+};*/
+/*static const GLfloat g_quad_uv_buffer_data[] = {
+    0.0f, 0.0f,
+    2.0f, 0.0f,
+    0.0f, 2.0f,
+    0.0f, 2.0f,
+    2.0f, 0.0f,
+    2.0f, 2.0f,
+};*/
+GLuint quad_vertexbuffer;
+GLuint quad_uvbuffer;
+#endif
+
 vector<Light> gLights;
 
 vector<tinyobj::shape_t> player;
@@ -883,11 +930,36 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }*/
 
+#ifdef QUAD_BULLSHIT
+void drawQuad()
+{
+  // draw shape
+  GLSL::enableVertexAttribArray(lightHandles.aPosition);
+  glBindVertexArray(quad_VertexArrayID);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glVertexAttribPointer(lightHandles.aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  checkGLError();
+
+  GLSL::enableVertexAttribArray(lightHandles.aUV);
+  checkGLError();
+  glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
+  checkGLError();
+  glVertexAttribPointer(lightHandles.aUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  checkGLError();
+
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 3 * 6);
+}
+#endif
 
 void lightPass() {
+  glUseProgram(lightHandles.prog);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glUseProgram(lightHandles.prog);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+  glDrawBuffer(GL_BACK);
+  glCullFace(GL_BACK);
+
   checkGLError();
 
   safe_glUniformMatrix4fv(lightHandles.uProjMatrix, glm::value_ptr(glm::mat4(1.0f)));
@@ -912,7 +984,10 @@ void lightPass() {
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
 
-  lightHandles.draw(&coneMesh);
+#ifdef QUAD_BULLSHIT
+  drawQuad();
+#endif
+  //lightHandles.draw(&coneMesh);
 
   /*  glBegin(GL_QUADS);
   glTexCoord2f( 0, 0 );
@@ -1538,6 +1613,25 @@ void initWalls(WorldGrid* gameObjects) {
 
 }
 
+#ifdef QUAD_BULLSHIT
+void initQuad() 
+{
+  glGenVertexArrays(1, &quad_VertexArrayID);
+  assert(quad_VertexArrayID > 0);
+  glBindVertexArray(quad_VertexArrayID);
+
+  glGenBuffers(1, &quad_vertexbuffer);
+  assert(quad_vertexbuffer > 0);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
+
+  glGenBuffers(1, &quad_uvbuffer);
+  assert(quad_uvbuffer > 0);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_uv_buffer_data) * sizeof(GLfloat), &g_quad_uv_buffer_data[0], GL_STATIC_DRAW);
+}
+#endif
+
 int main(int argc, char **argv)
 {
     // Sound Object
@@ -1691,6 +1785,10 @@ int main(int argc, char **argv)
 
 #ifdef DEBUG
     curveOutput.open(resPath("introCurveSample.txt"));
+#endif
+
+#ifdef QUAD_BULLSHIT
+    initQuad();
 #endif
     
     double timeCounter = 0;

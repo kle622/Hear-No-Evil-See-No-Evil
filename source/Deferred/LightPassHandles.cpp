@@ -49,6 +49,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   }
 
   aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
+  aUV = GLSL::getAttribLocation(this->prog, "aUV");
   uProj = GLSL::getUniformLocation(this->prog, "uProj");
   uView = GLSL::getUniformLocation(this->prog, "uView");
   uModel = GLSL::getUniformLocation(this->prog, "uModel");
