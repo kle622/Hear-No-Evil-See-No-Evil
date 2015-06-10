@@ -1632,11 +1632,7 @@ void initQuad()
   assert(quad_vertexbuffer > 0);
   glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
-
-  glGenBuffers(1, &quad_uvbuffer);
-  assert(quad_uvbuffer > 0);
-  glBindBuffer(GL_ARRAY_BUFFER, quad_uvbuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_uv_buffer_data) * sizeof(GLfloat), &g_quad_uv_buffer_data[0], GL_STATIC_DRAW);
+  
 }
 #endif
 
