@@ -23,7 +23,7 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
   glGenRenderbuffersEXT(1, &m_normRT);
   glGenRenderbuffersEXT(1, &m_depthBuff);
 
-  glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, m_fbo);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
 
   //bind diffuse render target
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_diffRT);
@@ -90,7 +90,7 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
 void GBuffer::start() {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
   
-  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glActiveTexture(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
   
   GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT};
