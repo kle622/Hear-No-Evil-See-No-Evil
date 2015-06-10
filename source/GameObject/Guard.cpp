@@ -22,10 +22,9 @@ Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	foundPlayer = false;
 	playerTimer = 0.0f;
 }
-
+#define GUARD_INTEREST 3.0f
 void Guard::move(float time) {
-	if (staring) {
-		// turn to face the player
+	if (staring) { // the guard has become aware of the player, turn to investigate
 		vec3 gtop = lastSeen - position; // guard to player vector
 		gtop.y = 0;
 		gtop = normalize(gtop);
@@ -36,16 +35,23 @@ void Guard::move(float time) {
 			float cross_y = cross(direction, gtop).y;
 			if (cross_y * stareTurnDir < 0) { // we see the player, now just set the direction to be the vector to the player
 				foundPlayer = true;
-				lastSeen = vec3(playerObject->position.x, 0, playerObject->position.z);
+				//lastSeen = vec3(playerObject->position.x, 0, playerObject->position.z);
 			}
 		}
 		if (foundPlayer) { // check to see if we should turn to follow the player
 			// we somehow want to stop following the player if we lose sight
-			if ()
+			gtop = lastSeen - position; // guard to player vector
+			gtop.y = 0;
+			gtop = normalize(gtop);
 			direction = gtop;
+			playerTimer += time;
+			if (playerTimer > GUARD_INTEREST) { // the guard has been staring at this spot long enough to forget about the player, go back to moving normally
+				playerTimer = 0.0f;
+				staring = false;
+			}
 		}
 	}
-	else {
+	if (!staring) { // we are following the guardPath normally
 		oldPosition = position;
 		if (moving) { // moving between path nodes
 			//set movement direction
