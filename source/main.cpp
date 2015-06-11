@@ -319,8 +319,9 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 
   glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
-  pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
-    safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+  safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP));
+  // pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
+  //safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
   //cerr << glGetError() << endl;
   //  assert(glGetError() == GL_NO_ERROR);
@@ -858,9 +859,6 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glActiveTextureARB(GL_TEXTURE2_ARB);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
 
-  glActiveTextureARB(GL_TEXTURE3_ARB);
-  glBindTexture(GL_TEXTURE_2D, m_gbuffer.getDepthTexture());
-
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
 
@@ -893,14 +891,8 @@ void lightPass() {
 
   m_gbuffer.stop();
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  glEnable(GL_STENCIL_TEST);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   checkGLError();
-
-  glStencilFunc(GL_ALWAYS, 0, 0);
-
-  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
@@ -936,8 +928,6 @@ void lightPass() {
 }
 
 void endLightPass() {
-  glDisable(GL_STENCIL_TEST);
-
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -1595,7 +1585,8 @@ int main(int argc, char **argv)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initGL();
     assert(glGetError() == GL_NO_ERROR);
-    
+
+    m_dbuffer.Init(g_width, g_height);
     m_gbuffer.Init(g_width, g_height);
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));

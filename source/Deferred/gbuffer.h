@@ -19,7 +19,6 @@ class GBuffer {
   GLuint getDiffTexture();
   GLuint getPosTexture();
   GLuint getNormTexture();
-  GLuint getDepthTexture();
 
  private:
   GLuint m_fbo;
@@ -30,8 +29,6 @@ class GBuffer {
   GLuint m_normRT;
   unsigned int m_normTex;
   GLuint m_depthBuff;
-  unsigned int m_depthTex;
-  GLuint m_depthRT;
   
   unsigned int width;
   unsigned int height;

@@ -12,15 +12,16 @@ class DBuffer {
   DBuffer();
   ~DBuffer();
 
-  void Init(int w_width, int w_height);
+  bool Init(unsigned int w_width, unsigned int w_height);
   void start();
   void stop();
+  GLuint getDepthTex();
 
  private:
-  int width, height;
+  unsigned int width, height;
   GLuint m_fbo;
   GLuint m_depthBuffRT;
-  unsigned int m_depthTex;
+  GLuint m_depthTex;
 };
 
 #endif
