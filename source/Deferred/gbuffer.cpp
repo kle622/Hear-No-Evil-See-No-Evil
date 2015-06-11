@@ -27,17 +27,17 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
 
   //bind diffuse render target
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_diffRT);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, width, height);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGB, width, height);
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, m_diffRT);
   
   //bind position render target
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_posRT);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA32F, width, height);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGB, width, height);
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_RENDERBUFFER_EXT, m_posRT);  
 
   //bind normal render target
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_normRT);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA16F, width, height);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGB, width, height);
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_RENDERBUFFER_EXT, m_normRT);
 
   //bind depth buffer
@@ -48,7 +48,7 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
   //bind diffuse texture
   glGenTextures(1, &m_diffTex);
   glBindTexture(GL_TEXTURE_2D, m_diffTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -59,7 +59,7 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
   //bind pos texture
   glGenTextures(1, &m_posTex);
   glBindTexture(GL_TEXTURE_2D, m_posTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -70,7 +70,7 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
   //bind norm texture
   glGenTextures(1, &m_normTex);
   glBindTexture(GL_TEXTURE_2D, m_normTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -89,15 +89,14 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
 
 void GBuffer::start() {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
-  
-  GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT};
-  glDrawBuffers(3, drawBuffs);
 
   // Clear the render targets
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-  glDrawBuffer(GL_NONE);
-  glReadBuffer(GL_NONE);
+  
+  GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT};
+  glDrawBuffers(3, drawBuffs);
+
 }
 
 void GBuffer::stop() {

@@ -12,8 +12,7 @@ varying vec3 vWorldPos;
 varying vec2 vTexCoord;
 
 void main() {
-  vTexCoord = aTexCoordIn;
-  gl_TexCoord[0] = gl_MultiTexCoord0;	
+  vTexCoord = aTexCoordIn;	
   vNormal = vec3(uModel * vec4(aNormal, 0.0));
   vWorldPos = vec3(uModel * vec4(aPosition, 1.0));
   gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
