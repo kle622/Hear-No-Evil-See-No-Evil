@@ -37,6 +37,7 @@
 #include "Camera/DetectionCamera.h"
 #include "Path/Path.h"
 #include "Deferred/gbuffer.h"
+#include "Deferred/dbuffer.h"
 #include "Deferred/LightPassHandles.h"
 #include "Deferred/GeometryPassHandles.h"
 #include "WorldGrid/WorldGrid.h"
@@ -104,11 +105,12 @@ Camera *viewCam;  // camera that's used for setting the view (controlled by mous
 Camera3DPerson *camera3DPerson;
 Player* playerObject;
 vec3 oldPosition;
-Pass1Handles pass1Handles;
+Pass1Handles depthHandles;
 Pass2Handles pass2Handles;
 GeometryPassHandles geomHandles;
 LightPassHandles lightHandles;
 GBuffer m_gbuffer;
+DBuffer m_dbuffer;
 Mesh guardMesh;
 Mesh playerMesh;
 Mesh cubeMesh;
@@ -317,7 +319,7 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 
   glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
-  pass1 ? safe_glUniformMatrix4fv(geomHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
+  pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
     safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
   //cerr << glGetError() << endl;
@@ -610,24 +612,25 @@ int findClosestLight() {
   checkGLError();
 }*/
 
-/*void drawPass1(WorldGrid* gameObjects) {
+void drawShadowPass(WorldGrid* gameObjects) {
   Guard *guard;
   // draw
   //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   //pass1Handles.draw(ground);
+  closestLNdx = findClosestLight();
   vector<shared_ptr<GameObject>> drawList = gameObjects->list;
   vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
   drawList.insert(drawList.end(), walls.begin(), walls.end());
   //  for (int l = 0; l < gLights.size(); l++) {
   for (int i = 0; i < drawList.size(); i++) {
     SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(closestLNdx));
-    pass1Handles.draw(drawList[i].get());
+    depthHandles.draw(drawList[i].get());
     //drawList[i]->draw();
   }
   //}
 
   gameObjects->update();
-}*/
+}
 
 /*void SetLightUniform(Light light, int ndx) {
   ostringstream stream;
@@ -821,6 +824,19 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     checkGLError();
     gameObjects->update();
   }
+}
+
+void shadowPass(WorldGrid* gameObjects) {
+  m_dbuffer.start();
+
+  glEnable(GL_DEPTH_TEST);
+  glCullFace(GL_FRONT); 
+
+  glUseProgram(depthHandles.prog);
+
+  drawShadowPass(gameObjects);
+
+
 }
 
 void geometryPass(WorldGrid* gameObjects, float time) {
@@ -1583,7 +1599,7 @@ int main(int argc, char **argv)
     m_gbuffer.Init(g_width, g_height);
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
-    //pass1Handles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
+    depthHandles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
     //pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     lightHandles.installShaders(resPath(sysPath("shaders", "lightVert.glsl")), resPath(sysPath("shaders", "lightFrag.glsl")));
     geomHandles.installShaders(resPath(sysPath("shaders", "geometryVert.glsl")), resPath(sysPath("shaders", "geometryFrag.glsl")));
@@ -1776,6 +1792,7 @@ int main(int argc, char **argv)
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();*/
 	  //}
+	shadowPass(&gameObjects);
 	getWindowInput(window, deltaTime);
 	geometryPass(&gameObjects, deltaTime);
 	endDrawGL();
