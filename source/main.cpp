@@ -1321,6 +1321,7 @@ void initObjects(WorldGrid* gameObjects) {
                   spotLight.color = glm::vec3(1.0, 1.0, 1.0);
                   spotLight.angle = 15.0f;
                   spotLight.direction = glm::vec3(0.0, -1.0, 0.0);*/
+                  spotLight.direction = glm::vec3(0.0, -1.0, 0.0);
                   gLights.push_back(spotLight);
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
