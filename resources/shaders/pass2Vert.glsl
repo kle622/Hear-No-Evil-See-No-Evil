@@ -24,14 +24,14 @@ varying vec2 texCoordOut;
 
 // CHECKPOINT!!!!!!!!!
 void main() {
-  vec3 pre_pos = vec3(uModelMatrix * vec4(aPosition, 1.0));
-  gl_Position = uProjMatrix * uViewMatrix * vec4(pre_pos, 1.0); // vec4
-  vec3 normal_fin = normalize(vec3(uModelMatrix * vec4(aNormal, 0.0)));
+	vec3 pre_pos = vec3(uModelMatrix * vec4(aPosition, 1.0));
+	gl_Position = uProjMatrix * uViewMatrix * vec4(pre_pos, 1.0); // vec4
+	vec3 normal_fin = normalize(vec3(uModelMatrix * vec4(aNormal, 0.0)));
 
-  vNormal = normal_fin; // normalized
-  vPos = pre_pos;
-  ShadowCoord = uDepthMVP * vec4(aPosition, 1.0);
-
-  if (hasTex == 1) 
-    texCoordOut = texCoordIn;
+	vNormal = normal_fin; // normalized
+	vPos = pre_pos;
+	ShadowCoord = uDepthMVP * vec4(aPosition, 1.0);
+	
+	if (hasTex == 1) 
+	   texCoordOut = texCoordIn;
 }

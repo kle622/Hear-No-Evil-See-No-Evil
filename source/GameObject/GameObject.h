@@ -31,7 +31,8 @@ class GameObject {
   
  public:
 	 enum class ObjectType{
-     COLLECTABLE,
+		 DETAIL,
+	     COLLECTABLE,
 		 STATIC,
 		 PUSHABLE,
 		 GUARD,

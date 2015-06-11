@@ -11,7 +11,7 @@
 #include "../glm/glm.hpp"
 #include "../DetectionTracker/DetectionTracker.h"
 
-#define GUARD_SPIN_SPEED 75.0f
+#define GUARD_SPIN_SPEED 25.0f
 #define GUARD_VISION_RANGE 0.2
 
 using namespace std;
@@ -26,20 +26,30 @@ public:
 	std::vector<PathNode> motionPath;
 	int pathDirection;
 	bool moving;
+
+	bool staring; // whether or not we're in staring mode
+	bool foundPlayer; // whether or not our view has been centered on the player or not
+	float playerTimer; // how long since we last saw the player
+	vec3 lastSeen;
+
 	int currentNode;
 	int sweepDirection; // 1 = clockwise, -1 = ccw
 	float waitTime;
 	int originalMaterial;
+	Player *playerObject;
+  char* reactSnd;
+  char* dismissSnd;
 
 	//Constructor
 	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
-		int scanRadius, int material, vector<PathNode> motionPath);
+    int scanRadius, int material, vector<PathNode> motionPath, Player *player, char* reactSnd, char* dismissSnd);
 
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
+	void stare();
   glm::mat4 getModel();
-	float detect(WorldGrid *world, Player* player, DetectionCamera *cam, DetectionTracker *detecTrac);
+	float detect(WorldGrid *world, DetectionCamera *cam, DetectionTracker *detecTrac);
 };
 
 #endif

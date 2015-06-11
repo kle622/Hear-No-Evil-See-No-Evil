@@ -1,6 +1,7 @@
 #include "GameObject.h"
+#include "WinCondition.h"
 #include "Player.h"
-#define DECELERATION 0.45f
+#define DECELERATION 1.4f
 
 GameObject::GameObject(Mesh *mesh,
 		       vec3 position, vec3 scale, float rotation, 
@@ -56,6 +57,9 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
     float objectRadius = object->dimensions.x + object->dimensions.y + 
         object->dimensions.z;
 
+	if (object->type == ObjectType::DETAIL && !dynamic_cast<WinCondition*>(object))
+		return false;
+
     if (compareDistance(position, object->position, thisRadius + objectRadius)) {
         if (intersect(position.x, object->position.x, dimensions.x, object->dimensions.x) &&
             intersect(position.y, object->position.y, dimensions.y, object->dimensions.y) &&
@@ -75,6 +79,9 @@ bool GameObject::collide(GameObject* object, DebugDraw *ddraw) {
 				ddraw->addLine(oldPosition, oldPosition + direction * velocity, vec3(1, 1, 1), true);
 				ddraw->addLine(object->position, object->position + object->direction * object->velocity, vec3(1, 1, 1), true);
             }
+
+			if (dynamic_cast<WinCondition*>(object))
+				return true;
 
 			
 				// Smooth Sliding Collisions

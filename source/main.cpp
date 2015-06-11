@@ -30,6 +30,7 @@
 #include "GameObject/ShadowMapPass2Handles.h"
 #include "GameObject/Mesh.h"
 #include "GameObject/WinCondition.h"
+#include "GameObject/DetailProp.h"
 #include "GameObject/VisualMeter.h"
 #include "Camera/Camera.h"
 #include "Camera/Camera3DPerson.h"
@@ -64,7 +65,7 @@
 #define GUARD_FAR 20.0f
 #define GUARD_FOV 70.0f
 
-#define GUARD_SPEED 5.0f
+#define GUARD_SPEED 4.0f
 #define BOTTOM_LEVEL 1.0f
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
@@ -109,6 +110,7 @@ Mesh barrel;
 Mesh boxStackMesh;
 Mesh tableMesh;
 Mesh chairMesh;
+Mesh lightMesh;
 Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
@@ -577,14 +579,14 @@ int findClosestLight() {
 
 void SetLightUniform(Light light, int ndx) {
   if (ndx < MAX_LIGHTS) {
-    ostringstream stream;
-    ///Array of handles
+  ostringstream stream;
+  ///Array of handles
     stream << "uLightPos[" << ndx << "]";
-    checkGLError();
-    //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
+  checkGLError();
+  //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
     lightHandles.uLightPos[ndx] = GLSL::getUniformLocation(lightHandles.prog, stream.str().c_str());
-    //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
-    checkGLError();
+  //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
+  checkGLError();
     glUniform3f(lightHandles.uLightPos[ndx], light.position.x, light.position.y, light.position.z);
   }
 }
@@ -660,6 +662,87 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
    return lightWithMinDist;
 }
 
+#define FORWARD_LIMIT 0.8f
+#define BACK_LIMIT -0.8f
+// 1 = forward, 2 = backward, 3 = left, 4 = right
+float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camera) {
+  vec3 cameraDir = camera->getForward();
+  cameraDir.y = 0;
+  cameraDir = normalize(cameraDir);
+  //float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
+  //float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
+  float retVal, sideOfView;
+  //printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
+  vec3 ptog = guard->position - player->position;
+  ptog.y = 0.0f;
+  ptog = normalize(ptog);
+  vec3 crossProd = cross(cameraDir, ptog);
+  float crossMag = crossProd.y;
+  float dotProd = dot(cameraDir, ptog);
+
+  //printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
+  //printf("cross %f : dot %f \n", crossMag, dotProd);
+  if (dotProd < FORWARD_LIMIT && dotProd > BACK_LIMIT) { // to a side
+    //float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
+    //printf("side of plane: %f\n", sideOfView);
+    if (crossMag < 0) {
+      retVal = 4.0;
+    }
+    else {
+      retVal = 3.0;
+    }
+  }
+  else {
+    //float dotProd = dot(cameraDir, guard->position);
+    if (dotProd > 0) {
+        retVal = 1.0;
+    }
+    else {
+        retVal = 2.0;
+    }
+  }
+  return retVal;
+}
+
+void passDetectDirection(float guardDetectDir) {
+  vec2 pt1, pt2, pt3;
+  // Forward Triangle
+  if (guardDetectDir == 1.0) {
+    pt1 = vec2(565, 570);
+    pt2 = vec2(715, 570);
+    pt3 = vec2(640, 645);
+  }
+  // Backward Triangle
+  else if (guardDetectDir == 2.0) {
+    pt1 = vec2(565, 125);
+    pt2 = vec2(715, 125); 
+    pt3 = vec2(640, 50);
+  }
+  // Left Triangle
+  else if (guardDetectDir == 3.0) {
+    pt1 = vec2(100, 360);
+    pt2 = vec2(175, 435);
+    pt3 = vec2(175, 285);
+  }
+  // Right Triangle
+  else if (guardDetectDir == 4.0) {
+    pt1 = vec2(1180, 360);
+    pt2 = vec2(1105, 435);
+    pt3 = vec2(1105, 285);
+  }
+
+  glUniform2f(pass2Handles.pt1, pt1.x, pt1.y);
+  glUniform2f(pass2Handles.pt2, pt2.x, pt2.y);
+  glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
+  glUniform1i(pass2Handles.detecDir, guardDetectDir);
+
+  #ifdef __APPLE__
+  glUniform2f(pass2Handles.pt1, pt1.x*2, pt1.y*2);
+  glUniform2f(pass2Handles.pt2, pt2.x*2, pt2.y*2);
+  glUniform2f(pass2Handles.pt3, pt3.x*2, pt3.y*2);
+  #endif
+
+}
 
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
@@ -716,7 +799,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   }
   //}
 
-  // collide
+  // collide and move
   for (int i = 0; i < gameObjects->list.size(); i++) {
     gameObjects->list[i]->move(time);
     vector<shared_ptr<GameObject>> proximity =
@@ -731,40 +814,35 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-      detecTrac->updateSndDetect(dynamic_cast<Player *>(gameObjects->list[i].get()));
-      // Search through the lights if inside light, save that light to the detecTrac object
-      /*for (int L = 0; L < gLights.size(); L++) {
-        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
-          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
-      }*/
-      detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
-    }
 
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
-      float detectPercent = guard->detect(gameObjects, playerObject, detectCam, detecTrac);
+      float detectPercent = guard->detect(gameObjects, detectCam, detecTrac);
       if (detectPercent > 0) {
+		  if (detecTrac->totalDetLvl > 0.5 || guard->staring) {
+			  guard->stare();
+		  }
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
-        //guardDetecDir = calculateGuardDetecDir()
+        guardDetecDir = calculateGuardDetecDir(playerObject, guard, camera3DPerson);
       }
-      else {
+    }
+    
+    if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
+		detecTrac->updateSndDetect(playerObject);
+      detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
         detecTrac->detecDanger = false;
       }
-      if (detectPercent > 0) {
-        soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
+
+    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
+      if (clue->isCollected) {
+        gameObjects->remove(i);
       }
     }
 
-    if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {\
-      if (clue->isCollected)
-        gameObjects->list.erase(gameObjects->list.begin() + i);
-    }
-
-    //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
+    glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    passDetectDirection(guardDetecDir);
     //glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
     checkGLError();
     gameObjects->update();
@@ -785,7 +863,7 @@ void drawShadowPass(WorldGrid* gameObjects) {
     SetDepthMVP(true, drawList[i]->getModel(), gLights.at(closestLNdx));
     depthHandles.draw(drawList[i].get());
     //drawList[i]->draw();
-  }
+}
   //}
 
   gameObjects->update();
@@ -1086,12 +1164,12 @@ void initObjects(WorldGrid* gameObjects) {
         //printf("case 3\n");
         gameObjects->add(shared_ptr<GameObject>(new GameObject(
                 &barrel,
-                vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                vec3(1, 1, 1),
+                vec3(i - (TEST_WORLD/2), 0.3f, j - (TEST_WORLD/2)),
+                vec3(1, 1.3, 1),
                 getRand(0, 360),
                 vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                 0,
-                vec3(1.5, 2, 1.5),
+                vec3(1.5, 2.5, 1.5),
                 1,
                 0,
                 GameObject::ObjectType::STATIC
@@ -1161,23 +1239,23 @@ void initObjects(WorldGrid* gameObjects) {
                 GameObject::ObjectType::STATIC
                 )));
         break;
-      case '9': //flag
+      case '9': //blob
         //printf("case 9\n");
         gameObjects->add(shared_ptr<GameObject>(new WinCondition(
                 &winMesh,
-                vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-                vec3(4, 6, 4),
+                vec3(i - (TEST_WORLD/2), -0.8f, j - (TEST_WORLD/2)),
+                vec3(2.5f, 4, 2.5f),
                 0,
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(2, 1, 2),
+                vec3(5, 1, 5),
                 1,
                 3
                 )));
         break;
       case 'T': //pedestal
         //printf("case 9\n");
-        gameObjects->add(shared_ptr<GameObject>(new WinCondition(
+        gameObjects->add(shared_ptr<GameObject>(new GameObject(
                 &trainMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
                 vec3(8, 8, 8),
@@ -1186,7 +1264,8 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(4, 4, 14),
                 1,
-                3
+                3,
+                GameObject::ObjectType::STATIC
                 )));
         break;
       case 'L': {
@@ -1195,6 +1274,16 @@ void initObjects(WorldGrid* gameObjects) {
                   //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
                   Light spotLight;
                   spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
+				  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
+					  &lightMesh,
+					  spotLight.position + vec3(0, 1.3, 0),
+					  vec3(3, 2.0f, 3),
+					  0,
+					  vec3(0, 0, 1),
+					  0,
+					  vec3(3, 8, 3),
+					  9
+					  )));
                   //printf("i: %d, j: %d\n", i, j);
                   //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
                   spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
@@ -1239,7 +1328,7 @@ void initObjects(WorldGrid* gameObjects) {
         gameObjects->add(shared_ptr<GameObject>(new Clue(
                 &clueMesh,
                 vec3(i - (TEST_WORLD/2), 1, j - (TEST_WORLD/2)),
-                vec3(-64.59f, 0, 95.87f),
+                vec3(-47.0f, 0, -3.0f),
                 vec3(1, 1, 1),
                 vec3(0, 0, 1), // direction
                 0,
@@ -1265,43 +1354,40 @@ void initObjects(WorldGrid* gameObjects) {
                 )));
               break;
 	case 'f':
-	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
 								 &printMesh,
 								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
 								 vec3(0.5, 0.1, 0.5),
 								 0,
 								 vec3(0, 0, 1),
 								 0,
-								 vec3(0),
-								 2,
-								 9,
-								 GameObject::ObjectType::STATIC)));
+								 vec3(1, 1, 1),
+								 9
+								 )));
 	  break;
 	case 'g':
-	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
                                                                  &printMesh,
                                                                  vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
                                                                  vec3(0.5, 0.1, 0.5),
                                                                  -90,
                                                                  vec3(0, 0, 1),
                                                                  0,
-                                                                 vec3(0),
-                                                                 2,
-                                                                 9,
-                                                                 GameObject::ObjectType::STATIC)));
+		 vec3(1, 1, 1),
+		 9
+		 )));
 	  break;
 	case 'h':
-	  gameObjects->add(shared_ptr<GameObject>(new GameObject(
+	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
                                                                  &printMesh,
                                                                  vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
                                                                  vec3(0.5, 0.1, 0.5),
                                                                  180,
                                                                  vec3(0, 0, 1),
                                                                  0,
-                                                                 vec3(0),
-                                                                 2,
-                                                                 9,
-                                                                 GameObject::ObjectType::STATIC)));
+		 vec3(1, 1, 1),
+		 9
+		 )));
 	  break;
       }
       default:
@@ -1324,7 +1410,7 @@ void initPlayer(WorldGrid* gameObjects) {
 
   gameObjects->add(shared_ptr<GameObject>(playerObject));
 }
-#define GUARD_Y_SHIFT 0.8f
+#define GUARD_Y_SHIFT 1.0f
 void initGuards(WorldGrid* gameObjects) {
   vector<PathNode> guardPath;
   FILE *file = fopen(resPath("GuardPaths.txt").data(), "r");
@@ -1332,6 +1418,22 @@ void initGuards(WorldGrid* gameObjects) {
   float x, y, z, dur;
   char smartTurn, endTurnDir;
   int numNodes;
+  int guardNum = 0;
+
+  vector<char*> reactSnds;
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand1_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand3_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand4_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand5_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand6_Reac.wav");
+
+  vector<char*> dismissSnds;
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand1_Dismiss.wav");
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand3_Dismiss.wav");
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand4_Dismiss.wav");
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand5_Dismiss.wav");
+  int reactIndx, dismissIndx;
+  reactIndx = dismissIndx = 0;
 
   while (fgets(line, 100, file)) {
     if (line[0] == 'G') { // build new guard
@@ -1346,17 +1448,60 @@ void initGuards(WorldGrid* gameObjects) {
         guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
       }
 
+      if (guardNum == 0) {
       Guard* guardObject = new Guard(
           &guardMesh,
-          vec3(2.5, 2.5, 2.5),
+          vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2.5, 2.5, 2.5),
+          vec3(2, 2, 2),
           1,
           0,
-          guardPath
+          guardPath,
+          playerObject,
+          "../dependencies/irrKlang/media/guard1_Reac.wav",
+          "../dependencies/irrKlang/media/guard1_Dismiss.wav"
+          );
+        gameObjects->add(shared_ptr<GameObject>(guardObject));
+      }
+      else if (guardNum == 1) {
+        Guard* guardObject = new Guard(
+          &guardMesh,
+          vec3(2, 2, 2),
+          GUARD_SPEED,
+          vec3(2, 2, 2),
+          1,
+          0,
+          guardPath,
+          playerObject,
+          "../dependencies/irrKlang/media/guard2_Reac.wav",
+          "../dependencies/irrKlang/media/guard2_Dismiss.wav"
+          );
+        gameObjects->add(shared_ptr<GameObject>(guardObject));
+      }
+      else {
+      Guard* guardObject = new Guard(
+          &guardMesh,
+          vec3(2, 2, 2),
+          GUARD_SPEED,
+          vec3(2, 2, 2),
+          1,
+          0,
+          guardPath,
+          playerObject,
+          reactSnds[reactIndx],
+          dismissSnds[dismissIndx]
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
     }
+
+    }
+    reactIndx++;
+    dismissIndx++;
+    guardNum++;
+    if (reactIndx == reactSnds.size())
+      reactIndx = 0;
+    if (dismissIndx == dismissSnds.size())
+      dismissIndx = 0;
   }
 }
 
@@ -1374,7 +1519,7 @@ void initGround() {
       1 //material
       );
   // printf("loading concrete.bmp for ground\n");
-  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")));
+  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")), 512);
 }
 
 void initCeiling() {
@@ -1389,7 +1534,7 @@ void initCeiling() {
       5 //material
       );
 
-  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
+  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
 }
 
 void initWalls(WorldGrid* gameObjects) {
@@ -1554,7 +1699,6 @@ int main(int argc, char **argv)
         return -1;
     }
     
-    
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
@@ -1572,7 +1716,7 @@ int main(int argc, char **argv)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initGL();
     assert(glGetError() == GL_NO_ERROR);
-
+    
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
     depthHandles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
@@ -1588,13 +1732,14 @@ int main(int argc, char **argv)
     trainMesh.loadShapes(resPath(sysPath("models", "train.obj")));
     trainMesh.hasTexture = true;
     trainMesh.loadMipmapTexture(resPath(sysPath("textures", "train.bmp")), TEX_SIZE);
-    guardMesh.loadShapes(resPath(sysPath("models", "guard.obj")));
+    guardMesh.loadShapes(resPath(sysPath("models", "guard2.obj")));
     playerMesh.loadShapes(resPath(sysPath("models", "player.obj")));
     cubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
     shortCubeMesh.loadShapes(resPath(sysPath("models", "cube.obj")));
     barrel.loadShapes(resPath(sysPath("models", "barrel.obj")));
     boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
     tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
+	lightMesh.loadShapes(resPath(sysPath("models", "ceilingLight.obj")));
     chairMesh.hasTexture = true;
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
     chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
@@ -1604,6 +1749,8 @@ int main(int argc, char **argv)
     winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
     playerMesh.hasTexture = true;
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture.bmp")), TEX_SIZE);
+	lightMesh.hasTexture = true;
+	lightMesh.loadMipmapTexture(resPath(sysPath("textures", "light.bmp")), 512);
     //printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 2048);
@@ -1614,15 +1761,14 @@ int main(int argc, char **argv)
     tableMesh.hasTexture = true;
     tableMesh.loadMipmapTexture(resPath(sysPath("textures", "desk.bmp")), TEX_SIZE);
     barrel.hasTexture = true;
+	printMesh.hasTexture = true;
+	printMesh.loadMipmapTexture(resPath(sysPath("textures", "shoe.bmp")), 1);
     barrel.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
     //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
     boxStackMesh.hasTexture = true;
     boxStackMesh.loadMipmapTexture(resPath(sysPath("textures", "crate.bmp")), TEX_SIZE);
     guardMesh.hasTexture = true;
     guardMesh.loadMipmapTexture(resPath(sysPath("textures", "guard.bmp")), TEX_SIZE);
-    //printf("shadow map id: %d\n", shadowMap);
-    //printf("player tex id: %d\n", playerMesh.texId);
-    
     
     srand(time(NULL));
     
@@ -1683,7 +1829,7 @@ int main(int argc, char **argv)
 #ifdef DEBUG
     curveOutput.open(resPath("introCurveSample.txt"));
 #endif
-
+    
     double timeCounter = 0;
     
     //  printf("shadow map id: %d\n", shadowMap);
@@ -1705,6 +1851,12 @@ int main(int argc, char **argv)
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1, 1, 1, 0));
+        if (detecTrac->totalDetLvl < 0.4) {
+          ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1, 1, 1, 1));
+        }
+        else {
+          ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(detecTrac->totalDetLvl, 0, 0, 1));
+        }
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
@@ -1715,7 +1867,7 @@ int main(int argc, char **argv)
         ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
         ImGui::End();
         ImGui::PopStyleVar();
-        ImGui::PopStyleColor(1);
+        ImGui::PopStyleColor(2);
 
 #ifdef DEBUG
         if (boxes) {
@@ -1774,7 +1926,7 @@ int main(int argc, char **argv)
         shadowPass(&gameObjects);
         getWindowInput(window, deltaTime);
 	geometryPass(&gameObjects, deltaTime);
-	endDrawGL();
+	  endDrawGL();
 	//	beginLightPass();
         if (!inIntro)
           ImGui::Render();

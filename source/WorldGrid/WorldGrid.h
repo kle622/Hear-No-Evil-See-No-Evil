@@ -25,6 +25,7 @@ class WorldGrid {
 		//Object methods
 		void add(shared_ptr<GameObject> gameObject);
 		void remove(int i, int j, int k);
+		void remove(int index);
 		void update();
 		vector<shared_ptr<GameObject>> getCloseObjects(
 			shared_ptr<GameObject> gameObject);

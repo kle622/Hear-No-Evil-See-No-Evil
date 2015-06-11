@@ -39,6 +39,12 @@ MySound::MySound() {
   this->leanOut->setVolume(.05);
   this->leanIn = engine->play2D("../dependencies/irrKlang/media/leanIn.wav", false, true, true);
   this->leanIn->setVolume(.05);
+
+  this->reactSnd = engine->play2D("../dependencies/irrKlang/media/guard1_Reac.wav", false, true, true);
+  this->reactSnd->setVolume(0.3);
+
+  this->dismissSnd = engine->play2D("../dependencies/irrKlang/media/guard1_Dismiss.wav", false, true, true);
+  this->dismissSnd->setVolume(0.3);
 }
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {

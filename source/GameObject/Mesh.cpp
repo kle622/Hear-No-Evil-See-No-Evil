@@ -224,11 +224,13 @@ void Mesh::sendBufs() {
 	glBindBuffer(GL_ARRAY_BUFFER, this->norBufObj);
 	glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
 
-	//send the texture array to the GPU
-	const std::vector<float> &texBuf = this->shapes[s].mesh.texcoords;
-	glGenBuffers(1, &this->texBufObj);
-	glBindBuffer(GL_ARRAY_BUFFER, this->texBufObj);
-	glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
+	if (shapes[s].mesh.texcoords.size() > 0) {
+		//send the texture array to the GPU
+		const std::vector<float> &texBuf = this->shapes[s].mesh.texcoords;
+		glGenBuffers(1, &this->texBufObj);
+		glBindBuffer(GL_ARRAY_BUFFER, this->texBufObj);
+		glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
+	}
 
     // Send the index array to the GPU
     const std::vector<unsigned int> &indBuf = this->shapes[s].mesh.indices;

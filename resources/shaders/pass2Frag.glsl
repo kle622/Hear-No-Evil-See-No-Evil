@@ -16,6 +16,7 @@ uniform vec3 allLights[MAX_LIGHTS];
 uniform vec3 uLightPos;
 
 uniform float detectionLevel;
+uniform int ignoreMat;
 
 // Cook Stuff
 uniform float uMatRoughness;
@@ -26,6 +27,42 @@ varying vec3 vCol;
 varying vec3 vPos;
 varying vec4 ShadowCoord;
 varying vec2 texCoordOut;
+
+uniform vec2 pt1;
+uniform vec2 pt2;
+uniform vec2 pt3;
+
+uniform int detecDir;
+
+int isInTri() {
+	float i = gl_FragCoord.x;
+	float j = gl_FragCoord.y;
+	float totalArea = (((pt2.x - pt1.x) * (pt3.y - pt1.y)) - ((pt3.x - pt1.x) * (pt2.y - pt1.y)));
+
+	int is_inside = 0;
+
+	float alpha, beta, gamma, zero, one;
+	zero = 0.0; 
+	one = 1.0;
+
+	beta = (((pt1.x-pt3.x) * (j-pt3.y)) - ((i-pt3.x) * (pt1.y-pt3.y)));
+	beta = beta/totalArea;
+
+	gamma = (((pt2.x-pt1.x) * (j-pt1.y)) - ((i-pt1.x) * (pt2.y-pt1.y)));
+	gamma = gamma/totalArea;
+
+	alpha = 1.0 - beta - gamma;
+
+	if(zero <= alpha && alpha <= one) {
+		if(zero <= beta && beta <= one) {
+			if(zero <= gamma && gamma <= one){
+				is_inside = 1;
+			}
+		}
+	}
+
+	return is_inside;
+}
 
 float cookTorrance(vec3 _normal, vec3 _light, vec3 _view, float _fresnel, float _roughness) {
   vec3  half_vec = normalize( _view + _light ); // vector H 
@@ -69,14 +106,14 @@ void main() {
      float visibility = 1.5;
      float att = 1.5;
      vec3 lightPos = allLights[i];
-     float distance = length(lightPos - surfacePos);
+     //float distance = length(lightPos - surfacePos);
      vec3 surfaceToLight = normalize(lightPos - surfacePos);     
      float dist = distance(vec2(lightPos.x, lightPos.z), vec2(surfacePos.x, surfacePos.z));     
      float bias = 0.005 * tan(acos(dot(vNormal, surfaceToLight)));
      bias = clamp(bias, 0.0, 0.01);
      vec3 spotDir = normalize(coneDirection);
      float lightToSurfaceAngle = degrees(acos(dot(-surfaceToLight, spotDir)));
-          
+     
      if (lightToSurfaceAngle > coneAngle) {
      	att = 0.2;
      }
@@ -176,4 +213,11 @@ void main() {
     else {
       gl_FragColor = vec4(color + avgAmbient, alpha);
     }
+		
+	if (detecDir > 0) {
+	    int isIn = isInTri();
+		if(isIn == 1) {
+			gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
+		}
+	}   
 }
