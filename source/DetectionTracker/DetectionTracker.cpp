@@ -52,7 +52,8 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
       lightDetecMult = 1/sqrt(this->lightDist);
     }
     else {
-		lightDetecMult = (1 / sqrt(this->guardDist)) * 1 / sqrt(this->lightDist);
+      lightDetecMult = (1 / sqrt(this->guardDist)) * (1 / sqrt(this->lightDist));
+     // printf("In Dark\n");
     }
     this->totalDetLvl += detecPercent * lightDetecMult;
     this->previousPlyrPos = player->position;
@@ -71,26 +72,26 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
 // but it also doesn't outright lower it
 void DetectionTracker::updateSndDetect(Player *player) {
 	if (player->velocity <= 0.0 && totalDetLvl > 0 && !detecDanger) {
-		this->totalDetLvl -= .01;
-	}
+    this->totalDetLvl -= .01;
+  }
 	else if (player->velocity > 0.0) {
-		if (player->maxVelocity == WALK) {
+    if (player->maxVelocity == WALK) {
 			this->totalDetLvl += .0003;
-		}
+    }
 		else if (player->maxVelocity == CROUCH && !detecDanger) {
-			this->totalDetLvl -= .005;
-		}
-		else if (player->maxVelocity == RUN) {
+      this->totalDetLvl -= .005;
+    }
+    else if (player->maxVelocity == RUN) {
 			this->totalDetLvl += .01;
-		}
-	}
+    }
+  }
 	if (this->totalDetLvl <= 0) {
 		//this->detecDanger = false;
-	}
-	if (this->totalDetLvl > 1.0f) {
-		this->detecDanger = false;
-		this->totalDetLvl = 0.0f;
-		player->lose();
-	}
-	clamp();
+  }
+  if (this->totalDetLvl > 1.0f) {
+    this->detecDanger = false;
+    this->totalDetLvl = 0.0f;
+    player->lose();
+  }
+  clamp();
 }

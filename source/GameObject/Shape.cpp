@@ -52,13 +52,13 @@ void Shape::SetModel(GLint handle, vec3 trans, float rot, vec3 sc) {
     glUniformMatrix4fv(handle, 1, GL_FALSE, glm::value_ptr(com));
     }*/
 
-void Shape::loadMipmapTexture(const std::string &filename) {
+void Shape::loadMipmapTexture(const std::string &filename, int size) {
   bmp = imageLoad(filename.c_str());
   //printf("loaded file in mip map texture function\n");
   glGenTextures(1, &texId);
   glBindTexture(GL_TEXTURE_2D, texId);
   //printf("before gltexImage2D call\n");
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, MIP_MAP_SIZE, MIP_MAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
   //printf("after gltexImage2D call\n");
   //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEX_SIZE, TEX_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, bmp);
   glGenerateMipmap(GL_TEXTURE_2D);

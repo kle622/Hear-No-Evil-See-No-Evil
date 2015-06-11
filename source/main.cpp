@@ -121,6 +121,7 @@ Mesh clueMesh;
 Mesh printMesh;
 Shape *ground;
 Shape *ceiling;
+Shape *triangle;
 bool debug = false;
 bool boxes = false;
 bool shiftDown = false;
@@ -149,6 +150,11 @@ GLuint idxBufObjG = 0;
 GLuint frameBufObj[MAX_LIGHTS] = {0};
 GLuint texBufObjG = 0;
 GLuint shadowMap[MAX_LIGHTS] = {0};
+
+GLuint posBufObJT = 0;
+GLuint norBufObjT = 0;
+GLuint idxBufObjT = 0;
+GLuint texBufObjT = 0;
 
 double deltaTime = 0;
 double timeCounter = 0;
@@ -340,6 +346,7 @@ for (int i = 0; i < gLights.size(); i++) {
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap[i], 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
+
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
  }
@@ -707,6 +714,80 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
    return lightWithMinDist;
 }
 
+float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camera) {
+  vec3 cameraDir = camera->getForward();
+  float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
+  float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
+  float retVal, sideOfView;
+  //printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
+  vec3 crossProd = cross(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+  float crossMag = length(crossProd);
+  float dotProd = dot(vec3(cameraDir.x, 0.0, cameraDir.z), vec3(guard->direction.x, 0.0, guard->direction.z));
+
+  //printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
+  //printf("cross %f : dot %f \n", crossMag, dotProd);
+  if (crossProd.x < dotProd && crossProd.z < dotProd) {
+    float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
+    //printf("side of plane: %f\n", sideOfView);
+    if (sideOfView > 0) {
+      retVal = 4.0;
+    }
+    else {
+      retVal = 3.0;
+    }
+  }
+  else {
+    float dotProd = dot(cameraDir, guard->position);
+    if (dotProd > 0) {
+        retVal = 1.0;
+    }
+    else {
+        retVal = 2.0;
+    }
+  }
+  return retVal;
+}
+
+void passDetectDirection(float guardDetectDir) {
+  vec2 pt1, pt2, pt3;
+  // Forward Triangle
+  if (guardDetectDir == 1.0) {
+    pt1 = vec2(565, 570);
+    pt2 = vec2(715, 570);
+    pt3 = vec2(640, 645);
+  }
+  // Backward Triangle
+  else if (guardDetectDir == 2.0) {
+    pt1 = vec2(565, 125);
+    pt2 = vec2(715, 125); 
+    pt3 = vec2(640, 50);
+  }
+  // Left Triangle
+  else if (guardDetectDir == 3.0) {
+    pt1 = vec2(100, 360);
+    pt2 = vec2(175, 435);
+    pt3 = vec2(175, 285);
+  }
+  // Right Triangle
+  else if (guardDetectDir == 4.0) {
+    pt1 = vec2(1180, 360);
+    pt2 = vec2(1105, 435);
+    pt3 = vec2(1105, 285);
+  }
+
+  glUniform2f(pass2Handles.pt1, pt1.x, pt1.y);
+  glUniform2f(pass2Handles.pt2, pt2.x, pt2.y);
+  glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
+  glUniform1i(pass2Handles.detecDir, guardDetectDir);
+
+  #ifdef APPLE
+  glUniform2f(pass2Handles.pt1, pt1.x*2, pt1.y*2);
+  glUniform2f(pass2Handles.pt2, pt2.x*2, pt2.y*2);
+  glUniform2f(pass2Handles.pt3, pt3.x*2, pt3.y*2);
+  #endif
+
+}
+
 //PASS different number of lights! Not a different number of renderings?
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
@@ -787,12 +868,18 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       float detectPercent = guard->detect(gameObjects, detectCam, detecTrac);
-	  if (detectPercent > 0) {
+      if (detectPercent > 0) {
 		  if (detecTrac->totalDetLvl > 0.5 || guard->staring) {
 			  guard->stare();
 		  }
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
+        guardDetecDir = calculateGuardDetecDir(playerObject, guard, camera3DPerson);
+      }
+      else {
+        detecTrac->detecDanger = false;
+      }
+      if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
@@ -802,7 +889,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 		detecTrac->updateSndDetect(playerObject);
       detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
         detecTrac->detecDanger = false;
-      }
+    }
 
     if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected) {
@@ -812,6 +899,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    passDetectDirection(guardDetecDir);
     checkGLError();
     gameObjects->update();
   }
@@ -1164,12 +1252,12 @@ void initObjects(WorldGrid* gameObjects) {
 	  break;
 	case 'g':
 	  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
-		 &printMesh,
-		 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
-		 vec3(0.5, 0.1, 0.5),
+								 &printMesh,
+								 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
+								 vec3(0.5, 0.1, 0.5),
 		 -90,
 		 vec3(0, 0, 1),
-		 0,
+								 0,
 		 vec3(1, 1, 1),
 		 9
 		 )));
@@ -1180,8 +1268,8 @@ void initObjects(WorldGrid* gameObjects) {
 		 vec3(i - (TEST_WORLD/2), -1, j - (TEST_WORLD/2)),
 		 vec3(0.5, 0.1, 0.5),
 		 180,
-		 vec3(0, 0, 1),
-		 0,
+								 vec3(0, 0, 1),
+								 0,
 		 vec3(1, 1, 1),
 		 9
 		 )));
@@ -1258,7 +1346,7 @@ void initGround() {
       1 //material
       );
   // printf("loading concrete.bmp for ground\n");
-  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")));
+  ground->loadMipmapTexture(resPath(sysPath("textures", "ground.bmp")), 512);
 }
 
 void initCeiling() {
@@ -1273,7 +1361,7 @@ void initCeiling() {
       5 //material
       );
 
-  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")));
+  ceiling->loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 512);
 }
 
 void initWalls(WorldGrid* gameObjects) {

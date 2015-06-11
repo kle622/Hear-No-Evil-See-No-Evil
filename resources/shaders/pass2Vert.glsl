@@ -14,6 +14,8 @@ uniform float Ushine;
 uniform mat4 uDepthMVP;
 uniform int hasTex;
 
+uniform int ignoreMat;
+
 //uniform float detectionLevel;
 
 varying vec3 vNormal;
@@ -32,6 +34,7 @@ void main() {
 	vPos = pre_pos;
 	ShadowCoord = uDepthMVP * vec4(aPosition, 1.0);
 	
-	if (hasTex == 1) 
+	if (hasTex == 1) {
 	   texCoordOut = texCoordIn;
+	}
 }
