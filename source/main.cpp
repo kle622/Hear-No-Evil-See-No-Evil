@@ -65,7 +65,7 @@
 #define GUARD_FAR 20.0f
 #define GUARD_FOV 70.0f
 
-#define GUARD_SPEED 5.0f
+#define GUARD_SPEED 3.0f
 #define BOTTOM_LEVEL 1.0f
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
