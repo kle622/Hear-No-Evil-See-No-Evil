@@ -49,23 +49,17 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   }
 
   aPosition = GLSL::getAttribLocation(this->prog, "aPosition");
-  uProj = GLSL::getUniformLocation(this->prog, "uProj");
-  uView = GLSL::getUniformLocation(this->prog, "uView");
-  uModel = GLSL::getUniformLocation(this->prog, "uModel");
-  //uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
   uScreenSize = GLSL::getUniformLocation(this->prog, "uScreenSize");
   uNormMap = GLSL::getUniformLocation(this->prog, "uNormMap");
   uPosMap = GLSL::getUniformLocation(this->prog, "uPosMap");
   uColMap = GLSL::getUniformLocation(this->prog, "uColMap");
-  uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
   uLightCol = GLSL::getUniformLocation(this->prog, "uLightCol");
   uLightAtten = GLSL::getUniformLocation(this->prog, "uLightAtten");
   uLightDirection = GLSL::getUniformLocation(this->prog, "uLightDirection");
   uLightAngleCos = GLSL::getUniformLocation(this->prog, "uLightAngleCos");
   uDetectionLevel = GLSL::getUniformLocation(this->prog, "uDetectionLevel");
-  uMatRoughness = GLSL::getUniformLocation(this->prog, "uMatRoughness");
-  uFresReflectance = GLSL::getUniformLocation(this->prog, "uFresReflectance");
   uAmbient = GLSL::getUniformLocation(this->prog, "uAmbient");
+  uNumLights = GLSL::getUniformLocation(this->prog, "uNumLights");
 
   // stuff to init quad buffers (i didn't know where to put this)
   /*glGenVertexArrays(1, &quad_VertexArrayID);

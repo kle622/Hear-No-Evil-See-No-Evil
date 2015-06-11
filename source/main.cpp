@@ -52,8 +52,6 @@
 
 #define DEBUG
 
-#define MAX_LIGHTS 10
-
 #define WORLD_WIDTH 300
 #define WORLD_HEIGHT 300
 #define TEST_WORLD 200
@@ -577,17 +575,19 @@ int findClosestLight() {
 
 
 
-/*void SetLightUniform(Light light, int ndx) {
-  ostringstream stream;
-  ///Array of handles
-  stream << "allLights[" << ndx << "]";
-  checkGLError();
-  //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
-  pass2Handles.uAllLights[ndx] = GLSL::getUniformLocation(pass2Handles.prog, stream.str().c_str());
-  //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
-  checkGLError();
-  glUniform3f(pass2Handles.uAllLights[ndx], light.position.x, light.position.y, light.position.z);
-}*/
+void SetLightUniform(Light light, int ndx) {
+  if (ndx < MAX_LIGHTS) {
+    ostringstream stream;
+    ///Array of handles
+    stream << "allLights[" << ndx << "]";
+    checkGLError();
+    //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
+    lightHandles.uLightPos[ndx] = GLSL::getUniformLocation(lightHandles.prog, stream.str().c_str());
+    //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
+    checkGLError();
+    glUniform3f(lightHandles.uLightPos[ndx], light.position.x, light.position.y, light.position.z);
+  }
+}
 
 /*void beginPass2Draw() {
   //Second Pass
@@ -882,14 +882,20 @@ void lightPass() {
 
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
   glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
+  
+  glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(0).color));
+  glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(0).atten));
+  glUniform3fv(lightHandles.uLightDirection, 1, glm::value_ptr(gLights.at(0).direction));
+  glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(0).angle * M_PI / 180));
 
+  glUniform1i(lightHandles.uNumLights, (int)gLights.size());
   for (int i = 0; i < gLights.size(); i++) {
-    glUniform3fv(lightHandles.uLightPos, 1, glm::value_ptr(gLights.at(i).position));
-    glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(i).color));
-    glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(i).atten));
-    glUniform3fv(lightHandles.uLightDirection, 1, glm::value_ptr(gLights.at(i).direction));
+    SetLightUniform(gLights.at(i), i);
+  }
+  lightHandles.drawQuad();
+
+  //for (int i = 0; i < gLights.size(); i++) {
     //glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(i).angle));
-    glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(i).angle * M_PI / 180));
     /*glm::mat4 trans = glm::translate(glm::mat4(1.0f), gLights.at(i).position);
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 25, 10));
     glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 80.0f, glm::vec3(1, 0, 0));
@@ -897,12 +903,11 @@ void lightPass() {
     /*safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(com));
     safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
     safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));*/
-    safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(glm::mat4(1.0f)));
+    /*safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(glm::mat4(1.0f)));
     safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(glm::mat4(1.0f)));
-    safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(glm::mat4(1.0f)));
+    safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(glm::mat4(1.0f)));*/
     //lightHandles.draw(&coneMesh);
-    lightHandles.drawQuad();
-  }
+  //}
 
   checkGLError();
 }
