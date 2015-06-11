@@ -11,7 +11,7 @@
 #include "../glm/glm.hpp"
 #include "../DetectionTracker/DetectionTracker.h"
 
-#define GUARD_SPIN_SPEED 75.0f
+#define GUARD_SPIN_SPEED 25.0f
 #define GUARD_VISION_RANGE 0.2
 
 using namespace std;

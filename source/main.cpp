@@ -787,24 +787,18 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     //guards
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       float detectPercent = guard->detect(gameObjects, detectCam, detecTrac);
-      if (detectPercent > 0) {
-		  if (detecTrac->totalDetLvl > 0.5)
+	  if (detectPercent > 0) {
+		  if (detecTrac->totalDetLvl > 0.5 || guard->staring) {
 			  guard->stare();
+		  }
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
-		printf(detecTrac->detecDanger ? "g true\n": "g false\n");
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
 
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-      // Search through the lights if inside light, save that light to the detecTrac object
-      /*for (int L = 0; L < gLights.size(); L++) {
-        inLightCalc(dynamic_cast<Player *>(gameObjects->list[i].get())->position, gLights[L].position,
-          (playerObject->dimensions.x + playerObject->dimensions.y + playerObject->dimensions.z + detecTrac->lightRadius), gLights[L]);
-      }*/
-		//printf(detecTrac->detecDanger ? "p true\n" : "p false\n");
 		detecTrac->updateSndDetect(playerObject);
       detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
         detecTrac->detecDanger = false;
@@ -816,7 +810,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
       }
     }
 
-    //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
     glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
     checkGLError();

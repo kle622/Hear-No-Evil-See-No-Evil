@@ -29,27 +29,19 @@ void Guard::move(float time) {
 		gtop.y = 0;
 		gtop = normalize(gtop);
 		int stareTurnDir = (int)sign(cross(direction, gtop).y);
-		if (!foundPlayer) { // turn to initially center player in view
-			direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * 0.003f * velocity * time * stareTurnDir));
-			gtop = playerObject->position - position;
+		//if (!foundPlayer) { // turn to initially center player in view
+			direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * stareTurnDir));
 			float cross_y = cross(direction, gtop).y;
 			if (cross_y * stareTurnDir < 0) { // we see the player, now just set the direction to be the vector to the player
 				foundPlayer = true;
-				//lastSeen = vec3(playerObject->position.x, 0, playerObject->position.z);
+				direction = gtop;
 			}
-		}
-		if (foundPlayer) { // check to see if we should turn to follow the player
-			// we somehow want to stop following the player if we lose sight
-			gtop = lastSeen - position; // guard to player vector
-			gtop.y = 0;
-			gtop = normalize(gtop);
-			direction = gtop;
 			playerTimer += time;
 			if (playerTimer > GUARD_INTEREST) { // the guard has been staring at this spot long enough to forget about the player, go back to moving normally
 				playerTimer = 0.0f;
 				staring = false;
 			}
-		}
+		//}
 	}
 	if (!staring) { // we are following the guardPath normally
 		oldPosition = position;

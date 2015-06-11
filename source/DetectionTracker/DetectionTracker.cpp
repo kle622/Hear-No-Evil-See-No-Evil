@@ -48,7 +48,6 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
   float darkObsucrement = .07;
 
   if (detecDanger) {
-	  printf("DANGER 1!\n");
     if (this->lightDist < maxRadius) {
       lightDetecMult = 1/sqrt(this->lightDist);
     }
@@ -71,16 +70,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
 // For now I'm assuming CROUCH does not contribute to the total detection level, 
 // but it also doesn't outright lower it
 void DetectionTracker::updateSndDetect(Player *player) {
-	/*if (this->detecDanger == true) {
-		float dist = glm::distance(this->previousPlyrPos, player->position);
-		if (dist > NEIGHBORHOOD_OF_SUSPICION) {
-			this->detecDanger = false;
-		}
-	}*/
-	if (detecDanger)
-		printf("DANGER!\n");
 	if (player->velocity <= 0.0 && totalDetLvl > 0 && !detecDanger) {
-		printf("out of view\n");
 		this->totalDetLvl -= .01;
 	}
 	else if (player->velocity > 0.0) {
@@ -88,7 +78,6 @@ void DetectionTracker::updateSndDetect(Player *player) {
 			//this->totalDetLvl -= .005;
 		}
 		else if (player->maxVelocity == CROUCH && !detecDanger) {
-			printf("detracting 2\n");
 			this->totalDetLvl -= .005;
 		}
 		else if (player->maxVelocity == RUN) {
@@ -99,7 +88,6 @@ void DetectionTracker::updateSndDetect(Player *player) {
 		//this->detecDanger = false;
 	}
 	if (this->totalDetLvl > 1.0f) {
-		//printf("you lose\n");
 		this->detecDanger = false;
 		this->totalDetLvl = 0.0f;
 		player->lose();
