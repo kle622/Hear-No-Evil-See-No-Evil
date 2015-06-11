@@ -58,6 +58,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uColMap = GLSL::getUniformLocation(this->prog, "uColMap");
   uCamPos = GLSL::getUniformLocation(this->prog, "uCamPos");
   uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
+  uLightAtten = GLSL::getUniformLocation(this->prog, "uLightAtten");
 
   return true;
 }

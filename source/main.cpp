@@ -143,9 +143,10 @@ SplineCurve introCurve; // add points
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
+// increasing this makes distance attenuation sharper (MAKE SURE IT ISN'T EVER ALL ZERO!!!!!1)
+glm::vec3 lightAtten(0.0, 0.0001, 0.0002);
 glm::vec3 coneDir(0.0, -0.5, 0.0);
 float coneAngle = 20;
-float attenuation = 0.1f;
 int closestLNdx = 0;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
@@ -897,6 +898,7 @@ void lightPass() {
   glUniform1i(lightHandles.uNormMap, 2);
 
   glUniform3fv(lightHandles.uCamPos, 1, glm::value_ptr(viewCam->eye));
+  glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(lightAtten));
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
   for (int i = 0; i < gLights.size(); i++) {

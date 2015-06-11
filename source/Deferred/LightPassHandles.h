@@ -16,6 +16,7 @@ class LightPassHandles {
   GLuint uNormMap;
   GLuint uCamPos;
   GLuint uLightPos;
+  GLuint uLightAtten;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(Mesh *mesh);
   void draw(Shape* obj);
