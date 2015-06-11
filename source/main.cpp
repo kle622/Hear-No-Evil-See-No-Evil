@@ -141,7 +141,7 @@ float guardDetecDir;
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
 // increasing this makes distance attenuation sharper (MAKE SURE IT ISN'T EVER ALL ZERO!!!!!1)
-glm::vec3 lightAtten(0.0, 0.0001, 0.0002);
+//glm::vec3 lightAtten(0.0, 0.0001, 0.0002);
 glm::vec3 coneDir(0.0, -0.5, 0.0);
 float coneAngle = 20;
 int closestLNdx = 0;

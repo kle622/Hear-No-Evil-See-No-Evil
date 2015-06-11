@@ -83,10 +83,15 @@ void main() {
     // spot light angle calculation
     float spotAngleCos = dot(-1.0 * toLight, normalize(uLightDirection));
 
+    // angle attenuation
+    float attAngle = max((1.0 - (1.0 - spotAngleCos) * 1.0/(1.0 - uLightAngleCos)), 0.0);
+    //float attAngle = max(spotAngleCos - uLightAngleCos, 0.0);
+
     // final color assignment
     if (spotAngleCos > uLightAngleCos) {
-      diffuse += max(dot(normal, toLight), 0.0) * attDist * baseColor * uLightCol;
+      //diffuse += max(dot(normal, toLight), 0.0) * attDist * baseColor * uLightCol;
     }
+    diffuse += max(dot(normal, toLight), 0.0) * attDist * attAngle * baseColor * uLightCol;
   }
 
   if (texture2D(uDepthMap, (shadowCoord.xy + vec2( -0.94201624, -0.39906216) / 700.0)/shadowCoord.w).z < (shadowCoord.z-bias) / shadowCoord.w) {
@@ -117,4 +122,6 @@ void main() {
 		}
 		//gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
   }
+  //gl_FragColor = vec4(normal, 1.0); // draw normal map
+  //gl_FragColor = vec4(worldPos, 1.0); // draw position map
 }
