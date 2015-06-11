@@ -93,8 +93,8 @@ void main() {
   if (detecDir > 0) {
 	    int isIn = isInTri();
 		if(isIn == 1) {
-			gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
+			gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 1.0);
 		}
-		gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
+		//gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
   }
 }

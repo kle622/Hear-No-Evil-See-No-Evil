@@ -134,6 +134,7 @@ DetectionTracker *detecTrac;
 ofstream curveOutput;
 #endif
 SplineCurve introCurve; // add points
+float guardDetecDir;
 
 //std::vector<glm::vec3> lights;
 glm::vec3 g_light(0.0, 15.0, -2.0);
@@ -751,7 +752,7 @@ void passDetectDirection(float guardDetectDir) {
 void drawGameObjects(WorldGrid* gameObjects, float time) {
   Guard *guard;
   Clue *clue;
-  float guardDetecDir = 0.0;
+  guardDetecDir = 0.0;
   //    for (int l = 0; l < gLights.size(); l++) {
   //glUniform1i(geomHandles.hasTex, 1);
   closestLNdx = findClosestLight();
@@ -845,7 +846,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     checkGLError();
     //glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-    passDetectDirection(guardDetecDir);
     //glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
     checkGLError();
     gameObjects->update();
@@ -970,6 +970,8 @@ void lightPass() {
   glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(0).angle * M_PI / 180));
 
   glUniform1i(lightHandles.uNumLights, (int)gLights.size());
+  passDetectDirection(guardDetecDir);
+
   for (int i = 0; i < gLights.size(); i++) {
     SetLightUniform(gLights.at(i), i);
   }
