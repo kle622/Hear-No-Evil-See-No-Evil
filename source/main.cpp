@@ -87,6 +87,7 @@ int g_width;
 int g_height;
 int g_framebuffer_width;
 int g_framebuffer_height;
+int shadeType = 0;
 
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
@@ -978,6 +979,7 @@ void lightPass() {
   glUniform1f(lightHandles.uLightAngleCos, cos(15.0f * M_PI / 180));
 
   glUniform1i(lightHandles.uNumLights, (int)gLights.size());
+  glUniform1i(lightHandles.uShadeType, shadeType);
   passDetectDirection(guardDetecDir);
 
   GLfloat positions[MAX_LIGHTS * 3];
@@ -1092,6 +1094,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     endIntro();
     playerObject->handleOpenSounds(false);
     //soundObj->openingSnd->setIsPaused(true);
+  }
+  
+  if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
+    shadeType += 1;
+    shadeType %= 4;
   }
 
   if (key == GLFW_KEY_R && action == GLFW_PRESS && debug) {
