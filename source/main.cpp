@@ -39,6 +39,7 @@
 #include "Deferred/gbuffer.h"
 #include "Deferred/dbuffer.h"
 #include "Deferred/LightPassHandles.h"
+#include "Deferred/Light.h"
 #include "Deferred/GeometryPassHandles.h"
 #include "WorldGrid/WorldGrid.h"
 #include "MySound/MySound.h"
@@ -76,14 +77,6 @@
 GLFWwindow* window;
 using namespace std;
 using namespace glm;
-
-//struct Light {
-//  glm::vec3 position;
-//  glm::vec3 intensities;
-//  float attenuation;
-//  float coneAngle;
-//  glm::vec3 coneDirection;
-//};
 
 vector<Light> gLights;
 
@@ -306,8 +299,8 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
       0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
       0.0f, 0.0f, 1.0f, 0.0f
       );*/
-  glm::mat4 depthProjMatrix = glm::perspective<float>((1.0f / (std::tan(g_light.coneAngle))), 1.0f, 0.1f, 20.0f);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.coneDirection, glm::vec3(1, 0, 0));
+  glm::mat4 depthProjMatrix = glm::perspective<float>((1.0f / (std::tan(g_light.angle))), 1.0f, 0.1f, 20.0f);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.direction, glm::vec3(1, 0, 0));
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
 
   glm::mat4 biasMatrix(
@@ -886,6 +879,14 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }*/
 
+void initLights()
+{
+}
+
+void lightDraw()
+{
+}
+
 void lightPass() {
   glUseProgram(lightHandles.prog);
   glDisable(GL_CULL_FACE);
@@ -910,11 +911,12 @@ void lightPass() {
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
 
-  glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(lightAtten));
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
   for (int i = 0; i < gLights.size(); i++) {
     glUniform3fv(lightHandles.uLightPos, 1, glm::value_ptr(gLights.at(i).position));
+    glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(i).color));
+    glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(i).atten));
     glm::mat4 trans = glm::translate(glm::mat4(1.0f), gLights.at(i).position);
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 25, 10));
     glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 80.0f, glm::vec3(1, 0, 0));
@@ -1211,10 +1213,10 @@ void initObjects(WorldGrid* gameObjects) {
                   spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
                   //printf("i: %d, j: %d\n", i, j);
                   //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
-                  spotLight.intensities = glm::vec3(1, 1, 1);
-                  spotLight.attenuation = 0.1f;
-                  spotLight.coneAngle = 50.0f;
-                  spotLight.coneDirection = glm::vec3(0.0, 15.0, 0.0);
+                  spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
+                  spotLight.color = glm::vec3(1.0, 1.0, 1.0);
+                  spotLight.angle = 50.0f;
+                  spotLight.direction = glm::vec3(0.0, 15.0, 0.0);
                   gLights.push_back(spotLight);
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
@@ -1655,6 +1657,7 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
+    initLights();
     //initDetectionTracker(&gameObjects);
     //initFramebuffer();
    

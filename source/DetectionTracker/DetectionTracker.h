@@ -6,6 +6,7 @@
 #include "../GameObject/Guard.h"
 #include "../Camera/Camera.h"
 #include "../WorldGrid/WorldGrid.h"
+#include "../Deferred/Light.h"
 
 #define CROUCH 1.0f
 #define WALK 5.0f
@@ -20,14 +21,6 @@
 
 #define NEIGHBORHOOD_OF_SUSPICION 5.0f
 using namespace glm;
-
-struct Light {
-  vec3 position;
-  vec3 intensities;
-  float attenuation;
-  float coneAngle;
-  vec3 coneDirection;
-};
 
 class DetectionTracker {
 public:
