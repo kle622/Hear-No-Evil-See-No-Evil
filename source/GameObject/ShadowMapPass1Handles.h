@@ -4,9 +4,9 @@
 #include "GameObject.h"
 #include "Shape.h"
 
-class Pass1Handles : public Handles {
+class Pass1Handles {
  public:
-  GLuint uDepthMVP;
+  GLuint prog, aPosition, uDepthMVP;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(GameObject* obj);
   void draw(Shape* obj);
