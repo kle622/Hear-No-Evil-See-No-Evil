@@ -40,10 +40,15 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
   glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGB, width, height);
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_RENDERBUFFER_EXT, m_normRT);
 
+  //bind depth render target
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_depthRT);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGB, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT3_EXT, GL_RENDERBUFFER_EXT, m_depthRT);
+
   //bind depth buffer
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_depthBuff);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL, width, height);
-  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER_EXT, m_depthBuff);    
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_depthBuff);    
 
   //bind diffuse texture
   glGenTextures(1, &m_diffTex);
@@ -77,6 +82,16 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_TEXTURE_2D, m_normTex, 0);
 
+  //bind depth texture
+  glGenTextures(1, &m_depthTex);
+  glBindTexture(GL_TEXTURE_2D, m_depthTex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT3_EXT, GL_TEXTURE_2D, m_depthTex, 0);
+
   GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
   if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
     std::cerr << "FRAME BUFFER NOT OKAY!" << std::endl;
@@ -94,8 +109,8 @@ void GBuffer::start() {
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
   
-  GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT};
-  glDrawBuffers(3, drawBuffs);
+  GLenum drawBuffs[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT};
+  glDrawBuffers(4, drawBuffs);
 
 }
 

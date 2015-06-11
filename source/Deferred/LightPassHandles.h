@@ -10,6 +10,7 @@ class LightPassHandles {
   GLuint uModel;
   GLuint uView;
   GLuint uProj;
+  GLuint uDepthMVP;
   GLuint uScreenSize;
   GLuint uPosMap;
   GLuint uColMap;

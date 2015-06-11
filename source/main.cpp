@@ -317,8 +317,8 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 
   glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
-  pass1 ? safe_glUniformMatrix4fv(pass1Handles.uDepthMVP, glm::value_ptr(depthMVP)) :
-    safe_glUniformMatrix4fv(pass2Handles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+  pass1 ? safe_glUniformMatrix4fv(geomHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
+    safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
   //cerr << glGetError() << endl;
   //  assert(glGetError() == GL_NO_ERROR);
@@ -720,10 +720,11 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   float guardDetecDir = 0.0;
   //    for (int l = 0; l < gLights.size(); l++) {
   //glUniform1i(geomHandles.hasTex, 1);
+  closestLNdx = findClosestLight();
   glBindTexture(GL_TEXTURE_2D, ground->texId);
   glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
-  //SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
+  SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ground->getModel()));
   geomHandles.draw(ground);
 
@@ -731,7 +732,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glBindTexture(GL_TEXTURE_2D, ceiling->texId);
   glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
-  //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
+  SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ceiling->getModel()));
   geomHandles.draw(ceiling);
 
@@ -760,7 +761,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }*/
     
     // SetMaterial(drawList[i]->material);
-    // SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
+    SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
     safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(drawList[i]->getModel()));
     geomHandles.draw(drawList[i].get());
     //drawList[i]->draw();

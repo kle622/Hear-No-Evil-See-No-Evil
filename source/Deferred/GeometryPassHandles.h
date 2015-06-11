@@ -13,6 +13,7 @@ class GeometryPassHandles {
   GLuint uModel;
   GLuint uView;
   GLuint uProj;
+  GLuint uDepthMVP;
   GLuint texture;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(GameObject* obj);
