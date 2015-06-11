@@ -841,8 +841,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
 
     checkGLError();
-    glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-    passDetectDirection(guardDetecDir);
+    //glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    // passDetectDirection(guardDetecDir);
     //glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
     checkGLError();
     gameObjects->update();
