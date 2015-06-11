@@ -1329,7 +1329,7 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2, 2, 2),
+          vec3(2, 4, 2),
           1,
           0,
           guardPath,
