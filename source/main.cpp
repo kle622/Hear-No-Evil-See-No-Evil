@@ -1475,6 +1475,13 @@ void initGuards(WorldGrid* gameObjects) {
         guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
       }
 
+
+	  Light spotLight;
+	  spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
+	  spotLight.color = glm::vec3(1.0, 1.0, 1.0);
+	  spotLight.angle = 15.0f;
+	  gLights.push_back(spotLight);
+
       if (guardNum == 0) {
       Guard* guardObject = new Guard(
           &guardMesh,
@@ -1486,7 +1493,7 @@ void initGuards(WorldGrid* gameObjects) {
           guardPath,
 		  playerObject,
 		  &gLights,
-		  gLights.size(),
+		  gLights.size() - 1,
           "../dependencies/irrKlang/media/guard1_Reac.wav",
 		  "../dependencies/irrKlang/media/guard1_Dismiss.wav"
           );
@@ -1503,7 +1510,7 @@ void initGuards(WorldGrid* gameObjects) {
           guardPath,
 		  playerObject,
 		  &gLights,
-		  gLights.size(),
+		  gLights.size() - 1,
           "../dependencies/irrKlang/media/guard2_Reac.wav",
 		  "../dependencies/irrKlang/media/guard2_Dismiss.wav"
           );
@@ -1520,19 +1527,13 @@ void initGuards(WorldGrid* gameObjects) {
           guardPath,
 		  playerObject,
 		  &gLights,
-		  gLights.size(),
+		  gLights.size() - 1,
           reactSnds[reactIndx],
           dismissSnds[dismissIndx]
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
 
-	  Light spotLight;
-	  spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
-	  spotLight.color = glm::vec3(1.0, 1.0, 1.0);
-	  spotLight.angle = 15.0f;
-	  gLights.push_back(spotLight);
     }
-
     }
     reactIndx++;
     dismissIndx++;
@@ -1818,6 +1819,8 @@ int main(int argc, char **argv)
     //	followed by however many walls we need. -JB
     WorldGrid gameObjects(WORLD_WIDTH, WORLD_HEIGHT);
     detecTrac = new DetectionTracker();
+
+	//gLights = new vector<Light>();
     
     initPlayer(&gameObjects);
     initGuards(&gameObjects);

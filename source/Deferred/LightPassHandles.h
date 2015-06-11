@@ -3,7 +3,7 @@
 #include "../GameObject/Mesh.h"
 #include "../GameObject/Shape.h"
 
-#define MAX_LIGHTS 15
+#define MAX_LIGHTS 25
 
 class LightPassHandles {
  public:

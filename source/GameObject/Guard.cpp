@@ -165,6 +165,7 @@ void Guard::stare() {
 }
 
 void Guard::updateLight() {
+	printf("Lights size: %d, index: %d\n", lights->size(), lightIndex);
 	(*lights)[lightIndex].direction = direction;
 	(*lights)[lightIndex].position = vec3(position.x, position.y + 2.0f, position.z);
 }
