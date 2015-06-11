@@ -85,6 +85,8 @@ vector<tinyobj::shape_t> wall;
 
 int g_width;
 int g_height;
+int g_framebuffer_width;
+int g_framebuffer_height;
 
 float key_speed = 0.2f; // TODO get rid of these by implementing first-person camera
 float theta = 0.0f;
@@ -730,7 +732,7 @@ void passDetectDirection(float guardDetectDir) {
     pt3 = vec2(1105, 285);
   }
 
-  printf("derectDir: %f\n", guardDetectDir);
+  //printf("derectDir: %f\n", guardDetectDir);
 
   glUniform2f(lightHandles.pt1, pt1.x, pt1.y);
   glUniform2f(lightHandles.pt2, pt2.x, pt2.y);
@@ -1038,9 +1040,16 @@ void endDrawGL() {
 }
 
 void window_size_callback(GLFWwindow* window, int w, int h){
-  glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+  //glViewport(0, 0, (GLsizei)w, (GLsizei)h);
   g_width = w;
   g_height = h;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+  g_framebuffer_width = width;
+  g_framebuffer_height = height;
 }
 
 void endIntro()
@@ -1118,8 +1127,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 {
-  double x_center = g_width / 2.0;
-  double y_center = g_height / 2.0;
+  double x_center = g_framebuffer_width / 2.0;
+  double y_center = g_framebuffer_height / 2.0;
 
   double dx = xpos - x_center;
   double dy = ypos - y_center;
@@ -1711,6 +1720,7 @@ int main(int argc, char **argv)
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     // Initialize GLAD
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     
@@ -1795,9 +1805,9 @@ int main(int argc, char **argv)
     initCeiling();
     //initDetectionTracker(&gameObjects);
     //initFramebuffer();
-    
+    glfwGetFramebufferSize(window, &g_framebuffer_width, &g_framebuffer_height);
     m_dbuffer.init(1024, 1024);
-    m_gbuffer.Init(g_width, g_height);
+    m_gbuffer.Init(g_framebuffer_width, g_framebuffer_height);
    
     readIntroSpline();
 
