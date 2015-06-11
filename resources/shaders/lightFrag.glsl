@@ -11,7 +11,7 @@ uniform vec3 uLightCol;
 uniform mat4 uView;
 uniform mat4 uDepthMVP;
 uniform vec3 uLightAtten;
-uniform vec3 uLightDirection;
+uniform vec3 uLightDirection[MAX_LIGHTS];
 uniform float uLightAngleCos;
 uniform float uAmbient;
 uniform int uNumLights;
@@ -81,16 +81,16 @@ void main() {
     float attDist = min(1.0 / (uLightAtten.x + uLightAtten.y * lightDist + uLightAtten.z * lightDist * lightDist), 1.0);
 
     // spot light angle calculation
-    float spotAngleCos = dot(-1.0 * toLight, normalize(uLightDirection));
+    float spotAngleCos = dot(-1.0 * toLight, normalize(uLightDirection[i]));
 
     // angle attenuation
     float attAngle = max((1.0 - (1.0 - spotAngleCos) * 1.0/(1.0 - uLightAngleCos)), 0.0);
     //float attAngle = max(spotAngleCos - uLightAngleCos, 0.0);
 
     // final color assignment
-    if (spotAngleCos > uLightAngleCos) {
+    //if (spotAngleCos > uLightAngleCos) {
       //diffuse += max(dot(normal, toLight), 0.0) * attDist * baseColor * uLightCol;
-    }
+    //}
     diffuse += max(dot(normal, toLight), 0.0) * attDist * attAngle * baseColor * uLightCol;
   }
 
