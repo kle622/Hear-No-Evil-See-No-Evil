@@ -46,8 +46,7 @@ void Guard::move(float time) {
 			if (playerTimer > GUARD_INTEREST) { // the guard has been staring at this spot long enough to forget about the player, go back to moving normally
 				playerTimer = 0.0f;
 				staring = false;
-        guardSndObj->setListenerPos(playerObject->position, playerObject->direction);
-        guardSndObj->dismissSnd = guardSndObj->startSound3D(guardSndObj->dismissSnd, (char*)this->dismissSnd, this->position);
+        guardSndObj->dismissSnd = guardSndObj->startSound(guardSndObj->dismissSnd, (char*)this->dismissSnd);
 			}
 		//}
 	}
@@ -155,8 +154,7 @@ void Guard::stare() {
 	//face towards the player
 	//	set a flag for move method to lerp to face player
   if (!staring) {
-    guardSndObj->setListenerPos(playerObject->position, playerObject->direction);
-    guardSndObj->reactSnd = guardSndObj->startSound3D(guardSndObj->reactSnd, (char*)this->reactSnd, this->position);
+    guardSndObj->reactSnd = guardSndObj->startSound(guardSndObj->reactSnd, (char*)this->reactSnd);
   }
 	staring = true;
 	playerTimer = 0.0f;
