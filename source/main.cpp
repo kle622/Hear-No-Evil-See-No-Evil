@@ -768,7 +768,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   }
   //}
 
-  // collide
+  // collide and move
   for (int i = 0; i < gameObjects->list.size(); i++) {
     gameObjects->list[i]->move(time);
     vector<shared_ptr<GameObject>> proximity =
@@ -1055,7 +1055,7 @@ void initObjects(WorldGrid* gameObjects) {
                 0,
                 vec3(0, 0, 1), // direction
                 0,
-                vec3(2, 1, 2),
+                vec3(5, 1, 5),
                 1,
                 3
                 )));
