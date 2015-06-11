@@ -974,21 +974,26 @@ void lightPass() {
   //glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(0).atten));
   glUniform3f(lightHandles.uLightAtten, 0.0, 0.0001, 0.0002);
   //glUniform3fv(lightHandles.uLightDirection, 1, glm::value_ptr(gLights.at(0).direction));
-  glUniform3f(lightHandles.uLightDirection, 0.0, -1.0, 0.0);
+  //glUniform3f(lightHandles.uLightDirection, 0.0, -1.0, 0.0);
   glUniform1f(lightHandles.uLightAngleCos, cos(15.0f * M_PI / 180));
 
   glUniform1i(lightHandles.uNumLights, (int)gLights.size());
   passDetectDirection(guardDetecDir);
 
   GLfloat positions[MAX_LIGHTS * 3];
+  GLfloat directions[MAX_LIGHTS * 3];
   for (int i = 0; i < gLights.size(); i++) {
     //SetLightUniform(gLights.at(i), i);
     positions[3*i+0] = gLights.at(i).position.x;
     positions[3*i+1] = gLights.at(i).position.y;
     positions[3*i+2] = gLights.at(i).position.z;
+    directions[3*i+0] = gLights.at(i).direction.x;
+    directions[3*i+1] = gLights.at(i).direction.y;
+    directions[3*i+2] = gLights.at(i).direction.z;
     SetDepthMVP(false, glm::mat4(1.0f), gLights.at(i));
   }
   glUniform3fv(glGetUniformLocation(lightHandles.prog, "uLightPos"), gLights.size(), positions);
+  glUniform3fv(glGetUniformLocation(lightHandles.prog, "uLightDirection"), gLights.size(), directions);
   lightHandles.drawQuad();
 
   //for (int i = 0; i < gLights.size(); i++) {
