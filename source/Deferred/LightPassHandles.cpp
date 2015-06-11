@@ -60,6 +60,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uLightPos = GLSL::getUniformLocation(this->prog, "uLightPos");
   uLightCol = GLSL::getUniformLocation(this->prog, "uLightCol");
   uLightAtten = GLSL::getUniformLocation(this->prog, "uLightAtten");
+  uAmbient = GLSL::getUniformLocation(this->prog, "uAmbient");
 
   // stuff to init quad buffers (i didn't know where to put this)
   glGenVertexArrays(1, &quad_VertexArrayID);

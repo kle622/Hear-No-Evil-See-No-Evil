@@ -904,6 +904,7 @@ void lightPass() {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
   glUniform1i(lightHandles.uNormMap, 2);
+  glUniform1f(lightHandles.uAmbient, 0.1);
 
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
@@ -915,9 +916,12 @@ void lightPass() {
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 25, 10));
     glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 80.0f, glm::vec3(1, 0, 0));
     glm::mat4 com = trans * scale * rot;
-    safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(com));
+    /*safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(com));
     safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
-    safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));
+    safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));*/
+    safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(glm::mat4(1.0f)));
+    safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(glm::mat4(1.0f)));
+    safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(glm::mat4(1.0f)));
     //lightHandles.draw(&coneMesh);
     lightHandles.drawQuad();
   }
@@ -938,6 +942,7 @@ void endLightPass() {
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
+  glEnable(GL_DEPTH_TEST);
   glUseProgram(0);
   checkGLError();
 }
