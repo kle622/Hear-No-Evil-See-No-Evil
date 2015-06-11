@@ -114,6 +114,7 @@ Mesh barrel;
 Mesh boxStackMesh;
 Mesh tableMesh;
 Mesh chairMesh;
+Mesh lightMesh;
 Mesh rafterMesh;
 Mesh winMesh;
 Mesh trainMesh;
@@ -1169,6 +1170,16 @@ void initObjects(WorldGrid* gameObjects) {
                   //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
                   Light spotLight;
                   spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
+				  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
+					  &lightMesh,
+					  spotLight.position + vec3(0, 1.3, 0),
+					  vec3(3, 2.0f, 3),
+					  0,
+					  vec3(0, 0, 1),
+					  0,
+					  vec3(3, 8, 3),
+					  9
+					  )));
                   //printf("i: %d, j: %d\n", i, j);
                   //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
                   spotLight.intensities = glm::vec3(1, 1, 1);
@@ -1584,7 +1595,6 @@ int main(int argc, char **argv)
         return -1;
     }
     
-    
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
@@ -1622,6 +1632,7 @@ int main(int argc, char **argv)
     barrel.loadShapes(resPath(sysPath("models", "barrel.obj")));
     boxStackMesh.loadShapes(resPath(sysPath("models", "crate.obj")));
     tableMesh.loadShapes(resPath(sysPath("models", "desk.obj")));
+	lightMesh.loadShapes(resPath(sysPath("models", "ceilingLight.obj")));
     chairMesh.hasTexture = true;
     chairMesh.loadShapes(resPath(sysPath("models", "chair.obj")));
     chairMesh.loadMipmapTexture(resPath(sysPath("textures", "chair.bmp")), TEX_SIZE);
@@ -1631,6 +1642,8 @@ int main(int argc, char **argv)
     winMesh.loadMipmapTexture(resPath(sysPath("textures", "blob.bmp")), TEX_SIZE);
     playerMesh.hasTexture = true;
     playerMesh.loadMipmapTexture(resPath(sysPath("textures", "player_texture.bmp")), TEX_SIZE);
+	lightMesh.hasTexture = true;
+	lightMesh.loadMipmapTexture(resPath(sysPath("textures", "light.bmp")), 512);
     //printf("Loading cube mesh wall.bmp\n");
     cubeMesh.sendWallTexBuf();
     cubeMesh.loadMipmapTexture(resPath(sysPath("textures", "wall.bmp")), 2048);
