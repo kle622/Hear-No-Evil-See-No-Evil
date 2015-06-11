@@ -153,9 +153,9 @@ int closestLNdx = 0;
 GLuint posBufObjG = 0;
 GLuint norBufObjG = 0;
 GLuint idxBufObjG = 0;
-GLuint frameBufObj[MAX_LIGHTS] = {0};
+//GLuint frameBufObj[MAX_LIGHTS] = {0};
 GLuint texBufObjG = 0;
-GLuint shadowMap[MAX_LIGHTS] = {0};
+//GLuint shadowMap[MAX_LIGHTS] = {0};
 
 double deltaTime = 0;
 double timeCounter = 0;
@@ -319,7 +319,9 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
 
   //  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
-  safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP));
+  if (pass1) {
+    safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP));
+  }
   // pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
   //safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
@@ -328,38 +330,6 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
   checkGLError();
 }
 
-
-/*void initFramebuffer() {
-for (int i = 0; i < gLights.size(); i++) {
-  glGenFramebuffersEXT(1, &frameBufObj[i]);
-  assert(frameBufObj > 0);
-  glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[i]);
-  assert(glGetError() == GL_NO_ERROR);
-
-  // for (int i = 0; i < gLights.size(); i++) {
-  glGenTextures(1, &shadowMap[i]);
-  assert(shadowMap > 0);
-  glBindTexture(GL_TEXTURE_2D, shadowMap[i]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, g_width, g_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap[i], 0);
-  glDrawBuffer(GL_NONE);
-  glReadBuffer(GL_NONE);
-  assert(glGetError() == GL_NO_ERROR);
-  checkGLError();
- }
-
-  //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-  //cerr << "Frame buffer not ok!" << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
-  //}
-
-  // Unbind the arrays
-  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-  assert(glGetError() == GL_NO_ERROR);
-}*/
 
 void initGL() {
   // Set the background color
@@ -710,7 +680,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glBindTexture(GL_TEXTURE_2D, ground->texId);
   glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
-  SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
+  //SetDepthMVP(false, ground->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ground->getModel()));
   geomHandles.draw(ground);
 
@@ -718,7 +688,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
   glBindTexture(GL_TEXTURE_2D, ceiling->texId);
   glUniform1i(geomHandles.texture, 0);
   //SetMaterial(0);
-  SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
+  //SetDepthMVP(false, ceiling->getModel(), gLights.at(closestLNdx));
   safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(ceiling->getModel()));
   geomHandles.draw(ceiling);
 
@@ -747,7 +717,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }*/
     
     // SetMaterial(drawList[i]->material);
-    SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
+    //SetDepthMVP(false, drawList[i]->getModel(), gLights.at(closestLNdx));
     safe_glUniformMatrix4fv(geomHandles.uModel, glm::value_ptr(drawList[i]->getModel()));
     geomHandles.draw(drawList[i].get());
     //drawList[i]->draw();
@@ -813,13 +783,14 @@ void drawShadowPass(WorldGrid* gameObjects) {
   // draw
   //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
   //pass1Handles.draw(ground);
-  closestLNdx = findClosestLight();
+  //closestLNdx = findClosestLight();
+  //printf("closestLNdx %d\n", closestLNdx);
   vector<shared_ptr<GameObject>> drawList = gameObjects->list;
   vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
   drawList.insert(drawList.end(), walls.begin(), walls.end());
   //  for (int l = 0; l < gLights.size(); l++) {
   for (int i = 0; i < drawList.size(); i++) {
-    SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(closestLNdx));
+    SetDepthMVP(true, drawList[i]->getModel(), gLights.at(closestLNdx));
     depthHandles.draw(drawList[i].get());
     //drawList[i]->draw();
   }
@@ -829,16 +800,18 @@ void drawShadowPass(WorldGrid* gameObjects) {
 }
 
 void shadowPass(WorldGrid* gameObjects) {
+ 
   m_dbuffer.start();
 
+  glUseProgram(depthHandles.prog); 
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glCullFace(GL_FRONT); 
-
-  glUseProgram(depthHandles.prog);
 
   drawShadowPass(gameObjects);
 
   m_dbuffer.stop();
+  assert(glGetError() == GL_NO_ERROR);
 }
 
 void geometryPass(WorldGrid* gameObjects, float time) {
@@ -1587,8 +1560,6 @@ int main(int argc, char **argv)
     initGL();
     assert(glGetError() == GL_NO_ERROR);
 
-    m_dbuffer.Init(g_width, g_height);
-    m_gbuffer.Init(g_width, g_height);
     debugDraw = new DebugDraw();
     debugDraw->installShaders(resPath(sysPath("shaders", "vert_debug.glsl")), resPath(sysPath("shaders", "frag_debug.glsl")));
     depthHandles.installShaders(resPath(sysPath("shaders", "depthVert.glsl")), resPath(sysPath("shaders", "depthFrag.glsl")));
@@ -1657,6 +1628,9 @@ int main(int argc, char **argv)
     initCeiling();
     //initDetectionTracker(&gameObjects);
     //initFramebuffer();
+    
+    m_dbuffer.init(1024, 1024);
+    m_gbuffer.Init(g_width, g_height);
    
     readIntroSpline();
 
@@ -1784,7 +1758,7 @@ int main(int argc, char **argv)
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();*/
 	  //}
-	//shadowPass(&gameObjects);
+	shadowPass(&gameObjects);
 	getWindowInput(window, deltaTime);
 	geometryPass(&gameObjects, deltaTime);
 	endDrawGL();

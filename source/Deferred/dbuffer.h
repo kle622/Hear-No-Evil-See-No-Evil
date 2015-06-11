@@ -4,24 +4,23 @@
 #include "../Library/GLSL.h"
 #include "../glm/glm.hpp"
 #include <iostream>
-#include <exception>
 
 class DBuffer {
-
  public:
   DBuffer();
   ~DBuffer();
 
-  bool Init(unsigned int w_width, unsigned int w_height);
+  bool init(unsigned int w_width, unsigned int w_height);
   void start();
   void stop();
   GLuint getDepthTex();
 
  private:
-  unsigned int width, height;
-  GLuint m_fbo;
+  GLuint m_fb;
   GLuint m_depthBuffRT;
   GLuint m_depthTex;
+  unsigned int width;
+  unsigned int height;
 };
 
 #endif

@@ -54,7 +54,7 @@ bool GeometryPassHandles::installShaders(const std::string &vShaderName, const s
   uProj = GLSL::getUniformLocation(this->prog, "uProj");
   uView = GLSL::getUniformLocation(this->prog, "uView");
   uModel = GLSL::getUniformLocation(this->prog, "uModel");
-  uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
+  //uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
   texture = GLSL::getUniformLocation(this->prog, "texture");
 
   return true;

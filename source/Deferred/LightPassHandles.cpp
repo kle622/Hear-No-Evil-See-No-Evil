@@ -52,7 +52,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uProj = GLSL::getUniformLocation(this->prog, "uProj");
   uView = GLSL::getUniformLocation(this->prog, "uView");
   uModel = GLSL::getUniformLocation(this->prog, "uModel");
-  uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
+  //uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
   uScreenSize = GLSL::getUniformLocation(this->prog, "uScreenSize");
   uNormMap = GLSL::getUniformLocation(this->prog, "uNormMap");
   uPosMap = GLSL::getUniformLocation(this->prog, "uPosMap");
