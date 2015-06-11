@@ -28,7 +28,8 @@ using namespace glm;
 class MySound : public irrklang::ISoundStopEventReceiver {
 public:
   ISoundEngine* engine;
-  ISound* noseSnd, *guardTalk, *backGroundSnd, *footSndPlayr, *loseSnd, *winSnd, *openBckGrnd, *collectableSnd, *openingSnd, *leanOut, *leanIn;
+  ISound* noseSnd, *guardTalk, *backGroundSnd, *footSndPlayr, *loseSnd, *winSnd,
+    *openBckGrnd, *collectableSnd, *openingSnd, *leanOut, *leanIn, *reactSnd, *dismissSnd;
 
   //ConstrbackGroundSnd;uctor
   MySound();

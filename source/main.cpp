@@ -884,19 +884,12 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         detecTrac->updateVisDetect(detectPercent, playerObject);
         guardDetecDir = calculateGuardDetecDir(playerObject, guard, camera3DPerson);
       }
-      else {
-        detecTrac->detecDanger = false;
-      }
-      if (detectPercent > 0) {
-        soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
-      }
     }
     
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-      soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
-		detecTrac->updateSndDetect(playerObject);
+		  detecTrac->updateSndDetect(playerObject);
       detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
-        detecTrac->detecDanger = false;
+      detecTrac->detecDanger = false;
     }
 
     if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
@@ -1311,6 +1304,22 @@ void initGuards(WorldGrid* gameObjects) {
   float x, y, z, dur;
   char smartTurn, endTurnDir;
   int numNodes;
+  int guardNum = 0;
+
+  vector<char*> reactSnds;
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand1_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand3_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand4_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand5_Reac.wav");
+  reactSnds.push_back("../dependencies/irrKlang/media/guardRand6_Reac.wav");
+
+  vector<char*> dismissSnds;
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand1_Dismiss.wav");
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand3_Dismiss.wav");
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand4_Dismiss.wav");
+  dismissSnds.push_back("../dependencies/irrKlang/media/guardRand5_Dismiss.wav");
+  int reactIndx, dismissIndx;
+  reactIndx = dismissIndx = 0;
 
   while (fgets(line, 100, file)) {
     if (line[0] == 'G') { // build new guard
@@ -1325,7 +1334,8 @@ void initGuards(WorldGrid* gameObjects) {
         guardPath.push_back(PathNode(vec3(x, y, z), smartTurn == 'y', dur, endTurnDir == 'r', endTurnDir != 'x'));
       }
 
-      Guard* guardObject = new Guard(
+      if (guardNum == 0) {
+        Guard* guardObject = new Guard(
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
@@ -1333,10 +1343,51 @@ void initGuards(WorldGrid* gameObjects) {
           1,
           0,
           guardPath,
-		  playerObject
+          playerObject,
+          "../dependencies/irrKlang/media/guard1_Reac.wav",
+          "../dependencies/irrKlang/media/guard1_Dismiss.wav"
           );
-      gameObjects->add(shared_ptr<GameObject>(guardObject));
+        gameObjects->add(shared_ptr<GameObject>(guardObject));
+      }
+      else if (guardNum == 1) {
+        Guard* guardObject = new Guard(
+          &guardMesh,
+          vec3(2, 2, 2),
+          GUARD_SPEED,
+          vec3(2, 2, 2),
+          1,
+          0,
+          guardPath,
+          playerObject,
+          "../dependencies/irrKlang/media/guard2_Reac.wav",
+          "../dependencies/irrKlang/media/guard2_Dismiss.wav"
+          );
+        gameObjects->add(shared_ptr<GameObject>(guardObject));
+      }
+      else {
+        Guard* guardObject = new Guard(
+          &guardMesh,
+          vec3(2, 2, 2),
+          GUARD_SPEED,
+          vec3(2, 2, 2),
+          1,
+          0,
+          guardPath,
+          playerObject,
+          reactSnds[reactIndx],
+          dismissSnds[dismissIndx]
+          );
+        gameObjects->add(shared_ptr<GameObject>(guardObject));
+      }
+
     }
+    reactIndx++;
+    dismissIndx++;
+    guardNum++;
+    if (reactIndx == reactSnds.size())
+      reactIndx = 0;
+    if (dismissIndx == dismissSnds.size())
+      dismissIndx = 0;
   }
 }
 
