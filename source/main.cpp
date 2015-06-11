@@ -1764,12 +1764,15 @@ int main(int argc, char **argv)
 	  getWindowInput(window, deltaTime);
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();*/
-	  //}
-	shadowPass(&gameObjects);
-	getWindowInput(window, deltaTime);
+        //}
+        shadowPass(&gameObjects);
+        getWindowInput(window, deltaTime);
 	geometryPass(&gameObjects, deltaTime);
 	endDrawGL();
 	//	beginLightPass();
+        if (!inIntro)
+          ImGui::Render();
+
 	lightPass();
 	endLightPass();
         
@@ -1800,9 +1803,6 @@ int main(int argc, char **argv)
 //#endif
     }
     debugDraw->clear();
-
-    if (!inIntro)
-      ImGui::Render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
