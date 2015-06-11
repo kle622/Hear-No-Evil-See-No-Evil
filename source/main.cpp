@@ -591,7 +591,6 @@ int findClosestLight() {
 
 }
 
-
 void beginPass1Draw() {
   closestLNdx = findClosestLight();
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
@@ -887,9 +886,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     }
     
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
-		  detecTrac->updateSndDetect(playerObject);
+		detecTrac->updateSndDetect(playerObject);
       detecTrac->currLight = getClosestLight(gLights, dynamic_cast<Player *>(gameObjects->list[i].get()));
-      detecTrac->detecDanger = false;
+        detecTrac->detecDanger = false;
     }
 
     if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
@@ -1335,7 +1334,7 @@ void initGuards(WorldGrid* gameObjects) {
       }
 
       if (guardNum == 0) {
-        Guard* guardObject = new Guard(
+      Guard* guardObject = new Guard(
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
@@ -1377,8 +1376,8 @@ void initGuards(WorldGrid* gameObjects) {
           reactSnds[reactIndx],
           dismissSnds[dismissIndx]
           );
-        gameObjects->add(shared_ptr<GameObject>(guardObject));
-      }
+      gameObjects->add(shared_ptr<GameObject>(guardObject));
+    }
 
     }
     reactIndx++;
