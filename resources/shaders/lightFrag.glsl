@@ -60,7 +60,7 @@ void main() {
   vec3 baseColor = texture2D(uColMap, texCoord).xyz;
   vec3 normal = texture2D(uNormMap, texCoord).xyz;
   vec3 diffuse = vec3(0.0, 0.0, 0.0);
-  vec3 ambient = uAmbient * baseColor;
+  vec3 ambient = uAmbient * baseColor * 2.5;
   float visibility = 1.0;
   float bias = 0.005;
   vec3 viewPos = vec3(uView * vec4(worldPos, 1.0));
