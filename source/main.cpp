@@ -972,11 +972,11 @@ void initObjects(WorldGrid* gameObjects) {
         gameObjects->add(shared_ptr<GameObject>(new GameObject(
                 &barrel,
                 vec3(i - (TEST_WORLD/2), 0, j - (TEST_WORLD/2)),
-                vec3(1, 1, 1),
+                vec3(1, 1.3, 1),
                 getRand(0, 360),
                 vec3(cos(getRand(0, 360) * M_PI / 180), 0, sin(getRand(0, 360) * M_PI / 180)), // direction
                 0,
-                vec3(1.5, 2, 1.5),
+                vec3(1.5, 2.5, 1.5),
                 1,
                 0,
                 GameObject::ObjectType::STATIC
