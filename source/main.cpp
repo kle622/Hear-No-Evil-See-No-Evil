@@ -8,7 +8,6 @@
 #include <cassert>
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <math.h>
 #include <time.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp" //perspective, txrans etc
@@ -805,6 +804,7 @@ void shadowPass(WorldGrid* gameObjects) {
 
   m_dbuffer.stop();
   glCullFace(GL_BACK); 
+  glDisable(GL_CULL_FACE);
   assert(glGetError() == GL_NO_ERROR);
 }
 
