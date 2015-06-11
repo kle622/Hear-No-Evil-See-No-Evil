@@ -32,6 +32,9 @@ public:
 	float playerTimer; // how long since we last saw the player
 	vec3 lastSeen;
 
+	vector<Light> *lights;
+	int lightIndex;
+
 	int currentNode;
 	int sweepDirection; // 1 = clockwise, -1 = ccw
 	float waitTime;
@@ -42,12 +45,14 @@ public:
 
 	//Constructor
 	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
-    int scanRadius, int material, vector<PathNode> motionPath, Player *player, char* reactSnd, char* dismissSnd);
+    int scanRadius, int material, vector<PathNode> motionPath, Player *player,
+	char* reactSnd, char* dismissSnd, vector<Light> *lights, int lightIndex);
 
 	//Object methods
 	void move(float time);
 	bool collide(GameObject* object);
 	void stare();
+	void updateLight();
   glm::mat4 getModel();
 	float detect(WorldGrid *world, DetectionCamera *cam, DetectionTracker *detecTrac);
 };

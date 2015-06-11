@@ -322,7 +322,6 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
   checkGLError();
 }
 
-
 void initGL() {
   // Set the background color
   glClearColor(0.0f, 0.0f, 0.9f, 1.0f);
@@ -554,7 +553,6 @@ int findClosestLight() {
 
 }
 
-
 /*void beginPass1Draw() {
   closestLNdx = findClosestLight();
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
@@ -574,8 +572,6 @@ int findClosestLight() {
   assert(glGetError() == GL_NO_ERROR);
   checkGLError();
 }*/
-
-
 
 void SetLightUniform(Light light, int ndx) {
   if (ndx < MAX_LIGHTS) {
@@ -1018,7 +1014,6 @@ void endLightPass() {
   glUseProgram(0);
   checkGLError();
 }
-
 
 /*void endPass1Draw() {
   GLSL::disableVertexAttribArray(pass1Handles.aPosition);
@@ -1470,13 +1465,15 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2, 2, 2),
+          vec3(2, 4, 2),
           1,
           0,
           guardPath,
           playerObject,
           "../dependencies/irrKlang/media/guard1_Reac.wav",
-          "../dependencies/irrKlang/media/guard1_Dismiss.wav"
+		  "../dependencies/irrKlang/media/guard1_Dismiss.wav",
+		  &gLights,
+		  gLights.size
           );
         gameObjects->add(shared_ptr<GameObject>(guardObject));
       }
@@ -1485,13 +1482,16 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2, 2, 2),
+          vec3(2, 4, 2),
           1,
           0,
           guardPath,
           playerObject,
           "../dependencies/irrKlang/media/guard2_Reac.wav",
-          "../dependencies/irrKlang/media/guard2_Dismiss.wav"
+		  "../dependencies/irrKlang/media/guard2_Dismiss.wav",
+		  &gLights,
+		  gLights.size
+
           );
         gameObjects->add(shared_ptr<GameObject>(guardObject));
       }
@@ -1500,15 +1500,23 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2, 2, 2),
+          vec3(2, 4, 2),
           1,
           0,
           guardPath,
           playerObject,
           reactSnds[reactIndx],
-          dismissSnds[dismissIndx]
+          dismissSnds[dismissIndx],
+		  &gLights,
+		  gLights.size
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
+
+	  Light spotLight;
+	  spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
+	  spotLight.color = glm::vec3(1.0, 1.0, 1.0);
+	  spotLight.angle = 15.0f;
+	  gLights.push_back(spotLight);
     }
 
     }
