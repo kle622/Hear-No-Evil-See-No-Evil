@@ -53,6 +53,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uNormMap = GLSL::getUniformLocation(this->prog, "uNormMap");
   uPosMap = GLSL::getUniformLocation(this->prog, "uPosMap");
   uColMap = GLSL::getUniformLocation(this->prog, "uColMap");
+  uDepthMap = GLSL::getUniformLocation(this->prog, "uDepthMap");
   uLightCol = GLSL::getUniformLocation(this->prog, "uLightCol");
   uLightAtten = GLSL::getUniformLocation(this->prog, "uLightAtten");
   uLightDirection = GLSL::getUniformLocation(this->prog, "uLightDirection");
@@ -64,6 +65,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   pt2 = GLSL::getUniformLocation(this->prog, "pt2");
   pt3 = GLSL::getUniformLocation(this->prog, "pt3");
   detecDir = GLSL::getUniformLocation(this->prog, "detecDir");
+  uDepthMVP = GLSL::getUniformLocation(this->prog, "uDepthMVP");
 
   // stuff to init quad buffers (i didn't know where to put this)
   /*glGenVertexArrays(1, &quad_VertexArrayID);
