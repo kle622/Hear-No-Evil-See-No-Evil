@@ -88,9 +88,9 @@ void main() {
     //float attAngle = max(spotAngleCos - uLightAngleCos, 0.0);
 
     // final color assignment
-    if (spotAngleCos > uLightAngleCos) {
+    //if (spotAngleCos > uLightAngleCos) {
       //diffuse += max(dot(normal, toLight), 0.0) * attDist * baseColor * uLightCol;
-    }
+    //}
     diffuse += max(dot(normal, toLight), 0.0) * attDist * attAngle * baseColor * uLightCol;
   }
 

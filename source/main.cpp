@@ -211,7 +211,7 @@ inline void safe_glUniformMatrix4fv(const GLint handle, const GLfloat data[]) {
     glUniformMatrix4fv(handle, 1, GL_FALSE, data);
 }
 
-void SetMaterial(int i) {
+/*void SetMaterial(int i) {
   switch (i) {
   case 0: // guards
     glUniform3f(pass2Handles.uMatAmb, 0.05f, 0.025f, 0.025f);
@@ -273,7 +273,7 @@ void SetMaterial(int i) {
     glUniform3f(pass2Handles.uMatSpec, 0.08f, 0.0f, 0.1f);
     glUniform1f(pass2Handles.uMatShine, 1.0f);
   }
-}
+}*/
 
 void readIntroSpline()
 {
@@ -584,7 +584,8 @@ void SetLightUniform(Light light, int ndx) {
     stream << "uLightPos[" << ndx << "]";
   checkGLError();
   //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
-    lightHandles.uLightPos[ndx] = GLSL::getUniformLocation(lightHandles.prog, stream.str().c_str());
+    //lightHandles.uLightPos[ndx] = GLSL::getUniformLocation(lightHandles.prog, stream.str().c_str());
+    lightHandles.uLightPos[ndx] = GLSL::getUniformLocation(lightHandles.prog, "uLightPos[0]");
   //printf("handle allLights: %d\n", pass2Handles.uAllLights[ndx]);
   checkGLError();
     glUniform3f(lightHandles.uLightPos[ndx], light.position.x, light.position.y, light.position.z);
@@ -968,18 +969,26 @@ void lightPass() {
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
   glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
   
-  glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(0).color));
-  glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(0).atten));
-  glUniform3fv(lightHandles.uLightDirection, 1, glm::value_ptr(gLights.at(0).direction));
-  glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(0).angle * M_PI / 180));
+  glUniform3f(lightHandles.uLightCol, 1.0, 1.0, 1.0);
+  //glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(0).color));
+  //glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(0).atten));
+  glUniform3f(lightHandles.uLightAtten, 0.0, 0.0001, 0.0002);
+  //glUniform3fv(lightHandles.uLightDirection, 1, glm::value_ptr(gLights.at(0).direction));
+  glUniform3f(lightHandles.uLightDirection, 0.0, -1.0, 0.0);
+  glUniform1f(lightHandles.uLightAngleCos, cos(15.0f * M_PI / 180));
 
   glUniform1i(lightHandles.uNumLights, (int)gLights.size());
   passDetectDirection(guardDetecDir);
 
+  GLfloat positions[MAX_LIGHTS * 3];
   for (int i = 0; i < gLights.size(); i++) {
-    SetLightUniform(gLights.at(i), i);
+    //SetLightUniform(gLights.at(i), i);
+    positions[3*i+0] = gLights.at(i).position.x;
+    positions[3*i+1] = gLights.at(i).position.y;
+    positions[3*i+2] = gLights.at(i).position.z;
     SetDepthMVP(false, glm::mat4(1.0f), gLights.at(i));
   }
+  glUniform3fv(glGetUniformLocation(lightHandles.prog, "uLightPos"), gLights.size(), positions);
   lightHandles.drawQuad();
 
   //for (int i = 0; i < gLights.size(); i++) {
@@ -1303,10 +1312,10 @@ void initObjects(WorldGrid* gameObjects) {
 					  )));
                   //printf("i: %d, j: %d\n", i, j);
                   //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
-                  spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
+                  /*spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
                   spotLight.color = glm::vec3(1.0, 1.0, 1.0);
                   spotLight.angle = 15.0f;
-                  spotLight.direction = glm::vec3(0.0, -1.0, 0.0);
+                  spotLight.direction = glm::vec3(0.0, -1.0, 0.0);*/
                   gLights.push_back(spotLight);
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
