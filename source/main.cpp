@@ -65,7 +65,7 @@
 #define GUARD_FAR 20.0f
 #define GUARD_FOV 70.0f
 
-#define GUARD_SPEED 3.0f
+#define GUARD_SPEED 4.0f
 #define BOTTOM_LEVEL 1.0f
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
@@ -1354,7 +1354,7 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2, 2, 2),
+          vec3(2, 4, 2),
           1,
           0,
           guardPath,
