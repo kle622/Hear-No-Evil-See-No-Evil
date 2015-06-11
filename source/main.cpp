@@ -644,7 +644,7 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
   Light lightWithMinDist;
   float min = ((gLights[0].position.x - player->position.x) * (gLights[0].position.x - player->position.x)) + ((gLights[0].position.z - player->position.z) * (gLights[0].position.z - player->position.z));
    for (int L = 1; L < gLights.size(); L++) {
-	   if (!gLights[i].guardLight) {
+	   if (!gLights[L].guardLight) {
 		   float deltaX = gLights[L].position.x - player->position.x;
 		   float deltaZ = gLights[L].position.z - player->position.z;
 
