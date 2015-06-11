@@ -894,7 +894,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected) {
         gameObjects->remove(i);
-    }
+      }
     }
 
     checkGLError();
