@@ -307,13 +307,10 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
       0.5, 0.5, 0.5, 1.0
       );
 
-  //  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
-  if (pass1) {
-    safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP));
-  }
-  // pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
-  //safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
+   pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
+     safe_glUniformMatrix4fv(lightHandles.uDepthMVP, glm::value_ptr(depthBiasMVP));
 
   //cerr << glGetError() << endl;
   //  assert(glGetError() == GL_NO_ERROR);
@@ -880,6 +877,11 @@ void lightPass() {
   glUniform1i(lightHandles.uNormMap, 2);
   glUniform1f(lightHandles.uAmbient, 0.1);
 
+  glActiveTexture(GL_TEXTURE3);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, m_dbuffer.getDepthTex());
+  glUniform1i(lightHandles.uDepthMap, 3);
+
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
   glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
   
@@ -891,6 +893,7 @@ void lightPass() {
   glUniform1i(lightHandles.uNumLights, (int)gLights.size());
   for (int i = 0; i < gLights.size(); i++) {
     SetLightUniform(gLights.at(i), i);
+    SetDepthMVP(false, glm::mat4(1.0f), gLights.at(i));
   }
   lightHandles.drawQuad();
 

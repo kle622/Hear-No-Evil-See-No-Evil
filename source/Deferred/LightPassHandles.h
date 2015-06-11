@@ -14,6 +14,7 @@ class LightPassHandles {
   GLuint uPosMap;
   GLuint uColMap;
   GLuint uNormMap;
+  GLuint uDepthMap;
   GLuint uLightPos[MAX_LIGHTS];
   GLuint uLightCol;
   GLuint uLightAtten;
