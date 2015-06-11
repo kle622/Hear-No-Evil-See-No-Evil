@@ -591,7 +591,6 @@ int findClosestLight() {
 
 }
 
-
 void beginPass1Draw() {
   closestLNdx = findClosestLight();
   glBindFramebufferEXT(GL_FRAMEBUFFER, frameBufObj[closestLNdx]);
@@ -883,9 +882,6 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
         guardDetecDir = calculateGuardDetecDir(playerObject, guard, camera3DPerson);
-      }
-      else {
-        detecTrac->detecDanger = false;
       }
       if (detectPercent > 0) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
