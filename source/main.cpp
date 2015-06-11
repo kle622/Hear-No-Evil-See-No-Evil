@@ -1654,6 +1654,8 @@ int main(int argc, char **argv)
     tableMesh.hasTexture = true;
     tableMesh.loadMipmapTexture(resPath(sysPath("textures", "desk.bmp")), TEX_SIZE);
     barrel.hasTexture = true;
+	printMesh.hasTexture = true;
+	printMesh.loadMipmapTexture(resPath(sysPath("textures", "shoe.bmp")), 1);
     barrel.loadTexture(resPath(sysPath("textures", "barrel.bmp")));
     //cubeMesh.loadTexture(resPath(sysPath("textures", "wall.bmp")));
     boxStackMesh.hasTexture = true;
