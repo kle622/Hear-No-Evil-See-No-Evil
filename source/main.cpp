@@ -842,6 +842,9 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glActiveTextureARB(GL_TEXTURE2_ARB);
   glBindTexture(GL_TEXTURE_2D, m_gbuffer.getNormTexture());
 
+  glActiveTextureARB(GL_TEXTURE3_ARB);
+  glBindTexture(GL_TEXTURE_2D, m_gbuffer.getDepthTexture());
+
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
 

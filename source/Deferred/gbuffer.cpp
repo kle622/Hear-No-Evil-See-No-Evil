@@ -129,3 +129,7 @@ GLuint GBuffer::getPosTexture() {
 GLuint GBuffer::getNormTexture() {
   return m_normTex;
 }
+
+GLuint GBuffer::getDepthTexture() {
+  return m_depthTex;
+}
