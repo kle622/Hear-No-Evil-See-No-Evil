@@ -1,7 +1,7 @@
 #include "GameObject.h"
 #include "WinCondition.h"
 #include "Player.h"
-#define DECELERATION 0.45f
+#define DECELERATION 1.4f
 
 GameObject::GameObject(Mesh *mesh,
 		       vec3 position, vec3 scale, float rotation, 
