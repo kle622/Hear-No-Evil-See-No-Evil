@@ -317,7 +317,7 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
       0.5, 0.5, 0.5, 1.0
       );
 
-  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+  //  glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
   safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP));
   // pass1 ? safe_glUniformMatrix4fv(depthHandles.uDepthMVP, glm::value_ptr(depthMVP)) :
@@ -613,25 +613,7 @@ int findClosestLight() {
   checkGLError();
 }*/
 
-void drawShadowPass(WorldGrid* gameObjects) {
-  Guard *guard;
-  // draw
-  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
-  //pass1Handles.draw(ground);
-  closestLNdx = findClosestLight();
-  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
-  vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
-  drawList.insert(drawList.end(), walls.begin(), walls.end());
-  //  for (int l = 0; l < gLights.size(); l++) {
-  for (int i = 0; i < drawList.size(); i++) {
-    SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(closestLNdx));
-    depthHandles.draw(drawList[i].get());
-    //drawList[i]->draw();
-  }
-  //}
 
-  gameObjects->update();
-}
 
 /*void SetLightUniform(Light light, int ndx) {
   ostringstream stream;
@@ -826,6 +808,25 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     gameObjects->update();
   }
 }
+void drawShadowPass(WorldGrid* gameObjects) {
+  Guard *guard;
+  // draw
+  //vector<shared_ptr<GameObject>> drawList = camera3DPerson->getUnculled(gameObjects);
+  //pass1Handles.draw(ground);
+  closestLNdx = findClosestLight();
+  vector<shared_ptr<GameObject>> drawList = gameObjects->list;
+  vector<shared_ptr<GameObject>> walls = gameObjects->wallList;
+  drawList.insert(drawList.end(), walls.begin(), walls.end());
+  //  for (int l = 0; l < gLights.size(); l++) {
+  for (int i = 0; i < drawList.size(); i++) {
+    SetDepthMVP(true, (drawList[i])->getModel(), gLights.at(closestLNdx));
+    depthHandles.draw(drawList[i].get());
+    //drawList[i]->draw();
+  }
+  //}
+
+  gameObjects->update();
+}
 
 void shadowPass(WorldGrid* gameObjects) {
   m_dbuffer.start();
@@ -837,7 +838,7 @@ void shadowPass(WorldGrid* gameObjects) {
 
   drawShadowPass(gameObjects);
 
-
+  m_dbuffer.stop();
 }
 
 void geometryPass(WorldGrid* gameObjects, float time) {
@@ -1783,7 +1784,7 @@ int main(int argc, char **argv)
 	  drawGameObjects(&gameObjects, deltaTime);
 	  endDrawGL();*/
 	  //}
-	shadowPass(&gameObjects);
+	//shadowPass(&gameObjects);
 	getWindowInput(window, deltaTime);
 	geometryPass(&gameObjects, deltaTime);
 	endDrawGL();
