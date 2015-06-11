@@ -788,7 +788,8 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       float detectPercent = guard->detect(gameObjects, detectCam, detecTrac);
       if (detectPercent > 0) {
-		  printf("Detected!\n");
+		  if (detecTrac->totalDetLvl > 0.5)
+			  guard->stare();
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
 		printf(detecTrac->detecDanger ? "g true\n": "g false\n");

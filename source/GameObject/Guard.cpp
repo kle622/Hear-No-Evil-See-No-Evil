@@ -30,7 +30,7 @@ void Guard::move(float time) {
 		gtop = normalize(gtop);
 		int stareTurnDir = (int)sign(cross(direction, gtop).y);
 		if (!foundPlayer) { // turn to initially center player in view
-			direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * velocity * time * stareTurnDir));
+			direction = vec3(glm::rotateY(vec4(direction, 0), GUARD_SPIN_SPEED * 0.003f * velocity * time * stareTurnDir));
 			gtop = playerObject->position - position;
 			float cross_y = cross(direction, gtop).y;
 			if (cross_y * stareTurnDir < 0) { // we see the player, now just set the direction to be the vector to the player
