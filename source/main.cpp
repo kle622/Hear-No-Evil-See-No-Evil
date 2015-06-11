@@ -895,6 +895,7 @@ void lightPass() {
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
 
   for (int i = 0; i < gLights.size(); i++) {
+    glUniform3fv(lightHandles.uLightPos, 1, glm::value_ptr(gLights.at(i).position));
     glm::mat4 trans = glm::translate(glm::mat4(1.0f), gLights.at(i).position);
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 20, 10));
     glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 80.0f, glm::vec3(1, 0, 0));

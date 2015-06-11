@@ -4,6 +4,7 @@ uniform sampler2D uNormMap;
 
 uniform vec2 uScreenSize;
 uniform vec3 uCamPos;
+uniform vec3 uLightPos;
 
 void main() {
   vec2 texCoord = gl_FragCoord.xy / uScreenSize;
