@@ -714,7 +714,47 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
    return lightWithMinDist;
 }
 
+#define FORWARD_LIMIT 0.8f
+#define BACK_LIMIT -0.8f
+// 1 = forward, 2 = backward, 3 = left, 4 = right
+float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camera) {
+  vec3 cameraDir = camera->getForward();
+  cameraDir.y = 0;
+  cameraDir = normalize(cameraDir);
+  //float xDiff = (guard->position.x - cameraDir.x) * (guard->position.x - cameraDir.x);
+  //float zDiff = (guard->position.z - cameraDir.z) * (guard->position.z - cameraDir.z);
+  float retVal, sideOfView;
+  //printf("xDiff: %f, zDiff: %f\n", xDiff, zDiff);
+  vec3 ptog = guard->position - player->position;
+  ptog.y = 0.0f;
+  ptog = normalize(ptog);
+  vec3 crossProd = cross(cameraDir, ptog);
+  float crossMag = crossProd.y;
+  float dotProd = dot(cameraDir, ptog);
 
+  //printf("crossProd: %f, %f, %f\n", crossProd.x, crossProd.y, crossProd.z);
+  //printf("cross %f : dot %f \n", crossMag, dotProd);
+  if (dotProd < FORWARD_LIMIT && dotProd > BACK_LIMIT) { // to a side
+    //float sideOfView = cameraDir.x * guard->position.x + cameraDir.y * guard->position.y + cameraDir.z * guard->position.z;
+    //printf("side of plane: %f\n", sideOfView);
+    if (crossMag < 0) {
+      retVal = 4.0;
+    }
+    else {
+      retVal = 3.0;
+    }
+  }
+  else {
+    //float dotProd = dot(cameraDir, guard->position);
+    if (dotProd > 0) {
+        retVal = 1.0;
+    }
+    else {
+        retVal = 2.0;
+    }
+  }
+  return retVal;
+}
 
 void passDetectDirection(float guardDetectDir) {
   vec2 pt1, pt2, pt3;
@@ -748,7 +788,7 @@ void passDetectDirection(float guardDetectDir) {
   glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
   glUniform1i(pass2Handles.detecDir, guardDetectDir);
 
-  #ifdef APPLE
+  #ifdef __APPLE__
   glUniform2f(pass2Handles.pt1, pt1.x*2, pt1.y*2);
   glUniform2f(pass2Handles.pt2, pt2.x*2, pt2.y*2);
   glUniform2f(pass2Handles.pt3, pt3.x*2, pt3.y*2);
@@ -851,7 +891,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
         soundObj->guardTalk = soundObj->startSound3D(soundObj->guardTalk, "../dependencies/irrKlang/media/killing_to_me.wav", guard->position);
       }
     }
-
+    
     if (dynamic_cast<Player *>(gameObjects->list[i].get())) {
       soundObj->setListenerPos(gameObjects->list[i].get()->position, gameObjects->list[i].get()->direction);
 		detecTrac->updateSndDetect(playerObject);
@@ -862,7 +902,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (clue = dynamic_cast<Clue *>(gameObjects->list[i].get())) {
       if (clue->isCollected) {
         gameObjects->remove(i);
-      }
+    }
     }
 
     checkGLError();
@@ -1463,7 +1503,7 @@ void initWalls(WorldGrid* gameObjects) {
         //printf("\nCenter point of testWall: %d,  (x: %f, z: %f)\n", testWallCount, tempPos.x, tempPos.z);
       }
     }
-  }
+}
 
 }
 
