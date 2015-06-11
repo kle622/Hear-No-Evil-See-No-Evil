@@ -9,8 +9,8 @@
 MySound *guardSndObj = new MySound();
 
 Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
-  int scanRadius, int material, vector<PathNode> motionPath, Player *player, char* reactSnd = "THIS SHOULD NEVER HAPPEN",
-  char* dismissSnd = "THIS SHOULD NEVER HAPPEN - Part 2", vector<Light> *lights, int lightIndex) :
+	int scanRadius, int material, vector<PathNode> motionPath, Player *player, vector<Light> *lights, int lightIndex, char* reactSnd = "THIS SHOULD NEVER HAPPEN",
+  char* dismissSnd = "THIS SHOULD NEVER HAPPEN - Part 2") :
 	GameObject(mesh,
 	motionPath[0].pos, scale, 0,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
@@ -165,5 +165,6 @@ void Guard::stare() {
 }
 
 void Guard::updateLight() {
-	(*lights)[lightIndex];
+	(*lights)[lightIndex].direction = direction;
+	(*lights)[lightIndex].position = vec3(position.x, position.y + 2.0f, position.z);
 }

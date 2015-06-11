@@ -4,6 +4,7 @@
 #include <vector>
 #include "GameObject.h"
 #include "Player.h"
+#include "../deferred/Light.h"
 #include "Mesh.h"
 #include "Handles.h"
 #include "../GuardPath/PathNode.h"
@@ -45,8 +46,8 @@ public:
 
 	//Constructor
 	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
-    int scanRadius, int material, vector<PathNode> motionPath, Player *player,
-	char* reactSnd, char* dismissSnd, vector<Light> *lights, int lightIndex);
+		int scanRadius, int material, vector<PathNode> motionPath, Player *player, vector<Light> *lights, int lightIndex,
+	char* reactSnd, char* dismissSnd);
 
 	//Object methods
 	void move(float time);

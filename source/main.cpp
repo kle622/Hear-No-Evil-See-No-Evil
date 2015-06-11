@@ -1484,11 +1484,11 @@ void initGuards(WorldGrid* gameObjects) {
           1,
           0,
           guardPath,
-          playerObject,
-          "../dependencies/irrKlang/media/guard1_Reac.wav",
-		  "../dependencies/irrKlang/media/guard1_Dismiss.wav",
+		  playerObject,
 		  &gLights,
-		  gLights.size
+		  gLights.size(),
+          "../dependencies/irrKlang/media/guard1_Reac.wav",
+		  "../dependencies/irrKlang/media/guard1_Dismiss.wav"
           );
         gameObjects->add(shared_ptr<GameObject>(guardObject));
       }
@@ -1501,12 +1501,11 @@ void initGuards(WorldGrid* gameObjects) {
           1,
           0,
           guardPath,
-          playerObject,
-          "../dependencies/irrKlang/media/guard2_Reac.wav",
-		  "../dependencies/irrKlang/media/guard2_Dismiss.wav",
+		  playerObject,
 		  &gLights,
-		  gLights.size
-
+		  gLights.size(),
+          "../dependencies/irrKlang/media/guard2_Reac.wav",
+		  "../dependencies/irrKlang/media/guard2_Dismiss.wav"
           );
         gameObjects->add(shared_ptr<GameObject>(guardObject));
       }
@@ -1519,11 +1518,11 @@ void initGuards(WorldGrid* gameObjects) {
           1,
           0,
           guardPath,
-          playerObject,
-          reactSnds[reactIndx],
-          dismissSnds[dismissIndx],
+		  playerObject,
 		  &gLights,
-		  gLights.size
+		  gLights.size(),
+          reactSnds[reactIndx],
+          dismissSnds[dismissIndx]
           );
       gameObjects->add(shared_ptr<GameObject>(guardObject));
 
