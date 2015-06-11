@@ -29,6 +29,7 @@ MySound::MySound() {
   this->loseSnd->setVolume(0.5);
   this->winSnd = engine->play2D("../dependencies/irrKlang/media/end.wav", false, true, true);
   this->winSnd->setVolume(0.5);
+
   this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/collect0.wav", false, true, true);
   this->collectableSnd->setVolume(0.5);
 
@@ -47,9 +48,6 @@ MySound::MySound() {
   this->dismissSnd = engine->play3D("../dependencies/irrKlang/media/guard1_Dismiss.wav", vec3df(0, 0, 0), false, true, true);
   this->dismissSnd->setVolume(0.3);
   this->dismissSnd->setMinDistance(150.0f);
-
-  this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/guardRand1_Reac.wav", false, true, true);
-  this->collectableSnd->setVolume(0.5);
 }
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {
