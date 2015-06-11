@@ -61,6 +61,16 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uLightCol = GLSL::getUniformLocation(this->prog, "uLightCol");
   uLightAtten = GLSL::getUniformLocation(this->prog, "uLightAtten");
 
+  // stuff to init quad buffers (i didn't know where to put this)
+  glGenVertexArrays(1, &quad_VertexArrayID);
+  assert(quad_VertexArrayID > 0);
+  glBindVertexArray(quad_VertexArrayID);
+
+  glGenBuffers(1, &quad_vertexbuffer);
+  assert(quad_vertexbuffer > 0);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data) * sizeof(GLfloat), &g_quad_vertex_buffer_data[0], GL_STATIC_DRAW);
+
   return true;
 }
 
@@ -93,4 +103,14 @@ void LightPassHandles::draw(Shape* obj) {
   GLSL::disableVertexAttribArray(this->aNormal);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
+}
+
+void LightPassHandles::drawQuad()
+{
+  GLSL::enableVertexAttribArray(aPosition);
+  glBindVertexArray(quad_VertexArrayID);
+  glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+  glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(g_quad_vertex_buffer_data) * 3 * 6);
 }

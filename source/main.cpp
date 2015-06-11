@@ -839,6 +839,7 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   checkGLError();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
   checkGLError();
 
   glUseProgram(geomHandles.prog);
@@ -879,17 +880,10 @@ void geometryPass(WorldGrid* gameObjects, float time) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }*/
 
-void initLights()
-{
-}
-
-void lightDraw()
-{
-}
-
 void lightPass() {
   glUseProgram(lightHandles.prog);
   glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
 
   m_gbuffer.stop();
 
@@ -924,7 +918,8 @@ void lightPass() {
     safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(com));
     safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
     safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));
-    lightHandles.draw(&coneMesh);
+    //lightHandles.draw(&coneMesh);
+    lightHandles.drawQuad();
   }
 
   checkGLError();
@@ -1657,7 +1652,6 @@ int main(int argc, char **argv)
     initWalls(&gameObjects);
     initGround();
     initCeiling();
-    initLights();
     //initDetectionTracker(&gameObjects);
     //initFramebuffer();
    

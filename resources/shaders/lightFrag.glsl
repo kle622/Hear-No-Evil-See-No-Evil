@@ -26,10 +26,11 @@ void main() {
   toLight = normalize(toLight);
 
   // distance attenuation
-  //float attDist = 1.0;
-  float attDist = min(1.0 / (uLightAtten.x + uLightAtten.y * lightDist + uLightAtten.z * lightDist * lightDist), 1.0);
+  float attDist = 1.0;
+  //float attDist = min(1.0 / (uLightAtten.x + uLightAtten.y * lightDist + uLightAtten.z * lightDist * lightDist), 1.0);
 
   // final color assignment
   color = max(dot(normal, toLight), 0.0) * attDist * color * uLightCol;
+  //color = vec3(1.0, 0.0, 0.0);
   gl_FragColor = vec4(color, 1.0);
 }
