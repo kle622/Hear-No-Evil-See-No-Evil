@@ -12,6 +12,7 @@ typedef struct
   glm::vec3 atten;
   float angle;
   glm::vec3 direction;
+  bool guardLight;
 } Light;
 
 #endif

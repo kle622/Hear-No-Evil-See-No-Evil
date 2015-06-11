@@ -644,16 +644,18 @@ Light getClosestLight(vector<Light> gLights, Player *player) {
   Light lightWithMinDist;
   float min = ((gLights[0].position.x - player->position.x) * (gLights[0].position.x - player->position.x)) + ((gLights[0].position.z - player->position.z) * (gLights[0].position.z - player->position.z));
    for (int L = 1; L < gLights.size(); L++) {
-       float deltaX = gLights[L].position.x - player->position.x;
-       float deltaZ = gLights[L].position.z - player->position.z;
-     
-       float dist = deltaX * deltaX +  deltaZ * deltaZ;
-       //printf("comparing dist: %f with min:  %f\n", dist, min);
-       if (dist < min) {
-         min = dist;
-         //printf("Choose %f, light indx: %d\n", min, L);
-         lightWithMinDist = gLights[L];
-       }
+	   if (!gLights[i].guardLight) {
+		   float deltaX = gLights[L].position.x - player->position.x;
+		   float deltaZ = gLights[L].position.z - player->position.z;
+
+		   float dist = deltaX * deltaX + deltaZ * deltaZ;
+		   //printf("comparing dist: %f with min:  %f\n", dist, min);
+		   if (dist < min) {
+			   min = dist;
+			   //printf("Choose %f, light indx: %d\n", min, L);
+			   lightWithMinDist = gLights[L];
+		   }
+	   }
    }
 
    return lightWithMinDist;
@@ -1299,6 +1301,7 @@ void initObjects(WorldGrid* gameObjects) {
                   //printf("case 'L'\n");
                   //printf("light position %lf %lf %lf\n", i - (TEST_WORLD / 2.0), (float)15.0, j - (TEST_WORLD / 2.0));
                   Light spotLight;
+				  spotLight.guardLight = false;
                   spotLight.position = glm::vec3(i - (TEST_WORLD / 2), 15.0, j - (TEST_WORLD / 2));
 				  gameObjects->add(shared_ptr<GameObject>(new DetailProp(
 					  &lightMesh,
@@ -1480,6 +1483,7 @@ void initGuards(WorldGrid* gameObjects) {
 	  spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
 	  spotLight.color = glm::vec3(1.0, 1.0, 1.0);
 	  spotLight.angle = 15.0f;
+	  spotLight.guardLight = true;
 	  gLights.push_back(spotLight);
 
       if (guardNum == 0) {
