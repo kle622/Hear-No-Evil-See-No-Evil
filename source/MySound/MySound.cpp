@@ -42,11 +42,11 @@ MySound::MySound() {
 
   this->reactSnd = engine->play3D("../dependencies/irrKlang/media/guard1_Reac.wav", vec3df(0, 0, 0), false, true, true);
   this->reactSnd->setVolume(0.3);
-  this->reactSnd->setMinDistance(30.0f);
+  this->reactSnd->setMinDistance(150.0f);
 
   this->dismissSnd = engine->play3D("../dependencies/irrKlang/media/guard1_Dismiss.wav", vec3df(0, 0, 0), false, true, true);
   this->dismissSnd->setVolume(0.3);
-  this->dismissSnd->setMinDistance(30.0f);
+  this->dismissSnd->setMinDistance(150.0f);
 
   this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/guardRand1_Reac.wav", false, true, true);
   this->collectableSnd->setVolume(0.5);
