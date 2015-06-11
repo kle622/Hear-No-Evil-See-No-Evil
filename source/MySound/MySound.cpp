@@ -39,6 +39,17 @@ MySound::MySound() {
   this->leanOut->setVolume(.05);
   this->leanIn = engine->play2D("../dependencies/irrKlang/media/leanIn.wav", false, true, true);
   this->leanIn->setVolume(.05);
+
+  this->reactSnd = engine->play3D("../dependencies/irrKlang/media/guard1_Reac.wav", vec3df(0, 0, 0), false, true, true);
+  this->reactSnd->setVolume(0.3);
+  this->reactSnd->setMinDistance(30.0f);
+
+  this->dismissSnd = engine->play3D("../dependencies/irrKlang/media/guard1_Dismiss.wav", vec3df(0, 0, 0), false, true, true);
+  this->dismissSnd->setVolume(0.3);
+  this->dismissSnd->setMinDistance(30.0f);
+
+  this->collectableSnd = engine->play2D("../dependencies/irrKlang/media/guardRand1_Reac.wav", false, true, true);
+  this->collectableSnd->setVolume(0.5);
 }
 
 ISound* MySound::startSound(ISound* sound, const char* sndLocation) {
@@ -58,7 +69,7 @@ ISound* MySound::startSound3D(ISound* sound, const char* sndLocation, vec3 posit
     sound = engine->play3D(sndLocation, vec3df(position.x, position.y, position.z), false, false, true);
   }
   else if (sound->getIsPaused()) {
-    sound = engine->play3D("../dependencies/irrKlang/media/killing_to_me.wav", vec3df(position.x, position.y, position.z), false, true, true);
+    //sound = engine->play3D(sndLocation, vec3df(position.x, position.y, position.z), false, true, true);
     sound->setIsPaused(false);
   }
   return sound;

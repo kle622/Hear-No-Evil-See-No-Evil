@@ -4,9 +4,13 @@
 #include "../glm/glm.hpp"
 #include "../glm/ext.hpp"
 #include "../glm/core/_swizzle_func.hpp"
+#include "../MySound/MySound.h"
+
+MySound *guardSndObj = new MySound();
 
 Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
-	int scanRadius, int material, vector<PathNode> motionPath, Player *player) :
+  int scanRadius, int material, vector<PathNode> motionPath, Player *player, char* reactSnd = "THIS SHOULD NEVER HAPPEN",
+  char* dismissSnd = "THIS SHOULD NEVER HAPPEN - Part 2") :
 	GameObject(mesh,
 	motionPath[0].pos, scale, 0,
 	normalize(motionPath[1].pos - motionPath[0].pos), velocity, dimensions,
@@ -21,6 +25,8 @@ Guard::Guard(Mesh *mesh, vec3 scale, float velocity, vec3 dimensions,
 	playerObject = player;
 	foundPlayer = false;
 	playerTimer = 0.0f;
+  this->reactSnd = reactSnd;
+  this->dismissSnd = dismissSnd;
 }
 #define GUARD_INTEREST 3.0f
 void Guard::move(float time) {
@@ -40,6 +46,8 @@ void Guard::move(float time) {
 			if (playerTimer > GUARD_INTEREST) { // the guard has been staring at this spot long enough to forget about the player, go back to moving normally
 				playerTimer = 0.0f;
 				staring = false;
+        guardSndObj->setListenerPos(playerObject->position, playerObject->direction);
+        guardSndObj->dismissSnd = guardSndObj->startSound3D(guardSndObj->dismissSnd, (char*)this->dismissSnd, this->position);
 			}
 		//}
 	}
@@ -146,6 +154,10 @@ glm::mat4 Guard::getModel()
 void Guard::stare() {
 	//face towards the player
 	//	set a flag for move method to lerp to face player
+  if (!staring) {
+    guardSndObj->setListenerPos(playerObject->position, playerObject->direction);
+    guardSndObj->reactSnd = guardSndObj->startSound3D(guardSndObj->reactSnd, (char*)this->reactSnd, this->position);
+  }
 	staring = true;
 	playerTimer = 0.0f;
 	lastSeen = vec3(playerObject->position.x, 0, playerObject->position.z);

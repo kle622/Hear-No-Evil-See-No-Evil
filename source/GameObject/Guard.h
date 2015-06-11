@@ -37,10 +37,12 @@ public:
 	float waitTime;
 	int originalMaterial;
 	Player *playerObject;
+  char* reactSnd;
+  char* dismissSnd;
 
 	//Constructor
 	Guard(Mesh *mesh,vec3 scale, float velocity, vec3 dimensions,
-		int scanRadius, int material, vector<PathNode> motionPath, Player *player);
+    int scanRadius, int material, vector<PathNode> motionPath, Player *player, char* reactSnd, char* dismissSnd);
 
 	//Object methods
 	void move(float time);
