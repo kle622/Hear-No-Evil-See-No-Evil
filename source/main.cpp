@@ -872,9 +872,14 @@ void lightPass() {
 
   m_gbuffer.stop();
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glEnable(GL_STENCIL_TEST);
   checkGLError();
+
+  glStencilFunc(GL_ALWAYS, 0, 0);
+
+  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glEnable(GL_TEXTURE_2D);
@@ -910,6 +915,7 @@ void lightPass() {
 }
 
 void endLightPass() {
+  glDisable(GL_STENCIL_TEST);
 
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glDisable(GL_TEXTURE_2D);

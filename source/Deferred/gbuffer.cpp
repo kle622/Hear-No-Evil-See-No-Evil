@@ -42,8 +42,8 @@ bool GBuffer::Init(unsigned int w_width, unsigned int w_height) {
 
   //bind depth buffer
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, m_depthBuff);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, width, height);
-  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_depthBuff);    
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL, width, height);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER_EXT, m_depthBuff);    
 
   //bind diffuse texture
   glGenTextures(1, &m_diffTex);
