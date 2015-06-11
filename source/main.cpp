@@ -65,7 +65,7 @@
 #define GUARD_FAR 20.0f
 #define GUARD_FOV 70.0f
 
-#define GUARD_SPEED 4.0f
+#define GUARD_SPEED 3.0f
 #define BOTTOM_LEVEL 1.0f
 #define MID_LEVEL 2.0f
 #define TOP_LEVEL 3.0f
@@ -1353,7 +1353,7 @@ void initGuards(WorldGrid* gameObjects) {
           &guardMesh,
           vec3(2, 2, 2),
           GUARD_SPEED,
-          vec3(2, 4, 2),
+          vec3(2, 2, 2),
           1,
           0,
           guardPath,
@@ -1726,6 +1726,7 @@ int main(int argc, char **argv)
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1, 1, 1, 0));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1, 0, 0, 1));
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
@@ -1736,7 +1737,7 @@ int main(int argc, char **argv)
         ImGui::SliderFloat("", &detecTrac->totalDetLvl, 0.0f, 1.0f);
         ImGui::End();
         ImGui::PopStyleVar();
-        ImGui::PopStyleColor(1);
+        ImGui::PopStyleColor(2);
 
 #ifdef DEBUG
         if (boxes) {
