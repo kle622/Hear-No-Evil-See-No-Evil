@@ -30,12 +30,12 @@ class LightPassHandles {
 };
 
 static const GLfloat g_quad_vertex_buffer_data[] = {
-  -2.0f, -2.0f, 0.0f,
-  2.0f, -2.0f, 0.0f,
-  -2.0f,  2.0f, 0.0f,
-  -2.0f,  2.0f, 0.0f,
-  2.0f, -2.0f, 0.0f,
-  2.0f,  2.0f, 0.0f,
+  -1.0f, -1.0f, 0.0f,
+  1.0f, -1.0f, 0.0f,
+  -1.0f,  1.0f, 0.0f,
+  -1.0f,  1.0f, 0.0f,
+  1.0f, -1.0f, 0.0f,
+  1.0f,  1.0f, 0.0f,
 };
 
 #endif
