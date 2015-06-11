@@ -912,10 +912,13 @@ void lightPass() {
     glUniform3fv(lightHandles.uLightPos, 1, glm::value_ptr(gLights.at(i).position));
     glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(i).color));
     glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(i).atten));
-    glm::mat4 trans = glm::translate(glm::mat4(1.0f), gLights.at(i).position);
+    glUniform3fv(lightHandles.uLightDirection, 1, glm::value_ptr(gLights.at(i).direction));
+    //glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(i).angle));
+    glUniform1f(lightHandles.uLightAngleCos, cos(gLights.at(i).angle * M_PI / 180));
+    /*glm::mat4 trans = glm::translate(glm::mat4(1.0f), gLights.at(i).position);
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 25, 10));
     glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 80.0f, glm::vec3(1, 0, 0));
-    glm::mat4 com = trans * scale * rot;
+    glm::mat4 com = trans * scale * rot;*/
     /*safe_glUniformMatrix4fv(lightHandles.uModel, glm::value_ptr(com));
     safe_glUniformMatrix4fv(lightHandles.uProj, glm::value_ptr(viewCam->getProjection()));
     safe_glUniformMatrix4fv(lightHandles.uView, glm::value_ptr(viewCam->getView()));*/
@@ -943,6 +946,7 @@ void endLightPass() {
   glBindTexture(GL_TEXTURE_2D, 0);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
   glUseProgram(0);
   checkGLError();
 }
@@ -1215,8 +1219,8 @@ void initObjects(WorldGrid* gameObjects) {
                   //printf("spotlight position %lf %lf %lf\n", spotLight.position.x, spotLight.position.y, spotLight.position.z);
                   spotLight.atten = glm::vec3(0.0, 0.0001, 0.0002);
                   spotLight.color = glm::vec3(1.0, 1.0, 1.0);
-                  spotLight.angle = 50.0f;
-                  spotLight.direction = glm::vec3(0.0, 15.0, 0.0);
+                  spotLight.angle = 15.0f;
+                  spotLight.direction = glm::vec3(0.0, -1.0, 0.0);
                   gLights.push_back(spotLight);
                   //lights.push_back(glm::vec3( i - (TEST_WORLD / 2.0), 15.0, j - (TEST_WORLD / 2.0)));
                   break;
