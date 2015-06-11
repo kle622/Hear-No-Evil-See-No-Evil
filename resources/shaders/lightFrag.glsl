@@ -15,6 +15,42 @@ uniform float uAmbient;
 uniform int uNumLights;
 
 uniform float uDetectionLevel;
+uniform int detecDir;
+
+
+uniform vec2 pt1;
+uniform vec2 pt2;
+uniform vec2 pt3;
+
+int isInTri() {
+	float i = gl_FragCoord.x;
+	float j = gl_FragCoord.y;
+	float totalArea = (((pt2.x - pt1.x) * (pt3.y - pt1.y)) - ((pt3.x - pt1.x) * (pt2.y - pt1.y)));
+
+	int is_inside = 0;
+
+	float alpha, beta, gamma, zero, one;
+	zero = 0.0; 
+	one = 1.0;
+
+	beta = (((pt1.x-pt3.x) * (j-pt3.y)) - ((i-pt3.x) * (pt1.y-pt3.y)));
+	beta = beta/totalArea;
+
+	gamma = (((pt2.x-pt1.x) * (j-pt1.y)) - ((i-pt1.x) * (pt2.y-pt1.y)));
+	gamma = gamma/totalArea;
+
+	alpha = 1.0 - beta - gamma;
+
+	if(zero <= alpha && alpha <= one) {
+		if(zero <= beta && beta <= one) {
+			if(zero <= gamma && gamma <= one){
+				is_inside = 1;
+			}
+		}
+	}
+
+	return is_inside;
+}
 
 void main() {
   vec2 texCoord = gl_FragCoord.xy / uScreenSize;
@@ -53,4 +89,12 @@ void main() {
   diffuse = vec3((diffuse.r + ((avgDiffuse - diffuse.r) * uDetectionLevel)), (diffuse.g + ((avgDiffuse - diffuse.g) * uDetectionLevel)), (diffuse.b + ((avgDiffuse - diffuse.b) * uDetectionLevel)));
   
   gl_FragColor = vec4(ambient + diffuse, 1.0);
+
+  if (detecDir > 0) {
+	    int isIn = isInTri();
+		if(isIn == 1) {
+			gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
+		}
+		gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
+  }
 }

@@ -701,6 +701,7 @@ float calculateGuardDetecDir(Player *player, Guard *guard, Camera3DPerson *camer
         retVal = 2.0;
     }
   }
+  //printf("returnVal: %f\n", retVal);
   return retVal;
 }
 
@@ -731,15 +732,17 @@ void passDetectDirection(float guardDetectDir) {
     pt3 = vec2(1105, 285);
   }
 
-  glUniform2f(pass2Handles.pt1, pt1.x, pt1.y);
-  glUniform2f(pass2Handles.pt2, pt2.x, pt2.y);
-  glUniform2f(pass2Handles.pt3, pt3.x, pt3.y);
-  glUniform1i(pass2Handles.detecDir, guardDetectDir);
+  printf("derectDir: %f\n", guardDetectDir);
+
+  glUniform2f(lightHandles.pt1, pt1.x, pt1.y);
+  glUniform2f(lightHandles.pt2, pt2.x, pt2.y);
+  glUniform2f(lightHandles.pt3, pt3.x, pt3.y);
+  glUniform1i(lightHandles.detecDir, guardDetectDir);
 
   #ifdef __APPLE__
-  glUniform2f(pass2Handles.pt1, pt1.x*2, pt1.y*2);
-  glUniform2f(pass2Handles.pt2, pt2.x*2, pt2.y*2);
-  glUniform2f(pass2Handles.pt3, pt3.x*2, pt3.y*2);
+  glUniform2f(lightHandles.pt1, pt1.x*2, pt1.y*2);
+  glUniform2f(lightHandles.pt2, pt2.x*2, pt2.y*2);
+  glUniform2f(lightHandles.pt3, pt3.x * 2, pt3.y * 2);
   #endif
 
 }
@@ -819,9 +822,9 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
     if (guard = dynamic_cast<Guard*>(gameObjects->list[i].get())) {
       float detectPercent = guard->detect(gameObjects, detectCam, detecTrac);
       if (detectPercent > 0) {
-		  if (detecTrac->totalDetLvl > 0.5 || guard->staring) {
-			  guard->stare();
-		  }
+		    if (detecTrac->totalDetLvl > 0.5 || guard->staring) {
+			    guard->stare();
+		    }
         detecTrac->detecDanger = true;
         detecTrac->updateVisDetect(detectPercent, playerObject);
         guardDetecDir = calculateGuardDetecDir(playerObject, guard, camera3DPerson);
@@ -842,7 +845,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     checkGLError();
     //glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
-    // passDetectDirection(guardDetecDir);
+    passDetectDirection(guardDetecDir);
     //glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
     checkGLError();
     gameObjects->update();
@@ -1723,7 +1726,7 @@ int main(int argc, char **argv)
     //pass2Handles.installShaders(resPath(sysPath("shaders", "pass2Vert.glsl")), resPath(sysPath("shaders", "pass2Frag.glsl")));
     lightHandles.installShaders(resPath(sysPath("shaders", "lightVert.glsl")), resPath(sysPath("shaders", "lightFrag.glsl")));
     geomHandles.installShaders(resPath(sysPath("shaders", "geometryVert.glsl")), resPath(sysPath("shaders", "geometryFrag.glsl")));
-    coneMesh.loadShapes(resPath(sysPath("models", "cone.obj")));
+    //coneMesh.loadShapes(resPath(sysPath("models", "cone.obj")));
     assert(glGetError() == GL_NO_ERROR);
     printMesh.loadShapes(resPath(sysPath("models", "shoe-male.obj")));
     clueMesh.loadShapes(resPath(sysPath("models", "magnifying-glass.obj")));

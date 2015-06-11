@@ -22,6 +22,10 @@ class LightPassHandles {
   GLuint uAmbient;
   GLuint uNumLights;
   GLuint uDetectionLevel;
+  GLuint pt1;
+  GLuint pt2;
+  GLuint pt3;
+  GLuint detecDir;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(Mesh *mesh);
   void draw(Shape* obj);
