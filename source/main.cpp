@@ -765,7 +765,7 @@ void drawGameObjects(WorldGrid* gameObjects, float time) {
 
     //printf("DetectionLevel: %f\n", detecTrac->totalDetLvl);
     checkGLError();
-    //glUniform1f(pass2Handles.detectionLevel, detecTrac->totalDetLvl);
+    //glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
     checkGLError();
     gameObjects->update();
   }
@@ -881,6 +881,7 @@ void lightPass() {
   glUniform1f(lightHandles.uAmbient, 0.1);
 
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
+  glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
 
   for (int i = 0; i < gLights.size(); i++) {
     glUniform3fv(lightHandles.uLightPos, 1, glm::value_ptr(gLights.at(i).position));

@@ -62,6 +62,9 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uLightAtten = GLSL::getUniformLocation(this->prog, "uLightAtten");
   uLightDirection = GLSL::getUniformLocation(this->prog, "uLightDirection");
   uLightAngleCos = GLSL::getUniformLocation(this->prog, "uLightAngleCos");
+  uDetectionLevel = GLSL::getUniformLocation(this->prog, "uDetectionLevel");
+  uMatRoughness = GLSL::getUniformLocation(this->prog, "uMatRoughness");
+  uFresReflectance = GLSL::getUniformLocation(this->prog, "uFresReflectance");
   uAmbient = GLSL::getUniformLocation(this->prog, "uAmbient");
 
   // stuff to init quad buffers (i didn't know where to put this)
