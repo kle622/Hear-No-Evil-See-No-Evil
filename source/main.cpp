@@ -804,6 +804,7 @@ void shadowPass(WorldGrid* gameObjects) {
   drawShadowPass(gameObjects);
 
   m_dbuffer.stop();
+  glCullFace(GL_BACK); 
   assert(glGetError() == GL_NO_ERROR);
 }
 
