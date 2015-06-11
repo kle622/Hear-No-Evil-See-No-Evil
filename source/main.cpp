@@ -579,7 +579,7 @@ void SetLightUniform(Light light, int ndx) {
   if (ndx < MAX_LIGHTS) {
     ostringstream stream;
     ///Array of handles
-    stream << "allLights[" << ndx << "]";
+    stream << "uLightPos[" << ndx << "]";
     checkGLError();
     //printf("light %d position %lf %lf %lf\n", ndx, light.position.x, light.position.y, light.position.z);
     lightHandles.uLightPos[ndx] = GLSL::getUniformLocation(lightHandles.prog, stream.str().c_str());
