@@ -74,6 +74,7 @@ set(SOURCES
 
    Deferred/GeometryPassHandles.cpp
    Deferred/LightPassHandles.cpp
+   Deferred/Light.cpp
    Deferred/gbuffer.cpp
    Deferred/dbuffer.cpp
 

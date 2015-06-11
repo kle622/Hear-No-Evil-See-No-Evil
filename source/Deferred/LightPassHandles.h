@@ -16,11 +16,24 @@ class LightPassHandles {
   GLuint uColMap;
   GLuint uNormMap;
   GLuint uLightPos;
+  GLuint uLightCol;
   GLuint uLightAtten;
+  GLuint uAmbient;
   bool installShaders(const std::string &vShaderName, const std::string &fShaderName);
   void draw(Mesh *mesh);
   void draw(Shape* obj);
+  void drawQuad();
+  GLuint quad_VertexArrayID;
+  GLuint quad_vertexbuffer;
 };
 
+static const GLfloat g_quad_vertex_buffer_data[] = {
+  -2.0f, -2.0f, 0.0f,
+  2.0f, -2.0f, 0.0f,
+  -2.0f,  2.0f, 0.0f,
+  -2.0f,  2.0f, 0.0f,
+  2.0f, -2.0f, 0.0f,
+  2.0f,  2.0f, 0.0f,
+};
 
 #endif
