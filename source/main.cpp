@@ -1739,7 +1739,12 @@ int main(int argc, char **argv)
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 255.0f);
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1, 1, 1, 0));
-        ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1, 0, 0, 1));
+        if (detecTrac->totalDetLvl < 0.4) {
+          ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1, 1, 1, 1));
+        }
+        else {
+          ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(detecTrac->totalDetLvl, 0, 0, 1));
+        }
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoResize
