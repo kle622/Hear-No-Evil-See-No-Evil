@@ -21,6 +21,7 @@ class LightPassHandles {
   GLuint uLightDirection;
   GLuint uLightAngleCos;
   GLuint uAmbient;
+  GLuint uShadeType;
   GLuint uNumLights;
   GLuint uDetectionLevel;
   GLuint pt1;

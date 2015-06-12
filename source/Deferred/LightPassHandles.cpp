@@ -60,6 +60,7 @@ bool LightPassHandles::installShaders(const std::string &vShaderName, const std:
   uLightAngleCos = GLSL::getUniformLocation(this->prog, "uLightAngleCos");
   uDetectionLevel = GLSL::getUniformLocation(this->prog, "uDetectionLevel");
   uAmbient = GLSL::getUniformLocation(this->prog, "uAmbient");
+  uShadeType = GLSL::getUniformLocation(this->prog, "uShadeType");
   uNumLights = GLSL::getUniformLocation(this->prog, "uNumLights");
   pt1 = GLSL::getUniformLocation(this->prog, "pt1");
   pt2 = GLSL::getUniformLocation(this->prog, "pt2");

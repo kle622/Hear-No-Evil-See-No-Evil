@@ -18,6 +18,7 @@ uniform int uNumLights;
 
 uniform float uDetectionLevel;
 uniform int detecDir;
+uniform int uShadeType;
 
 
 uniform vec2 pt1;
@@ -122,6 +123,11 @@ void main() {
 		}
 		//gl_FragColor = vec4(140.0/255.0, 18.0/255.0, 28.0/255.0, 0.5);
   }
-  //gl_FragColor = vec4(normal, 1.0); // draw normal map
-  //gl_FragColor = vec4(worldPos, 1.0); // draw position map
+  if (uShadeType == 1) {
+    gl_FragColor = vec4(normal, 1.0); // draw normal map
+  } else if (uShadeType == 2) {
+    gl_FragColor = vec4(worldPos, 1.0); // draw position map
+  } else if (uShadeType == 3) {
+    gl_FragColor = vec4(baseColor, 1.0); // draw color map
+  }
 }
