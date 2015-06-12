@@ -63,7 +63,7 @@
 #define CAMERA_ZOOM 3.0f
 #define CAMERA_SPEED 10.0f
 #define GUARD_FAR 20.0f
-#define GUARD_FOV 70.0f
+#define GUARD_FOV 50.0f
 
 #define GUARD_SPEED 4.0f
 #define BOTTOM_LEVEL 1.0f
@@ -301,8 +301,9 @@ void SetDepthMVP(bool pass1, glm::mat4 depthModelMatrix, Light g_light) {
       0.0f, 0.0f, -(nearClipPlane + farClipPlane) / zRange, 2.0f * nearClipPlane * farClipPlane / zRange,
       0.0f, 0.0f, 1.0f, 0.0f
       );*/
-  glm::mat4 depthProjMatrix = glm::perspective<float>((1.0f / (std::tan(g_light.angle))), 1.0f, 0.1f, 20.0f);
-  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position, g_light.position - g_light.direction, glm::vec3(1, 0, 0));
+  glm::mat4 depthProjMatrix = glm::perspective<float>((1.0f / (std::tan(g_light.angle))), 1.0f, 0.1f, 50.0f);
+  // glm::mat4 depthProjMatrix = glm::perspective<float>(g_light.angle, 1.0f, 0.1f, 50.0f);
+  glm::mat4 depthViewMatrix = glm::lookAt(g_light.position - glm::vec3(0, 5, 0), glm::vec3(0, 0, -3), glm::vec3(1, 0, 0));
   glm::mat4 depthMVP = depthProjMatrix * depthViewMatrix * depthModelMatrix;
 
   glm::mat4 biasMatrix(
@@ -873,8 +874,10 @@ void drawShadowPass(WorldGrid* gameObjects) {
 }
 
 void shadowPass(WorldGrid* gameObjects) {
- 
-  m_dbuffer.start();
+
+  closestLNdx = findClosestLight();
+
+  m_dbuffer.start(closestLNdx);
 
   glUseProgram(depthHandles.prog); 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -938,7 +941,7 @@ void geometryPass(WorldGrid* gameObjects, float time) {
 void lightPass() {
   glUseProgram(lightHandles.prog);
   glDisable(GL_CULL_FACE);
-  glDisable(GL_DEPTH_TEST);
+  //glEna(GL_DEPTH_TEST);
 
   m_gbuffer.stop();
 
@@ -963,13 +966,13 @@ void lightPass() {
 
   glActiveTexture(GL_TEXTURE3);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, m_dbuffer.getDepthTex());
+  glBindTexture(GL_TEXTURE_2D, m_dbuffer.getDepthTex(findClosestLight()));
   glUniform1i(lightHandles.uDepthMap, 3);
 
   glUniform2f(lightHandles.uScreenSize, g_width, g_height);
   glUniform1f(lightHandles.uDetectionLevel, detecTrac->totalDetLvl);
   
-  glUniform3f(lightHandles.uLightCol, 1.0, 1.0, 1.0);
+  glUniform3f(lightHandles.uLightCol, 1.5, 1.5, 1.5);
   //glUniform3fv(lightHandles.uLightCol, 1, glm::value_ptr(gLights.at(0).color));
   //glUniform3fv(lightHandles.uLightAtten, 1, glm::value_ptr(gLights.at(0).atten));
   glUniform3f(lightHandles.uLightAtten, 0.0, 0.0001, 0.0002);
@@ -1821,7 +1824,8 @@ int main(int argc, char **argv)
     //initDetectionTracker(&gameObjects);
     //initFramebuffer();
     glfwGetFramebufferSize(window, &g_framebuffer_width, &g_framebuffer_height);
-    m_dbuffer.init(1024, 1024);
+    assert(gLights.size() > 0);
+    m_dbuffer.init(1024, 1024, gLights.size());
     m_gbuffer.Init(g_framebuffer_width, g_framebuffer_height);
    
     readIntroSpline();
@@ -1888,7 +1892,7 @@ int main(int argc, char **argv)
           ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1, 1, 1, 1));
         }
         else {
-          ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(detecTrac->totalDetLvl, 0, 0, 1));
+          ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(detecTrac->totalDetLvl, 0.3, 0, 1));
         }
         ImGui::Begin("Detection", &open, ImGuiWindowFlags_NoTitleBar 
             | ImGuiWindowFlags_NoSavedSettings

@@ -52,7 +52,7 @@ void DetectionTracker::updateVisDetect(float detecPercent, Player *player) {
       lightDetecMult = 1/sqrt(this->lightDist);
     }
     else {
-      lightDetecMult = (1 / sqrt(this->guardDist)) * (1 / sqrt(this->lightDist));
+      lightDetecMult = (1 / sqrt(this->guardDist)) * (1 / sqrt(this->lightDist)) * .8;
      // printf("In Dark\n");
     }
     this->totalDetLvl += detecPercent * lightDetecMult;
